@@ -1,0 +1,23 @@
+{
+  name: pec
+  testpoints:
+  [
+    {
+      name: pec
+      desc:
+        '''
+        Pushes random bytes through the recovery_pec module, compares
+        its computed checksum with its correspondent computed in software.
+        '''
+      stage: N.A.
+      tests:
+      [
+        test_pec
+      ]
+      tags:
+      [
+        pec
+      ]
+    }
+  ]
+}

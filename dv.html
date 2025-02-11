@@ -1650,8 +1650,8 @@
 </li>
         
           <li class="md-nav__item">
-  <a href="#virtual-read-illegal" class="md-nav__link">
-    <span class="md-ellipsis">virtual_<wbr>read_<wbr>illegal</span>
+  <a href="#virtual-read" class="md-nav__link">
+    <span class="md-ellipsis">virtual_<wbr>read</span>
   </a>
   
 </li>
@@ -1765,7 +1765,9 @@
 
 
 <h1 id="design-verification">Design verification<a class="headerlink" href="#design-verification" title="Link to this heading">¶</a></h1>
-<p>This doc lists the tests run in the verification flow of the I3C core.</p>
+<p>This chapter presents the available models and tools which are used for I3C verification.
+The core is verified with <a class="reference external" href="https://github.com/chipsalliance/i3c-core/tree/main/verification/cocotb/block">the Cocotb/Verilator + unit tests</a> and <a class="reference external" href="https://github.com/chipsalliance/i3c-core/tree/main/verification/uvm_i3c">the UVM test suite</a>.</p>
+<p>There are also non-public tests which utilize Avery I3C VIP framework. The tests include: <code class="docutils literal notranslate"><span class="pre">private_read</span></code>, <code class="docutils literal notranslate"><span class="pre">private_write</span></code> and <code class="docutils literal notranslate"><span class="pre">recovery</span></code> and verify operation of target mode private reads and writes and the secure firmware recovery flow respectively.</p>
 <h2 id="testplans">Testplans<a class="headerlink" href="#testplans" title="Link to this heading">¶</a></h2>
 <p>This section contains testplans for the verification.</p>
 <p>Definitions:</p>
@@ -2342,6 +2344,8 @@ and stores received data.</p>
 <p>While the agent is running the test issues several private writes
 over I3C. Data sent over I3C is compared with data received by
 the agent.</p>
+<p>The test uses core clock of 100 and 200 MHz and I3C bus clock frequency
+of 12.5 MHz</p>
 <h4 id="i3c-target-read"><code class="docutils literal notranslate"><span class="pre">i3c_target_read</span></code><a class="headerlink" href="#i3c-target-read" title="Link to this heading">¶</a></h4>
 <p>Test: <code class="docutils literal notranslate"><span class="pre">i3c_target_read</span></code></p>
 <p>Writes a data chunk and its descriptor to TTI TX queues, issues
@@ -2354,6 +2358,8 @@ that data matches.</p>
 an I3C private read transfer which is shorter than the length of
 the chunk. Verifies that the received data matches with the chunk.
 Repeats the steps N times.</p>
+<p>The test uses core clock of 100 and 200 MHz and I3C bus clock frequency
+of 12.5 MHz</p>
 <h4 id="i3c-target-ibi"><code class="docutils literal notranslate"><span class="pre">i3c_target_ibi</span></code><a class="headerlink" href="#i3c-target-ibi" title="Link to this heading">¶</a></h4>
 <p>Test: <code class="docutils literal notranslate"><span class="pre">i3c_target_ibi</span></code></p>
 <p>Writes an IBI descriptor to the TTI IBI queue. Waits until the
@@ -2365,6 +2371,8 @@ that it is equal to 0 (no error).</p>
 IBI queue. Waits until the controller services the IBI. Checks if
 the mandatory byte (MDB) and data matches on both sides.</p>
 <p>Repeats the LAST_IBI_STATUS check</p>
+<p>The test uses core clock of 100 and 200 MHz and I3C bus clock frequency
+of 12.5 MHz</p>
 <h4 id="i3c-target-ibi-retry"><code class="docutils literal notranslate"><span class="pre">i3c_target_ibi_retry</span></code><a class="headerlink" href="#i3c-target-ibi-retry" title="Link to this heading">¶</a></h4>
 <p>Test: <code class="docutils literal notranslate"><span class="pre">i3c_target_ibi_retry</span></code></p>
 <p>Disables ACK-ing IBIs in the I3C controller model, issues an ibi
@@ -2376,6 +2384,8 @@ if it is set to 3 (IBI retry).</p>
 model to service the IBI, compares the IBI mandatory byte (MDB)
 with the one written to the TTI queue. Reads LAST_IBI_STATUS from
 the TTI STATUS CSR, check if it is set to 0 (no error).</p>
+<p>The test uses core clock of 100 and 200 MHz and I3C bus clock frequency
+of 12.5 MHz</p>
 <h4 id="i3c-target-ibi-data"><code class="docutils literal notranslate"><span class="pre">i3c_target_ibi_data</span></code><a class="headerlink" href="#i3c-target-ibi-data" title="Link to this heading">¶</a></h4>
 <p>Test: <code class="docutils literal notranslate"><span class="pre">i3c_target_ibi_data</span></code></p>
 <p>Sets a limit on how many IBI data bytes may be accepted in the
@@ -2384,6 +2394,8 @@ to the TTI IBI queue, checks if the IBI gets serivced correctly,
 compares data.</p>
 <p>Issues another IBI with data payload within the set limit, checks
 if it gets serviced correctly, compares data.</p>
+<p>The test uses core clock of 100 and 200 MHz and I3C bus clock frequency
+of 12.5 MHz</p>
 <h4 id="i3c-target-writes-and-reads"><code class="docutils literal notranslate"><span class="pre">i3c_target_writes_and_reads</span></code><a class="headerlink" href="#i3c-target-writes-and-reads" title="Link to this heading">¶</a></h4>
 <p>Test: <code class="docutils literal notranslate"><span class="pre">i3c_target_writes_and_reads</span></code></p>
 <p>Writes a randomized data chunk to the TTI TX data queue, writes
@@ -2394,6 +2406,8 @@ INTERRUPT_STATUS CSR. Reads received data from TTI RX queues,
 compares it with what has been sent.</p>
 <p>Does a private read transfer, compares if the received data equals
 the data written to TTI TX queue in the beginning of the test.</p>
+<p>The test uses core clock of 100 and 200 MHz and I3C bus clock frequency
+of 12.5 MHz</p>
 <h2 id="recovery-mode-tests">Recovery mode tests<a class="headerlink" href="#recovery-mode-tests" title="Link to this heading">¶</a></h2>
 <h3 id="id39">Testpoints<a class="headerlink" href="#id39" title="Link to this heading">¶</a></h3>
 <h4 id="virtual-write"><code class="docutils literal notranslate"><span class="pre">virtual_write</span></code><a class="headerlink" href="#virtual-write" title="Link to this heading">¶</a></h4>
@@ -2413,6 +2427,8 @@ that the content read back matches what is set in the CSR.</p>
 <p>Writes to the INDIRECT_FIFO_CTRL register using recovery protocol,
 reads content of the register via AHB/AXI and verifies that their
 content matches.</p>
+<p>The test uses core clock of 100 and 200 MHz and I3C bus clock frequency
+of 12.5 MHz</p>
 <h4 id="virtual-write-alternating"><code class="docutils literal notranslate"><span class="pre">virtual_write_alternating</span></code><a class="headerlink" href="#virtual-write-alternating" title="Link to this heading">¶</a></h4>
 <p>Test: <code class="docutils literal notranslate"><span class="pre">virtual_write_alternating</span></code></p>
 <p>Sets the TTI and recovery addresses via two SETDASA CCCs.</p>
@@ -2424,6 +2440,8 @@ data back from TTI TX data queue and check that it matches.</p>
 <p>Disables the recovery mode by writing 0x2 to DEVICE_STATUS register
 and repeats the previous steps to test whether the I3C core
 responds both to TTI and virtual addresses.</p>
+<p>The test uses core clock of 100 and 200 MHz and I3C bus clock frequency
+of 12.5 MHz</p>
 <h4 id="write"><code class="docutils literal notranslate"><span class="pre">write</span></code><a class="headerlink" href="#write" title="Link to this heading">¶</a></h4>
 <p>Test: <code class="docutils literal notranslate"><span class="pre">write</span></code></p>
 <p>Sets the TTI and recovery addresses via two SETDASA CCCs.</p>
@@ -2436,6 +2454,8 @@ matches.</p>
 <p>Writes to the INDIRECT_FIFO_CTRL register using recovery protocol,
 reads content of the register via AHB/AXI and verifies that their
 content matches.</p>
+<p>The test uses core clock of 100 and 200 MHz and I3C bus clock frequency
+of 12.5 MHz</p>
 <h4 id="indirect-fifo-write"><code class="docutils literal notranslate"><span class="pre">indirect_fifo_write</span></code><a class="headerlink" href="#indirect-fifo-write" title="Link to this heading">¶</a></h4>
 <p>Test: <code class="docutils literal notranslate"><span class="pre">indirect_fifo_write</span></code></p>
 <p>Sets the TTI and recovery addresses via two SETDASA CCCs.</p>
@@ -2448,6 +2468,8 @@ FIFO by writing to INDIRECT_FIFO_CTRL through the recovery
 interface and obtains the pointers again.</p>
 <p>After each FIFO status and pointer retrieval checks if both
 match the expected behavior.</p>
+<p>The test uses core clock of 100 and 200 MHz and I3C bus clock frequency
+of 12.5 MHz</p>
 <h4 id="write-pec"><code class="docutils literal notranslate"><span class="pre">write_pec</span></code><a class="headerlink" href="#write-pec" title="Link to this heading">¶</a></h4>
 <p>Test: <code class="docutils literal notranslate"><span class="pre">write_pec</span></code></p>
 <p>Sets the TTI and recovery addresses via two SETDASA CCCs.</p>
@@ -2457,6 +2479,8 @@ deliberately corrupts the recovery packet’s checksum (PEC).
 Finally, reads the content of DEVICE_RESET CSR over AHB/AXI
 and ensures that it matches with what was written in the first
 transfer.</p>
+<p>The test uses core clock of 100 and 200 MHz and I3C bus clock frequency
+of 12.5 MHz</p>
 <h4 id="read"><code class="docutils literal notranslate"><span class="pre">read</span></code><a class="headerlink" href="#read" title="Link to this heading">¶</a></h4>
 <p>Test: <code class="docutils literal notranslate"><span class="pre">read</span></code></p>
 <p>Sets the TTI and recovery addresses via two SETDASA CCCs.</p>
@@ -2465,6 +2489,8 @@ Disables the recovery mode, writes some data to TTI TX queues
 via AHB/AXI, enables the recovery mode and reads PROT_CAP using
 the recovery protocol. Checks if the content matches what was
 written in the beginning of the test.</p>
+<p>The test uses core clock of 100 and 200 MHz and I3C bus clock frequency
+of 12.5 MHz</p>
 <h4 id="read-short"><code class="docutils literal notranslate"><span class="pre">read_short</span></code><a class="headerlink" href="#read-short" title="Link to this heading">¶</a></h4>
 <p>Test: <code class="docutils literal notranslate"><span class="pre">read_short</span></code></p>
 <p>Sets the TTI and recovery addresses via two SETDASA CCCs.</p>
@@ -2475,6 +2501,8 @@ the recovery protocol. The I3C read transfer is deliberately
 shorter - the recovery read is terminated by the I3C controller.
 Checks if the content read back matches what was written in the
 beginning of the test.</p>
+<p>The test uses core clock of 100 and 200 MHz and I3C bus clock frequency
+of 12.5 MHz</p>
 <h4 id="read-long"><code class="docutils literal notranslate"><span class="pre">read_long</span></code><a class="headerlink" href="#read-long" title="Link to this heading">¶</a></h4>
 <p>Test: <code class="docutils literal notranslate"><span class="pre">read_long</span></code></p>
 <p>Sets the TTI and recovery addresses via two SETDASA CCCs.</p>
@@ -2485,14 +2513,21 @@ the recovery protocol. The I3C read transfer is deliberately
 longer - the recovery read is terminated by the I3C target.
 Checks if the content read back matches what was written in the
 beginning of the test.</p>
-<h4 id="virtual-read-illegal"><code class="docutils literal notranslate"><span class="pre">virtual_read_illegal</span></code><a class="headerlink" href="#virtual-read-illegal" title="Link to this heading">¶</a></h4>
-<p>Test: <code class="docutils literal notranslate"><span class="pre">virtual_read_illegal</span></code></p>
+<p>The test uses core clock of 100 and 200 MHz and I3C bus clock frequency
+of 12.5 MHz</p>
+<h4 id="virtual-read"><code class="docutils literal notranslate"><span class="pre">virtual_read</span></code><a class="headerlink" href="#virtual-read" title="Link to this heading">¶</a></h4>
+<p>Test: <code class="docutils literal notranslate"><span class="pre">virtual_read</span></code></p>
 <p>Sets the TTI and recovery addresses via two SETDASA CCCs. Disables
 the recovery mode.</p>
-<p>Issues a recovery read transfer to read INDIRECT_FIFO_STATUS register.
-Checks if the target responded with a NACK to the transfer as the
-register is readable only when the recovery mode is enabled in
-the target.</p>
+<p>Issues a series of recovery read commands to all CSRs mentioned in the
+spec. The series is repeated twice - for recovery mode enabled and disabled.
+Each transfer is checked if the response is ACK or NACK and in case of
+ACK if PEC checksum is correct.</p>
+<p>Checks if CSRs that sould be available anytime (i.e. when the recovery
+mode is off) are always accessible, checks if other CSRs are accessible
+only in the recovery mode.</p>
+<p>The test uses core clock of 100 and 200 MHz and I3C bus clock frequency
+of 12.5 MHz</p>
 <h4 id="virtual-read-alternating"><code class="docutils literal notranslate"><span class="pre">virtual_read_alternating</span></code><a class="headerlink" href="#virtual-read-alternating" title="Link to this heading">¶</a></h4>
 <p>Test: <code class="docutils literal notranslate"><span class="pre">virtual_read_alternating</span></code></p>
 <p>Alternates between recovery mode reads and TTI reads. Initially
@@ -2505,6 +2540,8 @@ I3C read, verifies that the data read back matches.</p>
 <p>Disables the recovery mode and repeats the recovery and TTI reads
 to ensure that both TTI and recovery transfers are possible
 regardless of the recovery mode setting.</p>
+<p>The test uses core clock of 100 and 200 MHz and I3C bus clock frequency
+of 12.5 MHz</p>
 <h4 id="payload-available"><code class="docutils literal notranslate"><span class="pre">payload_available</span></code><a class="headerlink" href="#payload-available" title="Link to this heading">¶</a></h4>
 <p>Test: <code class="docutils literal notranslate"><span class="pre">payload_available</span></code></p>
 <p>Sets the TTI and recovery addresses via two SETDASA CCCs.</p>
@@ -2513,6 +2550,8 @@ is deasserted. Then writes data to the indirect FIFO via the
 recovery interface and checks if the signal gets asserted.</p>
 <p>Reads from INDIRECT_FIFO_DATA CSR over AHB/AXI and checks if the
 read causes the signal to be deasserted again.</p>
+<p>The test uses core clock of 100 and 200 MHz and I3C bus clock frequency
+of 12.5 MHz</p>
 <h4 id="image-activated"><code class="docutils literal notranslate"><span class="pre">image_activated</span></code><a class="headerlink" href="#image-activated" title="Link to this heading">¶</a></h4>
 <p>Test: <code class="docutils literal notranslate"><span class="pre">image_activated</span></code></p>
 <p>Sets the TTI and recovery addresses via two SETDASA CCCs.</p>
@@ -2521,6 +2560,8 @@ Writes 0xF to the 3rd byte of the RECOVERY_CTRL register using the
 recovery interface. Checks if the signal gets asserted. Then writes
 0xFF to the same byte of the register and checks if the signal
 gets deasserted.</p>
+<p>The test uses core clock of 100 and 200 MHz and I3C bus clock frequency
+of 12.5 MHz</p>
 <h4 id="recovery-flow"><code class="docutils literal notranslate"><span class="pre">recovery_flow</span></code><a class="headerlink" href="#recovery-flow" title="Link to this heading">¶</a></h4>
 <p>Test: <code class="docutils literal notranslate"><span class="pre">recovery_flow</span></code></p>
 <p>The test exercises firmware image transfer flow using the recovery
@@ -2530,6 +2571,8 @@ system bus side. It mimicks operation of the recovery handling
 firmware.</p>
 <p>The BFM agent issues I3C transactions and is responsible for pushing
 a firmware image to the target.</p>
+<p>The test uses core clock of 100 and 200 MHz and I3C bus clock frequency
+of 12.5 MHz</p>
 <h2 id="target-peripheral-reset">target_peripheral_reset<a class="headerlink" href="#target-peripheral-reset" title="Link to this heading">¶</a></h2>
 <h3 id="id40">Testpoints<a class="headerlink" href="#id40" title="Link to this heading">¶</a></h3>
 <h4 id="id41"><code class="docutils literal notranslate"><span class="pre">target_peripheral_reset</span></code><a class="headerlink" href="#id41" title="Link to this heading">¶</a></h4>

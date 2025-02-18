@@ -13,7 +13,7 @@
     
     
       
-        <title>None - CHIPS Alliance Caliptra Open Source I3C core</title>
+        <title>Physical Layer - CHIPS Alliance Caliptra Open Source I3C core</title>
       
     
     
@@ -87,7 +87,7 @@
         <div class="md-header__topic" data-md-component="header-topic">
           <span class="md-ellipsis">
             
-              None
+              Physical Layer
             
           </span>
         </div>
@@ -252,12 +252,70 @@
 
   
   
+    
+  
+    
   
   
-    <li class="md-nav__item">
-      <a href="phy.html" class="md-nav__link">
+    <li class="md-nav__item md-nav__item--active">
+      
+      
+      <input class="md-nav__toggle md-toggle" data-md-toggle="toc" type="checkbox" id="__toc">
+      
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          <span class="md-ellipsis">Physical Layer</span>
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <a href="#" class="md-nav__link md-nav__link--active">
         <span class="md-ellipsis">Physical Layer</span>
       </a>
+      
+        
+
+<nav class="md-nav md-nav--secondary">
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#common-phy-layer" class="md-nav__link">
+    <span class="md-ellipsis">Common PHY Layer</span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Common PHY Layer">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#sda-and-scl-lines-5-1-3-1" class="md-nav__link">
+    <span class="md-ellipsis">SDA and SCL lines <wbr>(5.<wbr>1.<wbr>3.<wbr>1)</span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#clock-synchronization-5-1-7" class="md-nav__link">
+    <span class="md-ellipsis">Clock synchronization <wbr>(5.<wbr>1.<wbr>7)</span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+      
     </li>
   
 
@@ -724,7 +782,52 @@
                   
 
 
-None
+<h1 id="physical-layer">Physical Layer<a class="headerlink" href="#physical-layer" title="Link to this heading">¶</a></h1>
+<p>This chapter provides a description of the PHY logic.</p>
+<h2 id="common-phy-layer">Common PHY Layer<a class="headerlink" href="#common-phy-layer" title="Link to this heading">¶</a></h2>
+<p>The PHY is responsible for controlling external bus signals (SDA, SCL) and synchronizing them with an internal clock. It should also support bus arbitration.
+The <a class="reference external" href="https://opentitan.org/book/hw/ip/i2c/index.html">I2C Core</a> from the OpenTitan project can be used as a reference design for basic features of the PHY.</p>
+<figure class="align-default" id="i3c-phy">
+<img alt="" src="_images/i3c_phy.png" />
+<figcaption>
+<p><span class="caption-number">Figure 1 </span><span class="caption-text"><span class="caption-text">
+Block diagram of the I3C PHY Layer</span><a class="headerlink" href="#i3c-phy" title="Permalink to this image">¶</a></figcaption>
+</figure>
+<h3 id="sda-and-scl-lines-5-1-3-1">SDA and SCL lines (5.1.3.1)<a class="headerlink" href="#sda-and-scl-lines-5-1-3-1" title="Link to this heading">¶</a></h3>
+<p>Both I2C and I3C datasheets specify that SDA and SCL lines should be bidirectional, connected to an active Open Drain class Pull-Up.
+Bus lines should be HIGH unless any device ties them to the GROUND.</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>In addition to the active Open Drain class Pull-Up, a High-Keeper is also required on the Bus.
+The High-Keeper on the Bus should be strong enough to prevent system leakage from pulling SDA, and sometimes SCL, Low.
+The High-Keeper on the Bus should also be weak enough for a Target with the minimum I<sub>OL</sub> PHY to be able to pull SDA, SCL, or both Low within the Minimum t<sub>DIG_L</sub> period.</p>
+<p>The High-Keeper should be implemented during the physical design.
+PHY driver strength modeling will not be performed in this project.
+Base Controller will be delivered without the High-Keeper, however, it may become a configuration option later on.</p>
+</div>
+<p>Each bus line must be capable of switching between 4 logic states:</p>
+<ol class="arabic simple">
+<li><p>No Pull-Up (High-Z)</p></li>
+<li><p>High-Keeper Pull-Up</p></li>
+<li><p>Open Drain Pull-Up</p></li>
+<li><p>Assert LOW</p></li>
+</ol>
+<p>The OpenTitan I2C Core implements a <a class="reference external" href="https://opentitan.org/book/hw/ip/i2c/doc/theory_of_operation.html#virtual-open-drain">Virtual Open Drain</a> functionality which seems like a good solution for implementing the desired behavior on FPGA devices, while at the same time keeping it easy to use in silicon chips. Each bus line consists of 3 lines:</p>
+<ol class="arabic simple">
+<li><p>Signal input (<code class="docutils literal notranslate"><span class="pre">scl_i</span></code>, <code class="docutils literal notranslate"><span class="pre">sda_i</span></code>) - external input from the bus lines.</p></li>
+<li><p>Signal output (<code class="docutils literal notranslate"><span class="pre">scl_o</span></code>, <code class="docutils literal notranslate"><span class="pre">sda_o</span></code>) - internal signal, it is tied to the GROUND.</p></li>
+<li><p>Signal output enable (<code class="docutils literal notranslate"><span class="pre">scl_en_o</span></code>, <code class="docutils literal notranslate"><span class="pre">sda_en_o</span></code>) - internal signal enable, controlled by the core FSM.</p></li>
+</ol>
+<p>This interface makes it easy to construct tri-state buffers.
+The controller will never assert the external bus lines HIGH, since it is assumed that these lines are pulled up to V<sub>dd</sub> externally.
+Switching from output to input is enough to achieve signals asserted HIGH.</p>
+<p>Verilator does not natively support <code class="docutils literal notranslate"><span class="pre">x</span></code> and <code class="docutils literal notranslate"><span class="pre">z</span></code> states and their handling is explained in the <a class="reference external" href="https://verilator.org/guide/latest/languages.html?highlight=tristate#tri-inout">official documentation</a>.
+Cocotb requires a wrapper to interact properly with an <code class="docutils literal notranslate"><span class="pre">inout</span></code>, which is described in <a class="reference external" href="https://github.com/cocotb/cocotb/discussions/3506">Cocotb discussion #3506</a>.
+Considering these limitations, PHY is being tested functionally using Cocotb and tri-state logic.
+Additionally, there is an RTL testbench run in Verilator and Icarus simulators that checks whether High-Z is set properly on I3C bus lines when the controller requests a high bus state.</p>
+<h3 id="clock-synchronization-5-1-7">Clock synchronization (5.1.7)<a class="headerlink" href="#clock-synchronization-5-1-7" title="Link to this heading">¶</a></h3>
+<p>The entire core functions in a single clock domain - all I3C bus signals are sampled with this clock.</p>
+
 
   <hr>
 <div class="md-source-file">
@@ -750,6 +853,42 @@ None
       </main>
       
         <footer class="md-footer">
+  
+    
+    <nav class="md-footer__inner md-grid" aria-label="Footer" >
+      
+        
+        <a href="ccc.html" class="md-footer__link md-footer__link--prev" aria-label="Previous: I3C Common Command Codes (CCC)" rel="prev">
+          <div class="md-footer__button md-icon">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11h12Z"/></svg>
+          </div>
+          <div class="md-footer__title">
+            <div class="md-ellipsis">
+              <span class="md-footer__direction">
+                Previous
+              </span>
+              I3C Common Command Codes (CCC)
+            </div>
+          </div>
+        </a>
+      
+      
+        
+        <a href="dv.html" class="md-footer__link md-footer__link--next" aria-label="Next: Design verification" rel="next">
+          <div class="md-footer__title">
+            <div class="md-ellipsis">
+              <span class="md-footer__direction">
+                Next
+              </span>
+              Design verification
+            </div>
+          </div>
+          <div class="md-footer__button md-icon">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M4 11v2h12l-5.5 5.5 1.42 1.42L19.84 12l-7.92-7.92L10.5 5.5 16 11H4Z"/></svg>
+          </div>
+        </a>
+      
+    </nav>
   
   
   
@@ -802,14 +941,6 @@ None
     
       
         <script src="_static/sphinx_immaterial_theme.f9d9eeeb247ace16c.min.js?v=8ec58cb5"></script>
-        <script type="module" src="https://cdn.jsdelivr.net/npm/mermaid@11.2.0/dist/mermaid.esm.min.mjs"></script>
-        <script type="module" src="https://cdn.jsdelivr.net/npm/@mermaid-js/layout-elk@0.1.4/dist/mermaid-layout-elk.esm.min.mjs"></script>
-        <script type="module">import mermaid from "https://cdn.jsdelivr.net/npm/mermaid@11.2.0/dist/mermaid.esm.min.mjs";import elkLayouts from "https://cdn.jsdelivr.net/npm/@mermaid-js/layout-elk@0.1.4/dist/mermaid-layout-elk.esm.min.mjs";mermaid.registerLayoutLoaders(elkLayouts);mermaid.initialize({startOnLoad:false});</script>
-        <script src="https://cdn.jsdelivr.net/npm/d3@7.9.0/dist/d3.min.js"></script>
-        <script type="module">
-import mermaid from "https://cdn.jsdelivr.net/npm/mermaid@11.2.0/dist/mermaid.esm.min.mjs";
-window.addEventListener("load", () => mermaid.run());
-</script>
     
   </body>
 </html>

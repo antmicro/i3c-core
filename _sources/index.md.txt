@@ -1,8 +1,14 @@
 # {{project}}
 
 ```{toctree}
-:caption: Verification
 :maxdepth: 2
 
+introduction
+overview
+ccc
+phy
 dv
+ext_cap
+recovery_flow
+registers
 ```

@@ -74,7 +74,7 @@ jobs:
       - name: Install dependencies
         run: |
           sudo apt -qqy update && sudo apt -qqy --no-install-recommends install \
-            python3 python3-pip python3-venv
+            python3 python3-pip python3-venv nodejs npm git
 
       - name: Setup repository
         uses: actions/checkout@v4
@@ -106,6 +106,16 @@ jobs:
             TZ=UTC make html
           popd
           ls -lah doc/build
+
+      - name: Build Coverview
+        run: |
+          git clone https://github.com/antmicro/coverview
+          cd coverview
+          npm install
+          npm run build
+          python3 embed.py --fetch-data "https://raw.githubusercontent.com/antmicro/i3c-core-coverage-results/refs/heads/main/data.zip"
+          cd ..
+          cp coverview/dist/index.html doc/build/html/coverview.html
 
       - name: Pack artifacts
         if: always()

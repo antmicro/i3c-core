@@ -1,3 +1,8 @@
+variables:
+  ALL_CUSTOM_JOBS: 0
+  SKIP_CUSTOM: 0
+  SKIP_VERILATOR: 0
+
 include:
   - project: chipsalliance-ci-scripts
     file: i3c-core.yaml

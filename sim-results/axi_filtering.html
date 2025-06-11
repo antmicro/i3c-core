@@ -1,393 +1,143 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <link rel='stylesheet' type='text/css' href='main.css'>
+    <link rel='stylesheet' type='text/css' href='cov.css'>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Testplan simulation results</title>
+</head>
+<body>
+    <div class="content">
+        <header>
+            <nav class="navbar">
+                <div class="nav-left">
+                    
+                    <div class="nav-urls">
+                        <a href="./index-blocks.html" class="button tooltip">
+                            <img src="assets/caret.svg" alt="Back" style="transform: scale(-2) translatey(-1px);" />
+                            <span class="tooltip-text">Go Back</span>
+                        </a>
+                    </div>
+                    
 
-<center>
-<link rel='stylesheet' type='text/css' href='main.css'><link rel='stylesheet' type='text/css' href='cov.css'><h1>Simulation Results</h1>
-<h2>Run on 05/22/25/34/2025 20:34</h2>
-<h3>Test Results</h3>
-<table class="dv">
+                    <span class="container-title">
+                        axi_filtering
+                    </span>
+
+                    
+                    <div class="nav-urls">
+                        <a href="https://chipsalliance.github.io/i3c-core/dv.html#axi-filtering" class="button tooltip">
+                            <img src="assets/file.svg" alt="Docs" style="transform: scale(1.25) translatey(1px);"/>
+                            <span class="tooltip-text">Go to documentation</span>
+                        </a>
+                    </div>
+                    
+
+                </div>
+                
+                <div class="nav-right">
+                    
+                    <div class="nav-item">
+                        <img src="./assets/date.svg" alt="Run on"/>
+                        06/11/25/15/2025 15:15
+                    </div>
+                    
+                    
+                    <div class="nav-item">
+                        <img src="./assets/repo.svg" alt="Run on"/>
+                        i3c-core
+                    </div>
+                    
+                    
+                    <div class="nav-item">
+                        <img src="./assets/branch.svg" alt="Run on"/>
+                        main
+                    </div>
+                    
+                    
+                    <div class="nav-item">
+                        <img src="./assets/commit.svg" alt="Run on"/>
+                        fe68e0df
+                    </div>
+                    
+                </div>
+                
+            </nav>
+        </header>
+        <center class='results'>
+        <div class="page-wrapper">
+            <div class="test-results">
+                <div class="table-wrapper">
+                    
+<h3> Test Results
+ </h3><table>
 <thead>
-<tr>
-<th align="center">Name</th>
-<th align="left">Tests</th>
-<th align="center">Max Job Runtime</th>
-<th align="center">Simulated Time</th>
-<th align="center">Passing</th>
-<th align="center">Total</th>
-<th align="center">Pass Rate</th>
-</tr>
+<tr><th style="text-align: center;">          Name          </th><th>Tests                                                                                                                                                                                </th><th style="text-align: center;"> Max Job Runtime </th><th style="text-align: center;"> Simulated Time </th><th style="text-align: center;"> Passing </th><th style="text-align: center;"> Total </th><th style="text-align: center;"> Pass Rate </th></tr>
 </thead>
 <tbody>
-<tr>
-<td align="center">axi_filtering_disabled</td>
-<td align="left"><a href="https://github.com/antmicro/i3c-core/tree/main//verification/cocotb/common/utils.py#L43">read_hci_version_csr_id_filter_off</a></td>
-<td align="center">0</td>
-<td align="center">0</td>
-<td align="center">0</td>
-<td align="center">1</td>
-<td align="center">0.00 %</td>
-</tr>
-<tr>
-<td align="center"></td>
-<td align="left"><a href="https://github.com/antmicro/i3c-core/tree/main//verification/cocotb/common/utils.py#L75">read_pio_section_offset_filter_off</a></td>
-<td align="center">0</td>
-<td align="center">0</td>
-<td align="center">0</td>
-<td align="center">1</td>
-<td align="center">0.00 %</td>
-</tr>
-<tr>
-<td align="center"></td>
-<td align="left"><a href="https://github.com/antmicro/i3c-core/tree/main//verification/cocotb/common/utils.py#L113">write_to_controller_device_addr_filter_off</a></td>
-<td align="center">0</td>
-<td align="center">0</td>
-<td align="center">0</td>
-<td align="center">1</td>
-<td align="center">0.00 %</td>
-</tr>
-<tr>
-<td align="center"></td>
-<td align="left"><a href="https://github.com/antmicro/i3c-core/tree/main//verification/cocotb/common/utils.py#L150">write_should_not_affect_ro_csr_filter_off</a></td>
-<td align="center">0</td>
-<td align="center">0</td>
-<td align="center">0</td>
-<td align="center">1</td>
-<td align="center">0.00 %</td>
-</tr>
-<tr>
-<td align="center"></td>
-<td align="left"><a href="https://github.com/antmicro/i3c-core/tree/main//verification/cocotb/common/utils.py#L203">sequence_csr_read_filter_off</a></td>
-<td align="center">0</td>
-<td align="center">0</td>
-<td align="center">0</td>
-<td align="center">1</td>
-<td align="center">0.00 %</td>
-</tr>
-<tr>
-<td align="center"></td>
-<td align="left"><a href="https://github.com/antmicro/i3c-core/tree/main//verification/cocotb/common/utils.py#L265">sequence_csr_write_filter_off</a></td>
-<td align="center">0</td>
-<td align="center">0</td>
-<td align="center">0</td>
-<td align="center">1</td>
-<td align="center">0.00 %</td>
-</tr>
-<tr>
-<td align="center"></td>
-<td align="left"><a href="https://github.com/antmicro/i3c-core/tree/main//verification/cocotb/common/utils.py#L77">collision_with_write_id_filter_off</a></td>
-<td align="center">0.111</td>
-<td align="center">530.010</td>
-<td align="center">1</td>
-<td align="center">1</td>
-<td align="center">100.00 %</td>
-</tr>
-<tr>
-<td align="center"></td>
-<td align="left"><a href="https://github.com/antmicro/i3c-core/tree/main//verification/cocotb/common/utils.py#L143">collision_with_read_id_filter_off</a></td>
-<td align="center">0.113</td>
-<td align="center">626.010</td>
-<td align="center">1</td>
-<td align="center">1</td>
-<td align="center">100.00 %</td>
-</tr>
-<tr>
-<td align="center"></td>
-<td align="left"><a href="https://github.com/antmicro/i3c-core/tree/main//verification/cocotb/common/utils.py#L184">write_read_burst_id_filter_off</a></td>
-<td align="center">0.030</td>
-<td align="center">198.010</td>
-<td align="center">1</td>
-<td align="center">1</td>
-<td align="center">100.00 %</td>
-</tr>
-<tr>
-<td align="center"></td>
-<td align="left"><a href="https://github.com/antmicro/i3c-core/tree/main//verification/cocotb/common/utils.py#L235">write_burst_collision_with_read_id_filter_off</a></td>
-<td align="center">0.068</td>
-<td align="center">528.010</td>
-<td align="center">1</td>
-<td align="center">1</td>
-<td align="center">100.00 %</td>
-</tr>
-<tr>
-<td align="center"></td>
-<td align="left"><a href="https://github.com/antmicro/i3c-core/tree/main//verification/cocotb/common/utils.py#L296">read_burst_collision_with_write_id_filter_off</a></td>
-<td align="center">0.192</td>
-<td align="center">1572.010</td>
-<td align="center">1</td>
-<td align="center">1</td>
-<td align="center">100.00 %</td>
-</tr>
-<tr>
-<td align="center">axi_filtering_priv</td>
-<td align="left"><a href="https://github.com/antmicro/i3c-core/tree/main//verification/cocotb/common/utils.py#L48">read_hci_version_csr_id_filter_on_priv</a></td>
-<td align="center">0</td>
-<td align="center">0</td>
-<td align="center">0</td>
-<td align="center">1</td>
-<td align="center">0.00 %</td>
-</tr>
-<tr>
-<td align="center"></td>
-<td align="left"><a href="https://github.com/antmicro/i3c-core/tree/main//verification/cocotb/common/utils.py#L80">read_pio_section_offset_filter_on_priv</a></td>
-<td align="center">0</td>
-<td align="center">0</td>
-<td align="center">0</td>
-<td align="center">1</td>
-<td align="center">0.00 %</td>
-</tr>
-<tr>
-<td align="center"></td>
-<td align="left"><a href="https://github.com/antmicro/i3c-core/tree/main//verification/cocotb/common/utils.py#L118">write_to_controller_device_addr_filter_on_priv</a></td>
-<td align="center">0</td>
-<td align="center">0</td>
-<td align="center">0</td>
-<td align="center">1</td>
-<td align="center">0.00 %</td>
-</tr>
-<tr>
-<td align="center"></td>
-<td align="left"><a href="https://github.com/antmicro/i3c-core/tree/main//verification/cocotb/common/utils.py#L155">write_should_not_affect_ro_csr_filter_on_priv</a></td>
-<td align="center">0</td>
-<td align="center">0</td>
-<td align="center">0</td>
-<td align="center">1</td>
-<td align="center">0.00 %</td>
-</tr>
-<tr>
-<td align="center"></td>
-<td align="left"><a href="https://github.com/antmicro/i3c-core/tree/main//verification/cocotb/common/utils.py#L208">sequence_csr_read_filter_on_priv</a></td>
-<td align="center">0</td>
-<td align="center">0</td>
-<td align="center">0</td>
-<td align="center">1</td>
-<td align="center">0.00 %</td>
-</tr>
-<tr>
-<td align="center"></td>
-<td align="left"><a href="https://github.com/antmicro/i3c-core/tree/main//verification/cocotb/common/utils.py#L270">sequence_csr_write_filter_on_priv</a></td>
-<td align="center">0</td>
-<td align="center">0</td>
-<td align="center">0</td>
-<td align="center">1</td>
-<td align="center">0.00 %</td>
-</tr>
-<tr>
-<td align="center"></td>
-<td align="left"><a href="https://github.com/antmicro/i3c-core/tree/main//verification/cocotb/common/utils.py#L82">collision_with_write_id_filter_on_priv</a></td>
-<td align="center">0.174</td>
-<td align="center">916.010</td>
-<td align="center">1</td>
-<td align="center">1</td>
-<td align="center">100.00 %</td>
-</tr>
-<tr>
-<td align="center"></td>
-<td align="left"><a href="https://github.com/antmicro/i3c-core/tree/main//verification/cocotb/common/utils.py#L148">collision_with_read_id_filter_on_priv</a></td>
-<td align="center">0.137</td>
-<td align="center">752.010</td>
-<td align="center">1</td>
-<td align="center">1</td>
-<td align="center">100.00 %</td>
-</tr>
-<tr>
-<td align="center"></td>
-<td align="left"><a href="https://github.com/antmicro/i3c-core/tree/main//verification/cocotb/common/utils.py#L189">write_read_burst_id_filter_on_priv</a></td>
-<td align="center">0.065</td>
-<td align="center">498.010</td>
-<td align="center">1</td>
-<td align="center">1</td>
-<td align="center">100.00 %</td>
-</tr>
-<tr>
-<td align="center"></td>
-<td align="left"><a href="https://github.com/antmicro/i3c-core/tree/main//verification/cocotb/common/utils.py#L240">write_burst_collision_with_read_id_filter_on_priv</a></td>
-<td align="center">0.089</td>
-<td align="center">708.010</td>
-<td align="center">1</td>
-<td align="center">1</td>
-<td align="center">100.00 %</td>
-</tr>
-<tr>
-<td align="center"></td>
-<td align="left"><a href="https://github.com/antmicro/i3c-core/tree/main//verification/cocotb/common/utils.py#L301">read_burst_collision_with_write_id_filter_on_priv</a></td>
-<td align="center">0.147</td>
-<td align="center">1188.010</td>
-<td align="center">1</td>
-<td align="center">1</td>
-<td align="center">100.00 %</td>
-</tr>
-<tr>
-<td align="center">axi_filtering_non_priv</td>
-<td align="left"><a href="https://github.com/antmicro/i3c-core/tree/main//verification/cocotb/common/utils.py#L54">read_hci_version_csr_id_filter_on_non_priv</a></td>
-<td align="center">0</td>
-<td align="center">0</td>
-<td align="center">0</td>
-<td align="center">1</td>
-<td align="center">0.00 %</td>
-</tr>
-<tr>
-<td align="center"></td>
-<td align="left"><a href="https://github.com/antmicro/i3c-core/tree/main//verification/cocotb/common/utils.py#L87">read_pio_section_offset_filter_on_non_priv</a></td>
-<td align="center">0</td>
-<td align="center">0</td>
-<td align="center">0</td>
-<td align="center">1</td>
-<td align="center">0.00 %</td>
-</tr>
-<tr>
-<td align="center"></td>
-<td align="left"><a href="https://github.com/antmicro/i3c-core/tree/main//verification/cocotb/common/utils.py#L125">write_to_controller_device_addr_filter_on_non_priv</a></td>
-<td align="center">0</td>
-<td align="center">0</td>
-<td align="center">0</td>
-<td align="center">1</td>
-<td align="center">0.00 %</td>
-</tr>
-<tr>
-<td align="center"></td>
-<td align="left"><a href="https://github.com/antmicro/i3c-core/tree/main//verification/cocotb/common/utils.py#L162">write_should_not_affect_ro_csr_filter_on_non_priv</a></td>
-<td align="center">0</td>
-<td align="center">0</td>
-<td align="center">0</td>
-<td align="center">1</td>
-<td align="center">0.00 %</td>
-</tr>
-<tr>
-<td align="center"></td>
-<td align="left"><a href="https://github.com/antmicro/i3c-core/tree/main//verification/cocotb/common/utils.py#L215">sequence_csr_read_filter_on_non_priv</a></td>
-<td align="center">0</td>
-<td align="center">0</td>
-<td align="center">0</td>
-<td align="center">1</td>
-<td align="center">0.00 %</td>
-</tr>
-<tr>
-<td align="center"></td>
-<td align="left"><a href="https://github.com/antmicro/i3c-core/tree/main//verification/cocotb/common/utils.py#L277">sequence_csr_write_filter_on_non_priv</a></td>
-<td align="center">0</td>
-<td align="center">0</td>
-<td align="center">0</td>
-<td align="center">1</td>
-<td align="center">0.00 %</td>
-</tr>
-<tr>
-<td align="center"></td>
-<td align="left"><a href="https://github.com/antmicro/i3c-core/tree/main//verification/cocotb/common/utils.py#L87">collision_with_write_id_filter_on_non_priv</a></td>
-<td align="center">0.040</td>
-<td align="center">188.010</td>
-<td align="center">1</td>
-<td align="center">1</td>
-<td align="center">100.00 %</td>
-</tr>
-<tr>
-<td align="center"></td>
-<td align="left"><a href="https://github.com/antmicro/i3c-core/tree/main//verification/cocotb/common/utils.py#L153">collision_with_read_id_filter_on_non_priv</a></td>
-<td align="center">0.167</td>
-<td align="center">852.010</td>
-<td align="center">1</td>
-<td align="center">1</td>
-<td align="center">100.00 %</td>
-</tr>
-<tr>
-<td align="center"></td>
-<td align="left"><a href="https://github.com/antmicro/i3c-core/tree/main//verification/cocotb/common/utils.py#L194">write_read_burst_id_filter_on_non_priv</a></td>
-<td align="center">0.037</td>
-<td align="center">258.010</td>
-<td align="center">1</td>
-<td align="center">1</td>
-<td align="center">100.00 %</td>
-</tr>
-<tr>
-<td align="center"></td>
-<td align="left"><a href="https://github.com/antmicro/i3c-core/tree/main//verification/cocotb/common/utils.py#L245">write_burst_collision_with_read_id_filter_on_non_priv</a></td>
-<td align="center">0.030</td>
-<td align="center">196.010</td>
-<td align="center">1</td>
-<td align="center">1</td>
-<td align="center">100.00 %</td>
-</tr>
-<tr>
-<td align="center"></td>
-<td align="left"><a href="https://github.com/antmicro/i3c-core/tree/main//verification/cocotb/common/utils.py#L306">read_burst_collision_with_write_id_filter_on_non_priv</a></td>
-<td align="center">0.054</td>
-<td align="center">380.010</td>
-<td align="center">1</td>
-<td align="center">1</td>
-<td align="center">100.00 %</td>
-</tr>
-<tr>
-<td align="center">axi_filtering_mixed_priv</td>
-<td align="left"><a href="https://github.com/antmicro/i3c-core/tree/main//verification/cocotb/common/utils.py#L92">collision_with_write_id_filter_on_mixed</a></td>
-<td align="center">0.067</td>
-<td align="center">336.010</td>
-<td align="center">1</td>
-<td align="center">1</td>
-<td align="center">100.00 %</td>
-</tr>
-<tr>
-<td align="center"></td>
-<td align="left"><a href="https://github.com/antmicro/i3c-core/tree/main//verification/cocotb/common/utils.py#L158">collision_with_read_id_filter_on_mixed</a></td>
-<td align="center">0.172</td>
-<td align="center">910.010</td>
-<td align="center">1</td>
-<td align="center">1</td>
-<td align="center">100.00 %</td>
-</tr>
-<tr>
-<td align="center"></td>
-<td align="left"><a href="https://github.com/antmicro/i3c-core/tree/main//verification/cocotb/common/utils.py#L311">collision_with_write_mixed_priv</a></td>
-<td align="center">0.124</td>
-<td align="center">726.010</td>
-<td align="center">1</td>
-<td align="center">1</td>
-<td align="center">100.00 %</td>
-</tr>
-<tr>
-<td align="center"></td>
-<td align="left"><a href="https://github.com/antmicro/i3c-core/tree/main//verification/cocotb/common/utils.py#L348">collision_with_read_mixed_priv</a></td>
-<td align="center">0.135</td>
-<td align="center">856.010</td>
-<td align="center">1</td>
-<td align="center">1</td>
-<td align="center">100.00 %</td>
-</tr>
-<tr>
-<td align="center"></td>
-<td align="left"><strong>TOTAL</strong></td>
-<td align="center"></td>
-<td align="center"></td>
-<td align="center">19</td>
-<td align="center">37</td>
-<td align="center">51.35 %</td>
-</tr>
-<tr>
-<td align="center"></td>
-<td align="left"><strong>TOTAL</strong></td>
-<td align="center"></td>
-<td align="center"></td>
-<td align="center">19</td>
-<td align="center">37</td>
-<td align="center">51.35 %</td>
-</tr>
-</tbody>
-</table>
-<h3>Testplan Progress</h3>
-<table class="dv">
-<thead>
-<tr>
-<th align="center">Total</th>
-<th align="center">Written</th>
-<th align="center">Passing</th>
-<th align="center">Progress</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td align="center">37</td>
-<td align="center">37</td>
-<td align="center">19</td>
-<td align="center">51.35 %</td>
-</tr>
+<tr><td style="text-align: center;"> axi_filtering_disabled </td><td><a href=https://github.com/antmicro/i3c-core/tree/main//verification/cocotb/block/axi_adapter_id_filter/test_seq_csr_access.py>read_hci_version_csr_id_filter_off</a>                </td><td style="text-align: center;">        0        </td><td style="text-align: center;">       0        </td><td style="text-align: center;">    0    </td><td style="text-align: center;">   1   </td><td style="text-align: center;">  0.00 %   </td></tr>
+<tr><td style="text-align: center;">                        </td><td><a href=https://github.com/antmicro/i3c-core/tree/main//verification/cocotb/block/axi_adapter_id_filter/test_seq_csr_access.py>read_pio_section_offset_filter_off</a>                </td><td style="text-align: center;">        0        </td><td style="text-align: center;">       0        </td><td style="text-align: center;">    0    </td><td style="text-align: center;">   1   </td><td style="text-align: center;">  0.00 %   </td></tr>
+<tr><td style="text-align: center;">                        </td><td><a href=https://github.com/antmicro/i3c-core/tree/main//verification/cocotb/block/axi_adapter_id_filter/test_seq_csr_access.py>write_to_controller_device_addr_filter_off</a>        </td><td style="text-align: center;">        0        </td><td style="text-align: center;">       0        </td><td style="text-align: center;">    0    </td><td style="text-align: center;">   1   </td><td style="text-align: center;">  0.00 %   </td></tr>
+<tr><td style="text-align: center;">                        </td><td><a href=https://github.com/antmicro/i3c-core/tree/main//verification/cocotb/block/axi_adapter_id_filter/test_seq_csr_access.py>write_should_not_affect_ro_csr_filter_off</a>         </td><td style="text-align: center;">        0        </td><td style="text-align: center;">       0        </td><td style="text-align: center;">    0    </td><td style="text-align: center;">   1   </td><td style="text-align: center;">  0.00 %   </td></tr>
+<tr><td style="text-align: center;">                        </td><td><a href=https://github.com/antmicro/i3c-core/tree/main//verification/cocotb/block/axi_adapter_id_filter/test_seq_csr_access.py>sequence_csr_read_filter_off</a>                      </td><td style="text-align: center;">        0        </td><td style="text-align: center;">       0        </td><td style="text-align: center;">    0    </td><td style="text-align: center;">   1   </td><td style="text-align: center;">  0.00 %   </td></tr>
+<tr><td style="text-align: center;">                        </td><td><a href=https://github.com/antmicro/i3c-core/tree/main//verification/cocotb/block/axi_adapter_id_filter/test_seq_csr_access.py>sequence_csr_write_filter_off</a>                     </td><td style="text-align: center;">        0        </td><td style="text-align: center;">       0        </td><td style="text-align: center;">    0    </td><td style="text-align: center;">   1   </td><td style="text-align: center;">  0.00 %   </td></tr>
+<tr><td style="text-align: center;">                        </td><td><a href=https://github.com/antmicro/i3c-core/tree/main//verification/cocotb/block/axi_adapter_id_filter/test_bus_stress.py>collision_with_write_id_filter_off</a>                    </td><td style="text-align: center;">      0.103      </td><td style="text-align: center;">    482.010     </td><td style="text-align: center;">    1    </td><td style="text-align: center;">   1   </td><td style="text-align: center;"> 100.00 %  </td></tr>
+<tr><td style="text-align: center;">                        </td><td><a href=https://github.com/antmicro/i3c-core/tree/main//verification/cocotb/block/axi_adapter_id_filter/test_bus_stress.py>collision_with_read_id_filter_off</a>                     </td><td style="text-align: center;">      0.122      </td><td style="text-align: center;">    662.010     </td><td style="text-align: center;">    1    </td><td style="text-align: center;">   1   </td><td style="text-align: center;"> 100.00 %  </td></tr>
+<tr><td style="text-align: center;">                        </td><td><a href=https://github.com/antmicro/i3c-core/tree/main//verification/cocotb/block/axi_adapter_id_filter/test_bus_stress.py>write_read_burst_id_filter_off</a>                        </td><td style="text-align: center;">      0.030      </td><td style="text-align: center;">    198.010     </td><td style="text-align: center;">    1    </td><td style="text-align: center;">   1   </td><td style="text-align: center;"> 100.00 %  </td></tr>
+<tr><td style="text-align: center;">                        </td><td><a href=https://github.com/antmicro/i3c-core/tree/main//verification/cocotb/block/axi_adapter_id_filter/test_bus_stress.py>write_burst_collision_with_read_id_filter_off</a>         </td><td style="text-align: center;">      0.087      </td><td style="text-align: center;">    660.010     </td><td style="text-align: center;">    1    </td><td style="text-align: center;">   1   </td><td style="text-align: center;"> 100.00 %  </td></tr>
+<tr><td style="text-align: center;">                        </td><td><a href=https://github.com/antmicro/i3c-core/tree/main//verification/cocotb/block/axi_adapter_id_filter/test_bus_stress.py>read_burst_collision_with_write_id_filter_off</a>         </td><td style="text-align: center;">      0.047      </td><td style="text-align: center;">    324.010     </td><td style="text-align: center;">    1    </td><td style="text-align: center;">   1   </td><td style="text-align: center;"> 100.00 %  </td></tr>
+<tr><td style="text-align: center;">   axi_filtering_priv   </td><td><a href=https://github.com/antmicro/i3c-core/tree/main//verification/cocotb/block/axi_adapter_id_filter/test_seq_csr_access.py>read_hci_version_csr_id_filter_on_priv</a>            </td><td style="text-align: center;">        0        </td><td style="text-align: center;">       0        </td><td style="text-align: center;">    0    </td><td style="text-align: center;">   1   </td><td style="text-align: center;">  0.00 %   </td></tr>
+<tr><td style="text-align: center;">                        </td><td><a href=https://github.com/antmicro/i3c-core/tree/main//verification/cocotb/block/axi_adapter_id_filter/test_seq_csr_access.py>read_pio_section_offset_filter_on_priv</a>            </td><td style="text-align: center;">        0        </td><td style="text-align: center;">       0        </td><td style="text-align: center;">    0    </td><td style="text-align: center;">   1   </td><td style="text-align: center;">  0.00 %   </td></tr>
+<tr><td style="text-align: center;">                        </td><td><a href=https://github.com/antmicro/i3c-core/tree/main//verification/cocotb/block/axi_adapter_id_filter/test_seq_csr_access.py>write_to_controller_device_addr_filter_on_priv</a>    </td><td style="text-align: center;">        0        </td><td style="text-align: center;">       0        </td><td style="text-align: center;">    0    </td><td style="text-align: center;">   1   </td><td style="text-align: center;">  0.00 %   </td></tr>
+<tr><td style="text-align: center;">                        </td><td><a href=https://github.com/antmicro/i3c-core/tree/main//verification/cocotb/block/axi_adapter_id_filter/test_seq_csr_access.py>write_should_not_affect_ro_csr_filter_on_priv</a>     </td><td style="text-align: center;">        0        </td><td style="text-align: center;">       0        </td><td style="text-align: center;">    0    </td><td style="text-align: center;">   1   </td><td style="text-align: center;">  0.00 %   </td></tr>
+<tr><td style="text-align: center;">                        </td><td><a href=https://github.com/antmicro/i3c-core/tree/main//verification/cocotb/block/axi_adapter_id_filter/test_seq_csr_access.py>sequence_csr_read_filter_on_priv</a>                  </td><td style="text-align: center;">        0        </td><td style="text-align: center;">       0        </td><td style="text-align: center;">    0    </td><td style="text-align: center;">   1   </td><td style="text-align: center;">  0.00 %   </td></tr>
+<tr><td style="text-align: center;">                        </td><td><a href=https://github.com/antmicro/i3c-core/tree/main//verification/cocotb/block/axi_adapter_id_filter/test_seq_csr_access.py>sequence_csr_write_filter_on_priv</a>                 </td><td style="text-align: center;">        0        </td><td style="text-align: center;">       0        </td><td style="text-align: center;">    0    </td><td style="text-align: center;">   1   </td><td style="text-align: center;">  0.00 %   </td></tr>
+<tr><td style="text-align: center;">                        </td><td><a href=https://github.com/antmicro/i3c-core/tree/main//verification/cocotb/block/axi_adapter_id_filter/test_bus_stress.py>collision_with_write_id_filter_on_priv</a>                </td><td style="text-align: center;">      0.199      </td><td style="text-align: center;">    980.010     </td><td style="text-align: center;">    1    </td><td style="text-align: center;">   1   </td><td style="text-align: center;"> 100.00 %  </td></tr>
+<tr><td style="text-align: center;">                        </td><td><a href=https://github.com/antmicro/i3c-core/tree/main//verification/cocotb/block/axi_adapter_id_filter/test_bus_stress.py>collision_with_read_id_filter_on_priv</a>                 </td><td style="text-align: center;">      0.053      </td><td style="text-align: center;">    284.010     </td><td style="text-align: center;">    1    </td><td style="text-align: center;">   1   </td><td style="text-align: center;"> 100.00 %  </td></tr>
+<tr><td style="text-align: center;">                        </td><td><a href=https://github.com/antmicro/i3c-core/tree/main//verification/cocotb/block/axi_adapter_id_filter/test_bus_stress.py>write_read_burst_id_filter_on_priv</a>                    </td><td style="text-align: center;">      0.085      </td><td style="text-align: center;">    666.010     </td><td style="text-align: center;">    1    </td><td style="text-align: center;">   1   </td><td style="text-align: center;"> 100.00 %  </td></tr>
+<tr><td style="text-align: center;">                        </td><td><a href=https://github.com/antmicro/i3c-core/tree/main//verification/cocotb/block/axi_adapter_id_filter/test_bus_stress.py>write_burst_collision_with_read_id_filter_on_priv</a>     </td><td style="text-align: center;">      0.049      </td><td style="text-align: center;">    348.010     </td><td style="text-align: center;">    1    </td><td style="text-align: center;">   1   </td><td style="text-align: center;"> 100.00 %  </td></tr>
+<tr><td style="text-align: center;">                        </td><td><a href=https://github.com/antmicro/i3c-core/tree/main//verification/cocotb/block/axi_adapter_id_filter/test_bus_stress.py>read_burst_collision_with_write_id_filter_on_priv</a>     </td><td style="text-align: center;">      0.141      </td><td style="text-align: center;">    1140.010    </td><td style="text-align: center;">    1    </td><td style="text-align: center;">   1   </td><td style="text-align: center;"> 100.00 %  </td></tr>
+<tr><td style="text-align: center;"> axi_filtering_non_priv </td><td><a href=https://github.com/antmicro/i3c-core/tree/main//verification/cocotb/block/axi_adapter_id_filter/test_seq_csr_access.py>read_hci_version_csr_id_filter_on_non_priv</a>        </td><td style="text-align: center;">        0        </td><td style="text-align: center;">       0        </td><td style="text-align: center;">    0    </td><td style="text-align: center;">   1   </td><td style="text-align: center;">  0.00 %   </td></tr>
+<tr><td style="text-align: center;">                        </td><td><a href=https://github.com/antmicro/i3c-core/tree/main//verification/cocotb/block/axi_adapter_id_filter/test_seq_csr_access.py>read_pio_section_offset_filter_on_non_priv</a>        </td><td style="text-align: center;">        0        </td><td style="text-align: center;">       0        </td><td style="text-align: center;">    0    </td><td style="text-align: center;">   1   </td><td style="text-align: center;">  0.00 %   </td></tr>
+<tr><td style="text-align: center;">                        </td><td><a href=https://github.com/antmicro/i3c-core/tree/main//verification/cocotb/block/axi_adapter_id_filter/test_seq_csr_access.py>write_to_controller_device_addr_filter_on_non_priv</a></td><td style="text-align: center;">        0        </td><td style="text-align: center;">       0        </td><td style="text-align: center;">    0    </td><td style="text-align: center;">   1   </td><td style="text-align: center;">  0.00 %   </td></tr>
+<tr><td style="text-align: center;">                        </td><td><a href=https://github.com/antmicro/i3c-core/tree/main//verification/cocotb/block/axi_adapter_id_filter/test_seq_csr_access.py>write_should_not_affect_ro_csr_filter_on_non_priv</a> </td><td style="text-align: center;">        0        </td><td style="text-align: center;">       0        </td><td style="text-align: center;">    0    </td><td style="text-align: center;">   1   </td><td style="text-align: center;">  0.00 %   </td></tr>
+<tr><td style="text-align: center;">                        </td><td><a href=https://github.com/antmicro/i3c-core/tree/main//verification/cocotb/block/axi_adapter_id_filter/test_seq_csr_access.py>sequence_csr_read_filter_on_non_priv</a>              </td><td style="text-align: center;">        0        </td><td style="text-align: center;">       0        </td><td style="text-align: center;">    0    </td><td style="text-align: center;">   1   </td><td style="text-align: center;">  0.00 %   </td></tr>
+<tr><td style="text-align: center;">                        </td><td><a href=https://github.com/antmicro/i3c-core/tree/main//verification/cocotb/block/axi_adapter_id_filter/test_seq_csr_access.py>sequence_csr_write_filter_on_non_priv</a>             </td><td style="text-align: center;">        0        </td><td style="text-align: center;">       0        </td><td style="text-align: center;">    0    </td><td style="text-align: center;">   1   </td><td style="text-align: center;">  0.00 %   </td></tr>
+<tr><td style="text-align: center;">                        </td><td><a href=https://github.com/antmicro/i3c-core/tree/main//verification/cocotb/block/axi_adapter_id_filter/test_bus_stress.py>collision_with_write_id_filter_on_non_priv</a>            </td><td style="text-align: center;">      0.163      </td><td style="text-align: center;">    764.010     </td><td style="text-align: center;">    1    </td><td style="text-align: center;">   1   </td><td style="text-align: center;"> 100.00 %  </td></tr>
+<tr><td style="text-align: center;">                        </td><td><a href=https://github.com/antmicro/i3c-core/tree/main//verification/cocotb/block/axi_adapter_id_filter/test_bus_stress.py>collision_with_read_id_filter_on_non_priv</a>             </td><td style="text-align: center;">      0.110      </td><td style="text-align: center;">    558.010     </td><td style="text-align: center;">    1    </td><td style="text-align: center;">   1   </td><td style="text-align: center;"> 100.00 %  </td></tr>
+<tr><td style="text-align: center;">                        </td><td><a href=https://github.com/antmicro/i3c-core/tree/main//verification/cocotb/block/axi_adapter_id_filter/test_bus_stress.py>write_read_burst_id_filter_on_non_priv</a>                </td><td style="text-align: center;">      0.056      </td><td style="text-align: center;">    386.010     </td><td style="text-align: center;">    1    </td><td style="text-align: center;">   1   </td><td style="text-align: center;"> 100.00 %  </td></tr>
+<tr><td style="text-align: center;">                        </td><td><a href=https://github.com/antmicro/i3c-core/tree/main//verification/cocotb/block/axi_adapter_id_filter/test_bus_stress.py>write_burst_collision_with_read_id_filter_on_non_priv</a> </td><td style="text-align: center;">      0.047      </td><td style="text-align: center;">    332.010     </td><td style="text-align: center;">    1    </td><td style="text-align: center;">   1   </td><td style="text-align: center;"> 100.00 %  </td></tr>
+<tr><td style="text-align: center;">                        </td><td><a href=https://github.com/antmicro/i3c-core/tree/main//verification/cocotb/block/axi_adapter_id_filter/test_bus_stress.py>read_burst_collision_with_write_id_filter_on_non_priv</a> </td><td style="text-align: center;">      0.112      </td><td style="text-align: center;">    860.010     </td><td style="text-align: center;">    1    </td><td style="text-align: center;">   1   </td><td style="text-align: center;"> 100.00 %  </td></tr>
+<tr><td style="text-align: center;">axi_filtering_mixed_priv</td><td><a href=https://github.com/antmicro/i3c-core/tree/main//verification/cocotb/block/axi_adapter_id_filter/test_bus_stress.py>collision_with_write_id_filter_on_mixed</a>               </td><td style="text-align: center;">      0.159      </td><td style="text-align: center;">    788.010     </td><td style="text-align: center;">    1    </td><td style="text-align: center;">   1   </td><td style="text-align: center;"> 100.00 %  </td></tr>
+<tr><td style="text-align: center;">                        </td><td><a href=https://github.com/antmicro/i3c-core/tree/main//verification/cocotb/block/axi_adapter_id_filter/test_bus_stress.py>collision_with_read_id_filter_on_mixed</a>                </td><td style="text-align: center;">      0.155      </td><td style="text-align: center;">    832.010     </td><td style="text-align: center;">    1    </td><td style="text-align: center;">   1   </td><td style="text-align: center;"> 100.00 %  </td></tr>
+<tr><td style="text-align: center;">                        </td><td><a href=https://github.com/antmicro/i3c-core/tree/main//verification/cocotb/block/axi_adapter_id_filter/test_bus_stress.py>collision_with_write_mixed_priv</a>                       </td><td style="text-align: center;">      0.176      </td><td style="text-align: center;">    894.010     </td><td style="text-align: center;">    1    </td><td style="text-align: center;">   1   </td><td style="text-align: center;"> 100.00 %  </td></tr>
+<tr><td style="text-align: center;">                        </td><td><a href=https://github.com/antmicro/i3c-core/tree/main//verification/cocotb/block/axi_adapter_id_filter/test_bus_stress.py>collision_with_read_mixed_priv</a>                        </td><td style="text-align: center;">      0.229      </td><td style="text-align: center;">    1258.010    </td><td style="text-align: center;">    1    </td><td style="text-align: center;">   1   </td><td style="text-align: center;"> 100.00 %  </td></tr>
+<tr><td style="text-align: center;">                        </td><td><b>TOTAL</b>                                                                                                                                                                         </td><td style="text-align: center;">                 </td><td style="text-align: center;">                </td><td style="text-align: center;">   19    </td><td style="text-align: center;">  37   </td><td style="text-align: center;">  51.35 %  </td></tr>
 </tbody>
 </table>
 
-</center>
-            
+                </div>
+            </div>
+            <div class="progress-table">
+                <div class="table-wrapper">
+                    
+<h3> Testplan Progress
+ </h3><table>
+<thead>
+<tr><th style="text-align: center;"> Total </th><th style="text-align: center;"> Written </th><th style="text-align: center;"> Passing </th><th style="text-align: center;"> Progress </th></tr>
+</thead>
+<tbody>
+<tr><td style="text-align: center;">  37   </td><td style="text-align: center;">   37    </td><td style="text-align: center;">   19    </td><td style="text-align: center;"> 51.35 %  </td></tr>
+</tbody>
+</table>
+
+                </div>
+            </div>
+        </div>
+        </center>
+    </div>
+    <footer>
+    </footer>
+</body>
+</html>

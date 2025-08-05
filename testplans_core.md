@@ -139,42 +139,42 @@ been set by reading STBY_CR_DEVICE_ADDR CSR.
 
 ### `ccc_rstdaa`
 
-Test: [ccc_rstdaa](https://github.com/antmicro/i3c-core/tree/main//verification/cocotb/top/lib_i3c_top/test_ccc.py#L190)
+Test: [ccc_rstdaa](https://github.com/antmicro/i3c-core/tree/main//verification/cocotb/top/lib_i3c_top/test_ccc.py#L226)
 
 Sets dynamic address via STBY_CR_DEVICE_ADDR CSR, then sends
 RSTDAA CCC and verifies that the address got cleared.
 
 ### `ccc_getbcr`
 
-Test: [ccc_getbcr](https://github.com/antmicro/i3c-core/tree/main//verification/cocotb/top/lib_i3c_top/test_ccc.py#L225)
+Test: [ccc_getbcr](https://github.com/antmicro/i3c-core/tree/main//verification/cocotb/top/lib_i3c_top/test_ccc.py#L261)
 
 Reads BCR register content by sending GETBCR CCC and examining
 returned data.
 
 ### `ccc_getdcr`
 
-Test: [ccc_getdcr](https://github.com/antmicro/i3c-core/tree/main//verification/cocotb/top/lib_i3c_top/test_ccc.py#L242)
+Test: [ccc_getdcr](https://github.com/antmicro/i3c-core/tree/main//verification/cocotb/top/lib_i3c_top/test_ccc.py#L278)
 
 Reads DCR register content by sending GETDCR CCC and examining
 returned data.
 
 ### `ccc_getmwl`
 
-Test: [ccc_getmwl](https://github.com/antmicro/i3c-core/tree/main//verification/cocotb/top/lib_i3c_top/test_ccc.py#L257)
+Test: [ccc_getmwl](https://github.com/antmicro/i3c-core/tree/main//verification/cocotb/top/lib_i3c_top/test_ccc.py#L293)
 
 Reads MWL register content by sending GETMWL CCC and examining
 returned data.
 
 ### `ccc_getmrl`
 
-Test: [ccc_getmrl](https://github.com/antmicro/i3c-core/tree/main//verification/cocotb/top/lib_i3c_top/test_ccc.py#L274)
+Test: [ccc_getmrl](https://github.com/antmicro/i3c-core/tree/main//verification/cocotb/top/lib_i3c_top/test_ccc.py#L310)
 
 Reads MRL register content by sending GETMWL CCC and examining
 returned data.
 
 ### `ccc_setaasa`
 
-Test: [ccc_setaasa](https://github.com/antmicro/i3c-core/tree/main//verification/cocotb/top/lib_i3c_top/test_ccc.py#L292)
+Test: [ccc_setaasa](https://github.com/antmicro/i3c-core/tree/main//verification/cocotb/top/lib_i3c_top/test_ccc.py#L328)
 
 Issues the broadcast SETAASA CCC and checks if the target uses
 its static address as dynamic by examining STBY_CR_DEVICE_ADDR
@@ -182,28 +182,28 @@ CSR.
 
 ### `ccc_getpid`
 
-Test: [ccc_getpid](https://github.com/antmicro/i3c-core/tree/main//verification/cocotb/top/lib_i3c_top/test_ccc.py#L314)
+Test: [ccc_getpid](https://github.com/antmicro/i3c-core/tree/main//verification/cocotb/top/lib_i3c_top/test_ccc.py#L421)
 
 Sends the CCC to the target and examines if the returned PID
 matches the expected.
 
 ### `ccc_enec_disec_direct`
 
-Test: [ccc_enec_disec_direct](https://github.com/antmicro/i3c-core/tree/main//verification/cocotb/top/lib_i3c_top/test_ccc.py#L346)
+Test: [ccc_enec_disec_direct](https://github.com/antmicro/i3c-core/tree/main//verification/cocotb/top/lib_i3c_top/test_ccc.py#L453)
 
 Sends DISEC CCC to the target and verifies that events are disabled.
 Then, sends ENEC CCC to the target and checks that events are enabled.
 
 ### `ccc_enec_disec_bcast`
 
-Test: [ccc_enec_disec_bcast](https://github.com/antmicro/i3c-core/tree/main//verification/cocotb/top/lib_i3c_top/test_ccc.py#L379)
+Test: [ccc_enec_disec_bcast](https://github.com/antmicro/i3c-core/tree/main//verification/cocotb/top/lib_i3c_top/test_ccc.py#L486)
 
 Sends broadcast DISEC CCC and verifies that events are disabled.
 Then, sends broadcast ENEC CCC and checks that events are enabled.
 
 ### `ccc_setmwl_direct`
 
-Test: [ccc_setmwl_direct](https://github.com/antmicro/i3c-core/tree/main//verification/cocotb/top/lib_i3c_top/test_ccc.py#L408)
+Test: [ccc_setmwl_direct](https://github.com/antmicro/i3c-core/tree/main//verification/cocotb/top/lib_i3c_top/test_ccc.py#L515)
 
 Sends directed SETMWL CCC to the target and verifies that the
 register got correctly set. The check is performed by examining
@@ -211,7 +211,7 @@ relevant wires in the target DUT.
 
 ### `ccc_setmrl_direct`
 
-Test: [ccc_setmrl_direct](https://github.com/antmicro/i3c-core/tree/main//verification/cocotb/top/lib_i3c_top/test_ccc.py#L426)
+Test: [ccc_setmrl_direct](https://github.com/antmicro/i3c-core/tree/main//verification/cocotb/top/lib_i3c_top/test_ccc.py#L533)
 
 Sends directed SETMRL CCC to the target and verifies that the
 register got correctly set. The check is performed by examining
@@ -219,7 +219,7 @@ relevant wires in the target DUT.
 
 ### `ccc_setmwl_bcast`
 
-Test: [ccc_setmwl_bcast](https://github.com/antmicro/i3c-core/tree/main//verification/cocotb/top/lib_i3c_top/test_ccc.py#L444)
+Test: [ccc_setmwl_bcast](https://github.com/antmicro/i3c-core/tree/main//verification/cocotb/top/lib_i3c_top/test_ccc.py#L551)
 
 Sends broadcast SETMWL CCC and verifies that the
 register got correctly set. The check is performed by examining
@@ -227,7 +227,7 @@ relevant wires in the target DUT.
 
 ### `ccc_setmrl_bcast`
 
-Test: [ccc_setmrl_bcast](https://github.com/antmicro/i3c-core/tree/main//verification/cocotb/top/lib_i3c_top/test_ccc.py#L462)
+Test: [ccc_setmrl_bcast](https://github.com/antmicro/i3c-core/tree/main//verification/cocotb/top/lib_i3c_top/test_ccc.py#L569)
 
 Sends SETMRL CCC and verifies that the
 register got correctly set. The check is performed by examining
@@ -235,7 +235,7 @@ relevant wires in the target DUT.
 
 ### `ccc_rstact_direct`
 
-Test: [ccc_rstact_direct](https://github.com/antmicro/i3c-core/tree/main//verification/cocotb/top/lib_i3c_top/test_ccc.py#L480)
+Test: [ccc_rstact_direct](https://github.com/antmicro/i3c-core/tree/main//verification/cocotb/top/lib_i3c_top/test_ccc.py#L587)
 
 Sends directed RSTACT CCC to the target followed by reset pattern
 and checks if reset action was stored correctly. The check is
@@ -244,7 +244,7 @@ verifies that the peripheral_reset_o signal gets asserted.
 
 ### `ccc_rstact_bcast`
 
-Test: [ccc_rstact_bcast](https://github.com/antmicro/i3c-core/tree/main//verification/cocotb/top/lib_i3c_top/test_ccc.py#L510)
+Test: [ccc_rstact_bcast](https://github.com/antmicro/i3c-core/tree/main//verification/cocotb/top/lib_i3c_top/test_ccc.py#L617)
 
 Sends directed RSTACT CCC to the target followed by reset pattern
 and checks if reset action was stored correctly. The check is
@@ -253,7 +253,7 @@ verifies that the escalated_reset_o signal gets asserted.
 
 ### `ccc_direct_multiple_wr`
 
-Test: [ccc_direct_multiple_wr](https://github.com/antmicro/i3c-core/tree/main//verification/cocotb/top/lib_i3c_top/test_ccc.py#L533)
+Test: [ccc_direct_multiple_wr](https://github.com/antmicro/i3c-core/tree/main//verification/cocotb/top/lib_i3c_top/test_ccc.py#L640)
 
 Sends a sequence of multiple directed SETMWL CCCs. The first and
 the last have non-matching address. The two middle ones set MWL
@@ -262,7 +262,7 @@ addresses and executed both CCCs.
 
 ### `ccc_direct_multiple_rd`
 
-Test: [ccc_direct_multiple_rd](https://github.com/antmicro/i3c-core/tree/main//verification/cocotb/top/lib_i3c_top/test_ccc.py#L572)
+Test: [ccc_direct_multiple_rd](https://github.com/antmicro/i3c-core/tree/main//verification/cocotb/top/lib_i3c_top/test_ccc.py#L679)
 
 Sends SETMWL CCC. Then sends multiple directed GETMWL CCCs to
 thee different addresses. Only the one for the target should

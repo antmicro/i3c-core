@@ -69,6 +69,7 @@ endif
 
 ifeq ($(SIM), vcs)
     COMPILE_ARGS += -assert svaext
+    COMPILE_ARGS += -deraceclockdata
     COMPILE_ARGS += -Xcflags='-Wno-error=implicit-function-declaration -Wno-error=int-conversion'
     COMPILE_ARGS += -kdb
     COMPILE_ARGS += -debug_access+all +vcs+fsdbon

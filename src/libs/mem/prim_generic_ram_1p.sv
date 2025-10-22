@@ -73,7 +73,7 @@ module prim_generic_ram_1p import prim_ram_1p_pkg::*; #(
       end
     end
   end
-
-//   `include "prim_util_memload.svh"
-// `endif
+`ifndef SYNTHESIS
+  `include "caliptra_prim_util_memload.svh"
+`endif
 endmodule

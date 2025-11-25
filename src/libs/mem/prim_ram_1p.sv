@@ -15,7 +15,9 @@ module prim_ram_1p import prim_ram_1p_pkg::*;
   parameter  int Width           = 32, // bit
   parameter  int Depth           = 128,
   parameter  int DataBitsPerMask = 1, // Number of data bits per bit of write mask
+`ifndef SYNTHESIS
   parameter      MemInitFile     = "", // VMEM file to initialize the memory width
+`endif
 
   localparam int Aw              = $clog2(Depth)  // derived parameter
 
@@ -34,7 +36,9 @@ module prim_ram_1p import prim_ram_1p_pkg::*;
   if (1) begin : gen_generic
     prim_generic_ram_1p #(
       .Depth(Depth),
+`ifndef SYNTHESIS
       .MemInitFile(MemInitFile),
+`endif
       .Width(Width),
       .DataBitsPerMask(DataBitsPerMask)
     ) u_impl_generic (

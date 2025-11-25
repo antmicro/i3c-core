@@ -17,11 +17,13 @@ module i3c_wrapper #(
     parameter int unsigned DatAw = i3c_pkg::DatAw,
     parameter int unsigned DctAw = i3c_pkg::DctAw,
 
-    parameter int unsigned CsrAddrWidth = I3CCSR_pkg::I3CCSR_MIN_ADDR_WIDTH,
-    parameter int unsigned CsrDataWidth = I3CCSR_pkg::I3CCSR_DATA_WIDTH,
-
+`ifndef SYNTHESIS
     parameter string DatMemInitFile = "",
-    parameter string DctMemInitFile = ""
+    parameter string DctMemInitFile = "",
+`endif
+
+    parameter int unsigned CsrAddrWidth = I3CCSR_pkg::I3CCSR_MIN_ADDR_WIDTH,
+    parameter int unsigned CsrDataWidth = I3CCSR_pkg::I3CCSR_DATA_WIDTH
 ) (
     input clk_i,  // clock
     input rst_ni, // active low reset
@@ -242,10 +244,12 @@ module i3c_wrapper #(
   );
 
   prim_ram_1p_adv #(
+`ifndef SYNTHESIS
+      .MemInitFile(DatMemInitFile),
+`endif
       .Depth(`DAT_DEPTH),
       .Width(64),
-      .DataBitsPerMask(32),
-      .MemInitFile(DatMemInitFile)
+      .DataBitsPerMask(32)
   ) dat_memory (
       .clk_i,
       .rst_ni,
@@ -261,10 +265,12 @@ module i3c_wrapper #(
   );
 
   prim_ram_1p_adv #(
+`ifndef SYNTHESIS
+      .MemInitFile(DctMemInitFile),
+`endif
       .Depth(`DCT_DEPTH),
       .Width(128),
-      .DataBitsPerMask(32),
-      .MemInitFile(DctMemInitFile)
+      .DataBitsPerMask(32)
   ) dct_memory (
       .clk_i,
       .rst_ni,

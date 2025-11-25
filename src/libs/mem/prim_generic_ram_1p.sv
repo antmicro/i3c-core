@@ -10,7 +10,9 @@ module prim_generic_ram_1p import prim_ram_1p_pkg::*; #(
   parameter  int Width           = 32, // bit
   parameter  int Depth           = 128,
   parameter  int DataBitsPerMask = 1, // Number of data bits per bit of write mask
+`ifndef SYNTHESIS
   parameter      MemInitFile     = "", // VMEM file to initialize the memory with
+`endif
 
   localparam int Aw              = $clog2(Depth)  // derived parameter
 ) (

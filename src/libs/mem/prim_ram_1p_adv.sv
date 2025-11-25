@@ -19,7 +19,9 @@ module prim_ram_1p_adv import prim_ram_1p_pkg::*; #(
   parameter  int Depth                = 512,
   parameter  int Width                = 32,
   parameter  int DataBitsPerMask      = 1,  // Number of data bits per bit of write mask
+`ifndef SYNTHESIS
   parameter      MemInitFile          = "", // VMEM file to initialize the memory with
+`endif
 
   // Configurations
   parameter  bit EnableECC            = 0, // Enables per-word ECC
@@ -84,7 +86,9 @@ module prim_ram_1p_adv import prim_ram_1p_pkg::*; #(
   logic [1:0]              rerror_q, rerror_d ;
 
   prim_ram_1p #(
+`ifndef SYNTHESIS
     .MemInitFile     (MemInitFile),
+`endif
 
     .Width           (TotalWidth),
     .Depth           (Depth),

@@ -11,7 +11,7 @@ testplans:
     testpoints:
     - name: "^(.*)$"
       source: "verification/cocotb/top/lib_i3c_top/test_ccc.py"
-  - name: 'CSR access check'
+  - name: '(Controller-specific)? ?CSR access check'
     testpoints:
     - name: "^(.*)$"
       source: "verification/cocotb/top/lib_i3c_top/test_csr_access.py"
@@ -47,7 +47,7 @@ testplans:
     testpoints:
     - name: "^(.*)$"
       source: "verification/cocotb/block/{{testplan}}/test_converter.py"
-  - name: 'axi_filtering'
+  - name: '^(controller|target)_axi_filtering$'
     testpoints:
     - name: "^(.*)$"
       tests:

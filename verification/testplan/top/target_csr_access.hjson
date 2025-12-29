@@ -10,10 +10,6 @@
         and compares with expected output.
         '''
       tests: [
-        "dat_csr_access",
-        "dct_csr_access",
-        "base_csr_access",
-        "pio_csr_access",
         "ec_sec_fw_rec_csr_access",
         "ec_stdby_ctrl_mode_csr_access",
         "ec_tti_csr_access",

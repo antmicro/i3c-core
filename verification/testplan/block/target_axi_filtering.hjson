@@ -1,22 +1,16 @@
 
 {
-  name: axi_filtering
+  name: target_axi_filtering
   testpoints:
   [
     {
-      name: axi_filtering_disabled
+      name: target_axi_filtering_disabled
       desc:
         '''
         Verifies CSR access is granted when the AXI filtering feature is disabled.
         Verifies transaction response and contents.
         '''
-      tests: ["read_hci_version_csr_id_filter_off",
-              "read_pio_section_offset_filter_off",
-              "write_to_controller_device_addr_filter_off",
-              "write_should_not_affect_ro_csr_filter_off",
-              "sequence_csr_read_filter_off",
-              "sequence_csr_write_filter_off",
-              "collision_with_write_id_filter_off",
+      tests: ["collision_with_write_id_filter_off",
               "collision_with_read_id_filter_off",
               "write_read_burst_id_filter_off",
               "write_burst_collision_with_read_id_filter_off",
@@ -24,20 +18,14 @@
       tags: ["axi_filtering"]
     }
     {
-      name: axi_filtering_priv
+      name: target_axi_filtering_priv
       desc:
         '''
         Verifies CSR access is granted when the AXI filtering is enabled
         and the transaction has a privileged ID.
         Verifies transaction response and contents.
         '''
-      tests: ["read_hci_version_csr_id_filter_on_priv",
-              "read_pio_section_offset_filter_on_priv",
-              "write_to_controller_device_addr_filter_on_priv",
-              "write_should_not_affect_ro_csr_filter_on_priv",
-              "sequence_csr_read_filter_on_priv",
-              "sequence_csr_write_filter_on_priv",
-              "collision_with_write_id_filter_on_priv",
+      tests: ["collision_with_write_id_filter_on_priv",
               "collision_with_read_id_filter_on_priv",
               "write_read_burst_id_filter_on_priv",
               "write_burst_collision_with_read_id_filter_on_priv",
@@ -45,19 +33,13 @@
       tags: ["axi_filtering"]
     }
     {
-      name: axi_filtering_non_priv
+      name: target_axi_filtering_non_priv
       desc:
         '''
         Verifies CSR access is denied when the AXI filtering feature is enabled
         and the transaction ID doesn't match any of the privileged IDs.
         '''
-      tests: ["read_hci_version_csr_id_filter_on_non_priv",
-              "read_pio_section_offset_filter_on_non_priv",
-              "write_to_controller_device_addr_filter_on_non_priv",
-              "write_should_not_affect_ro_csr_filter_on_non_priv",
-              "sequence_csr_read_filter_on_non_priv",
-              "sequence_csr_write_filter_on_non_priv",
-              "collision_with_write_id_filter_on_non_priv",
+      tests: ["collision_with_write_id_filter_on_non_priv",
               "collision_with_read_id_filter_on_non_priv",
               "write_read_burst_id_filter_on_non_priv",
               "write_burst_collision_with_read_id_filter_on_non_priv",

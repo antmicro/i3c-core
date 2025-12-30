@@ -125,18 +125,7 @@
       tags: ["tti_queues"]
     }
     {
-      name: rx_should_raise_thld_trig
-      desc:
-        '''
-        Sets up a ready and start thresholds of the read queue and checks
-        whether the trigger signals are properly asserted at different
-        levels of the queue fill.
-        '''
-      tests: ["rx_should_raise_thld_trig"]
-      tags: ["tti_queues"]
-    }
-    {
-      name: tx_desc_should_raise_thld_trig
+      name: tti_tx_desc_should_raise_thld_trig
       desc:
         '''
         Sets up a ready and start threshold of the write queue and checks
@@ -144,28 +133,6 @@
         the queue fill.
         '''
       tests: ["tti_tx_desc_should_raise_thld_trig"]
-      tags: ["tti_queues"]
-    }
-    {
-      name: tx_should_raise_thld_trig
-      desc:
-        '''
-        Sets up a ready and start threshold of the write queue and checks
-        whether the trigger is properly asserted at different levels of
-        the queue fill.
-        '''
-      tests: ["tx_should_raise_thld_trig"]
-      tags: ["tti_queues"]
-    }
-    {
-      name: ibi_should_raise_thld_trig
-      desc:
-        '''
-        Sets up a ready and start threshold of the write queue and checks
-        whether the trigger is properly asserted at different levels of
-        the queue fill.
-        '''
-      tests: ["ibi_should_raise_thld_trig"]
       tags: ["tti_queues"]
     }
     {

@@ -134,23 +134,32 @@ tests-tool: ## Run all tool tests
 	cd $(TOOL_VERIF_DIR) && $(PYTHON) -m nox -k "verify" --no-venv
 
 
-BLOCKS_VERIFICATION_PLANS = $(shell find $(TESTPLAN_DIR) -type f -path "*/block/*.hjson" ! -name "controller_*" | sort)
-CORE_VERIFICATION_PLANS = $(shell find $(TESTPLAN_DIR) -type f -path "*/top/*.hjson" ! -name "controller_*" | sort)
+BLOCKS_VERIFICATION_PLANS_NO_CONTROLLER = $(shell find $(TESTPLAN_DIR) -type f -path "*/block/*.hjson" ! -name "controller_*" | sort)
+BLOCKS_VERIFICATION_PLANS = $(shell find $(TESTPLAN_DIR) -type f -path "*/block/*.hjson" | sort)
+CORE_VERIFICATION_PLANS_NO_CONTROLLER = $(shell find $(TESTPLAN_DIR) -type f -path "*/top/*.hjson" ! -name "controller_*" | sort)
+CORE_VERIFICATION_PLANS = $(shell find $(TESTPLAN_DIR) -type f -path "*/top/*.hjson" | sort)
 verification-docs:
-	testplanner $(BLOCKS_VERIFICATION_PLANS) -ot $(TESTPLAN_DIR)/generated/testplans_blocks.md --project-root $(I3C_ROOT_DIR) --testplan-file-map $(TESTPLAN_DIR)/source-maps.yml --source-url-prefix $(REPO_URL) --docs-url-prefix $(DOCS_URL)
-	testplanner $(CORE_VERIFICATION_PLANS) -ot $(TESTPLAN_DIR)/generated/testplans_core.md --project-root $(I3C_ROOT_DIR) --testplan-file-map $(TESTPLAN_DIR)/source-maps.yml --source-url-prefix $(REPO_URL) --docs-url-prefix $(DOCS_URL)
+	testplanner $(BLOCKS_VERIFICATION_PLANS_NO_CONTROLLER) -ot $(TESTPLAN_DIR)/generated/testplans_blocks.md --project-root $(I3C_ROOT_DIR) --testplan-file-map $(TESTPLAN_DIR)/source-maps.yml --source-url-prefix $(REPO_URL) --docs-url-prefix $(DOCS_URL)
+	testplanner $(BLOCKS_VERIFICATION_PLANS) -ot $(TESTPLAN_DIR)/generated/testplans_blocks_with_controller.md --project-root $(I3C_ROOT_DIR) --testplan-file-map $(TESTPLAN_DIR)/source-maps.yml --source-url-prefix $(REPO_URL) --docs-url-prefix $(DOCS_URL)
+	testplanner $(CORE_VERIFICATION_PLANS_NO_CONTROLLER) -ot $(TESTPLAN_DIR)/generated/testplans_core.md --project-root $(I3C_ROOT_DIR) --testplan-file-map $(TESTPLAN_DIR)/source-maps.yml --source-url-prefix $(REPO_URL) --docs-url-prefix $(DOCS_URL)
+	testplanner $(CORE_VERIFICATION_PLANS) -ot $(TESTPLAN_DIR)/generated/testplans_core_with_controller.md --project-root $(I3C_ROOT_DIR) --testplan-file-map $(TESTPLAN_DIR)/source-maps.yml --source-url-prefix $(REPO_URL) --docs-url-prefix $(DOCS_URL)
 
 VERIFICATION_SIM_RESULTS_XMLS = $(shell find $(TESTS_RESULTS_DIR) -type f -name "*.xml" | sort)
 cocotbxml-to-hjson-sim-results:
 	cocotbxml-to-hjson -i $(VERIFICATION_SIM_RESULTS_XMLS) -t $(BLOCKS_VERIFICATION_PLANS) -o $(TESTS_RESULTS_DIR) --tests-base-dir $(TESTS_XML_BASE_PATH) --tests-ignore-dirs venv .venv .pyenv
 	cocotbxml-to-hjson -i $(VERIFICATION_SIM_RESULTS_XMLS) -t $(CORE_VERIFICATION_PLANS) -o $(TESTS_RESULTS_DIR) --tests-base-dir $(TESTS_XML_BASE_PATH) --tests-ignore-dirs venv .venv .pyenv
 
-BLOCKS_VERIFICATION_SIM_RESULTS = $(shell find $(TESTS_RESULTS_DIR) -type f -path "*/block/*.hjson" ! -name "controller_*" | sort)
-CORE_VERIFICATION_SIM_RESULTS = $(shell find $(TESTS_RESULTS_DIR) -type f -path "*/top/*.hjson" ! -name "controller_*" | sort)
+BLOCKS_VERIFICATION_SIM_RESULTS_NO_CONTROLLER = $(shell find $(TESTS_RESULTS_DIR) -type f -path "*/block/*.hjson" ! -name "controller_*" | sort)
+BLOCKS_VERIFICATION_SIM_RESULTS = $(shell find $(TESTS_RESULTS_DIR) -type f -path "*/block/*.hjson" | sort)
+CORE_VERIFICATION_SIM_RESULTS_NO_CONTROLLER = $(shell find $(TESTS_RESULTS_DIR) -type f -path "*/top/*.hjson" ! -name "controller_*" | sort)
+CORE_VERIFICATION_SIM_RESULTS = $(shell find $(TESTS_RESULTS_DIR) -type f -path "*/top/*.hjson" | sort)
 verification-docs-with-sim: cocotbxml-to-hjson-sim-results
-	testplanner $(BLOCKS_VERIFICATION_PLANS) -s $(BLOCKS_VERIFICATION_SIM_RESULTS) -ot $(TESTPLAN_DIR)/generated/testplans_blocks.md -os $(TESTPLAN_DIR)/generated/sim-results --output-summary-title "Tests for individual blocks" --output-summary $(TESTPLAN_DIR)/generated/sim-results/index-blocks.html --project-root $(I3C_ROOT_DIR) --testplan-file-map $(TESTPLAN_DIR)/source-maps.yml --source-url-prefix $(REPO_URL) --docs-url-prefix $(DOCS_URL)
-	testplanner $(CORE_VERIFICATION_PLANS) -s $(CORE_VERIFICATION_SIM_RESULTS) -ot $(TESTPLAN_DIR)/generated/testplans_core.md -os $(TESTPLAN_DIR)/generated/sim-results --output-summary-title "Tests for the core" --output-summary $(TESTPLAN_DIR)/generated/sim-results/index-top.html --project-root $(I3C_ROOT_DIR) --testplan-file-map $(TESTPLAN_DIR)/source-maps.yml --source-url-prefix $(REPO_URL) --docs-url-prefix $(DOCS_URL)
+	testplanner $(BLOCKS_VERIFICATION_PLANS_NO_CONTROLLER) -s $(BLOCKS_VERIFICATION_SIM_RESULTS_NO_CONTROLLER) -ot $(TESTPLAN_DIR)/generated/testplans_blocks.md -os $(TESTPLAN_DIR)/generated/sim-results --output-summary-title "Tests for individual blocks" --output-summary $(TESTPLAN_DIR)/generated/sim-results/index-blocks.html --project-root $(I3C_ROOT_DIR) --testplan-file-map $(TESTPLAN_DIR)/source-maps.yml --source-url-prefix $(REPO_URL) --docs-url-prefix $(DOCS_URL)
+	testplanner $(CORE_VERIFICATION_PLANS_NO_CONTROLLER) -s $(CORE_VERIFICATION_SIM_RESULTS_NO_CONTROLLER) -ot $(TESTPLAN_DIR)/generated/testplans_core.md -os $(TESTPLAN_DIR)/generated/sim-results --output-summary-title "Tests for the core" --output-summary $(TESTPLAN_DIR)/generated/sim-results/index-top.html --project-root $(I3C_ROOT_DIR) --testplan-file-map $(TESTPLAN_DIR)/source-maps.yml --source-url-prefix $(REPO_URL) --docs-url-prefix $(DOCS_URL)
 	cat $(TESTPLAN_DIR)/generated/sim-results/index-blocks.html $(TESTPLAN_DIR)/generated/sim-results/index-top.html > $(TESTPLAN_DIR)/generated/sim-results/index.html
+	testplanner $(BLOCKS_VERIFICATION_PLANS) -s $(BLOCKS_VERIFICATION_SIM_RESULTS) -ot $(TESTPLAN_DIR)/generated/testplans_blocks_with_controller.md -os $(TESTPLAN_DIR)/generated/sim-results --output-summary-title "Tests for individual blocks including controller-specific tests" --output-summary $(TESTPLAN_DIR)/generated/sim-results/index-blocks-with-controller.html --project-root $(I3C_ROOT_DIR) --testplan-file-map $(TESTPLAN_DIR)/source-maps.yml --source-url-prefix $(REPO_URL) --docs-url-prefix $(DOCS_URL)
+	testplanner $(CORE_VERIFICATION_PLANS) -s $(CORE_VERIFICATION_SIM_RESULTS) -ot $(TESTPLAN_DIR)/generated/testplans_core_with_controller.md -os $(TESTPLAN_DIR)/generated/sim-results --output-summary-title "Tests for the core including controller-specific tests" --output-summary $(TESTPLAN_DIR)/generated/sim-results/index-top-with-controller.html --project-root $(I3C_ROOT_DIR) --testplan-file-map $(TESTPLAN_DIR)/source-maps.yml --source-url-prefix $(REPO_URL) --docs-url-prefix $(DOCS_URL)
+	cat $(TESTPLAN_DIR)/generated/sim-results/index-blocks-with-controller.html $(TESTPLAN_DIR)/generated/sim-results/index-top-with-controller.html > $(TESTPLAN_DIR)/generated/sim-results/index-with-controller.html
 #
 # Utilities
 #

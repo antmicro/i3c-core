@@ -198,6 +198,7 @@ def axi_adapter_verify(session, test_group, test_name, coverage, simulator):
         [
             "test_seq_csr_access",
             "test_bus_stress",
+            "test_runtime_id_change",
         ],
     )
 )
@@ -355,6 +356,7 @@ def i2c_target_fsm_verify(session, test_group, test_name, coverage, simulator):
         ["tests", "ahb", "target"],
         ["i3c_ahb"],
         [
+            "test_bus_stall",
             "test_interrupts",
             "test_enter_exit_hdr_mode",
             "test_err_conds",
@@ -395,6 +397,8 @@ def i3c_ahb_recovery_verify(session, test_group, test_name, coverage, simulator)
         ["tests", "axi", "target"],
         ["i3c_axi"],
         [
+            "test_bus_stall",
+            "test_interrupts",
             "test_enter_exit_hdr_mode",
             "test_err_conds",
             "test_target_reset",

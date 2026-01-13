@@ -16,6 +16,8 @@ variables:
   stage: build-docs
   variables:
     GIT_SUBMODULE_STRATEGY: normal
+    SCALENODE_RAM: 8192
+    SCALENODE_DISK: 100
   image: debian:bookworm
   before_get_sources:
     - apt-get update &>/dev/null

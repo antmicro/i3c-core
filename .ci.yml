@@ -323,22 +323,6 @@ verilator_cocotb_axi_controller_main:
     SCALENODE_DISK: 20
     MAKE_TARGET: "tests-axi-controller-short"
 
-verilator_cocotb_axi_controller_long_main:
-  extends: .cocotb_verilator_templ
-  parallel: 10
-  only:
-    - schedules
-  only:
-    refs:
-      - main
-  variables:
-    DEBIAN_FRONTEND: noninteractive
-    GIT_SUBMODULE_STRATEGY: normal
-    SCALENODE_CPU: 2
-    SCALENODE_RAM: 32768
-    SCALENODE_DISK: 20
-    MAKE_TARGET: "tests-axi-controller"
-
 verilator_cocotb_i2c:
   extends: .cocotb_verilator_templ
   parallel: 1

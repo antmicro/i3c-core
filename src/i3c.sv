@@ -487,24 +487,6 @@ module i3c
   logic ctrl2phy_sda;
   logic ctrl_sel_od_pp;
 
-  // Configuration
-  logic phy_en;
-  logic [1:0] phy_mux_select;
-  logic i2c_active_en;
-  logic i2c_standby_en;
-  logic i3c_active_en;
-  logic i3c_standby_en;
-  logic [19:0] t_hd_dat;
-  logic [19:0] t_su_dat;
-  logic [19:0] t_r;
-  logic [19:0] t_f;
-  logic [19:0] t_bus_free;
-  logic [19:0] t_bus_idle;
-  logic [19:0] t_bus_available;
-  logic [31:0] stby_cr_device_addr_reg;
-  logic [31:0] stby_cr_device_char_reg;
-  logic [31:0] stby_cr_device_pid_lo_reg;
-
   // Interrupts
   logic ctl_irq;
   logic tti_irq;
@@ -912,10 +894,6 @@ module i3c
   logic                          csr_tti_rx_desc_reg_rst_we;
   logic                          csr_tti_rx_desc_reg_rst_data;
 
-  logic                          csr_tti_rx_desc_empty;
-  logic                          csr_tti_rx_desc_full;
-  logic                          csr_tti_rx_desc_write;
-
   // TTI TX Descriptor queue
   logic                          csr_tti_tx_desc_req;
   logic                          csr_tti_tx_desc_ack;
@@ -938,10 +916,6 @@ module i3c
   logic                          csr_tti_rx_data_reg_rst;
   logic                          csr_tti_rx_data_reg_rst_we;
   logic                          csr_tti_rx_data_reg_rst_data;
-
-  logic                          csr_tti_rx_data_empty;
-  logic                          csr_tti_rx_data_full;
-  logic                          csr_tti_rx_data_write;
 
   // TTI TX data queue
   logic                          csr_tti_tx_data_req;

@@ -701,7 +701,6 @@ module recovery_executor
   logic device_reset_we;
   logic indirect_fifo_ctrl_0_we;
   logic recovery_ctrl_we;
-  logic indirect_fifo_ctrl_0_reset_we;
 
   assign device_reset_we = tti_rx_rack_i & (csr_sel == CSR_DEVICE_RESET);
   assign indirect_fifo_ctrl_0_we = tti_rx_rack_i & (csr_sel == CSR_INDIRECT_FIFO_CTRL_0);

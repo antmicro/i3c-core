@@ -279,6 +279,13 @@ Constant value in RO register or set by the verilog parameter:
       - TX_DESC_QUEUE_PORT.wr_biten.TX_DESC
       - EXTCAP_HEADER.CAP_LENGTH.value
       - EXTCAP_HEADER.CAP_ID.value
+      - INTERRUPT_STATUS.TRANSFER_ERR_STAT.value
+      - INTERRUPT_STATUS.TRANSFER_ABORT_STAT.value
+      - INTERRUPT_STATUS.IBI_THLD_STAT.value
+      - INTERRUPT_STATUS.TX_DESC_THLD_STAT.value
+      - INTERRUPT_STATUS.TX_DATA_THLD_STAT.value
+      - INTERRUPT_STATUS.TX_DESC_TIMEOUT.value
+      - INTERRUPT_STATUS.RX_DESC_TIMEOUT.value
     - hwif_rec_in:
       - INDIRECT_FIFO_STATUS_3.FIFO_SIZE.we
       - INDIRECT_FIFO_STATUS_3.FIFO_SIZE.next
@@ -287,6 +294,7 @@ Constant value in RO register or set by the verilog parameter:
       - DEVICE_STATUS_0.REC_REASON_CODE.we
       - DEVICE_STATUS_0.REC_REASON_CODE.next
       - DEVICE_STATUS_0.PROT_ERROR.next [7:3]
+      - DEVICE_STATUS_0.PROT_ERROR.next [1:0]   # Only 2 status values are implemented
       - DEVICE_STATUS_0.DEV_STATUS.we
       - DEVICE_STATUS_0.DEV_STATUS.next
     - hwif_rec_out:
@@ -308,6 +316,7 @@ Constant value in RO register or set by the verilog parameter:
       - EXTCAP_HEADER.CAP_LENGTH.value
       - EXTCAP_HEADER.CAP_ID.value
     - hwif_out.I3C_EC:
+      - CtrlCfg.CONTROLLER_CONFIG.OPERATION_MODE.value
       - TTI:
         - IBI_QUEUE_SIZE.IBI_QUEUE_SIZE.value
         - IBI_PORT.wr_biten.IBI_DATA # 32 bit accesses keep this value constant
@@ -703,7 +712,32 @@ Tied off signals:
     - s_cpuif_wr_err      # RDL code doesn't generate access errors
     - i3c_scl_o           # Target mode only
     - s_cpuif_addr [1:0]  # CSR addresses are aligned to 4 bytes
+    - ctrl2phy_scl        # Not used in target only configurations
+    - unused_err                      # Tied to 0
+    - csr_tti_ibi_reg_rst_data        # Tied to 0
+    - csr_tti_tx_data_reg_rst_data    # Tied to 0
+    - csr_tti_rx_data_reg_rst_data    # Tied to 0
+    - csr_tti_tx_desc_reg_rst_data    # Tied to 0
+    - csr_tti_rx_desc_reg_rst_data    # Tied to 0
+    - recovery_irq                    # Tied to 0
+    - ctl_irq                         # Tied to 0
+    - tti_tx_host_nack                # Resolves to 0 in all combinatorial paths
+    - csr_tti_rx_desc_data [31:29]    # Reserved upper 3 bits of the RX descriptor ERROR field
+    - tti_rx_desc_wdata    [31:29]    # Reserved upper 3 bits of the RX descriptor ERROR field
+    - csr_tti_rx_desc_data [27:16]    # Meaningless bits
+    - tti_rx_desc_wdata    [27:16]    # Meaningless bits
+    - csr_tti_rx_desc_data [15:9]     # Unachievable RX descriptor DATA_LENGTH field values
+    - tti_rx_desc_wdata    [15:9]     # Unachievable RX descriptor DATA_LENGTH field values
+    - tti_rx_desc_ready_thld [7:6]       # Unused in 64 FIFO depth configurations
+    - csr_tti_rx_desc_ready_thld_o [7:6] # Unused in 64 FIFO depth configurations
+    - tti_tx_desc_ready_thld [7:6]       # Unused in 64 FIFO depth configurations
+    - csr_tti_tx_desc_ready_thld_o [7:6] # Unused in 64 FIFO depth configurations
     - hwif_tti_in:
+      - RX_DESC_QUEUE_PORT.rd_data.RX_DESC [31:29]
+      - RX_DESC_QUEUE_PORT.rd_data.RX_DESC [27:16]
+      - RX_DESC_QUEUE_PORT.rd_data.RX_DESC [15:9]
+      - QUEUE_THLD_CTRL.RX_DESC_THLD.next [7:6]
+      - QUEUE_THLD_CTRL.TX_DESC_THLD.next [7:6]
       - QUEUE_THLD_CTRL.IBI_THLD.we
       - QUEUE_THLD_CTRL.IBI_THLD.next
       - INTERRUPT_STATUS.TRANSFER_ERR_STAT.we

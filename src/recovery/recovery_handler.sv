@@ -254,7 +254,6 @@ module recovery_handler
   // RX descriptor
   logic                               tti_rx_desc_queue_full;
   logic [TtiRxDescFifoDepthWidth-1:0] tti_rx_desc_queue_depth;
-  logic                               unused_tti_rx_desc_start_thld_trig;
   logic                               tti_rx_desc_queue_empty;
   logic                               tti_rx_desc_queue_wvalid;
   logic                               tti_rx_desc_queue_wready;
@@ -316,7 +315,6 @@ module recovery_handler
   logic                               tti_tx_data_queue_rvalid;
   logic                               tti_tx_data_queue_rready;
   logic [                       31:0] tti_tx_data_queue_rdata;
-  logic                               tti_tx_data_queue_flush;
   logic                               tti_tx_data_queue_start_thld_trig;
   logic                               tti_tx_data_queue_ready_thld_trig;
 
@@ -329,10 +327,6 @@ module recovery_handler
   logic                               tti_tx_data_queue_reg_rst;
   logic                               tti_tx_data_queue_reg_rst_we;
   logic                               tti_tx_data_queue_reg_rst_next;
-
-  // IBI
-  logic                               tti_ibi_queue_req;
-  logic                               tti_ibi_queue_ack;
 
   // Unused
   logic
@@ -421,7 +415,7 @@ module recovery_handler
       // RX descriptor queue
       .rx_desc_full_o(tti_rx_desc_queue_full),
       .rx_desc_depth_o(tti_rx_desc_queue_depth),
-      .rx_desc_start_thld_trig_o(unused_tti_rx_desc_start_thld_trig),  // Intentionally left hanging, unsupported by TTI RX Desc Queue
+      .rx_desc_start_thld_trig_o(unused_rx_desc_start_thld_trig),  // Intentionally left hanging, unsupported by TTI RX Desc Queue
       .rx_desc_ready_thld_trig_o(tti_rx_desc_queue_ready_thld_trig),
       .rx_desc_empty_o(tti_rx_desc_queue_empty),
       .rx_desc_wvalid_i(tti_rx_desc_queue_wvalid),

@@ -286,3 +286,22 @@ tf.add_option(
     ],
 )
 tf.generate_tests()
+
+
+@cocotb.test()
+async def test_rx_desc_overflow(dut):
+
+    # Setup
+    i3c_controller, _, tb = await test_setup(dut, timeout_us=500)
+
+    for _ in range(65):
+        data = [random.randint(0, 255) for i in range(4)]
+        await i3c_controller.i3c_write(TARGET_ADDRESS, data)
+
+    assert tb.dut.xi3c_wrapper.i3c.tti_rx_desc_full.value == 1
+
+    await tb.read_csr(tb.reg_map.I3C_EC.TTI.RX_DESC_QUEUE_PORT.base_addr, 4)
+
+    await ClockCycles(tb.clk, 50)
+
+    assert tb.dut.xi3c_wrapper.i3c.tti_rx_desc_full.value == 0

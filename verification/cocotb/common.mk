@@ -90,7 +90,7 @@ ifeq ($(SIM), vcs)
         $(shell mkdir -p $(TEST_DIR)/sim_build)
         CM_FILE := $(TEST_DIR)/sim_build/cm.cfg
         CONVERTER_LOG := $(TEST_DIR)/sim_build/waivers_converter.log
-        $(shell waivers-converter $(I3C_ROOT_DIR)/verification/waivers.yaml -o $(CM_FILE) --top $(TOPLEVEL) >$(CONVERTER_LOG))
+        $(shell waivers-converter $(I3C_ROOT_DIR)/verification/waivers/waivers.yaml -o $(CM_FILE) --top $(TOPLEVEL) >$(CONVERTER_LOG))
 
         COMPILE_ARGS += -cm_hier $(CM_FILE)
     endif

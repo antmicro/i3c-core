@@ -1,6 +1,8 @@
 # SPDX-License-Identifier: Apache-2.0
 
+from itertools import product
 import logging
+from math import log2
 import random
 
 from bus2csr import bytes2int, compare_values, int2dword
@@ -9,6 +11,7 @@ from interface import I3CTopTestInterface
 import cocotb
 from cocotb_helpers import reset_n
 from cocotb.triggers import RisingEdge, Timer
+from cocotbext.axi import AxiLockType, AxiBurstType
 from common import timeout_task, log_seed
 
 

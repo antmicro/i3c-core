@@ -112,10 +112,7 @@ async def test_setup(dut, fclk=333.0, fbus=12.5, verify_boot=True,
     return i3c_controller, i3c_target, tb
 
 
-@cocotb_test()
-async def test_i3c_target_write(dut):
-
-    test_data = [[0xAA, 0x00, 0xBB, 0xCC, 0xDD], [0xDE, 0xAD, 0xBA, 0xBE]]
+async def base_test_i3c_target_write(dut, test_data):
     recv_data = []
 
     # Setup
@@ -199,6 +196,25 @@ async def test_i3c_target_write(dut):
         )
     )
     assert test_data == recv_data
+
+
+@cocotb_test()
+async def test_i3c_target_write(dut):
+    await base_test_i3c_target_write(dut, [
+        [0xAA, 0x00, 0xBB, 0xCC, 0xDD], [0xDE, 0xAD, 0xBA, 0xBE]
+    ])
+
+
+@cocotb_test(timeout=50000)
+async def test_i3c_target_write_255(dut):
+    # to cover RX descriptor (data length) [7:0]
+    await base_test_i3c_target_write(dut, [[0xAA] * 255])
+
+
+@cocotb_test(timeout=50000)
+async def test_i3c_target_write_256(dut):
+    # to cover RX descriptor (data length) [8]
+    await base_test_i3c_target_write(dut, [[0x55] * 256])
 
 
 @cocotb_test()

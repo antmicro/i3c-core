@@ -8,6 +8,7 @@ from interface import I3CTopTestInterface
 
 import cocotb
 from cocotb.triggers import Timer
+from cocotb_helpers import reset_n
 
 TRANSACTION_COUNT = 1024
 
@@ -63,15 +64,18 @@ async def test_full_tx_desc_write(dut):
     tb = await initialize(dut)
     for _ in range(TRANSACTION_COUNT):
         await tb.write_csr(tb.reg_map.I3C_EC.TTI.TX_DESC_QUEUE_PORT.base_addr, int2dword(random.randint(0, 0xffffffff)), 4)
+    await reset_n(tb.clk, tb.rst_n, cycles=5)
 
 @cocotb.test()
 async def test_full_tx_data_write(dut):
     tb = await initialize(dut)
     for _ in range(TRANSACTION_COUNT):
         await tb.write_csr(tb.reg_map.I3C_EC.TTI.TX_DATA_PORT.base_addr, int2dword(random.randint(0, 0xffffffff)), 4)
+    await reset_n(tb.clk, tb.rst_n, cycles=5)
 
 @cocotb.test()
 async def test_full_ibi_write(dut):
     tb = await initialize(dut)
     for _ in range(TRANSACTION_COUNT):
         await tb.write_csr(tb.reg_map.I3C_EC.TTI.IBI_PORT.base_addr, int2dword(random.randint(0, 0xffffffff)), 4)
+    await reset_n(tb.clk, tb.rst_n, cycles=5)

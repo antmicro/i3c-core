@@ -762,20 +762,21 @@ async def test_ccc_rstact(dut, type, rstact):
         assert False, "Unsupported RSTACT type, must be 'broadcast' or 'direct'"
 
     # Send directed RSTACT
-    rst_action = 0xAA
-    await i3c_controller.i3c_ccc_write(
-        ccc=command,
-        defining_byte=rst_action,
-        directed_data=directed_data,
-        stop=False,
-    )
+    for byte in (0xAA, 0x55):
+        rst_action = byte
+        await i3c_controller.i3c_ccc_write(
+            ccc=command,
+            defining_byte=rst_action,
+            directed_data=directed_data,
+            stop=False,
+        )
 
-    # Check if reset action got stored correctly in the logic after Target Reset Pattern
-    sig = dut.xi3c_wrapper.i3c.xcontroller.xcontroller_standby.xcontroller_standby_i3c.rst_action_o
-    assert int(sig) == 0
-    await i3c_controller.send_target_reset_pattern()
-    assert rst_action == int(sig)
-    await i3c_controller.send_stop()
+        # Check if reset action got stored correctly in the logic after Target Reset Pattern
+        sig = dut.xi3c_wrapper.i3c.xcontroller.xcontroller_standby.xcontroller_standby_i3c.rst_action_o
+        assert int(sig) == 0
+        await i3c_controller.send_target_reset_pattern()
+        assert rst_action == int(sig)
+        await i3c_controller.send_stop()
 
     # Also test the value in RST_ACTION CSR
     reg = tb.reg_map.I3C_EC.STDBYCTRLMODE.STBY_CR_CCC_CONFIG_RSTACT_PARAMS

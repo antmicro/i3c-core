@@ -1,6 +1,8 @@
 # SPDX-License-Identifier: Apache-2.0
 
+from itertools import product
 import logging
+from math import log2
 import random
 
 from bus2csr import bytes2int, compare_values, int2dword
@@ -9,6 +11,7 @@ from interface import I3CTopTestInterface
 import cocotb
 from cocotb_helpers import reset_n
 from cocotb.triggers import RisingEdge, Timer
+from cocotbext.axi import AxiLockType, AxiBurstType
 from common import timeout_task, log_seed
 
 
@@ -112,6 +115,81 @@ async def run_basic_csr_access(tb, reg_if, exceptions=[]):
             compare_values(int2dword(exp_rd), rd_data, addr)
             # TODO: Take into account read values from the CSRs and drop this reset
             await reset_n(tb.clk, tb.rst_n, cycles=2)
+
+
+@cocotb.test()
+async def test_basic_burst_read(dut):
+    tb = await initialize(dut, timeout=500)
+
+    # Registers that hang the bus due to additional requirements when accessing them
+    exceptions = [
+        tb.reg_map.PIOCONTROL.RESPONSE_PORT.base_addr,
+        tb.reg_map.PIOCONTROL.TX_DATA_PORT.base_addr,
+        tb.reg_map.PIOCONTROL.IBI_PORT.base_addr,
+    ]
+
+    # Dump the entire register space
+    mem_dump = {}
+    legal_addr = list(range(0, 600, 4))
+    for addr in exceptions:
+        legal_addr.remove(addr)
+
+    for addr in range(0, 1024, 4):
+        if addr in exceptions:
+            continue
+        data = await tb.read_csr(addr, 4)
+        mem_dump[addr] = list(data)
+
+    burst_lens = {
+        AxiBurstType.FIXED: range(15),
+        AxiBurstType.INCR: (1 << i for i in range(8)), # toggles each bit
+        # AxiBurstType.WRAP: (1, 3, 7, 15) # TODO: Add support for testing WRAP bursts
+    }
+
+    # Check if variously parametrized AXI burst reads yield the same values
+    # This depends on all reads having no side-effect that would
+    # result in a different value
+    for arburst, arlens in burst_lens.items():
+        for arlen, arsize, arlock, aruser in product(
+            arlens, (0, 1, 2), AxiLockType, (0, 0xAAAAAAAA, 0x55555555)
+        ):
+            start = None
+            # Try to randomize start address 20 times, if didn't succeed then
+            # it's probably impossible to randomize such burst on a given reg
+            # map with given exceptions
+            for _ in range(0, 20):
+                start_addr = random.choice(legal_addr)
+                end_addr = start_addr + ((arlen + 1) * (2 ** arsize))
+                fail = False
+                for addr in exceptions:
+                    if addr >= start_addr and addr <= end_addr:
+                        fail = True
+                if not fail:
+                    start = start_addr
+
+            assert start is not None, "Failed to randomize start address for ARBURST: {}. ARLEN: {}, ARSIZE: {}, ARUSER: {}".format(arburst, arlen, arsize, aruser)
+
+            if arburst == AxiBurstType.WRAP:
+                alignto = (2 ** arsize) * (arlen + 1)
+                start &= 0xffffffff << (int(log2(alignto)))
+            bursted = await tb.busIf.axi_m.read(
+                start,
+                size=arsize,
+                length=arlen+1,
+                lock=arlock,
+                user=aruser,
+                burst=arburst
+            )
+            bursted = list(bursted.data)
+            for i, byte in enumerate(bursted):
+                if arburst == AxiBurstType.FIXED:
+                    mem_idx = 0
+                else:
+                    mem_idx = (i // 4) * 4
+                byte_idx = i % 4
+                assert byte == mem_dump[start + mem_idx][byte_idx]
+
+    await tb.teardown()
 
 
 @cocotb.test()

@@ -89,10 +89,7 @@ async def test_setup(dut, fclk=333.0, fbus=12.5,
     return i3c_controller, i3c_target, tb
 
 
-@cocotb.test()
-async def test_i3c_target_write(dut):
-
-    test_data = [[0xAA, 0x00, 0xBB, 0xCC, 0xDD], [0xDE, 0xAD, 0xBA, 0xBE]]
+async def base_test_i3c_target_write(dut, test_data):
     recv_data = []
 
     # Setup
@@ -178,6 +175,25 @@ async def test_i3c_target_write(dut):
     assert test_data == recv_data, f"Private write mismatch: sent={test_data}, recv={recv_data}"
 
     await tb.teardown()
+
+
+@cocotb.test()
+async def test_i3c_target_write(dut):
+    await base_test_i3c_target_write(dut, [
+        [0xAA, 0x00, 0xBB, 0xCC, 0xDD], [0xDE, 0xAD, 0xBA, 0xBE]
+    ])
+
+
+@cocotb.test()
+async def test_i3c_target_write_255(dut):
+    # to cover RX descriptor (data length) [7:0]
+    await base_test_i3c_target_write(dut, [[0xAA] * 255])
+
+
+@cocotb.test()
+async def test_i3c_target_write_256(dut):
+    # to cover RX descriptor (data length) [8]
+    await base_test_i3c_target_write(dut, [[0x55] * 256])
 
 
 @cocotb.test()

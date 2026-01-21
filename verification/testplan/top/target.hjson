@@ -20,6 +20,19 @@
       tags: ["top"]
     }
     {
+      name: i3c_target_write_long
+      desc:
+        '''
+        Verifies the handling of long private writes (255 and 256 bytes)
+        that are not issued in any other test, in order to cover upper
+        bits of transaction length signals in the design.
+
+        Uses the same flow as i3c_target_write.
+        '''
+      tests: ["i3c_target_write_255", "i3c_target_write_256"]
+      tags: ["top"]
+    }
+    {
       name: i3c_target_read
       desc:
         '''

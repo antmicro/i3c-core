@@ -1,6 +1,8 @@
 # SPDX-License-Identifier: Apache-2.0
 
+from itertools import chain, product
 import logging
+from math import log2
 import random
 
 from bus2csr import bytes2int, compare_values, int2dword
@@ -9,6 +11,7 @@ from interface import I3CTopTestInterface
 import cocotb
 from cocotb_helpers import reset_n
 from cocotb.triggers import RisingEdge, Timer
+from cocotbext.axi import AxiLockType, AxiBurstType, AxiResp
 
 
 async def timeout_task(timeout):
@@ -114,6 +117,150 @@ async def run_basic_csr_access(tb, reg_if, exceptions=[]):
             rd_data = await tb.read_csr(addr)
             compare_values(int2dword(exp_rd), rd_data, addr)
             # TODO: Take into account read values from the CSRs and drop this reset
+            await reset_n(tb.clk, tb.rst_n, cycles=2)
+
+
+@cocotb.test()
+async def test_basic_burst_read(dut):
+    tb = await initialize(dut, timeout=500)
+
+    # Dump the entire register space
+    mem_dump = []
+    for addr in range(0, 1024, 4):
+        data = await tb.read_csr(addr, 4)
+        mem_dump.extend(list(data))
+
+    burst_lens = {
+        AxiBurstType.FIXED: range(15),
+        AxiBurstType.INCR: (1 << i for i in range(8)), # toggles each bit
+        AxiBurstType.WRAP: (1, 3, 7, 15)
+    }
+
+    # Check if variously parametrized AXI burst reads yield the same values
+    # This depends on all reads having no side-effect that would
+    # result in a different value
+    for arburst, arlens in burst_lens.items():
+        for arlen, arsize, arlock, aruser in product(
+            arlens, (0, 1, 2), AxiLockType, (0, 0xAAAAAAAA, 0x55555555)
+        ):
+            start = random.randrange(0, 600, 4)
+            if arburst == AxiBurstType.WRAP:
+                alignto = (2 ** arsize) * (arlen + 1)
+                start &= 0xffffffff << (int(log2(alignto)))
+            bursted = await tb.busIf.axi_m.read(
+                start,
+                size=arsize,
+                length=arlen+1,
+                lock=arlock,
+                user=aruser,
+                burst=arburst
+            )
+            bursted = list(bursted.data)
+            # Fixed reads seem to act like INCR and return consecutive bytes
+            # if ARSIZE = 0 and ARLEN > 0, instead of the same byte
+            if arburst is not AxiBurstType.FIXED:
+                assert bursted == mem_dump[start:start+len(bursted)]
+
+
+@cocotb.test()
+async def test_basic_burst_write(dut):
+    # inner registers that are problematic to validate
+    # e.g. have hwclr fields that don't yield 0
+    exceptions = {
+        "RECOVERY_STATUS",
+        "DEVICE_STATUS_0",
+        "STBY_CR_CONTROL",
+        "STBY_CR_STATUS",
+        "STBY_CR_INTR_STATUS",
+        "STBY_CR_INTR_SIGNAL_ENABLE",
+        "STBY_CR_INTR_FORCE",
+        "STBY_CR_CCC_CONFIG_GETCAPS",
+        "STBY_CR_CCC_CONFIG_RSTACT_PARAMS",
+        "__RSVD_3",
+        "QUEUE_THLD_CTRL",
+        "RESET_CONTROL",
+        "INTERRUPT_STATUS",
+        "REC_INTF_REG_W1C_ACCESS",
+        "INDIRECT_FIFO_CTRL_0"
+    }
+
+    tb = await initialize(dut, timeout=500)
+
+    i3ec = tb.reg_map.I3C_EC
+    filtered_regs = (
+        r for r in i3ec if r != "start_addr" and "base_addr" not in getattr(i3ec, r)
+    )
+
+    # an iterator over test data for all registers in all I3C_EC.* groups
+    test_data = chain(*(csr_access_test_data(getattr(i3ec, r)) for r in filtered_regs))
+
+    write_map = [0] * 1024
+    expect_map = [None] * 1024 # None values will not be verified
+
+    for reg_name, addr, wdata, exp_rd in test_data:
+        if reg_name in exceptions:
+            continue
+        for i, (wb, eb) in enumerate(zip(int2dword(wdata), int2dword(exp_rd))):
+            write_map[addr+i] = wb
+            expect_map[addr+i] = eb
+
+    burst_lens = {
+        AxiBurstType.FIXED: range(15),
+        AxiBurstType.INCR: (1 << i for i in range(8)), # toggles each bit
+        AxiBurstType.WRAP: (1, 3, 7, 15)
+    }
+
+    for awburst, awlens in burst_lens.items():
+        for awlen, awsize, awlock, awuser in product(
+            awlens, (0, 1, 2), AxiLockType, (0, 0xAAAAAAAA, 0x55555555)
+        ):
+            size = 2**awsize
+            addr = random.randrange(0, 500, 4)
+            if awburst == AxiBurstType.WRAP:
+                alignto = (2 ** awsize) * (awlen + 1)
+                addr &= 0xffffffff << (int(log2(alignto)))
+
+            endaddr = addr + size * (awlen + 1)
+
+            if awburst is AxiBurstType.FIXED:
+                wdata = write_map[addr:addr+size] * (awlen + 1)
+            else:
+                wdata = write_map[addr:endaddr]
+
+            resp = await tb.busIf.axi_m.write(
+                addr,
+                bytes(wdata),
+                user=awuser,
+                lock=awlock,
+                size=awsize,
+                wuser=awuser,
+                burst=awburst
+            )
+            assert resp.resp == AxiResp.OKAY
+
+            rd_dat = []
+            if awburst is AxiBurstType.FIXED:
+                if expect_map[addr] is None:
+                    continue
+                data = (await tb.read_csr(addr, 4))[0:size]
+                rd_dat = list(data * (awlen + 1))
+                assert (e := expect_map[addr:addr+size] * (awlen + 1)) == rd_dat, (
+                    f"Sequence at {addr:#x} differs. Written: {wdata}. Expected: {e}. Got: {rd_dat}"
+                )
+            else:
+                for adr in range(addr, endaddr, 4):
+                    data = await tb.read_csr(adr, 4)
+                    rd_dat.extend(list(data))
+
+                for i in range(endaddr-addr):
+                    if expect_map[addr+i] is None:
+                        continue
+
+                    assert (e := expect_map[addr+i]) == (a := rd_dat[i]), (
+                        f"Byte at {addr+i:#x} differs. Written: {write_map[addr+i]:#x}. "
+                        f"Expected: {e:#x}. Actual: {a:#x}"
+                    )
+
             await reset_n(tb.clk, tb.rst_n, cycles=2)
 
 

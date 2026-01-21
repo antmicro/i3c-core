@@ -705,9 +705,28 @@ Tied off signals:
       - PROT_CAP_2.AGENT_CAPS.next
       - PROT_CAP_2.REC_PROT_VERSION.we
       - PROT_CAP_2.REC_PROT_VERSION.next
+  - MODULE=i3c_wrapper:
+    - araddr_i [1:0]      # CSR addresses are aligned to 4 bytes
+    - awaddr_i [1:0]      # CSR addresses are aligned to 4 bytes
+    - araddr_i [11:10]    # High address bits not used in target only configs
+    - awaddr_i [11:10]    # High address bits not used in target only configs
+    - buser_o             # BUSER is unimplemented (tied to 0)
+    - ruser_o             # RUSER is unimplemented (tied to 0)
+    - arsize_i [2]        # Data width is only 32-bit
+    - awsize_i [2]        # Data width is only 32-bit
+    - rresp_o [0]         # Neither EXOKAY nor DECERR are issued
+    - bresp_o [0]         # Neither EXOKAY nor DECERR are issued
   - MODULE=i3c:
     - araddr_i [1:0]      # CSR addresses are aligned to 4 bytes
     - awaddr_i [1:0]      # CSR addresses are aligned to 4 bytes
+    - araddr_i [11:10]    # High address bits not used in target only configs
+    - awaddr_i [11:10]    # High address bits not used in target only configs
+    - buser_o             # BUSER is unimplemented (tied to 0)
+    - ruser_o             # RUSER is unimplemented (tied to 0)
+    - arsize_i [2]        # Data width is only 32-bit
+    - awsize_i [2]        # Data width is only 32-bit
+    - rresp_o [0]         # Neither EXOKAY nor DECERR are issued
+    - bresp_o [0]         # Neither EXOKAY nor DECERR are issued
     - s_cpuif_rd_err      # RDL code doesn't generate access errors
     - s_cpuif_wr_err      # RDL code doesn't generate access errors
     - i3c_scl_o           # Target mode only

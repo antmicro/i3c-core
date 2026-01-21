@@ -7,7 +7,7 @@ from bus2csr import dword2int, int2dword
 from interface import I3CTopTestInterface
 
 import cocotb
-from cocotb.triggers import Timer
+from cocotb_helpers import reset_n
 from common import timeout_task, log_seed
 
 TRANSACTION_COUNT = 1024
@@ -71,6 +71,7 @@ async def test_full_tx_desc_write(dut):
     data = dword2int(await tb.read_csr(tb.reg_map.I3CBASE.HCI_VERSION.base_addr, 4))
     assert data == 0x120, f"Bus stalled: HCI_VERSION read returned 0x{data:X} after {TRANSACTION_COUNT} TX_DESC writes"
 
+    await reset_n(tb.clk, tb.rst_n, cycles=5)
     await tb.teardown()
 
 @cocotb.test()
@@ -82,6 +83,7 @@ async def test_full_tx_data_write(dut):
     data = dword2int(await tb.read_csr(tb.reg_map.I3CBASE.HCI_VERSION.base_addr, 4))
     assert data == 0x120, f"Bus stalled: HCI_VERSION read returned 0x{data:X} after {TRANSACTION_COUNT} TX_DATA writes"
 
+    await reset_n(tb.clk, tb.rst_n, cycles=5)
     await tb.teardown()
 
 @cocotb.test()
@@ -93,4 +95,5 @@ async def test_full_ibi_write(dut):
     data = dword2int(await tb.read_csr(tb.reg_map.I3CBASE.HCI_VERSION.base_addr, 4))
     assert data == 0x120, f"Bus stalled: HCI_VERSION read returned 0x{data:X} after {TRANSACTION_COUNT} IBI writes"
 
+    await reset_n(tb.clk, tb.rst_n, cycles=5)
     await tb.teardown()

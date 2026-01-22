@@ -21,13 +21,22 @@ Constant value in RO register or set by the verilog parameter:
         - DEVICE_STATUS_0.REC_REASON_CODE.we
         - DEVICE_STATUS_0.REC_REASON_CODE.next
         - DEVICE_STATUS_0.PROT_ERROR.next [7:3]
+        - DEVICE_STATUS_0.PROT_ERROR.next [1:0]
         - DEVICE_STATUS_0.DEV_STATUS.we
         - DEVICE_STATUS_0.DEV_STATUS.next
     - hwif_out.I3C_EC:
       - CtrlCfg.CONTROLLER_CONFIG.OPERATION_MODE.value
-      - TTI.IBI_QUEUE_SIZE.IBI_QUEUE_SIZE.value
-      - TTI.EXTCAP_HEADER.CAP_LENGTH.value
-      - TTI.EXTCAP_HEADER.CAP_ID.value
+      - TTI:
+        - IBI_QUEUE_SIZE.IBI_QUEUE_SIZE.value
+        - EXTCAP_HEADER.CAP_LENGTH.value
+        - EXTCAP_HEADER.CAP_ID.value
+        - INTERRUPT_STATUS.TRANSFER_ERR_STAT.value
+        - INTERRUPT_STATUS.TRANSFER_ABORT_STAT.value
+        - INTERRUPT_STATUS.IBI_THLD_STAT.value
+        - INTERRUPT_STATUS.TX_DESC_THLD_STAT.value
+        - INTERRUPT_STATUS.TX_DATA_THLD_STAT.value
+        - INTERRUPT_STATUS.TX_DESC_TIMEOUT.value
+        - INTERRUPT_STATUS.RX_DESC_TIMEOUT.value
       - SecFwRecoveryIf:
         - INDIRECT_FIFO_STATUS_4.MAX_TRANSFER_SIZE.value
         - INDIRECT_FIFO_STATUS_3.FIFO_SIZE.value
@@ -56,6 +65,14 @@ Constant value in RO register or set by the verilog parameter:
         - INDIRECT_FIFO_STATUS_0.REGION_TYPE.next
     - field_storage.I3C_EC:
       - CtrlCfg.CONTROLLER_CONFIG.OPERATION_MODE.value
+      - TTI:
+        - INTERRUPT_STATUS.TRANSFER_ERR_STAT.value
+        - INTERRUPT_STATUS.TRANSFER_ABORT_STAT.value
+        - INTERRUPT_STATUS.IBI_THLD_STAT.value
+        - INTERRUPT_STATUS.TX_DESC_THLD_STAT.value
+        - INTERRUPT_STATUS.TX_DATA_THLD_STAT.value
+        - INTERRUPT_STATUS.TX_DESC_TIMEOUT.value
+        - INTERRUPT_STATUS.RX_DESC_TIMEOUT.value
       - SecFwRecoveryIf:
         - INDIRECT_FIFO_STATUS_3.FIFO_SIZE.value
         - INDIRECT_FIFO_STATUS_2.READ_INDEX.value [31:6]
@@ -506,6 +523,12 @@ Constant value in RO register or set by the verilog parameter:
 Tied off signals:
   signals:
   - MODULE=I3CCSR:
+    - s_cpuif_rd_err      # RDL code doesn't generate access errors
+    - s_cpuif_wr_err      # RDL code doesn't generate access errors
+    - s_cpuif_addr [1:0]  # CSR addresses are aligned to 4 bytes
+    - cpuif_rd_err        # RDL code doesn't generate access errors
+    - cpuif_wr_err        # RDL code doesn't generate access errors
+    - cpuif_addr [1:0]    # CSR addresses are aligned to 4 bytes
     - hwif_in.I3C_EC.SecFwRecoveryIf:
       - INDIRECT_FIFO_STATUS_0.REGION_TYPE.we
       - INDIRECT_FIFO_STATUS_0.REGION_TYPE.next
@@ -716,6 +739,8 @@ Tied off signals:
     - awsize_i [2]        # Data width is only 32-bit
     - rresp_o [0]         # Neither EXOKAY nor DECERR are issued
     - bresp_o [0]         # Neither EXOKAY nor DECERR are issued
+    - scl_oe              # Tied to 0
+    - scl_o               # Target mode only
   - MODULE=i3c:
     - araddr_i [1:0]      # CSR addresses are aligned to 4 bytes
     - awaddr_i [1:0]      # CSR addresses are aligned to 4 bytes
@@ -1005,13 +1030,17 @@ Tied off signals:
     - daa_unique_response [48] # PID[32]
     - bus.sda.stable_low       # Unused
   - MODULE=configuration:
-    - phy_en_o
-    - i2c_active_en_o
-    - i2c_standby_en_o
-    - get_status_fmt1_o [15:8]
-    - get_status_fmt1_o [7:6]
-    - get_status_fmt1_o [4]
-    - pid_o           [32]
-    - virtual_pid_o   [32]
-    - daa_unique_response [48] # PID[32]
-    - bus_enable
+    - phy_en_o                    # Tied to 1 in target-only configs
+    - i2c_active_en_o             # Tied to 0
+    - i2c_standby_en_o            # Tied to 0
+    - get_status_fmt1_o   [15:8]
+    - get_status_fmt1_o   [7:6]
+    - get_status_fmt1_o   [4]
+    - pid_o               [32]
+    - virtual_pid_o       [32]
+    - daa_unique_response [48]    # PID[32]
+    - bus_enable                  # Tied to 1 in target-only configs
+  - MODULE=controller_standby_i3c:
+    - bus_timeout                 # Tied to 0
+    - ibi_bus_tx_req_err          # Tied to 0, commented out in always_comb?
+    - ibi_bus_tx_idle             # Tied to 0, commented out in always_comb?

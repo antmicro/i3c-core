@@ -452,6 +452,47 @@ Constant value in RO register or set by the verilog parameter:
       - PROT_CAP_0.REC_MAGIC_STRING_0.value
       - EXTCAP_HEADER.CAP_LENGTH.value
       - EXTCAP_HEADER.CAP_ID.value
+  - MODULE=configuration:
+    - hwif_out_i.I3C_EC:
+      - TERMINATION_EXTCAP_HEADER.CAP_LENGTH.value
+      - TERMINATION_EXTCAP_HEADER.CAP_ID.value
+      - CtrlCfg.CONTROLLER_CONFIG.OPERATION_MODE.value
+      - CtrlCfg.EXTCAP_HEADER.CAP_LENGTH.value
+      - CtrlCfg.EXTCAP_HEADER.CAP_ID.value
+      - SoCMgmtIf.EXTCAP_HEADER.CAP_LENGTH.value
+      - SoCMgmtIf.EXTCAP_HEADER.CAP_ID.value
+      - TTI:
+        - IBI_QUEUE_SIZE.IBI_QUEUE_SIZE.value
+        - QUEUE_SIZE.TX_DATA_BUFFER_SIZE.value
+        - QUEUE_SIZE.RX_DATA_BUFFER_SIZE.value
+        - QUEUE_SIZE.TX_DESC_BUFFER_SIZE.value
+        - QUEUE_SIZE.RX_DESC_BUFFER_SIZE.value
+        - IBI_PORT.wr_biten.IBI_DATA
+        - TX_DATA_PORT.wr_biten.TX_DATA
+        - TX_DESC_QUEUE_PORT.wr_biten.TX_DESC
+        - EXTCAP_HEADER.CAP_LENGTH.value
+        - EXTCAP_HEADER.CAP_ID.value
+      - StdbyCtrlMode:
+        - STBY_CR_CAPABILITIES.DAA_ENTDAA_SUPPORT.value
+        - STBY_CR_CAPABILITIES.DAA_SETDASA_SUPPORT.value
+        - STBY_CR_CAPABILITIES.DAA_SETAASA_SUPPORT.value
+        - STBY_CR_CAPABILITIES.TARGET_XACT_SUPPORT.value
+        - STBY_CR_CAPABILITIES.SIMPLE_CRR_SUPPORT.value
+        - EXTCAP_HEADER.CAP_LENGTH.value
+        - EXTCAP_HEADER.CAP_ID.value
+      - SecFwRecoveryIf:
+        - INDIRECT_FIFO_STATUS_4.MAX_TRANSFER_SIZE.value
+        - INDIRECT_FIFO_STATUS_3.FIFO_SIZE.value
+        - INDIRECT_FIFO_STATUS_2.READ_INDEX.value [31:6]
+        - INDIRECT_FIFO_STATUS_1.WRITE_INDEX.value [31:6]
+        - INDIRECT_FIFO_STATUS_0.REGION_TYPE.value
+        - PROT_CAP_1.REC_MAGIC_STRING_1.value
+        - PROT_CAP_0.REC_MAGIC_STRING_0.value
+        - EXTCAP_HEADER.CAP_LENGTH.value
+        - EXTCAP_HEADER.CAP_ID.value
+    - target_hot_join_addr_o # I3C spec defines this value to be constant 'h02
+    - mwl_dword
+    - mrl_dword
 
 Tied off signals:
   signals:
@@ -910,3 +951,14 @@ Tied off signals:
     - target_hot_join_addr
     - daa_unique_response [48] # PID[32]
     - bus.sda.stable_low       # Unused
+  - MODULE=configuration:
+    - phy_en_o
+    - i2c_active_en_o
+    - i2c_standby_en_o
+    - get_status_fmt1_o [15:8]
+    - get_status_fmt1_o [7:6]
+    - get_status_fmt1_o [4]
+    - pid_o           [32]
+    - virtual_pid_o   [32]
+    - daa_unique_response [48] # PID[32]
+    - bus_enable

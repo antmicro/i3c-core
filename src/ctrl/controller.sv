@@ -246,6 +246,26 @@ module controller
 
     output logic err_o,
     input  logic recovery_mode_enter_i,
+    input  logic recovery_protocol_err_i,
+
+    // Individual TE error outputs for interrupt reporting
+    output logic te0_err_o,
+    output logic te1_err_o,
+    output logic te2_err_o,
+    output logic te3_err_o,
+    output logic te4_err_o,
+    output logic te5_err_o,
+    output logic framing_err_o,
+
+    // Target Error Detection Enables (from TTI CSR)
+    input  logic te0_err_det_en_i,
+    input  logic te1_err_det_en_i,
+    input  logic te2_err_det_en_i,
+    input  logic te3_err_det_en_i,
+    input  logic te4_err_det_en_i,
+    input  logic te5_err_det_en_i,
+    input  logic framing_err_det_en_i,
+
     output logic virtual_device_sel_o,
     output logic xfer_in_progress_o
 );
@@ -337,7 +357,7 @@ module controller
 
     // Muxed
     ctrl_bus_i[phy_mux_select] = bus;
-    end
+  end
 
   configuration xconfiguration (
       .clk_i                           (clk_i),
@@ -597,6 +617,21 @@ module controller
       .peripheral_reset_done_i,
       .escalated_reset_o,
       .recovery_mode_enter_i(recovery_mode_enter_i),
+      .recovery_protocol_err_i(recovery_protocol_err_i),
+      .te0_err_o(te0_err_o),
+      .te1_err_o(te1_err_o),
+      .te2_err_o(te2_err_o),
+      .te3_err_o(te3_err_o),
+      .te4_err_o(te4_err_o),
+      .te5_err_o(te5_err_o),
+      .framing_err_o(framing_err_o),
+      .te0_err_det_en_i(te0_err_det_en_i),
+      .te1_err_det_en_i(te1_err_det_en_i),
+      .te2_err_det_en_i(te2_err_det_en_i),
+      .te3_err_det_en_i(te3_err_det_en_i),
+      .te4_err_det_en_i(te4_err_det_en_i),
+      .te5_err_det_en_i(te5_err_det_en_i),
+      .framing_err_det_en_i(framing_err_det_en_i),
       .virtual_device_sel_o(virtual_device_sel_o),
       .xfer_in_progress_o(xfer_in_progress_o)
   );

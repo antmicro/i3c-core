@@ -79,6 +79,7 @@ module tti
 
     // In-band Interrupt queue
     input  logic                    ibi_queue_full_i,
+    input  logic                    ibi_queue_empty_i,
     output logic                    ibi_queue_req_o,
     input  logic                    ibi_queue_ack_i,
     output logic [CsrDataWidth-1:0] ibi_queue_data_o,
@@ -86,6 +87,15 @@ module tti
     output logic                    ibi_queue_reg_rst_o,
     input  logic                    ibi_queue_reg_rst_we_i,
     input  logic                    ibi_queue_reg_rst_data_i,
+
+    // Queue depth inputs for status registers
+    input  logic [7:0] rx_desc_queue_depth_i,
+    input  logic [7:0] tx_desc_queue_depth_i,
+    input  logic [7:0] rx_data_queue_depth_i,
+    input  logic [7:0] tx_data_queue_depth_i,
+    input  logic [7:0] ibi_queue_depth_i,
+    input  logic       tx_desc_queue_empty_i,
+    input  logic       tx_data_queue_empty_i,
 
     input logic bypass_i3c_core_i,
 
@@ -107,6 +117,16 @@ module tti
     input logic disec_hj_i,
 
     input logic err_i,
+
+    // TE error inputs for interrupt reporting
+    input logic te0_err_i,
+    input logic te1_err_i,
+    input logic te2_err_i,
+    input logic te3_err_i,
+    input logic te4_err_i,
+    input logic te5_err_i,
+    input logic framing_err_i,
+    input logic pec_err_i,
 
     // Interrupt
     output logic irq_o
@@ -264,10 +284,36 @@ module tti
     hwif_tti_o.QUEUE_THLD_CTRL.IBI_THLD.we = '0;
   end
 
+  // Wire queue status and depth registers
+  always_comb begin : wire_queue_status
+    // QUEUE_STATUS - full/empty flags
+    hwif_tti_o.QUEUE_STATUS.RX_DESC_QUEUE_FULL.next  = rx_desc_queue_full_i;
+    hwif_tti_o.QUEUE_STATUS.RX_DESC_QUEUE_EMPTY.next = rx_desc_queue_empty_i;
+    hwif_tti_o.QUEUE_STATUS.TX_DESC_QUEUE_FULL.next  = tx_desc_queue_full_i;
+    hwif_tti_o.QUEUE_STATUS.TX_DESC_QUEUE_EMPTY.next = tx_desc_queue_empty_i;
+    hwif_tti_o.QUEUE_STATUS.RX_DATA_QUEUE_FULL.next  = rx_data_queue_full_i;
+    hwif_tti_o.QUEUE_STATUS.RX_DATA_QUEUE_EMPTY.next = rx_data_queue_empty_i;
+    hwif_tti_o.QUEUE_STATUS.TX_DATA_QUEUE_FULL.next  = tx_data_queue_full_i;
+    hwif_tti_o.QUEUE_STATUS.TX_DATA_QUEUE_EMPTY.next = tx_data_queue_empty_i;
+    hwif_tti_o.QUEUE_STATUS.IBI_QUEUE_FULL.next      = ibi_queue_full_i;
+    hwif_tti_o.QUEUE_STATUS.IBI_QUEUE_EMPTY.next     = ibi_queue_empty_i;
+
+    // DESC_QUEUE_DEPTH
+    hwif_tti_o.DESC_QUEUE_DEPTH.RX_DESC_QUEUE_DEPTH.next = rx_desc_queue_depth_i;
+    hwif_tti_o.DESC_QUEUE_DEPTH.TX_DESC_QUEUE_DEPTH.next = tx_desc_queue_depth_i;
+
+    // DATA_QUEUE_DEPTH
+    hwif_tti_o.DATA_QUEUE_DEPTH.RX_DATA_QUEUE_DEPTH.next = rx_data_queue_depth_i;
+    hwif_tti_o.DATA_QUEUE_DEPTH.TX_DATA_QUEUE_DEPTH.next = tx_data_queue_depth_i;
+
+    // IBI_QUEUE_DEPTH
+    hwif_tti_o.IBI_QUEUE_DEPTH.IBI_QUEUE_DEPTH.next = ibi_queue_depth_i;
+  end
+
   assign hwif_tti_o.STATUS.PROTOCOL_ERROR.next = err_i;
 
-  // Interrupts
-  logic [5:0] irqs;
+  // Interrupts: [5:0] = TTI queue interrupts, [13:6] = TE error interrupts
+  logic [13:0] irqs;
 
   // Delay queue write monitor signals by 1 cycle to align them with
   // full/empty/threshold trigger update.
@@ -385,6 +431,171 @@ module tti
     .sig_ena_i      ('1),
     .irq_o          (irqs[5])
   );
+
+  // ===========================================================================
+  // Target Error Interrupts (TE0-TE5, Framing, PEC)
+  // ===========================================================================
+  // Per I3C v1.1.1 spec, these are Target Errors that should be reported to SW.
+  // Error signals are already gated at the source with detection enable bits.
+  // Detection enables are extracted directly from hwif_tti_out in i3c.sv.
+
+  // TE0_ERR: Invalid reserved address + RnW combination
+  interrupt xintr_te0 (
+    .clk_i          (clk_i),
+    .rst_ni         (rst_ni),
+    .irq_i          (te0_err_i),
+    .clr_i          ('0),
+    .irq_force_i    (hwif_tti_i.TARGET_ERR_INTR_FORCE.TE0_ERR_FORCE.value),
+    .sts_o          (hwif_tti_o.TARGET_ERR_INTR_STATUS.TE0_ERR_STAT.next),
+    .sts_we_o       (hwif_tti_o.TARGET_ERR_INTR_STATUS.TE0_ERR_STAT.we),
+    .sts_i          (hwif_tti_i.TARGET_ERR_INTR_STATUS.TE0_ERR_STAT.value),
+    .sts_ena_i      (hwif_tti_i.TARGET_ERR_INTR_ENABLE.TE0_ERR_EN.value),
+    .sig_ena_i      ('1),
+    .irq_o          (irqs[6])
+  );
+
+  // TE1_ERR: CCC command parity error
+  interrupt xintr_te1 (
+    .clk_i          (clk_i),
+    .rst_ni         (rst_ni),
+    .irq_i          (te1_err_i),
+    .clr_i          ('0),
+    .irq_force_i    (hwif_tti_i.TARGET_ERR_INTR_FORCE.TE1_ERR_FORCE.value),
+    .sts_o          (hwif_tti_o.TARGET_ERR_INTR_STATUS.TE1_ERR_STAT.next),
+    .sts_we_o       (hwif_tti_o.TARGET_ERR_INTR_STATUS.TE1_ERR_STAT.we),
+    .sts_i          (hwif_tti_i.TARGET_ERR_INTR_STATUS.TE1_ERR_STAT.value),
+    .sts_ena_i      (hwif_tti_i.TARGET_ERR_INTR_ENABLE.TE1_ERR_EN.value),
+    .sig_ena_i      ('1),
+    .irq_o          (irqs[7])
+  );
+
+  // TE2_ERR: CCC or Private Write data parity error
+  interrupt xintr_te2 (
+    .clk_i          (clk_i),
+    .rst_ni         (rst_ni),
+    .irq_i          (te2_err_i),
+    .clr_i          ('0),
+    .irq_force_i    (hwif_tti_i.TARGET_ERR_INTR_FORCE.TE2_ERR_FORCE.value),
+    .sts_o          (hwif_tti_o.TARGET_ERR_INTR_STATUS.TE2_ERR_STAT.next),
+    .sts_we_o       (hwif_tti_o.TARGET_ERR_INTR_STATUS.TE2_ERR_STAT.we),
+    .sts_i          (hwif_tti_i.TARGET_ERR_INTR_STATUS.TE2_ERR_STAT.value),
+    .sts_ena_i      (hwif_tti_i.TARGET_ERR_INTR_ENABLE.TE2_ERR_EN.value),
+    .sig_ena_i      ('1),
+    .irq_o          (irqs[8])
+  );
+
+  // TE3_ERR: ENTDAA PID mismatch
+  interrupt xintr_te3 (
+    .clk_i          (clk_i),
+    .rst_ni         (rst_ni),
+    .irq_i          (te3_err_i),
+    .clr_i          ('0),
+    .irq_force_i    (hwif_tti_i.TARGET_ERR_INTR_FORCE.TE3_ERR_FORCE.value),
+    .sts_o          (hwif_tti_o.TARGET_ERR_INTR_STATUS.TE3_ERR_STAT.next),
+    .sts_we_o       (hwif_tti_o.TARGET_ERR_INTR_STATUS.TE3_ERR_STAT.we),
+    .sts_i          (hwif_tti_i.TARGET_ERR_INTR_STATUS.TE3_ERR_STAT.value),
+    .sts_ena_i      (hwif_tti_i.TARGET_ERR_INTR_ENABLE.TE3_ERR_EN.value),
+    .sig_ena_i      ('1),
+    .irq_o          (irqs[9])
+  );
+
+  // TE4_ERR: ENTDAA BCR/DCR mismatch
+  interrupt xintr_te4 (
+    .clk_i          (clk_i),
+    .rst_ni         (rst_ni),
+    .irq_i          (te4_err_i),
+    .clr_i          ('0),
+    .irq_force_i    (hwif_tti_i.TARGET_ERR_INTR_FORCE.TE4_ERR_FORCE.value),
+    .sts_o          (hwif_tti_o.TARGET_ERR_INTR_STATUS.TE4_ERR_STAT.next),
+    .sts_we_o       (hwif_tti_o.TARGET_ERR_INTR_STATUS.TE4_ERR_STAT.we),
+    .sts_i          (hwif_tti_i.TARGET_ERR_INTR_STATUS.TE4_ERR_STAT.value),
+    .sts_ena_i      (hwif_tti_i.TARGET_ERR_INTR_ENABLE.TE4_ERR_EN.value),
+    .sig_ena_i      ('1),
+    .irq_o          (irqs[10])
+  );
+
+  // TE5_ERR: Broadcast/Direct CCC wrong R/W direction
+  interrupt xintr_te5 (
+    .clk_i          (clk_i),
+    .rst_ni         (rst_ni),
+    .irq_i          (te5_err_i),
+    .clr_i          ('0),
+    .irq_force_i    (hwif_tti_i.TARGET_ERR_INTR_FORCE.TE5_ERR_FORCE.value),
+    .sts_o          (hwif_tti_o.TARGET_ERR_INTR_STATUS.TE5_ERR_STAT.next),
+    .sts_we_o       (hwif_tti_o.TARGET_ERR_INTR_STATUS.TE5_ERR_STAT.we),
+    .sts_i          (hwif_tti_i.TARGET_ERR_INTR_STATUS.TE5_ERR_STAT.value),
+    .sts_ena_i      (hwif_tti_i.TARGET_ERR_INTR_ENABLE.TE5_ERR_EN.value),
+    .sig_ena_i      ('1),
+    .irq_o          (irqs[11])
+  );
+
+  // FRAMING_ERR: DA padding error (Bit[0] != 0 in SETDASA/SETNEWDA)
+  interrupt xintr_framing (
+    .clk_i          (clk_i),
+    .rst_ni         (rst_ni),
+    .irq_i          (framing_err_i),
+    .clr_i          ('0),
+    .irq_force_i    (hwif_tti_i.TARGET_ERR_INTR_FORCE.FRAMING_ERR_FORCE.value),
+    .sts_o          (hwif_tti_o.TARGET_ERR_INTR_STATUS.FRAMING_ERR_STAT.next),
+    .sts_we_o       (hwif_tti_o.TARGET_ERR_INTR_STATUS.FRAMING_ERR_STAT.we),
+    .sts_i          (hwif_tti_i.TARGET_ERR_INTR_STATUS.FRAMING_ERR_STAT.value),
+    .sts_ena_i      (hwif_tti_i.TARGET_ERR_INTR_ENABLE.FRAMING_ERR_EN.value),
+    .sig_ena_i      ('1),
+    .irq_o          (irqs[12])
+  );
+
+  // PEC_ERR: Recovery PEC/CRC error
+  interrupt xintr_pec (
+    .clk_i          (clk_i),
+    .rst_ni         (rst_ni),
+    .irq_i          (pec_err_i),
+    .clr_i          ('0),
+    .irq_force_i    (hwif_tti_i.TARGET_ERR_INTR_FORCE.PEC_ERR_FORCE.value),
+    .sts_o          (hwif_tti_o.TARGET_ERR_INTR_STATUS.PEC_ERR_STAT.next),
+    .sts_we_o       (hwif_tti_o.TARGET_ERR_INTR_STATUS.PEC_ERR_STAT.we),
+    .sts_i          (hwif_tti_i.TARGET_ERR_INTR_STATUS.PEC_ERR_STAT.value),
+    .sts_ena_i      (hwif_tti_i.TARGET_ERR_INTR_ENABLE.PEC_ERR_EN.value),
+    .sig_ena_i      ('1),
+    .irq_o          (irqs[13])
+  );
+
+  // =========================================================================
+  // Target Error Counters - 8-bit saturating counters
+  // CSR holds the register value. HW increments on error (if not saturated).
+  // SW can write 0 (or any value) to clear/set the counter.
+  // =========================================================================
+
+  // TE0 counter - increment on error if not saturated
+  assign hwif_tti_o.TARGET_ERR_CNT_TE0.CNT.next = hwif_tti_i.TARGET_ERR_CNT_TE0.CNT.value + 8'h01;
+  assign hwif_tti_o.TARGET_ERR_CNT_TE0.CNT.we   = te0_err_i && (hwif_tti_i.TARGET_ERR_CNT_TE0.CNT.value != 8'hFF);
+
+  // TE1 counter
+  assign hwif_tti_o.TARGET_ERR_CNT_TE1.CNT.next = hwif_tti_i.TARGET_ERR_CNT_TE1.CNT.value + 8'h01;
+  assign hwif_tti_o.TARGET_ERR_CNT_TE1.CNT.we   = te1_err_i && (hwif_tti_i.TARGET_ERR_CNT_TE1.CNT.value != 8'hFF);
+
+  // TE2 counter
+  assign hwif_tti_o.TARGET_ERR_CNT_TE2.CNT.next = hwif_tti_i.TARGET_ERR_CNT_TE2.CNT.value + 8'h01;
+  assign hwif_tti_o.TARGET_ERR_CNT_TE2.CNT.we   = te2_err_i && (hwif_tti_i.TARGET_ERR_CNT_TE2.CNT.value != 8'hFF);
+
+  // TE3 counter
+  assign hwif_tti_o.TARGET_ERR_CNT_TE3.CNT.next = hwif_tti_i.TARGET_ERR_CNT_TE3.CNT.value + 8'h01;
+  assign hwif_tti_o.TARGET_ERR_CNT_TE3.CNT.we   = te3_err_i && (hwif_tti_i.TARGET_ERR_CNT_TE3.CNT.value != 8'hFF);
+
+  // TE4 counter
+  assign hwif_tti_o.TARGET_ERR_CNT_TE4.CNT.next = hwif_tti_i.TARGET_ERR_CNT_TE4.CNT.value + 8'h01;
+  assign hwif_tti_o.TARGET_ERR_CNT_TE4.CNT.we   = te4_err_i && (hwif_tti_i.TARGET_ERR_CNT_TE4.CNT.value != 8'hFF);
+
+  // TE5 counter
+  assign hwif_tti_o.TARGET_ERR_CNT_TE5.CNT.next = hwif_tti_i.TARGET_ERR_CNT_TE5.CNT.value + 8'h01;
+  assign hwif_tti_o.TARGET_ERR_CNT_TE5.CNT.we   = te5_err_i && (hwif_tti_i.TARGET_ERR_CNT_TE5.CNT.value != 8'hFF);
+
+  // Framing error counter
+  assign hwif_tti_o.TARGET_ERR_CNT_FRAMING.CNT.next = hwif_tti_i.TARGET_ERR_CNT_FRAMING.CNT.value + 8'h01;
+  assign hwif_tti_o.TARGET_ERR_CNT_FRAMING.CNT.we   = framing_err_i && (hwif_tti_i.TARGET_ERR_CNT_FRAMING.CNT.value != 8'hFF);
+
+  // PEC error counter
+  assign hwif_tti_o.TARGET_ERR_CNT_PEC.CNT.next = hwif_tti_i.TARGET_ERR_CNT_PEC.CNT.value + 8'h01;
+  assign hwif_tti_o.TARGET_ERR_CNT_PEC.CNT.we   = pec_err_i && (hwif_tti_i.TARGET_ERR_CNT_PEC.CNT.value != 8'hFF);
 
   // Interrupt output
   assign irq_o = |irqs;

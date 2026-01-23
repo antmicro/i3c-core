@@ -181,6 +181,26 @@ module controller_standby
 
     output logic err_o,
     input  logic recovery_mode_enter_i,
+    input  logic recovery_protocol_err_i,
+
+    // Individual TE error outputs for interrupt reporting
+    output logic te0_err_o,
+    output logic te1_err_o,
+    output logic te2_err_o,
+    output logic te3_err_o,
+    output logic te4_err_o,
+    output logic te5_err_o,
+    output logic framing_err_o,
+
+    // Target Error Detection Enables (from TTI CSR)
+    input  logic te0_err_det_en_i,
+    input  logic te1_err_det_en_i,
+    input  logic te2_err_det_en_i,
+    input  logic te3_err_det_en_i,
+    input  logic te4_err_det_en_i,
+    input  logic te5_err_det_en_i,
+    input  logic framing_err_det_en_i,
+
     output logic virtual_device_sel_o,
     output logic xfer_in_progress_o
 );
@@ -236,22 +256,24 @@ module controller_standby
     bus_addr_valid_o = sel_i2c_i3c ? i3c_bus_addr_valid_o : i2c_bus_addr_valid_o;
 
     // Connect IBI only in I3C mode
-    i3c_ibi_queue_full_i = sel_i2c_i3c ? ibi_queue_full_i : '0;
-    i3c_ibi_queue_empty_i = sel_i2c_i3c ? ibi_queue_empty_i : '0;
-    i3c_ibi_queue_rvalid_i = sel_i2c_i3c ? ibi_queue_rvalid_i : '0;
+    i3c_ibi_queue_full_i = sel_i2c_i3c ? ibi_queue_full_i : '0; // TODO unused
+    i3c_ibi_queue_empty_i = sel_i2c_i3c ? ibi_queue_empty_i : '0; // TODO unused
+    i3c_ibi_queue_rvalid_i = sel_i2c_i3c ? ibi_queue_rvalid_i : '0; // TODO unused
     ibi_queue_rready_o = sel_i2c_i3c ? i3c_ibi_queue_rready_o : '0;
 
     tx_host_nack_o = sel_i2c_i3c ? i3c_tx_host_nack_o : i2c_tx_host_nack_o;
   end
 
-  logic parity_err;
+  logic protocol_err;
   logic get_status_done;
 
+  // Protocol error for GETSTATUS: includes I3C protocol errors and Recovery PEC errors
+  // Note: recovery_protocol_err is already gated at source in recovery_receiver.sv
   always_ff @(posedge clk_i or negedge rst_ni) begin
     if (~rst_ni) begin
       err_o <= '0;
     end else begin
-      if (parity_err) err_o <= 1'b1;
+      if (protocol_err | recovery_protocol_err_i) err_o <= 1'b1;
       if (get_status_done) err_o <= 1'b0;
     end
   end
@@ -456,8 +478,8 @@ module controller_standby
       .tx_host_nack_o(i3c_tx_host_nack_o),
       .tx_pr_end_o(tx_pr_end_o),
       .tx_pr_start_o(tx_pr_start_o),
-      .set_dasa_o(set_dasa_o),
-      .set_dasa_valid_o(set_dasa_valid_o),
+      .dasa_o(set_dasa_o), // TODO propagate name change further up
+      .set_dasa_o(set_dasa_valid_o), // TODO propagate name change further up
       .set_dasa_virtual_device_o(set_dasa_virtual_device_o),
       .set_aasa_o(set_aasa_o),
       .set_aasa_virt_o(set_aasa_virt_o),
@@ -482,7 +504,21 @@ module controller_standby
       .ibi_status_o(ibi_status_o),
       .ibi_status_we_o(ibi_status_we_o),
       .get_status_done_o(get_status_done),
-      .parity_err_o(parity_err),
+      .protocol_err_o(protocol_err),
+      .te0_err_o(te0_err_o),
+      .te1_err_o(te1_err_o),
+      .te2_err_o(te2_err_o),
+      .te3_err_o(te3_err_o),
+      .te4_err_o(te4_err_o),
+      .te5_err_o(te5_err_o),
+      .framing_err_o(framing_err_o),
+      .te0_err_det_en_i(te0_err_det_en_i),
+      .te1_err_det_en_i(te1_err_det_en_i),
+      .te2_err_det_en_i(te2_err_det_en_i),
+      .te3_err_det_en_i(te3_err_det_en_i),
+      .te4_err_det_en_i(te4_err_det_en_i),
+      .te5_err_det_en_i(te5_err_det_en_i),
+      .framing_err_det_en_i(framing_err_det_en_i),
       .peripheral_reset_o,
       .peripheral_reset_done_i,
       .escalated_reset_o,

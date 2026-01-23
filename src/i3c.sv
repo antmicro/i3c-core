@@ -534,6 +534,16 @@ module i3c
   logic ibi_status_we;
 
   logic controller_error;
+  logic recovery_protocol_err;
+
+  // Individual TE error signals for interrupt reporting
+  logic te0_err;
+  logic te1_err;
+  logic te2_err;
+  logic te3_err;
+  logic te4_err;
+  logic te5_err;
+  logic framing_err;
 
   logic recovery_mode_enter;
   logic recovery_mode_enabled;
@@ -750,6 +760,25 @@ module i3c
 
       .err_o(controller_error),
       .recovery_mode_enter_i(recovery_mode_enter),
+      .recovery_protocol_err_i(recovery_protocol_err),
+
+      .te0_err_o(te0_err),
+      .te1_err_o(te1_err),
+      .te2_err_o(te2_err),
+      .te3_err_o(te3_err),
+      .te4_err_o(te4_err),
+      .te5_err_o(te5_err),
+      .framing_err_o(framing_err),
+
+      // Target error detection enables (directly from TTI CSR)
+      .te0_err_det_en_i(hwif_tti_out.TARGET_ERR_CTRL.TE0_ERR_DET_EN.value),
+      .te1_err_det_en_i(hwif_tti_out.TARGET_ERR_CTRL.TE1_ERR_DET_EN.value),
+      .te2_err_det_en_i(hwif_tti_out.TARGET_ERR_CTRL.TE2_ERR_DET_EN.value),
+      .te3_err_det_en_i(hwif_tti_out.TARGET_ERR_CTRL.TE3_ERR_DET_EN.value),
+      .te4_err_det_en_i(hwif_tti_out.TARGET_ERR_CTRL.TE4_ERR_DET_EN.value),
+      .te5_err_det_en_i(hwif_tti_out.TARGET_ERR_CTRL.TE5_ERR_DET_EN.value),
+      .framing_err_det_en_i(hwif_tti_out.TARGET_ERR_CTRL.FRAMING_ERR_DET_EN.value),
+
       .virtual_device_sel_o(virtual_device_sel),
       .xfer_in_progress_o(xfer_in_progress)
   );
@@ -1009,6 +1038,7 @@ module i3c
 
       // TTI In-band Interrupt (IBI) queue
       .ibi_queue_full_i        (tti_ibi_full),
+      .ibi_queue_empty_i       (tti_ibi_empty),
       .ibi_queue_req_o         (csr_tti_ibi_req),
       .ibi_queue_ack_i         (csr_tti_ibi_ack),
       .ibi_queue_data_o        (csr_tti_ibi_data),
@@ -1016,6 +1046,15 @@ module i3c
       .ibi_queue_reg_rst_o     (csr_tti_ibi_reg_rst),
       .ibi_queue_reg_rst_we_i  (csr_tti_ibi_reg_rst_we),
       .ibi_queue_reg_rst_data_i(csr_tti_ibi_reg_rst_data),
+
+      // Queue depth and status for CSR registers
+      .rx_desc_queue_depth_i   (8'(tti_rx_desc_depth)),
+      .tx_desc_queue_depth_i   (8'(tti_tx_desc_depth)),
+      .rx_data_queue_depth_i   (8'(tti_rx_depth)),
+      .tx_data_queue_depth_i   (8'(tti_tx_depth)),
+      .ibi_queue_depth_i       (8'(tti_ibi_depth)),
+      .tx_desc_queue_empty_i   (tti_tx_desc_empty),
+      .tx_data_queue_empty_i   (tti_tx_empty),
 
       .bypass_i3c_core_i(bypass_i3c_core),
 
@@ -1033,6 +1072,16 @@ module i3c
       .disec_hj_i (disec_hj),
 
       .err_i(controller_error),
+
+      // TE error inputs for interrupt reporting
+      .te0_err_i(te0_err),
+      .te1_err_i(te1_err),
+      .te2_err_i(te2_err),
+      .te3_err_i(te3_err),
+      .te4_err_i(te4_err),
+      .te5_err_i(te5_err),
+      .framing_err_i(framing_err),
+      .pec_err_i(recovery_protocol_err),
 
       .irq_o (tti_irq)
   );
@@ -1198,7 +1247,9 @@ module i3c
       .recovery_mode_enter_o(recovery_mode_enter),
       .recovery_mode_enabled_o(recovery_mode_enabled),
       .virtual_device_sel_i(virtual_device_sel),
-      .xfer_in_progress_i(xfer_in_progress)
+      .xfer_in_progress_i(xfer_in_progress),
+      .pec_err_det_en_i(hwif_tti_out.TARGET_ERR_CTRL.PEC_ERR_DET_EN.value),
+      .protocol_err_o(recovery_protocol_err)
   );
 
   // I3C PHY

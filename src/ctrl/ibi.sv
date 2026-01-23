@@ -13,55 +13,51 @@
     (target_ibi_addr_valid_i == 0) then the module does not respond to
     begin_i.
 */
-module ibi (
+module ibi import i3c_pkg::*; (
+  input  logic clk_i,
+  input  logic rst_ni,
 
-    input logic clk_i,
-    input logic rst_ni,
+  // Control / status
+  input  logic [2:0] ibi_retry_num_i,  // TTI.CONTROL.IBI_RETRY_NUM
+  input  logic       ibi_abort_i,      // Aborts IBI and flushes TTI IBI Queue
 
-    // Control / status
-    input logic [2:0] ibi_retry_num_i,  // TTI.CONTROL.IBI_RETRY_NUM
-    input logic       ibi_abort_i,      // Aborts IBI and flushes TTI IBI Queue
+  output logic [1:0] ibi_status_o,    // TTI.STATUS.LAST_IBI_STATUS
+  output logic       ibi_status_we_o, // IBI status write enable
 
-    output logic [1:0] ibi_status_o,    // TTI.STATUS.LAST_IBI_STATUS
-    output logic       ibi_status_we_o, // IBI status write enable
+  input  logic begin_i,  // Begin driving the IBI
+  output logic done_o,   // FSM is done with the IBI
 
-    input  logic begin_i,  // Begin driving the IBI
-    output logic done_o,   // FSM is done with the IBI
+  // IBI address
+  input  logic [6:0] target_ibi_addr_i,
+  input  logic       target_ibi_addr_valid_i,
 
-    // IBI address
-    input logic [6:0] target_ibi_addr_i,
-    input logic       target_ibi_addr_valid_i,
+  // IBI data interface
+  input  logic      ibi_byte_valid_i,
+  output logic      ibi_byte_ready_o,
+  input  i3c_byte_t ibi_byte_i,
+  input  logic      ibi_byte_last_i,
 
-    // IBI data interface
-    input  logic       ibi_byte_valid_i,
-    output logic       ibi_byte_ready_o,
-    input  logic [7:0] ibi_byte_i,
-    input  logic       ibi_byte_last_i,
+  // Bus Monitor interface
+  input  logic scl_negedge_i,
+  input  logic scl_posedge_i,
+  input  logic bus_available_i,
+  input  logic bus_stop_i,
+  input  logic bus_rstart_i,
+  input  logic arbitration_lost_i,
 
-    // Bus Monitor interface
-    input logic scl_negedge_i,
-    input logic scl_posedge_i,
-    input logic bus_available_i,
-    input logic bus_stop_i,
-    input logic bus_rstart_i,
+  // Bus Tx interface
+  output bus_tx_req_t bus_tx_req_o,
+  input  bus_tx_rsp_t bus_tx_rsp_i,
 
-    // Bus TX interface
-    input logic bus_tx_done_i,
-    output logic bus_tx_req_byte_o,
-    output logic bus_tx_req_bit_o,
-    output logic [7:0] bus_tx_req_value_o,
-    output logic bus_tx_sel_od_pp_o,
+  // Bus Rx interface
+  output bus_rx_req_t bus_rx_req_o,
+  input  bus_rx_rsp_t bus_rx_rsp_i,
 
-    // Bus RX interface
-    input logic bus_rx_done_i,
-    output logic bus_rx_req_byte_o,
-    output logic bus_rx_req_bit_o,
-    input logic [7:0] bus_rx_req_value_i,
+  // Bus drive interface
+  input  i3c_timeparam_t t_hd_dat_i,
 
-    // Bus drive interface
-    input  logic [19:0] t_hd_dat_i,
-    input logic arbitration_lost_i,
-    output logic sda_o
+  // SDA out for initial zero-pulse
+  output logic sda_o
 );
 
   // IBI status codes
@@ -72,15 +68,17 @@ module ibi (
     IbiFailureRetry       = 2'b11
   } ibi_status_e;
 
-  ibi_status_e       ibi_status;
-  logic        [2:0] ibi_retry_cnt;
-  logic              ibi_can_retry;
+  ibi_status_e ibi_status_q, ibi_status_d;
 
-  logic [19:0] tcount;
+  logic [2:0] ibi_retry_cnt_q, ibi_retry_cnt_d;
+  logic       ibi_can_retry;
 
-  // NACK
-  logic              bus_rx_req_nack;
-  assign bus_rx_req_nack = bus_rx_req_value_i[0];
+  i3c_byte_t bus_tx_req_value;
+
+  logic bus_rx_req_nack;
+
+  // TODO can probably be removed
+  i3c_timeparam_t t_hd_cnt_q, t_hd_cnt_d;
 
   // FSM
   typedef enum logic [7:0] {
@@ -108,168 +106,166 @@ module ibi (
     Done
   } state_e;
 
-  state_e state_q;
-
-  always_ff @(posedge clk_i or negedge rst_ni)
-    if (!rst_ni) state_q <= Idle;
-    else
-      case (state_q)
-        Idle:
-        if (begin_i && target_ibi_addr_valid_i)
-          if (ibi_can_retry) state_q <= WaitAvail;
-          else state_q <= Flush;
-
-        WaitAvail:
-        if (bus_stop_i) state_q <= Done;
-        else if (bus_available_i) state_q <= DriveStart;
-
-        DriveStart:
-        if (bus_stop_i) state_q <= Done;
-        else begin
-          if (t_hd_dat_i == 20'd0 && scl_negedge_i)
-              state_q <= DriveAddr;
-          if (tcount == 20'd0)
-              state_q <= DriveAddr;
-        end
-
-        DriveAddr:
-        if (bus_stop_i) state_q <= Done;
-        else if (bus_tx_done_i) state_q <= ReadAck;
-        else if (arbitration_lost_i) state_q <= WaitStopOrRstart;
-
-        ReadAck:
-        if (bus_stop_i) state_q <= Done;
-        else if (bus_rx_done_i)
-          if (bus_rx_req_nack)  // NACK
-            state_q <= WaitStopOrRstart;
-          else  // ACK
-            state_q <= WaitForSclNegedgeAfterAck;
-
-        WaitForSclNegedgeAfterAck:
-        if (scl_negedge_i) state_q <= SendData;
-
-        SendData:
-        if (bus_stop_i) state_q <= Flush;
-        else if (bus_tx_done_i) state_q <= SendTbit;
-
-        SendTbit:
-        if (bus_stop_i) state_q <= Flush;
-        else if (bus_tx_done_i) state_q <= ibi_byte_last_i ? Done : SendData;
-
-        WaitStopOrRstart: if (bus_stop_i | bus_rstart_i) state_q <= Idle;
-
-        Flush: if (!ibi_byte_valid_i) state_q <= Done;
-
-        Done:    state_q <= Idle;
-        default: state_q <= Idle;
-      endcase
-
-  // SDA pull
-  assign sda_o = !(state_q == DriveStart);
+  state_e state_q, state_d;
 
   // SCL fall time counter
-  always_ff @(posedge clk_i or negedge rst_ni)
-    if (!rst_ni)
-      tcount <= 20'(-1);
-    else begin
-      if (state_q == DriveStart && scl_negedge_i)
-        tcount <= t_hd_dat_i - 20'd1;
-      else if (tcount != 20'(-1))
-        tcount <= tcount - 20'd1;
+  always_comb begin
+    t_hd_cnt_d = t_hd_cnt_q;
+
+    if ((state_q == DriveStart) && scl_negedge_i) begin
+      t_hd_cnt_d = t_hd_dat_i - 1;
+    end else if (t_hd_cnt_q != '1) begin
+      t_hd_cnt_d = t_hd_cnt_q - 1;
     end
-
-  // Bus tx and rx control
-  always_comb begin
-    bus_tx_req_byte_o  = '0;
-    bus_tx_req_bit_o   = '0;
-    bus_tx_req_value_o = '0;
-    bus_tx_sel_od_pp_o = '0;
-
-    bus_rx_req_byte_o  = '0;
-    bus_rx_req_bit_o   = '0;
-
-    case (state_q)
-      DriveAddr: begin
-        bus_tx_req_byte_o  = 1'b1;
-        bus_tx_req_value_o = {target_ibi_addr_i, 1'b1};
-      end
-      ReadAck: begin
-        bus_rx_req_bit_o = 1'b1;
-      end
-      SendData: begin
-        bus_tx_req_byte_o  = 1'b1;
-        bus_tx_req_value_o = ibi_byte_i;
-        bus_tx_sel_od_pp_o = 1'b1;
-      end
-      SendTbit: begin
-        bus_tx_req_bit_o   = 1'b1;
-        bus_tx_req_value_o = 8'(!ibi_byte_last_i);
-        bus_tx_sel_od_pp_o = 1'b1;
-      end
-      default: begin
-        bus_tx_req_byte_o  = '0;
-        bus_tx_req_value_o = '0;
-        bus_tx_sel_od_pp_o = '0;
-      end
-    endcase
   end
-
-  // Data FIFO control
-  always_comb begin
-    ibi_byte_ready_o = '0;
-
-    case (state_q)
-      SendTbit: if (bus_tx_done_i) ibi_byte_ready_o = 1'b1;
-      Flush: ibi_byte_ready_o = 1'b1;
-      default: begin
-        ibi_byte_ready_o = '0;
-      end
-    endcase
-  end
-
-  // IBI status
-  always_ff @(posedge clk_i or negedge rst_ni)
-    if (~rst_ni) ibi_status <= IbiSuccess;
-    else
-      case (state_q)
-
-        SendData:
-        if (bus_stop_i) begin
-          if (ibi_status == IbiSuccess) ibi_status <= IbiFailurePartialData;
-          else ibi_status <= IbiFailureRetry;
-        end
-
-        SendTbit:
-        if (bus_stop_i) begin
-          if (ibi_status == IbiSuccess) ibi_status <= IbiFailurePartialData;
-          else ibi_status <= IbiFailureRetry;
-        end else if (bus_tx_done_i && ibi_byte_last_i) ibi_status <= IbiSuccess;
-
-        ReadAck:
-        if (bus_rx_done_i && bus_rx_req_nack) begin
-          if (ibi_status == IbiSuccess) ibi_status <= IbiFailureNack;
-          else ibi_status <= IbiFailureRetry;
-        end
-        default: begin
-          ibi_status <= ibi_status;
-        end
-      endcase
 
   // Retry counter
-  always_ff @(posedge clk_i or negedge rst_ni)
-    if (~rst_ni) ibi_retry_cnt <= 3'd7;
-    else if (state_q == Done)
-      if (ibi_status == IbiFailureNack) ibi_retry_cnt <= ibi_retry_cnt + 1'b1;
-      else ibi_retry_cnt <= 3'd7;
+  always_comb begin
+    ibi_retry_cnt_d = ibi_retry_cnt_q;
 
-  // Retry allowed
-  assign ibi_can_retry = (ibi_retry_num_i == 3'd7) ||
-                           (ibi_retry_num_i != ibi_retry_cnt);
+    if (ibi_status_q == IbiFailureNack) begin
+      ibi_retry_cnt_d = ibi_retry_cnt_q + 1;
+    end else begin
+      ibi_retry_cnt_d = '1;
+    end
+  end
 
+  // Nack by controller is LSB of received data
+  assign bus_rx_req_nack = bus_rx_rsp_i.data[0];
 
-  assign done_o = (state_q == Done || (state_q == DriveAddr && arbitration_lost_i && ~bus_tx_done_i));
+  // Retry allowed if count not yet met or indefinite attempts allowed
+  assign ibi_can_retry = (ibi_retry_num_i == 3'd7) || (ibi_retry_num_i != ibi_retry_cnt_q);
 
-  assign ibi_status_o    = ibi_status;
-  assign ibi_status_we_o = (state_q == Done) | ((state_q == WaitStopOrRstart) & bus_stop_i);
+  assign bus_tx_req_o = '{
+    drive_type: (state_q inside {SendData, SendTbit}) ? PushPull : OpenDrain,
+    req_byte:   (state_q inside {DriveAddr, SendData}),
+    req_bit:    (state_q == SendTbit),
+    data:       bus_tx_req_value
+  };
+
+  assign bus_rx_req_o = '{
+    req_bit:  (state_q == ReadAck),
+    req_byte: 1'b0
+  };
+
+  always_comb begin : fsm_ibi
+    bus_tx_req_value = '0;
+    ibi_byte_ready_o = 1'b0;
+    ibi_status_we_o  = 1'b0;
+
+    done_o = 1'b0;
+    sda_o  = 1'b1;
+
+    state_d      = state_q;
+    ibi_status_d = ibi_status_q;
+    case (state_q)
+      Idle: begin
+        if (begin_i && target_ibi_addr_valid_i) begin
+          state_d = ibi_can_retry ? WaitAvail : Flush;
+        end
+      end
+      WaitAvail: begin
+        if (bus_stop_i) begin
+          state_d = Done;
+        end else if (bus_available_i) begin
+          state_d = DriveStart;
+        end
+      end
+      DriveStart: begin
+        sda_o = 1'b0;
+
+        if (bus_stop_i) begin
+          state_d = Done;
+        end else begin
+          // Proceed if counter elapsed or t_hold is zero and we see a negedge on scl
+          // TODO Any "hold" time here probably makes no sense
+          if ((t_hd_cnt_q == '0) || ((t_hd_dat_i == '0) && scl_negedge_i)) begin
+            state_d = DriveAddr;
+          end
+        end
+      end
+      DriveAddr: begin
+        bus_tx_req_value = {target_ibi_addr_i, 1'b1};
+
+        if (bus_stop_i) begin
+          state_d = Done;
+        end else if (bus_tx_rsp_i.done) begin
+          state_d = ReadAck;
+        end else if (arbitration_lost_i) begin
+          done_o  = 1'b1;
+          state_d = WaitStopOrRstart;
+        end
+      end
+      ReadAck: begin
+        if (bus_stop_i) begin
+          state_d = Done;
+        end else if (bus_rx_rsp_i.done) begin
+          if (bus_rx_req_nack) begin
+            ibi_status_d = (ibi_status_q == IbiSuccess) ? IbiFailureNack : IbiFailureRetry;
+            state_d = WaitStopOrRstart;
+          end else begin
+            state_d = WaitForSclNegedgeAfterAck;
+          end
+        end
+      end
+      WaitForSclNegedgeAfterAck: begin
+        if (scl_negedge_i) state_d = SendData;
+      end
+      SendData: begin
+        bus_tx_req_value = ibi_byte_i;
+
+        if (bus_stop_i) begin
+          ibi_status_d = (ibi_status_q == IbiSuccess) ? IbiFailurePartialData : IbiFailureRetry;
+          state_d = Flush;
+        end else if (bus_tx_rsp_i.done) begin
+          if (ibi_byte_last_i) begin
+            ibi_status_d = IbiSuccess;
+          end
+          state_d = SendTbit;
+        end
+      end
+      SendTbit: begin
+        bus_tx_req_value = 8'(!ibi_byte_last_i);
+        ibi_byte_ready_o = bus_tx_rsp_i.done;
+
+        if (bus_stop_i) begin
+          ibi_status_d = (ibi_status_q == IbiSuccess) ? IbiFailurePartialData : IbiFailureRetry;
+          state_d = Flush;
+        end else if (bus_tx_rsp_i.done) begin
+          state_d = ibi_byte_last_i ? Done : SendData;
+        end
+      end
+      WaitStopOrRstart: begin
+        ibi_status_we_o = bus_stop_i;
+        if (bus_stop_i || bus_rstart_i) state_d = Idle;
+      end
+      Flush: begin
+        ibi_byte_ready_o = 1'b1;
+        if (!ibi_byte_valid_i) state_d = Done;
+      end
+      Done: begin
+        ibi_status_we_o = 1'b1;
+        done_o = 1'b1;
+        state_d = Idle;
+      end
+      default: ;
+    endcase
+  end
+
+  assign ibi_status_o = ibi_status_q;
+
+  always_ff @(posedge clk_i or negedge rst_ni) begin
+    if (!rst_ni) begin
+      state_q         <= Idle;
+      ibi_status_q    <= IbiSuccess;
+      ibi_retry_cnt_q <= '1; // TODO
+      t_hd_cnt_q      <= '0;
+    end else begin
+      state_q         <= state_d;
+      ibi_status_q    <= ibi_status_d;
+      ibi_retry_cnt_q <= ibi_retry_cnt_d;
+      t_hd_cnt_q      <= t_hd_cnt_d;
+    end
+  end
 
 endmodule

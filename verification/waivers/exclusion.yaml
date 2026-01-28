@@ -519,6 +519,12 @@ Constant value in RO register or set by the verilog parameter:
     - target_hot_join_addr_o # I3C spec defines this value to be constant 'h02
     - mwl_dword
     - mrl_dword
+  - MODULE=controller_standby:
+    - target_hot_join_addr_i # I3C spec defines this value to be constant 'h02
+  - MODULE=controller_standby_i3c:
+    - target_hot_join_addr_i # I3C spec defines this value to be constant 'h02
+  - MODULE=controller_standby_i2c:
+    - target_hot_join_addr_i # I3C spec defines this value to be constant 'h02
 
 Tied off signals:
   signals:
@@ -1040,7 +1046,74 @@ Tied off signals:
     - virtual_pid_o       [32]
     - daa_unique_response [48]    # PID[32]
     - bus_enable                  # Tied to 1 in target-only configs
+    - target_hot_join_addr_o
+  - MODULE=controller_standby:
+    - rx_desc_queue_ready_thld_i [7:6] # Unused in 64 FIFO depth configurations
+    - tx_desc_queue_ready_thld_i [7:6] # Unused in 64 FIFO depth configurations
+    - rx_desc_queue_wdata_o [31:29]    # Reserved upper 3 bits of the RX descriptor ERROR field
+    - rx_desc_queue_wdata_o [27:16]    # Meaningless bits
+    - rx_desc_queue_wdata_o [15:9]     # Unachievable RX descriptor DATA_LENGTH field values
+    - phy_en_i                         # Tied to 1 in target-only
+    - i2c_active_en_i                  # Tied to 0
+    - i2c_standby_en_i                 # Tied to 0
+    - get_status_fmt1_i [15:8]         # Tied to 0
+    - get_status_fmt1_i [7:6]          # Tied to 1
+    - get_status_fmt1_i [4]            # Tied to 0; Reserved
+    - pid_i [32]                       # Tied to 0
+    - virtual_pid_i [32]               # Tied to 0
+    - daa_unique_response_i [48]       # PID[32]
   - MODULE=controller_standby_i3c:
+    - ctrl_bus_i.sda.stable_low   # Tied to 0, unused
+    - ctrl_scl_o                  # Tied to 1
+    - rx_desc_queue_wdata_o [31:29] # Reserved upper 3 bits of the RX descriptor ERROR field
+    - rx_desc_queue_wdata_o [27:16] # Meaningless bits
+    - rx_desc_queue_wdata_o [15:9]  # Unachievable RX descriptor DATA_LENGTH field values
+    - get_status_fmt1_o   [15:8]  # Tied to 0
+    - get_status_fmt1_o   [7:6]   # Tied to 1
+    - get_status_fmt1_o   [4]     # Tied to 0; Reserved
+    - pid_i [32]                  # Tied to 0
+    - virtual_pid_i [32]          # Tied to 0
+    - daa_unique_response_i [48]  # PID[32]
+    - tx_host_nack_o              # Tied to 0, only assigned 0 in always_comb
     - bus_timeout                 # Tied to 0
     - ibi_bus_tx_req_err          # Tied to 0, commented out in always_comb?
     - ibi_bus_tx_idle             # Tied to 0, commented out in always_comb?
+    - bus_error                   # Tied to 0
+    - fsm_bus_tx_sel_od_pp        # Tied to 0, is TODO, unimplemented yet (od/pp)
+    - ibi_bus_rx_req_byte         # Tied to 0, only assigned 0 in always_comb
+    - ibi_bus_rx_data [7:1]       # IBI only requests a bit => tied to 0
+    - tx_host_nack                # Tied to 0, only assigned 0 in always_comb
+    - event_cmd_complete          # Tied to 0, is TODO, unimplemented yet (events)
+    - event_unexp_stop            # Tied to 0, is TODO, unimplemented yet (events)
+    - event_tx_arbitration_lost   # Tied to 0, is TODO, unimplemented yet (events)
+    - event_tx_bus_timeout        # Tied to 0, is TODO, unimplemented yet (events)
+    - event_read_cmd_received     # Tied to 0, is TODO, unimplemented yet (events)
+    - is_hotjoin_done             # Tied to 0
+    - entas0                      # Tied to 0, is TODO, unimplemented yet (ENTAS0 CCC)
+    - entas1                      # Tied to 0, is TODO, unimplemented yet (ENTAS1 CCC)
+    - entas2                      # Tied to 0, is TODO, unimplemented yet (ENTAS2 CCC)
+    - entas3                      # Tied to 0, is TODO, unimplemented yet (ENTAS3 CCC)
+    - ent_tm                      # Tied to 0, is TODO, unimplemented yet (ENTTM CCC)
+    - tm                          # Tied to 0, is TODO, unimplemented yet (ENTTM CCC)
+    - set_brgtgt                  # Tied to 0, is TODO, unimplemented yet (SETBRGTGT CCC)
+    - get_acccr                   # Tied to 0
+    - get_mxds                    # Tied to 0
+  - MODULE=controller_standby_i2c:
+    - phy_sel_od_pp_o             # Tied to 0, is TODO
+    - rx_desc_queue_ready_thld_i [7:6] # Unused in 64 FIFO depth configurations
+    - tx_desc_queue_ready_thld_i [7:6] # Unused in 64 FIFO depth configurations
+    - rx_desc_queue_wdata_o [31:29]    # Reserved upper 3 bits of the RX descriptor ERROR field
+    - rx_desc_queue_wdata_o [27:16]    # Meaningless bits
+    - rx_desc_queue_wdata_o [15:9]     # Unachievable RX descriptor DATA_LENGTH field values
+    - bus_start_o                 # Tied to 0, is TODO, make i2c fsm report start/stop condition
+    - bus_rstart_o                # Tied to 0, is TODO, make i2c fsm report start/stop condition
+    - bus_stop_o                  # Tied to 0, is TODO, make i2c fsm report start/stop condition
+    - bus_addr_o                  # Tied to 0, is TODO, make i2c fsm output address
+    - bus_addr_valid_o            # Tied to 0, is TODO, make i2c fsm output address
+    - tx_host_nack_o              # Tied to 0, is TODO, detect host NACKs and expose
+    - i2c_active_en_i             # Tied to 0
+    - i2c_standby_en_i            # Tied to 0
+    - phy_en_i                    # Tied to 1 in target-only configs
+    - pid_i [32]                       # Tied to 0
+    - virtual_pid_i [32]               # Tied to 0
+    - daa_unique_response_i [48]       # PID[32]

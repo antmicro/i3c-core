@@ -678,9 +678,9 @@ async def test_ccc_setmwl_direct(dut):
     i3c_controller, _, tb = await test_setup(dut)
 
     # Send direct SETMWL
-    mwl_msb = 0xAB
-    mwl_lsb = 0xCD
-    await i3c_controller.i3c_ccc_write(ccc=command, directed_data=[(TGT_ADR, [mwl_msb, mwl_lsb])])
+    for test_byte in (0x55, 0xAA):
+        mwl_msb = mwl_lsb = test_byte
+        await i3c_controller.i3c_ccc_write(ccc=command, directed_data=[(TGT_ADR, [mwl_msb, mwl_lsb])])
 
     # Check if MWL got written
     sig = dut.xi3c_wrapper.i3c.xcontroller.xconfiguration.get_mwl_o.value
@@ -696,14 +696,16 @@ async def test_ccc_setmrl_direct(dut):
     i3c_controller, _, tb = await test_setup(dut)
 
     # Send direct SETMRL
-    mrl_msb = 0xAB
-    mrl_lsb = 0xCD
-    await i3c_controller.i3c_ccc_write(ccc=command, directed_data=[(TGT_ADR, [mrl_msb, mrl_lsb])])
+    for test_byte in (0x55, 0xAA):
+        mrl_msb = mrl_lsb = ibil = test_byte
+        await i3c_controller.i3c_ccc_write(ccc=command, directed_data=[(TGT_ADR, [mrl_msb, mrl_lsb, ibil])])
 
     # Check if MRL got written
-    sig = dut.xi3c_wrapper.i3c.xcontroller.xconfiguration.get_mrl_o.value
+    sig_mrl = dut.xi3c_wrapper.i3c.xcontroller.xconfiguration.get_mrl_o.value
+    sig_ibil = dut.xi3c_wrapper.i3c.xcontroller.xconfiguration.get_ibil_o.value
     mrl = (mrl_msb << 8) | mrl_lsb
-    assert mrl == int(sig)
+    assert mrl == int(sig_mrl)
+    assert sig_ibil == ibil
 
 
 @cocotb.test()

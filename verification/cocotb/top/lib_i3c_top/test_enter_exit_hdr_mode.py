@@ -21,7 +21,10 @@ VALID_I3C_ADDRESSES = (
     + [0x7B, 0x7D]
 )
 
-async def test_setup(dut, static_addr=0x5A, virtual_static_addr=0x5B, dynamic_addr=None, virtual_dynamic_addr=None):
+async def test_setup(
+    dut, static_addr=0x5A, virtual_static_addr=0x5B, dynamic_addr=None, virtual_dynamic_addr=None,
+    attach_target=True
+):
     """
     Sets up controller, target models and top-level core interface
     """
@@ -36,14 +39,19 @@ async def test_setup(dut, static_addr=0x5A, virtual_static_addr=0x5B, dynamic_ad
         speed=12.5e6,
     )
 
-    i3c_target = I3CTarget(  # noqa
-        sda_i=dut.bus_sda,
-        sda_o=dut.sda_sim_target_i,
-        scl_i=dut.bus_scl,
-        scl_o=dut.scl_sim_target_i,
-        debug_state_o=None,
-        speed=12.5e6,
-    )
+    if attach_target:
+        i3c_target = I3CTarget(  # noqa
+            sda_i=dut.bus_sda,
+            sda_o=dut.sda_sim_target_i,
+            scl_i=dut.bus_scl,
+            scl_o=dut.scl_sim_target_i,
+            debug_state_o=None,
+            speed=12.5e6,
+        )
+    else:
+        i3c_target = None
+        dut.sda_sim_target_i.setimmediatevalue(1)
+        dut.scl_sim_target_i.setimmediatevalue(1)
 
     tb = I3CTopTestInterface(dut)
     await tb.setup()
@@ -274,6 +282,42 @@ async def test_enter_restart_exit_hdr_mode_read(dut):
                 # Exit HDR mode
                 await i3c_controller.send_hdr_exit()
             i3c_target.address = 0
+
+        assert (
+            int(dut.xi3c_wrapper.i3c.xcontroller.xcontroller_standby.xcontroller_standby_i3c.xi3c_target_fsm.state_d.value)
+            == 0
+        )  # Idle
+
+        # Send GETSTATUS direct CCC (0x90) to verify target is responsive
+        GETSTATUS = 0x90
+        target_addr = DYNAMIC_ADDR
+        status_data = await i3c_controller.i3c_ccc_read(
+            ccc=GETSTATUS,
+            addr=target_addr,
+            count=2,
+            stop=True
+        )
+        cocotb.log.info(f"GETSTATUS response from {hex(target_addr)}: {status_data}")
+        assert int.from_bytes(status_data[0][1], 'big') == 0xC0, f"Expected status 0xC0, got {hex(int.from_bytes(status_data[0][1], 'big'))}"
+
+
+@cocotb.test()
+async def test_cycle_all_hdr_modes(dut):
+    ENTHDR0 = 0x20
+
+    (STATIC_ADDR, VIRT_STATIC_ADDR, DYNAMIC_ADDR, VIRT_DYNAMIC_ADDR) = random.sample(VALID_I3C_ADDRESSES, 4)
+    i3c_controller, _, tb = await test_setup(dut, STATIC_ADDR, VIRT_STATIC_ADDR, DYNAMIC_ADDR, VIRT_DYNAMIC_ADDR, attach_target=False)
+
+    for enthdrx in range(ENTHDR0, ENTHDR0 + 8):
+        await i3c_controller.i3c_ccc_write(enthdrx, broadcast_data=[], stop=False, pull_scl_low=True)
+
+        assert (
+        int(dut.xi3c_wrapper.i3c.xcontroller.xcontroller_standby.xcontroller_standby_i3c.xi3c_target_fsm.state_d.value)
+            == 0xA0
+        )  # IdleHDR
+
+        # Exit HDR mode
+        await i3c_controller.send_hdr_exit()
 
         assert (
             int(dut.xi3c_wrapper.i3c.xcontroller.xcontroller_standby.xcontroller_standby_i3c.xi3c_target_fsm.state_d.value)

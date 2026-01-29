@@ -51,7 +51,8 @@ TEST_HDR_TIMEOUT_CYCLES = 200
 
 async def test_setup(dut, static_addr=0x5A, virtual_static_addr=0x5B,
                      dynamic_addr=None, virtual_dynamic_addr=None,
-                     hdr_timeout_en=False, hdr_timeout_cycles=None):
+                     hdr_timeout_en=False, hdr_timeout_cycles=None,
+                     attach_target=True):
     """Sets up controller, target models and top-level core interface."""
 
     cocotb.log.setLevel(logging.DEBUG)
@@ -66,14 +67,19 @@ async def test_setup(dut, static_addr=0x5A, virtual_static_addr=0x5B,
         speed=12.5e6,
     )
 
-    i3c_target = I3CTarget(  # noqa
-        sda_i=dut.bus_sda,
-        sda_o=dut.sda_sim_target_i,
-        scl_i=dut.bus_scl,
-        scl_o=dut.scl_sim_target_i,
-        debug_state_o=None,
-        speed=12.5e6,
-    )
+    if attach_target:
+        i3c_target = I3CTarget(  # noqa
+            sda_i=dut.bus_sda,
+            sda_o=dut.sda_sim_target_i,
+            scl_i=dut.bus_scl,
+            scl_o=dut.scl_sim_target_i,
+            debug_state_o=None,
+            speed=12.5e6,
+        )
+    else:
+        i3c_target = None
+        dut.sda_sim_target_i.setimmediatevalue(1)
+        dut.scl_sim_target_i.setimmediatevalue(1)
 
     tb = I3CTopTestInterface(dut)
     await tb.setup()
@@ -574,5 +580,22 @@ async def test_hdr_exit_pattern_works_alongside_timer(dut):
     assert_fsm_idle(dut)
     await verify_target_responsive(i3c_controller, DYNAMIC_ADDR)
     tb.te_error_monitor.check()
+
+    await tb.teardown()
+
+
+@cocotb.test()
+async def test_cycle_all_hdr_modes(dut):
+    (STATIC_ADDR, VIRT_STATIC_ADDR, DYNAMIC_ADDR, VIRT_DYNAMIC_ADDR) = random.sample(VALID_I3C_ADDRESSES, 4)
+    i3c_controller, _, tb = await test_setup(dut, STATIC_ADDR, VIRT_STATIC_ADDR, DYNAMIC_ADDR, VIRT_DYNAMIC_ADDR, attach_target=False)
+
+    for enthdrx in range(ENTHDR0, ENTHDR0 + 8):
+        await i3c_controller.i3c_ccc_write(enthdrx, broadcast_data=[], stop=False, pull_scl_low=True)
+        assert_fsm_in_hdr_mode(dut)
+
+        await i3c_controller.send_hdr_exit()
+        assert_fsm_idle(dut)
+
+        await verify_target_responsive(i3c_controller, DYNAMIC_ADDR)
 
     await tb.teardown()

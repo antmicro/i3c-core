@@ -193,3 +193,23 @@ async def test_byte_tx_flow(dut):
         await ReadOnly()
         # Ensure that the bus is free
         assert dut.sda_o.value == 1
+
+
+@cocotb.test()
+async def test_both_reqs_at_once_error(dut):
+    await setup_test(dut)
+
+    # Issuing both a bit and a byte request at once
+    # should assert an error signal
+    dut.req_value_i.value = 0xAA
+    dut.req_bit_i.value = 1
+    dut.req_byte_i.value = 1
+
+    await RisingEdge(dut.clk_i)
+    assert dut.req_error_o == 1
+
+    dut.req_bit_i.value = 0
+    dut.req_byte_i.value = 0
+
+    await RisingEdge(dut.clk_i)
+    assert dut.req_error_o == 0

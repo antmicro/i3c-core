@@ -44,10 +44,7 @@ module i3c_target_fsm import i3c_pkg::*; #(
   input  logic bus_timeout_i,  // The bus timed out, with SCL held low for too long.
 
   input  logic scl_negedge_i,
-  input  logic scl_posedge_i, // UNUSED
-  input  logic sda_negedge_i, // UNUSED
-  input  logic sda_posedge_i, // UNUSED
-  input  logic bus_free_i,
+  input  logic bus_available_i,
 
   output logic target_idle_o,  // indicates the target is idle
   output logic target_transmitting_o,  // Target is transmitting SDA (disambiguates high sda_o)
@@ -75,14 +72,16 @@ module i3c_target_fsm import i3c_pkg::*; #(
   output logic                   rx_last_byte_o,
 
   // Target address
-  input  logic [6:0] target_sta_address_i,
-  input  logic       target_sta_address_valid_i,
-  input  logic [6:0] target_dyn_address_i,
-  input  logic       target_dyn_address_valid_i,
-  input  logic [6:0] virtual_target_sta_address_i,
-  input  logic       virtual_target_sta_address_valid_i,
-  input  logic [6:0] virtual_target_dyn_address_i,
-  input  logic       virtual_target_dyn_address_valid_i,
+  input  logic [6:0] target_sta_addr_i,
+  input  logic       target_sta_addr_valid_i,
+  input  logic [6:0] target_dyn_addr_i,
+  input  logic       target_dyn_addr_valid_i,
+  input  logic [6:0] virtual_target_sta_addr_i,
+  input  logic       virtual_target_sta_addr_valid_i,
+  input  logic [6:0] virtual_target_dyn_addr_i,
+  input  logic       virtual_target_dyn_addr_valid_i,
+  // Required for decision whether to act upon IBI requests
+  input  logic       target_ibi_addr_valid_i,
 
   output logic [7:0] last_addr_o, // Includes rnw as LSB
   output logic       last_addr_valid_o,
@@ -230,6 +229,7 @@ module i3c_target_fsm import i3c_pkg::*; #(
     drive_type: OpenDrain, // TODO Set OD/PP in correct states
     req_byte:   bus_tx_req_byte,
     req_bit:    bus_tx_req_bit,
+    req_ibi:    1'b0,
     data:       bus_tx_req_data
   };
 
@@ -245,13 +245,13 @@ module i3c_target_fsm import i3c_pkg::*; #(
 
   // Primary target address matching
   // Per I3C spec: Once a target has a dynamic address, it stops responding to its static address
-  assign is_our_addr_match = ((bus_addr_q == target_dyn_address_i) && target_dyn_address_valid_i) ||
-                             ((bus_addr_q == target_sta_address_i) && target_sta_address_valid_i && ~target_dyn_address_valid_i);
+  assign is_our_addr_match = ((bus_addr_q == target_dyn_addr_i) && target_dyn_addr_valid_i) ||
+                             ((bus_addr_q == target_sta_addr_i) && target_sta_addr_valid_i && ~target_dyn_addr_valid_i);
 
   // Virtual target address matching
   // Per I3C spec: Once a target has a dynamic address, it stops responding to its static address
-  assign is_virtual_addr_match = ((bus_addr_q == virtual_target_dyn_address_i) && virtual_target_dyn_address_valid_i) ||
-                                 ((bus_addr_q == virtual_target_sta_address_i) && virtual_target_sta_address_valid_i && ~virtual_target_dyn_address_valid_i);
+  assign is_virtual_addr_match = ((bus_addr_q == virtual_target_dyn_addr_i) && virtual_target_dyn_addr_valid_i) ||
+                                 ((bus_addr_q == virtual_target_sta_addr_i) && virtual_target_sta_addr_valid_i && ~virtual_target_dyn_addr_valid_i);
 
   assign is_any_addr_match = is_our_addr_match || is_virtual_addr_match;
 
@@ -355,7 +355,7 @@ module i3c_target_fsm import i3c_pkg::*; #(
   // Enterng the TXPReadData state, then asserting rready will cause a byte to be
   // consumed from the FIFO, but we might cancel TxPReadData if Rstart occurs.
   // On TX cancel, we flush the FIFO, aborting transaction.
-  assign tx_fifo_rready_o = (state_q != TxPReadData) & (state_d == TxPReadData);
+  assign tx_fifo_rready_o = (state_q != TxPReadData) && (state_d == TxPReadData);
 
   always_ff @(posedge clk_i or negedge rst_ni) begin : set_last_byte_in_xfer
     if (~rst_ni) begin
@@ -369,7 +369,7 @@ module i3c_target_fsm import i3c_pkg::*; #(
     if (~rst_ni) begin
       tx_data_byte <= '0;
     end else begin
-      if (tx_fifo_rready_o || tx_end_xfer) tx_data_byte <= tx_fifo_rdata_i;
+      if (tx_fifo_rready_o) tx_data_byte <= tx_fifo_rdata_i;
     end
   end
 
@@ -414,7 +414,7 @@ module i3c_target_fsm import i3c_pkg::*; #(
           // Hot-join support would be added here
           if (target_reset_detect_i) begin
             state_d = DoRstAction;
-          end else if (ibi_pending_i && ibi_enable_i && bus_free_i) begin
+          end else if (ibi_pending_i && ibi_enable_i && target_ibi_addr_valid_i && bus_available_i) begin
             ibi_begin_o = 1'b1;
             state_d = DoIBI;
           end else if (bus_start_det) begin
@@ -437,12 +437,12 @@ module i3c_target_fsm import i3c_pkg::*; #(
         tx_pr_start_o = !is_rsvd_byte_match && is_any_addr_match && bus_rnw_q;
 
         if (is_rsvd_byte_match || is_any_addr_match) begin
-           // Do not ACK transaction if it is a read and we don't have data to send
-           if (~tx_desc_avail_i && bus_rnw_q) begin
-             state_d = WaitStart;
-           end else begin
-             state_d = TxAckFByte;
-           end
+          // Do not ACK transaction if it is a read and we don't have data to send
+          if (~tx_desc_avail_i && bus_rnw_q) begin
+            state_d = WaitStart;
+          end else begin
+            state_d = TxAckFByte;
+          end
         end else begin
           // Nothing on the bus happened which requires our action; wait for next (Re)Start condition.
           state_d = WaitStart;
@@ -450,7 +450,7 @@ module i3c_target_fsm import i3c_pkg::*; #(
       end
       TxAckFByte: begin
         bus_tx_req_bit     = 1'b1;
-        bus_tx_req_data[0] = 1'b0;  // LSB is the only bit used for bit TX transfer
+        bus_tx_req_data[7] = 1'b0; // LSB is the only bit used for bit TX transfer
 
         if (bus_tx_rsp_i.done) begin
           if (is_rsvd_byte_match) begin
@@ -507,7 +507,7 @@ module i3c_target_fsm import i3c_pkg::*; #(
       end
       TxAckSByte: begin
         bus_tx_req_bit     = 1'b1;
-        bus_tx_req_data[0] = 1'b0;
+        bus_tx_req_data[7] = 1'b0;
 
         if (bus_tx_rsp_i.done) begin
           if (is_any_addr_match) begin
@@ -553,9 +553,11 @@ module i3c_target_fsm import i3c_pkg::*; #(
       end
       TxPReadTbit: begin
         bus_tx_req_bit     = 1'b1;
-        bus_tx_req_data[0] = ~tx_end_xfer;
+        bus_tx_req_data[7] = ~tx_end_xfer;
         tx_pr_abort_o = bus_start_det || bus_stop_det_i;
 
+        // FIXME While waiting for a restart condition when the controller wants to abort the read,
+        // the bus_tx_rsp_i.done below can happen first, leading to erroneous draining of the FIFO.
         if (bus_start_det) begin
           state_d = RxFByte;
         end else if (bus_tx_rsp_i.done) begin

@@ -525,6 +525,22 @@ Constant value in RO register or set by the verilog parameter:
     - target_hot_join_addr_i # I3C spec defines this value to be constant 'h02
   - MODULE=controller_standby_i2c:
     - target_hot_join_addr_i # I3C spec defines this value to be constant 'h02
+  - MODULE=tti:
+    - hwif_tti_i:
+      - IBI_QUEUE_SIZE.IBI_QUEUE_SIZE.value
+      - QUEUE_SIZE.TX_DATA_BUFFER_SIZE.value
+      - QUEUE_SIZE.RX_DATA_BUFFER_SIZE.value
+      - QUEUE_SIZE.TX_DESC_BUFFER_SIZE.value
+      - QUEUE_SIZE.RX_DESC_BUFFER_SIZE.value
+      - INTERRUPT_STATUS.TRANSFER_ERR_STAT.value
+      - INTERRUPT_STATUS.TRANSFER_ABORT_STAT.value
+      - INTERRUPT_STATUS.IBI_THLD_STAT.value
+      - INTERRUPT_STATUS.TX_DESC_THLD_STAT.value
+      - INTERRUPT_STATUS.TX_DATA_THLD_STAT.value
+      - INTERRUPT_STATUS.TX_DESC_TIMEOUT.value
+      - INTERRUPT_STATUS.RX_DESC_TIMEOUT.value
+      - EXTCAP_HEADER.CAP_LENGTH.value
+      - EXTCAP_HEADER.CAP_ID.value
 
 Tied off signals:
   signals:
@@ -1027,9 +1043,9 @@ Tied off signals:
     - phy_en
     - i2c_active_en
     - i2c_standby_en
-    - get_status_fmt1 [15:8]
-    - get_status_fmt1 [7:6]
-    - get_status_fmt1 [4]
+    - get_status_fmt1 [15:8]      # Reserved for vendor-specific meaning, unused
+    - get_status_fmt1 [7:6]       # Tied to 1, is TODO, until handoff procedure is implemented
+    - get_status_fmt1 [4]         # Tied to 0, reserved
     - pid             [32]
     - virtual_pid     [32]
     - target_hot_join_addr
@@ -1039,9 +1055,9 @@ Tied off signals:
     - phy_en_o                    # Tied to 1 in target-only configs
     - i2c_active_en_o             # Tied to 0
     - i2c_standby_en_o            # Tied to 0
-    - get_status_fmt1_o   [15:8]
-    - get_status_fmt1_o   [7:6]
-    - get_status_fmt1_o   [4]
+    - get_status_fmt1_o   [15:8]  # Reserved for vendor-specific meaning, unused
+    - get_status_fmt1_o   [7:6]   # Tied to 1, is TODO, until handoff procedure is implemented
+    - get_status_fmt1_o   [4]     # Tied to 0, reserved
     - pid_o               [32]
     - virtual_pid_o       [32]
     - daa_unique_response [48]    # PID[32]
@@ -1056,9 +1072,9 @@ Tied off signals:
     - phy_en_i                         # Tied to 1 in target-only
     - i2c_active_en_i                  # Tied to 0
     - i2c_standby_en_i                 # Tied to 0
-    - get_status_fmt1_i [15:8]         # Tied to 0
-    - get_status_fmt1_i [7:6]          # Tied to 1
-    - get_status_fmt1_i [4]            # Tied to 0; Reserved
+    - get_status_fmt1_i [15:8]         # Reserved for vendor-specific meaning, unused
+    - get_status_fmt1_i [7:6]          # Tied to 1, is TODO, until handoff procedure is implemented
+    - get_status_fmt1_i [4]            # Tied to 0, reserved
     - pid_i [32]                       # Tied to 0
     - virtual_pid_i [32]               # Tied to 0
     - daa_unique_response_i [48]       # PID[32]
@@ -1068,9 +1084,9 @@ Tied off signals:
     - rx_desc_queue_wdata_o [31:29] # Reserved upper 3 bits of the RX descriptor ERROR field
     - rx_desc_queue_wdata_o [27:16] # Meaningless bits
     - rx_desc_queue_wdata_o [15:9]  # Unachievable RX descriptor DATA_LENGTH field values
-    - get_status_fmt1_o   [15:8]  # Tied to 0
-    - get_status_fmt1_o   [7:6]   # Tied to 1
-    - get_status_fmt1_o   [4]     # Tied to 0; Reserved
+    - get_status_fmt1_o   [15:8]  # Reserved for vendor-specific meaning, unused
+    - get_status_fmt1_o   [7:6]   # Tied to 1, is TODO, until handoff procedure is implemented
+    - get_status_fmt1_o   [4]     # Tied to 0, reserved
     - pid_i [32]                  # Tied to 0
     - virtual_pid_i [32]          # Tied to 0
     - daa_unique_response_i [48]  # PID[32]
@@ -1117,3 +1133,65 @@ Tied off signals:
     - pid_i [32]                       # Tied to 0
     - virtual_pid_i [32]               # Tied to 0
     - daa_unique_response_i [48]       # PID[32]
+  - MODULE=tti:
+    - rx_desc_queue_ready_thld_i [7:6] # Unused in 64 FIFO depth configurations
+    - tx_desc_queue_ready_thld_i [7:6] # Unused in 64 FIFO depth configurations
+    - rx_desc_queue_reg_rst_data_i     # Tied to 0
+    - rx_data_queue_reg_rst_data_i     # Tied to 0
+    - tx_desc_queue_reg_rst_data_i     # Tied to 0
+    - tx_data_queue_reg_rst_data_i     # Tied to 0
+    - ibi_queue_reg_rst_data_i         # Tied to 0
+    - hwif_tti_o:
+      - QUEUE_THLD_CTRL.IBI_THLD.we
+      - QUEUE_THLD_CTRL.IBI_THLD.next
+      - QUEUE_THLD_CTRL.RX_DESC_THLD.next [7:6] # Unused on 64 FIFO depth
+      - QUEUE_THLD_CTRL.TX_DESC_THLD.next [7:6] # Unused on 64 FIFO depth
+      - INTERRUPT_STATUS.TRANSFER_ERR_STAT.we
+      - INTERRUPT_STATUS.TRANSFER_ERR_STAT.next
+      - INTERRUPT_STATUS.TRANSFER_ABORT_STAT.we
+      - INTERRUPT_STATUS.TRANSFER_ABORT_STAT.next
+      - INTERRUPT_STATUS.PENDING_INTERRUPT.we
+      - INTERRUPT_STATUS.PENDING_INTERRUPT.next
+      - INTERRUPT_STATUS.IBI_THLD_STAT.we
+      - INTERRUPT_STATUS.IBI_THLD_STAT.next
+      - INTERRUPT_STATUS.TX_DESC_THLD_STAT.we
+      - INTERRUPT_STATUS.TX_DESC_THLD_STAT.next
+      - INTERRUPT_STATUS.TX_DATA_THLD_STAT.we
+      - INTERRUPT_STATUS.TX_DATA_THLD_STAT.next
+      - INTERRUPT_STATUS.TX_DESC_TIMEOUT.we
+      - INTERRUPT_STATUS.TX_DESC_TIMEOUT.next
+      - INTERRUPT_STATUS.RX_DESC_TIMEOUT.we
+      - INTERRUPT_STATUS.RX_DESC_TIMEOUT.next
+      - RESET_CONTROL.SOFT_RST.hwclr
+  - MODULE=ccc:
+    - entas0_o                      # Tied to 0, is TODO, unimplemented yet (ENTAS0 CCC)
+    - entas1_o                      # Tied to 0, is TODO, unimplemented yet (ENTAS1 CCC)
+    - entas2_o                      # Tied to 0, is TODO, unimplemented yet (ENTAS2 CCC)
+    - entas3_o                      # Tied to 0, is TODO, unimplemented yet (ENTAS3 CCC)
+    - ent_tm_o                      # Tied to 0, is TODO, unimplemented yet (ENTTM CCC)
+    - tm_o                          # Tied to 0, is TODO, unimplemented yet (ENTTM CCC)
+    - get_pid_i [32]                # Tied to 0
+    - virtual_get_pid_i [32]        # Tied to 0
+    - set_brgtgt_o                  # Tied to 0, is TODO, unimplemented yet (SETBRGTGT CCC)
+    - get_acccr_i                   # Tied to 0
+    - get_mxds_i                    # Tied to 0
+    - entdaa_tx_req_byte            # Only bit request is used
+    - entdaa_tx_sel_od_pp           # Tied to 0
+    - entdaa_rx_req_bit             # Bit request not used
+    - state_d [7:5]                 # Not enough states implemented
+    - state_q [7:5]                 # Not enough states implemented
+    - get_status_fmt1_i [15:8]      # Reserved for vendor-specific meaning, unused
+    - get_status_fmt1_i [7:6]       # Tied to 1, is TODO, until handoff procedure is implemented
+    - get_status_fmt1_i [4]         # Tied to 0, reserved
+    - tx_data_id [7:3]              # Transmitted CCC data length. No supported CCCs are longer than 6 bytes
+    - tx_data_id_init [7:3]         # Transmitted CCC data length. No supported CCCs are longer than 6 bytes
+    - rx_data_count [7:2]           # Received CCC data length. No supported CCC expects more than 3 bytes.
+  - MODULE=ccc_entdaa:
+    - id_i[32]                    # Tied to 0
+    - virtual_id_i[32]            # Tied to 0
+    - device_id[48]               # ID[32] ^
+    - bus_rx_req_bit_o            # No RX bit request issued
+    - bus_tx_req_byte_o           # No TX byte request issued
+    - bus_tx_sel_od_pp_o          # Tied to 0
+    - state_q[7:4]                # Not enough states in the FSM
+    - state_d[7:4]                # Not enough states in the FSM

@@ -259,7 +259,8 @@ module i3c_target_fsm import i3c_pkg::*; #(
 
   // TE0 error: Invalid reserved address + RnW combinations
   // Uses shared function from i3c_pkg to ensure consistency with ccc.sv
-  assign te0_err_o = te0_enable_i && is_te0_rsvd_addr_err(bus_addr_q, bus_rnw_q);
+  // Qualified with last_addr_valid_o to only report when address is valid
+  assign te0_err_o = te0_enable_i && last_addr_valid_o && is_te0_rsvd_addr_err(bus_addr_q, bus_rnw_q);
 
   // Latch whether this transaction is to be NACK'd.
   always_ff @(posedge clk_i or negedge rst_ni) begin : clk_nack_transaction
@@ -299,7 +300,7 @@ module i3c_target_fsm import i3c_pkg::*; #(
   always_ff @(posedge clk_i or negedge rst_ni) begin
     if (~rst_ni) begin
       last_addr_valid_o <= '0;
-    end else if (bus_start_det) begin
+    end else if (bus_start_det || bus_stop_det_i || in_hdr_mode_i) begin
       last_addr_valid_o <= '0;
     end else if (bus_addr_valid) begin
       last_addr_valid_o <= '1;
@@ -348,8 +349,12 @@ module i3c_target_fsm import i3c_pkg::*; #(
       end
     end
   end
-  // Last RX byte when we leave Private Write loop
-  assign rx_last_byte_o = (state_q == RxPWriteData) & (state_d inside {RxFByte, Idle});
+  // FSM on the last T bit will transition to
+  // RxPWriteData because the Sr/Stop doesn't happen until after we complete
+  // the T bit and are waiting for the next set of data in RxPWriteData. In
+  // this state if we get a repeat start we transition into RxFByte if we get
+  // a stop we transition to Idle. 
+  assign rx_last_byte_o = (state_q == RxPWriteData) && (state_d inside {RxFByte, Idle});
 
   // TX FIFO ready when we start writing byte (enter TxPReadData)
   // Enterng the TXPReadData state, then asserting rready will cause a byte to be
@@ -532,7 +537,10 @@ module i3c_target_fsm import i3c_pkg::*; #(
       RxPWriteTbit: begin
         bus_rx_req_bit = !bus_start_det;
 
-        if (bus_rx_rsp_i.done) begin
+        if (bus_start_det) begin
+          // Repeated Start during T-bit - new address phase
+          state_d = RxFByte;
+        end else if (bus_rx_rsp_i.done) begin
           // Gate parity error detection with detection enable at the source
           te2_err_priv_wr = te2_err_det_en_i && (parity_bit != bus_rx_rsp_i.data[0]);
           state_d = RxPWriteData;
@@ -652,6 +660,9 @@ module i3c_target_fsm import i3c_pkg::*; #(
 
   always_ff @(posedge clk_i or negedge rst_ni) begin : virtual_device_sel_latch
     if (!rst_ni) begin
+      virtual_device_sel_o <= '0;
+    end else if (bus_start_det || bus_stop_det_i) begin
+      // Clear on Start/Repeated Start/Stop - transaction boundary
       virtual_device_sel_o <= '0;
     end else unique case(state_q)
       CheckFByte:

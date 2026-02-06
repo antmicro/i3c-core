@@ -9,6 +9,7 @@ from ccc import CCC
 from cocotbext_i3c.common import I3cTargetResetAction
 from cocotbext_i3c.i3c_controller import I3cController
 from interface import I3CTopTestInterface
+from bus2csr import dword2int
 
 import cocotb
 from cocotb.triggers import ClockCycles
@@ -775,6 +776,11 @@ async def test_ccc_rstact(dut, type, rstact):
     await i3c_controller.send_target_reset_pattern()
     assert rst_action == int(sig)
     await i3c_controller.send_stop()
+
+    # Also test the value in RST_ACTION CSR
+    reg = tb.reg_map.I3C_EC.STDBYCTRLMODE.STBY_CR_CCC_CONFIG_RSTACT_PARAMS
+    rstact_csr = dword2int(await tb.read_csr(reg.base_addr, 4)) & reg.RST_ACTION.mask
+    assert (rstact_csr >> reg.RST_ACTION.low) == rst_action
 
     # Start new frame and reset target with reset action set to peripheral reset
     await i3c_controller.target_reset(reset_actions)

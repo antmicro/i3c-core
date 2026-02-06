@@ -126,6 +126,7 @@ Constant value in RO register or set by the verilog parameter:
     - readback_array[29][30:23]
     - readback_array[30][11:0]
     - readback_array[30][31:16]
+    - readback_array[30][15]
     - readback_array[31][0]
     - readback_array[32][1:0]
     - readback_array[32][4:3]
@@ -145,6 +146,8 @@ Constant value in RO register or set by the verilog parameter:
     - readback_array[40][30:24]
     - readback_array[41][14:7]
     - readback_array[41][30:23]
+    - readback_array[43][7:0]
+    - readback_array[43][23:8]
     - readback_array[43][31:24]
     - readback_array[44][9:0]
     - readback_array[44][31:16]
@@ -613,6 +616,114 @@ Tied off signals:
       - TTI.INTERRUPT_STATUS.TX_DATA_THLD_STAT.next
       - TTI.INTERRUPT_STATUS.TX_DESC_TIMEOUT.next
       - TTI.INTERRUPT_STATUS.RX_DESC_TIMEOUT.next
+      - StdbyCtrlMode:  # controller mode unused and unimplemented CSRs
+        - STBY_CR_CCC_CONFIG_RSTACT_PARAMS.RESET_TIME_TARGET.load_next
+        - STBY_CR_INTR_FORCE:
+          - STBY_CR_ACCEPT_ERR_FORCE.load_next
+          - STBY_CR_ACCEPT_OK_FORCE.load_next
+          - STBY_CR_ACCEPT_NACKED_FORCE.load_next
+          - STBY_CR_DYN_ADDR_FORCE.load_next
+          - CRR_RESPONSE_FORCE.load_next
+        - STBY_CR_INTR_SIGNAL_ENABLE:
+          - CCC_FATAL_RSTDAA_ERR_SIGNAL_EN.load_next
+          - CCC_UNHANDLED_NACK_SIGNAL_EN.load_next
+          - CCC_PARAM_MODIFIED_SIGNAL_EN.load_next
+          - STBY_CR_ACCEPT_ERR_SIGNAL_EN.load_next
+          - STBY_CR_ACCEPT_OK_SIGNAL_EN.load_next
+          - STBY_CR_ACCEPT_NACKED_SIGNAL_EN.load_next
+          - STBY_CR_DYN_ADDR_SIGNAL_EN.load_next
+          - CRR_RESPONSE_SIGNAL_EN.load_next
+          - ACR_HANDOFF_ERR_M3_SIGNAL_EN.load_next
+          - ACR_HANDOFF_ERR_FAIL_SIGNAL_EN.load_next
+          - ACR_HANDOFF_OK_PRIMED_SIGNAL_EN.load_next
+          - ACR_HANDOFF_OK_REMAIN_SIGNAL_EN.load_next
+        - STBY_CR_INTR_STATUS:
+          - CCC_FATAL_RSTDAA_ERR_STAT.load_next
+          - CCC_UNHANDLED_NACK_STAT.load_next
+          - CCC_PARAM_MODIFIED_STAT.load_next
+          - STBY_CR_ACCEPT_ERR_STAT.load_next
+          - STBY_CR_ACCEPT_OK_STAT.load_next
+          - STBY_CR_ACCEPT_NACKED_STAT.load_next
+          - STBY_CR_DYN_ADDR_STAT.load_next
+          - CRR_RESPONSE_STAT.load_next
+          - ACR_HANDOFF_ERR_M3_STAT.load_next
+          - ACR_HANDOFF_ERR_FAIL_STAT.load_next
+          - ACR_HANDOFF_OK_PRIMED_STAT.load_next
+          - ACR_HANDOFF_OK_REMAIN_STAT.load_next
+        - STBY_CR_STATUS:
+          - HJ_REQ_STATUS.load_next
+          - SIMPLE_CRR_STATUS.load_next
+          - AC_CURRENT_OWN.load_next
+        - STBY_CR_CONTROL:
+          - PRIME_ACCEPT_GETACCCR.load_next
+          - ACR_FSM_OP_SELECT.load_next
+          - HANDOFF_DELAY_NACK.load_next
+          - PENDING_RX_NACK.load_next
+    - readback_array[18][15:8]    # INDIRECT_FIFO_CTRL_0.RESET            => w1clr
+    - readback_array[20][10:8]    # INDIRECT_FIFO_STATUS_0.REGION_TYPE    => tied off
+    - readback_array[25]          # INDIRECT_FIFO_RESERVED                => reserved, unused, tied off
+    - readback_array[28][0]       # STBY_CR_CONTROL.PENDING_RX_NACK       => unused, tied off, controller support
+    - readback_array[28][1]       # STBY_CR_CONTROL.HANDOFF_DELAY_NACK    => unused, tied off, controller support
+    - readback_array[28][2]       # STBY_CR_CONTROL.ACR_FSM_OP_SELECT     => unused, tied off, controller support
+    - readback_array[28][3]       # STBY_CR_CONTROL.PRIME_ACCEPT_GETACCCR => unused, tied off, controller support
+    - readback_array[32][2]       # STBY_CR_STATUS.AC_CURRENT_OWN         => unused, tied off, controller support
+    - readback_array[32][7:5]     # STBY_CR_STATUS.SIMPLE_CRR_STATUS      => unused, tied off, controller support
+    - readback_array[32][8]       # STBY_CR_STATUS.HJ_REQ_STATUS          => unused, tied off, controller support
+    - readback_array[35][0]       # ACR_HANDOFF_OK_REMAIN_STAT      => unused, tied off, controller support
+    - readback_array[35][1]       # ACR_HANDOFF_OK_PRIMED_STAT      => unused, tied off, controller support
+    - readback_array[35][2]       # ACR_HANDOFF_ERR_FAIL_STAT       => unused, tied off, controller support
+    - readback_array[35][3]       # ACR_HANDOFF_ERR_M3_STAT         => unused, tied off, controller support
+    - readback_array[35][10]      # CRR_RESPONSE_STAT               => unused, tied off, controller support
+    - readback_array[35][11]      # STBY_CR_DYN_ADDR_STAT           => unused, tied off, controller support
+    - readback_array[35][12]      # STBY_CR_ACCEPT_NACKED_STAT      => unused, tied off, controller support
+    - readback_array[35][13]      # STBY_CR_ACCEPT_OK_STAT          => unused, tied off, controller support
+    - readback_array[35][14]      # STBY_CR_ACCEPT_ERR_STAT         => unused, tied off, controller support
+    - readback_array[35][17]      # CCC_PARAM_MODIFIED_STAT         => unused, tied off, controller support
+    - readback_array[35][18]      # CCC_UNHANDLED_NACK_STAT         => unused, tied off, controller support
+    - readback_array[35][19]      # CCC_FATAL_RSTDAA_ERR_STAT       => unused, tied off, controller support
+    - readback_array[37][0]       # ACR_HANDOFF_OK_REMAIN_SIGNAL_EN => unused, tied off, controller support
+    - readback_array[37][1]       # ACR_HANDOFF_OK_PRIMED_SIGNAL_EN => unused, tied off, controller support
+    - readback_array[37][2]       # ACR_HANDOFF_ERR_FAIL_SIGNAL_EN  => unused, tied off, controller support
+    - readback_array[37][3]       # ACR_HANDOFF_ERR_M3_SIGNAL_EN    => unused, tied off, controller support
+    - readback_array[37][10]      # CRR_RESPONSE_SIGNAL_EN          => unused, tied off, controller support
+    - readback_array[37][11]      # STBY_CR_DYN_ADDR_SIGNAL_EN      => unused, tied off, controller support
+    - readback_array[37][12]      # STBY_CR_ACCEPT_NACKED_SIGNAL_EN => unused, tied off, controller support
+    - readback_array[37][13]      # STBY_CR_ACCEPT_OK_SIGNAL_EN     => unused, tied off, controller support
+    - readback_array[37][14]      # STBY_CR_ACCEPT_ERR_SIGNAL_EN    => unused, tied off, controller support
+    - readback_array[37][17]      # CCC_PARAM_MODIFIED_SIGNAL_EN    => unused, tied off, controller support
+    - readback_array[37][18]      # CCC_UNHANDLED_NACK_SIGNAL_EN    => unused, tied off, controller support
+    - readback_array[37][19]      # CCC_FATAL_RSTDAA_ERR_SIGNAL_EN  => unused, tied off, controller support
+    - readback_array[38][10]      # CRR_RESPONSE_FORCE              => unused, tied off, controller support
+    - readback_array[38][11]      # STBY_CR_DYN_ADDR_FORCE          => unused, tied off, controller support
+    - readback_array[38][12]      # STBY_CR_ACCEPT_NACKED_FORCE     => unused, tied off, controller support
+    - readback_array[38][13]      # STBY_CR_ACCEPT_OK_FORCE         => unused, tied off, controller support
+    - readback_array[38][14]      # STBY_CR_ACCEPT_ERR_FORCE        => unused, tied off, controller support
+    - readback_array[38][17]      # CCC_PARAM_MODIFIED_FORCE        => unused, tied off, controller support
+    - readback_array[38][18]      # CCC_UNHANDLED_NACK_FORCE        => unused, tied off, controller support
+    - readback_array[38][19]      # CCC_FATAL_RSTDAA_ERR_FORCE      => unused, tied off, controller support
+    - readback_array[39][2:0]     # F2_CRCAP1_BUS_CONFIG            => unused, tied off, controller support
+    - readback_array[39][11:8]    # F2_CRCAP2_DEV_INTERACT          => unused, tied off, controller support
+    - readback_array[40][15:8]    # RESET_TIME_PERIPHERAL           => unused, tied off, controller support
+    - readback_array[40][23:16]   # RESET_TIME_TARGET               => unused, tied off, controller support
+    - readback_array[42][31:0]    # RSVD_3
+    - readback_array[46][1]       # TX_DESC_RST                     => hwclr
+    - readback_array[46][2]       # RX_DESC_RST                     => hwclr
+    - readback_array[46][3]       # TX_DATA_RST                     => hwclr
+    - readback_array[46][4]       # RX_DATA_RST                     => hwclr
+    - readback_array[46][5]       # IBI_QUEUE_RST                   => hwclr
+    - readback_array[47][2]       # RX_DESC_TIMEOUT                 => tied off
+    - readback_array[47][3]       # TX_DESC_TIMEOUT                 => tied off
+    - readback_array[47][8]       # TX_DATA_THLD_STAT               => tied off
+    - readback_array[47][10]      # TX_DESC_THLD_STAT               => tied off
+    - readback_array[47][12]      # IBI_THLD_STAT                   => tied off
+    - readback_array[47][25]      # TRANSFER_ABORT_STAT             => tied off
+    - readback_array[47][31]      # TRANSFER_ERR_STAT               => tied off
+    - readback_array[54][7:6]     # TX_DESC_THLD                    => Unused on 64 FIFO depth
+    - readback_array[54][15:14]   # RX_DESC_THLD                    => Unused on 64 FIFO depth
+    - readback_array[60][7:0]     # DEVICE_RESET_CTRL
+    - readback_array[60][15:8]    # RECOVERY_CTRL_ACTIVATE_REC_IMG
+    - readback_array[60][23:16]   # INDIRECT_FIFO_CTRL_RESET
+    - readback_array[80][5:4]     # OPERATION_MODE                  => unused, controller support
   - MODULE=csri:
     - hwif_tti_i:
       - QUEUE_THLD_CTRL.IBI_THLD.we

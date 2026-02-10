@@ -3,6 +3,8 @@
 import logging
 import random
 
+from cocotb_helpers import reset_n
+
 from boot import boot_init
 from bus2csr import bytes2int
 from ccc import CCC
@@ -885,3 +887,38 @@ async def test_ccc_direct_multiple_rd(dut):
                 result = False
 
     assert result
+
+
+@cocotb.test()
+async def test_ccc_entdaa_parity(dut):
+    ctrl, _, tb = await test_setup(dut)
+
+    for addr in random.choices(VALID_I3C_ADDRESSES, k=3):
+        for should_be_valid in (True, False):
+            # Enter Dynamic Address Assignment mode
+            await ctrl.i3c_ccc_write(CCC.BCAST.ENTDAA, stop=False)
+            await ctrl.send_start()
+            await ctrl.write_addr_header(0x7e, read=True)
+
+            # Receive and verify device id
+            device_id = 0
+            for _ in range(64):
+                device_id <<= 1
+                device_id |= await ctrl.recv_bit_od()
+            assert (device_id >> 16) in [
+                tb.dut.xi3c_wrapper.i3c.xcontroller.pid.value,
+                tb.dut.xi3c_wrapper.i3c.xcontroller.virtual_pid.value
+            ]
+
+            # Send assigned address
+            for i in range(7):
+                await ctrl.send_bit(bool(addr & (1 << 6 - i)))
+
+            # Send parity and verify ACK/NACK
+            parity = (addr.bit_count() & 1) == 0
+            await ctrl.send_bit(parity if should_be_valid else not parity)
+            nack = await ctrl.recv_bit_od()
+            assert not nack if should_be_valid else nack
+
+            await reset_n(tb.clk, tb.rst_n, 10)
+            await boot_init(tb, static_addr=0x5a, virtual_static_addr=0x5b)

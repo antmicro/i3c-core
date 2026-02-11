@@ -158,6 +158,17 @@
       tags: ["top"]
     }
     {
+      name: i3c_target_ibi_data_long
+      desc:
+        '''
+        Verifies issuing an IBI of a maximum length obtained via the
+        GETMRL CCC. Also covers upper bits of the IBI descriptor data
+        length.
+        '''
+      tests: ["i3c_target_ibi_data_long"]
+      tags: ["top"]
+    }
+    {
       name: i3c_target_writes_and_reads
       desc:
         '''

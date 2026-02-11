@@ -3,7 +3,6 @@
 import logging
 import random
 from math import ceil
-
 from boot import boot_init
 from bus2csr import dword2int, int2dword
 from ccc import CCC
@@ -684,6 +683,38 @@ async def test_i3c_target_ibi_data(dut):
     await ClockCycles(tb.clk, 10)
 
     await tb.teardown()
+
+
+@cocotb.test()
+async def test_i3c_target_ibi_data_long(dut):
+    # Setup controller and target
+    i3c_controller, _, tb = await test_setup(dut, verify_boot=True)
+    target = i3c_controller.add_target(TARGET_ADDRESS)
+    target.set_bcr_fields(ibi_req_capable=True, ibi_payload=True)
+    i3c_controller.enable_ibi(True)
+    ctrl = tb.reg_map.I3C_EC.TTI.CONTROL
+    stat = tb.reg_map.I3C_EC.TTI.STATUS
+    await tb.write_csr_field(ctrl.base_addr, ctrl.IBI_EN, 1)
+    await tb.write_csr_field(ctrl.base_addr, ctrl.IBI_RETRY_NUM, 7)
+
+    # Get max IBI payload size
+    [(ack, data)] = await i3c_controller.i3c_ccc_read(CCC.DIRECT.GETMRL, TARGET_ADDRESS, 3)
+    assert ack
+    max_ibil = int(data[2])
+    assert max_ibil > 0
+
+    # Send IBI
+    mdb = random.randint(0, 255)
+    # First DWORD is for the descriptor
+    data = [random.randint(0, 255) for _ in range(max_ibil - 4)]
+    for word in format_ibi_data(mdb, data):
+        await tb.write_csr(tb.reg_map.I3C_EC.TTI.IBI_PORT.base_addr, int2dword(word), 4)
+
+    # Verify data received by controller
+    response = await i3c_controller.wait_for_ibi()
+    assert response == bytearray([TARGET_ADDRESS, mdb, *data])
+    status = await tb.read_csr_field(stat.base_addr, stat.LAST_IBI_STATUS)
+    assert status == 0 # IbiSuccess
 
 
 @cocotb.test()

@@ -632,6 +632,49 @@ async def test_i3c_target_ibi_retry(dut):
 
 
 @cocotb_test()
+async def test_i3c_target_ibi_retry_finite(dut):
+    async def send_ibi():
+        mdb, *data = (random.randint(0, 255) for _ in range(3))
+        for word in format_ibi_data(mdb, data):
+            await tb.write_csr(tb.reg_map.I3C_EC.TTI.IBI_PORT.base_addr, int2dword(word), 4)
+        return bytearray([TARGET_ADDRESS, mdb] + data)
+
+    i3c_controller, _, tb = await test_setup(dut, verify_boot=True)
+    target = i3c_controller.add_target(TARGET_ADDRESS)
+    target.set_bcr_fields(ibi_req_capable=True, ibi_payload=True)
+
+    ctrl = tb.reg_map.I3C_EC.TTI.CONTROL
+    stat = tb.reg_map.I3C_EC.TTI.STATUS
+    await tb.write_csr_field(ctrl.base_addr, ctrl.IBI_EN, 1)
+
+    for retries in range(0, 7): # 7 is infinite
+        await tb.write_csr_field(ctrl.base_addr, ctrl.IBI_RETRY_NUM, retries)
+
+        # Send IBI that the controller will NACK
+        i3c_controller.enable_ibi(False)
+        await send_ibi()
+
+        # Wait for all retries to finish
+        ibi_inst = dut.xi3c_wrapper.i3c.xcontroller.xcontroller_standby.xcontroller_standby_i3c.u_ibi
+        await RisingEdge(ibi_inst.done_o)
+        assert ibi_inst.ibi_retry_cnt.value == retries + 1
+
+        # Assert IBI failure
+        status = await tb.read_csr_field(stat.base_addr, stat.LAST_IBI_STATUS)
+        assert status in (0b01, 0b11) # (IbiFailureNack, IbiFailureRetry)
+
+        # Enable IBI handling and send a new descriptor
+        i3c_controller.enable_ibi(True)
+        expected = await send_ibi()
+
+        # This one should be handled correctly
+        response = await i3c_controller.wait_for_ibi()
+        assert response == expected
+        status = await tb.read_csr_field(stat.base_addr, stat.LAST_IBI_STATUS)
+        assert status == 0 # IbiSuccess
+
+
+@cocotb_test()
 async def test_i3c_target_ibi_data(dut):
     """
     Set a limit on how many IBI data bytes the controller may accept. Issue

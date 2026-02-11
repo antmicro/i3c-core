@@ -140,6 +140,22 @@
       tags: ["top"]
     }
     {
+      name: i3c_target_ibi_retry_finite
+      desc:
+        '''
+        Tests handling of different values of the IBI_RETRY_NUM CSR field.
+        For each retry number (except of 7 = infinite, since this is verified
+        by i3c_target_ibi_retry) it sets the CSR appropriately, disables
+        ACK-ing IBIs in the controller model, issues an IBI, waits until
+        an expected amount of retries were issued and verifies the LAST_IBI_STATUS
+        CSR to indicate the expected failure. Then, the IBI ACKing is reenabled
+        in the controller, another IBI is issued, handled, and the LAST_IBI_STATUS
+        is verified to indicate a success.
+        '''
+      tests: ["i3c_target_ibi_retry_finite"]
+      tags: ["top"]
+    }
+    {
       name: i3c_target_ibi_data
       desc:
         '''

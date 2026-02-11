@@ -307,6 +307,36 @@ async def test_i3c_target_read(dut):
         compare(tx_data, rx_data)
 
 
+# This covers high values of TX descriptor (data length)
+@cocotb_test(timeout=50000)
+async def test_i3c_target_read_long(dut):
+    def compare(expected, received, lnt=None):
+        if lnt is None or lnt == len(expected):
+            sfx = ""
+        else:
+            sfx = " ([" + " ".join([f"{d:02X}" for d in expected[lnt:]]) + "] skipped)"
+            expected = expected[:lnt]
+
+        dut._log.info("Expected: [" + " ".join([f"{d:02X}" for d in expected]) + "]" + sfx)
+        dut._log.info("Received: [" + " ".join([f"{d:02X}" for d in received]) + "]")
+        assert expected == received
+
+    i3c_controller, _, tb = await test_setup(dut)
+
+    for length in (255, 256):
+        data = [random.randint(0, 255) for _ in range(length)]
+        dut._log.info(f"Enqueueing transfer of length {length}")
+
+        for dword in (data[i:min(i+4, length)] for i in range(0, length, 4)):
+            await tb.write_csr(tb.reg_map.I3C_EC.TTI.TX_DATA_PORT.base_addr, bytes(dword), 4)
+
+        # Write the TX descriptor
+        await tb.write_csr(tb.reg_map.I3C_EC.TTI.TX_DESC_QUEUE_PORT.base_addr, int2dword(length), 4)
+
+        rx_data = await i3c_controller.i3c_read(TARGET_ADDRESS, length)
+        rx_data = list(rx_data.data)
+        compare(data, rx_data)
+
 
 @cocotb_test()
 async def test_i3c_target_read_empty(dut):

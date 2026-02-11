@@ -1306,3 +1306,19 @@ Tied off signals:
     - bus_tx_sel_od_pp_o          # Tied to 0
     - state_q[7:4]                # Not enough states in the FSM
     - state_d[7:4]                # Not enough states in the FSM
+  - MODULE=descriptor_tx:
+    - tx_descriptor[31:16]    # Unused upper bits
+    - tx_descriptor[15:9]     # Unreasonable TX data length
+    - byte_counter[15:9]      # Unreasonable TX data length
+    - data_len[15:9]          # Unreasonable TX data length
+    - data_len_words[31:7]    # Unreasonable TX data length
+  - MODULE=descriptor_rx:
+    - tti_rx_desc_queue_wdata_o [31:29]    # Reserved upper 3 bits of the RX descriptor ERROR field
+    - tti_rx_desc_queue_wdata_o [27:16]    # Unused bits
+    - tti_rx_desc_queue_wdata_o [15:9]     # Unreasonable RX data length
+    - rx_descriptor [31:29]                # Reserved upper 3 bits of the RX descriptor ERROR field
+    - rx_descriptor [27:16]                # Unused bits
+    - rx_descriptor [15:9]                 # Unreasonable RX data length
+    - byte_counter[15:9]                   # Unreasonable RX data length
+    - byte_counter_q[15:9]                 # Unreasonable RX data length
+    - rx_error[3:1]                        # Reserved upper 3 bits of the RX descriptor ERROR field

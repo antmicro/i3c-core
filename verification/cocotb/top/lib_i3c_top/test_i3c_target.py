@@ -4,16 +4,17 @@ import functools
 import logging
 import random
 from math import ceil
-
 from boot import boot_init
 from bus2csr import dword2int, int2dword
+from ccc import CCC
 from cocotbext_i3c.i3c_controller import I3cController
 from cocotbext_i3c.i3c_target import I3CTarget
 from interface import I3CTopTestInterface
 from utils import format_ibi_data, get_interrupt_status
 
 import cocotb
-from cocotb.triggers import ClockCycles, RisingEdge, Timer
+from cocotb.triggers import ClockCycles, RisingEdge, FallingEdge, Timer
+from cocotb.utils import get_sim_time
 
 VALID_I3C_ADDRESSES = (
     [i for i in range(0x03, 0x3E)]
@@ -675,6 +676,40 @@ async def test_i3c_target_ibi_retry_finite(dut):
 
 
 @cocotb_test()
+async def test_i3c_target_ibi_hold_time(dut):
+    i3c_ctrl, _, tb = await test_setup(dut, verify_boot=True)
+    i3c_ctrl.enable_ibi(False)
+
+    ctrl = tb.reg_map.I3C_EC.TTI.CONTROL
+    await tb.write_csr_field(ctrl.base_addr, ctrl.IBI_EN, 1)
+
+    # Measure ns per clock cycle
+    await RisingEdge(tb.clk)
+    t1 = get_sim_time('ns')
+    await RisingEdge(tb.clk)
+    clk_time = get_sim_time('ns') - t1
+
+    for hd in range(9):
+        # Set data hold timing CSR
+        await tb.write_csr(tb.reg_map.I3C_EC.SOCMGMTIF.T_HD_DAT_REG.base_addr, int2dword(hd))
+
+        # Issue an IBI
+        mdb, *data = (random.randint(0, 255) for _ in range(3))
+        for word in format_ibi_data(mdb, data):
+            await tb.write_csr(tb.reg_map.I3C_EC.TTI.IBI_PORT.base_addr, int2dword(word), 4)
+
+        # Verify SDA hold timing
+        ibi_inst = dut.xi3c_wrapper.i3c.xcontroller.xcontroller_standby.xcontroller_standby_i3c.u_ibi
+        await FallingEdge(dut.xi3c_wrapper.scl_i)
+        t1 = get_sim_time('ns')
+        await RisingEdge(ibi_inst.sda_o)
+        cycles = int((get_sim_time('ns') - t1) / clk_time)
+        await RisingEdge(ibi_inst.done_o)
+
+        assert cycles == hd + 2
+
+
+@cocotb_test()
 async def test_i3c_target_ibi_data(dut):
     """
     Set a limit on how many IBI data bytes the controller may accept. Issue
@@ -737,6 +772,38 @@ async def test_i3c_target_ibi_data(dut):
 
     # Report the test result
     assert result
+
+
+@cocotb_test(timeout=500)
+async def test_i3c_target_ibi_data_long(dut):
+    # Setup controller and target
+    i3c_controller, _, tb = await test_setup(dut, verify_boot=True)
+    target = i3c_controller.add_target(TARGET_ADDRESS)
+    target.set_bcr_fields(ibi_req_capable=True, ibi_payload=True)
+    i3c_controller.enable_ibi(True)
+    ctrl = tb.reg_map.I3C_EC.TTI.CONTROL
+    stat = tb.reg_map.I3C_EC.TTI.STATUS
+    await tb.write_csr_field(ctrl.base_addr, ctrl.IBI_EN, 1)
+    await tb.write_csr_field(ctrl.base_addr, ctrl.IBI_RETRY_NUM, 7)
+
+    # Get max IBI payload size
+    [(ack, data)] = await i3c_controller.i3c_ccc_read(CCC.DIRECT.GETMRL, TARGET_ADDRESS, 3)
+    assert ack
+    max_ibil = int(data[2])
+    assert max_ibil > 0
+
+    # Send IBI
+    mdb = random.randint(0, 255)
+    # First DWORD is for the descriptor
+    data = [random.randint(0, 255) for _ in range(max_ibil - 4)]
+    for word in format_ibi_data(mdb, data):
+        await tb.write_csr(tb.reg_map.I3C_EC.TTI.IBI_PORT.base_addr, int2dword(word), 4)
+
+    # Verify data received by controller
+    response = await i3c_controller.wait_for_ibi()
+    assert response == bytearray([TARGET_ADDRESS, mdb, *data])
+    status = await tb.read_csr_field(stat.base_addr, stat.LAST_IBI_STATUS)
+    assert status == 0 # IbiSuccess
 
 
 @cocotb_test()

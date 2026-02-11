@@ -156,6 +156,17 @@
       tags: ["top"]
     }
     {
+      name: i3c_target_ibi_hold_time
+      desc:
+        '''
+        Since the IBI module can directly drive the SDA line, this test
+        verifies if the T_HD_DAT timing is correctly enforced by the IBI
+        module.
+        '''
+      tests: ["test_i3c_target_ibi_hold_time"]
+      tags: ["top"]
+    }
+    {
       name: i3c_target_ibi_data
       desc:
         '''
@@ -171,6 +182,17 @@
         The I3C bus clock is set to 12.5 MHz.
         '''
       tests: ["i3c_target_ibi_data"]
+      tags: ["top"]
+    }
+    {
+      name: i3c_target_ibi_data_long
+      desc:
+        '''
+        Verifies issuing an IBI of a maximum length obtained via the
+        GETMRL CCC. Also covers upper bits of the IBI descriptor data
+        length.
+        '''
+      tests: ["i3c_target_ibi_data_long"]
       tags: ["top"]
     }
     {

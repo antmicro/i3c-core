@@ -1336,3 +1336,11 @@ Tied off signals:
     - state_q[4]                  # Used in DoneCCC, DoHotJoin, DoRstAction states, none of which are used yet
     - state_d[6]                  # Not used by any state
     - state_q[6]                  # Not used by any state
+  - MODULE=ibi:
+    - ibi_abort_i                 # Tied to 0
+    - bus_rx_req_byte_o           # Byte is never requested
+    - bus_rx_req_value_i[7:1]     # Only a bit is used (ack/nack)
+    - state_q[7:4]                # Not used by any state
+  - MODULE=descriptor_ibi:
+    - data_words[7:6]             # 8-bit value divided by 4 => 2 upper bits unused
+    - state_q[7:3]                # Not enough states in the FSM

@@ -1322,3 +1322,17 @@ Tied off signals:
     - byte_counter[15:9]                   # Unreasonable RX data length
     - byte_counter_q[15:9]                 # Unreasonable RX data length
     - rx_error[3:1]                        # Reserved upper 3 bits of the RX descriptor ERROR field
+  - MODULE=i3c_target_fsm:
+    - bus_timeout_i               # Tied to 0
+    - bus_tx_sel_od_pp_o          # Tied to 0, is TODO: Set OD/PP in correct states
+    - tx_host_nack_o              # Tied to 0, only assigned 0 in always_comb
+    - event_cmd_complete_o        # Tied to 0, is TODO, unimplemented yet (events)
+    - event_unexp_stop_o          # Tied to 0, is TODO, unimplemented yet (events)
+    - event_tx_arbitration_lost_o # Tied to 0, is TODO, unimplemented yet (events)
+    - event_tx_bus_timeout_o      # Tied to 0, is TODO, unimplemented yet (events)
+    - event_read_cmd_received_o   # Tied to 0, is TODO, unimplemented yet (events)
+    - is_hotjoin_done_i           # Tied to 0
+    - state_d[4]                  # Used in DoneCCC, DoHotJoin, DoRstAction states, none of which are used yet
+    - state_q[4]                  # Used in DoneCCC, DoHotJoin, DoRstAction states, none of which are used yet
+    - state_d[6]                  # Not used by any state
+    - state_q[6]                  # Not used by any state

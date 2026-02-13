@@ -1370,3 +1370,40 @@ Tied off signals:
   - MODULE=descriptor_ibi:
     - data_words[7:6]             # 8-bit value divided by 4 => 2 upper bits unused
     - state_q[7:3]                # Not enough states in the FSM
+  - MODULE=queues:
+    - rx_desc_start_thld_i        # Unsupported by desc queues
+    - rx_desc_start_thld_trig_o   # Unsupported by desc queues
+    - tx_desc_start_thld_trig_o   # Unsupported by desc queues
+    - tx_desc_start_thld_i        # Unsupported by desc queues
+    - rx_desc_ready_thld_o[7:6]   # Unused in 64 FIFO depth config
+    - tx_desc_ready_thld_o[7:6]   # Unused in 64 FIFO depth config
+    - rx_desc_reg_rst_data_o      # Tied to 0
+    - tx_desc_reg_rst_data_o      # Tied to 0
+    - rx_reg_rst_data_o           # Tied to 0
+    - tx_reg_rst_data_o           # Tied to 0
+  - MODULE=read_queue:
+    - reg_rst_data_o              # Tied to 0
+    - unused_err                  # Unused
+    - ready_thld_o[7:6]           # Unused in 64 FIFO depth config
+    - start_thld_i[7:3]           # Tied to 0 when ThldWidth = 8 and is only 3-bits when not tied to 0
+  - MODULE=write_queue:
+    - reg_rst_data_o              # Tied to 0
+    - unused_err                  # Unused
+    - start_thld_i[7:3]           # Tied to 0 when ThldWidth = 8 and is only 3-bits when not tied to 0
+  - MODULE=bus_tx:
+    - tcount_q [19:3]             # High values of T_HD_DAT or T_SU_DAT
+    - tcount_d [19:3]             # High values of T_HD_DAT or T_SU_DAT
+  - MODULE=bus_tx_flow:
+    - bus_error_o                 # Tied to 0, TODO: connect to bus_tx module error output signal
+    - bus_error                   # Tied to 0, TODO: connect to bus_tx module error output signal
+    - state_d[2]                  # Not enough states in the FSM
+    - state_q[2]                  # Not enough states in the FSM
+  - MODULE=bus_rx_flow:
+    - state_d[2]                  # Not enough states in the FSM
+    - state_q[2]                  # Not enough states in the FSM
+  - MODULE=bus_timers:
+    - bus_state_counter[31:15]    # Bus idle condition timer, increases on each clock cycle
+  - MODULE=stable_high_detector:
+    - count[19:2]                 # Stable signal duration counter
+  - MODULE=edge_detector:
+    - count[19:2]                 # Signal edge detector counter

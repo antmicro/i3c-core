@@ -1051,9 +1051,7 @@ Tied off signals:
       - PROT_CAP_2.AGENT_CAPS.next
       - PROT_CAP_2.REC_PROT_VERSION.we
       - PROT_CAP_2.REC_PROT_VERSION.next
-    - indirect_fifo_status_0  [31:24]
-    - indirect_fifo_status_0  [23:19]
-    - indirect_fifo_status_0  [7:2]
+    - indirect_fifo_status_0  [31:2]
     - indirect_fifo_ctrl_1    [31:16]
     - prot_cap_3              [31:24]
     - device_reset            [31:24]
@@ -1063,6 +1061,9 @@ Tied off signals:
     - status_reason
     - status_device_we
     - status_reason_we
+    - cmd_len_i[15:9]       # For payload lengths longer than indirect FIFO depth
+    - dcnt[14:7]            # For payload lengths longer than indirect FIFO depth
+    - dcnt_next[14:7]       # For payload lengths longer than indirect FIFO depth
   - MODULE=recovery_handler:
     - ctl_tti_tx_host_nack_i
     - csr_tti_rx_desc_queue_reg_rst_data_o
@@ -1070,6 +1071,12 @@ Tied off signals:
     - csr_tti_rx_data_queue_reg_rst_data_o
     - csr_tti_tx_data_queue_reg_rst_data_o
     - csr_tti_ibi_queue_reg_rst_data_o
+    - unused_rx_desc_start_thld_trig
+    - unused_tx_desc_start_thld_trig
+    - unused_ibi_queue_start_thld_trig
+    - unused_ready_thld_o
+    - recv_cmd_len [15:8]   # For payload lengths longer than indirect FIFO depth
+    - exec_cmd_len [15:8]   # For payload lengths longer than indirect FIFO depth
     - hwif_socmgmt_o:
       - REC_INTF_REG_W1C_ACCESS.INDIRECT_FIFO_CTRL_RESET.next
       - REC_INTF_REG_W1C_ACCESS.RECOVERY_CTRL_ACTIVATE_REC_IMG.next
@@ -1322,6 +1329,25 @@ Tied off signals:
     - byte_counter[15:9]                   # Unreasonable RX data length
     - byte_counter_q[15:9]                 # Unreasonable RX data length
     - rx_error[3:1]                        # Reserved upper 3 bits of the RX descriptor ERROR field
+  - MODULE=recovery_transmitter:
+    - data_queue_select_o                  # Tied to 1, "TODO"
+    - start_trig_o                         # Tied to 0, "TODO"
+    - res_len_i[15:5]                      # No response is longer than 'd24 bytes
+    - len_q[15:5]                          # Assigned to res_len_i
+    - desc_data_o[31:5]                    # Assigned to res_len_i + 3
+    - state_d[3:1]                         # No state uses these bits
+    - state_q[3:1]                         # No state uses these bits
+  - MODULE=recovery_receiver:
+    - cmd_len_o [15:8]            # For payload lengths longer than indirect FIFO depth
+    - dcnt [15:8]                 # For payload lengths longer than indirect FIFO depth
+    - len_msb                     # For payload lengths longer than indirect FIFO depth
+    - cmd_cmd_o [7:6]             # Recovery commands don't use these bits
+    - cmd_cmd_o [4]               # Recovery commands don't use these bits
+    - state_d [2]                 # Not used by any state
+    - state_q [2]                 # Not used by any state
+    - state_d [7]                 # Not used by any state
+    - state_q [7]                 # Not used by any state
+    - desc_ready_o                # Tied to 1
   - MODULE=i3c_target_fsm:
     - bus_timeout_i               # Tied to 0
     - bus_tx_sel_od_pp_o          # Tied to 0, is TODO: Set OD/PP in correct states

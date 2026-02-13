@@ -1407,3 +1407,53 @@ Tied off signals:
     - count[19:2]                 # Stable signal duration counter
   - MODULE=edge_detector:
     - count[19:2]                 # Signal edge detector counter
+  - MODULE=axi_adapter:
+    - araddr_i [1:0]              # CSR addresses are aligned to 4 bytes
+    - awaddr_i [1:0]              # CSR addresses are aligned to 4 bytes
+    - s_cpuif_addr [1:0]          # CSR addresses are aligned to 4 bytes
+    - i3c_req_addr [1:0]          # CSR addresses are aligned to 4 bytes
+    - araddr_i [11:10]            # High address bits not used in target only configs
+    - awaddr_i [11:10]            # High address bits not used in target only configs
+    - i3c_req_addr [11:10]        # High address bits not used in target only configs
+    - buser_o                     # BUSER is unimplemented (tied to 0)
+    - ruser_o                     # RUSER is unimplemented (tied to 0)
+    - arsize_i [2]                # Data width is only 32-bit
+    - awsize_i [2]                # Data width is only 32-bit
+    - i3c_req_size [2]            # CSR addresses are aligned to 4 bytes
+    - rresp_o [0]                 # Neither EXOKAY nor DECERR are issued
+    - bresp_o [0]                 # Neither EXOKAY nor DECERR are issued
+    - s_cpuif_rd_err              # RDL code doesn't generate access errors
+    - s_cpuif_wr_err              # RDL code doesn't generate access errors
+  - MODULE=i3c_axi_sub_wr:
+    - addr [1:0]                  # CSR addresses are aligned to 4 bytes
+    - wsize [2]                   # Data width is only 32-bit
+    - s_axi_if_ctx.addr [1:0]     # CSR addresses are aligned to 4 bytes
+    - s_axi_if_ctx.size [2]       # Data width is only 32-bit
+    - s_axi_if_ctx.lock           # Tied to 0 in !(CALIPTRA_AXI_SUB_EX_EN) configs
+    - req_ctx.addr [1:0]          # CSR addresses are aligned to 4 bytes
+    - req_ctx.size [2]            # Data width is only 32-bit
+    - req_ctx.lock                # Tied to 0 in !(CALIPTRA_AXI_SUB_EX_EN) configs
+    - txn_ctx.size [2]            # Data width is only 32-bit
+    - txn_ctx.lock                # Tied to 0 in !(CALIPTRA_AXI_SUB_EX_EN) configs
+    - txn_allow                   # Tied to 1 in !(CALIPTRA_AXI_SUB_EX_EN) configs
+    - rp_ready                    # AXI controller doesn't stall the B channel
+    - rp_resp [0]                 # Neither EXOKAY nor DECERR are issued
+  - MODULE=i3c_axi_sub_rd:
+    - addr [1:0]                  # CSR addresses are aligned to 4 bytes
+    - size [2]                    # Data width is only 32-bit
+    - txn_ctx.size [2]            # Data width is only 32-bit
+    - dp_rready [0]               # AXI controller doesn't stall the R channel
+  - MODULE=i3c_axi_sub_arb:
+    - r_addr [1:0]                # CSR addresses are aligned to 4 bytes
+    - r_size [2]                  # Data width is only 32-bit
+    - w_addr [1:0]                # CSR addresses are aligned to 4 bytes
+    - w_size [2]                  # Data width is only 32-bit
+    - addr [1:0]                  # CSR addresses are aligned to 4 bytes
+    - size [2]                    # Data width is only 32-bit
+  - MODULE=i3c_axi_sub:
+    - r_addr [1:0]                # CSR addresses are aligned to 4 bytes
+    - r_size [2]                  # Data width is only 32-bit
+    - w_addr [1:0]                # CSR addresses are aligned to 4 bytes
+    - w_size [2]                  # Data width is only 32-bit
+    - addr [1:0]                  # CSR addresses are aligned to 4 bytes
+    - size [2]                    # Data width is only 32-bit

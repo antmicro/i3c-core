@@ -74,6 +74,16 @@ ifeq ($(SIM), vcs)
     ifneq ($(COVERAGE_TYPE),)
         EXTRA_ARGS += -cm line+cond+fsm+tgl+branch -lca
     endif
+    # Generate cm.cfg file
+    ifeq ($(TOPLEVEL),)
+        $(error TOPLEVEL undefined!)
+    endif
+    $(shell mkdir -p $(TEST_DIR)/sim_build)
+    CM_FILE := $(TEST_DIR)/sim_build/cm.cfg
+    $(shell echo "+tree $(TOPLEVEL)" > $(CM_FILE))
+    $(shell echo "-module $(TOPLEVEL)" >> $(CM_FILE))
+
+    COMPILE_ARGS += -cm_hier $(CM_FILE)
 endif
 
 ifeq ($(SIM), xcelium)

@@ -1501,3 +1501,50 @@ Tied off signals:
     - w_size [2]                  # Data width is only 32-bit
     - addr [1:0]                  # CSR addresses are aligned to 4 bytes
     - size [2]                    # Data width is only 32-bit
+
+Taken from waivers.yaml:
+  signals:
+    - MODULE=controller_standby_i2c_harness:
+      - __rsvd14_0  # Reserved
+      - __rsvd23_16 # Reserved
+    - MODULE=flow_standby_i2c_harness:
+      - __rsvd14_0  # Reserved
+      - __rsvd23_16 # Reserved
+    - MODULE=axi_adapter_wrapper:
+      - DEVICE_ID_RESERVED                   # Reserved
+      - DEVICE_ID_RESERVED.*                 # Reserved
+      - INDIRECT_FIFO_RESERVED               # Reserved
+      - INDIRECT_FIFO_RESERVED.*             # Reserved
+      - RESERVED_7_3.*                       # Reserved
+      - SOC_MGMT_RSVD_2                      # Reserved
+      - SOC_MGMT_RSVD_2.*                    # Reserved
+      - SOC_MGMT_RSVD_3                      # Reserved
+      - SOC_MGMT_RSVD_3.*                    # Reserved
+      - __rsvd_3                             # Reserved
+      - __rsvd_3.*                           # Reserved
+    - MODULE=hci_queues_wrapper:
+      - DEVICE_ID_RESERVED                   # Reserved
+      - DEVICE_ID_RESERVED.*                 # Reserved
+      - INDIRECT_FIFO_RESERVED               # Reserved
+      - INDIRECT_FIFO_RESERVED.*             # Reserved
+      - RESERVED_7_3.*                       # Reserved
+      - SOC_MGMT_RSVD_2                      # Reserved
+      - SOC_MGMT_RSVD_2.*                    # Reserved
+      - SOC_MGMT_RSVD_3                      # Reserved
+      - SOC_MGMT_RSVD_3.*                    # Reserved
+      - __rsvd_3                             # Reserved
+      - __rsvd_3.*                           # Reserved
+    - MODULE=i3c_test_wrapper:
+      - __rsvd14_0  # Reserved
+      - __rsvd23_16 # Reserved
+      - DEVICE_ID_RESERVED                   # Reserved
+      - DEVICE_ID_RESERVED.*                 # Reserved
+      - INDIRECT_FIFO_RESERVED               # Reserved
+      - INDIRECT_FIFO_RESERVED.*             # Reserved
+      - RESERVED_7_3.*                       # Reserved
+      - SOC_MGMT_RSVD_2                      # Reserved
+      - SOC_MGMT_RSVD_2.*                    # Reserved
+      - SOC_MGMT_RSVD_3                      # Reserved
+      - SOC_MGMT_RSVD_3.*                    # Reserved
+      - __rsvd_3                             # Reserved
+      - __rsvd_3.*                           # Reserved

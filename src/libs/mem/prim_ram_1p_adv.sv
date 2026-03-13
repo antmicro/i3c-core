@@ -19,7 +19,6 @@ module prim_ram_1p_adv import prim_ram_1p_pkg::*; #(
   parameter  int Depth                = 512,
   parameter  int Width                = 32,
   parameter  int DataBitsPerMask      = 1,  // Number of data bits per bit of write mask
-  parameter      MemInitFile          = "", // VMEM file to initialize the memory with
 
   // Configurations
   parameter  bit EnableECC            = 0, // Enables per-word ECC
@@ -30,7 +29,7 @@ module prim_ram_1p_adv import prim_ram_1p_pkg::*; #(
   // This switch allows to switch to standard Hamming ECC instead of the HSIAO ECC.
   // It is recommended to leave this parameter at its default setting (HSIAO),
   // since this results in a more compact and faster implementation.
-  parameter bit HammingECC            = 0,
+  // parameter bit HammingECC            = 0, unused
 
   localparam int Aw                   = caliptra_prim_util_pkg::vbits(Depth)
 ) (
@@ -84,8 +83,6 @@ module prim_ram_1p_adv import prim_ram_1p_pkg::*; #(
   logic [1:0]              rerror_q, rerror_d ;
 
   prim_ram_1p #(
-    .MemInitFile     (MemInitFile),
-
     .Width           (TotalWidth),
     .Depth           (Depth),
     .DataBitsPerMask (LocalDataBitsPerMask)

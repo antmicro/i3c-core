@@ -7,10 +7,7 @@ module tti
     parameter int unsigned CsrDataWidth = 32,
 
     parameter int unsigned RxDescDataWidth = 32,
-    parameter int unsigned TxDescDataWidth = 32,
     parameter int unsigned RxDataWidth = 32,
-    parameter int unsigned TxDataWidth = 32,
-    parameter int unsigned IbiDataWidth = 32,
 
     parameter int unsigned RxDescThldWidth = 8,
     parameter int unsigned TxDescThldWidth = 8,

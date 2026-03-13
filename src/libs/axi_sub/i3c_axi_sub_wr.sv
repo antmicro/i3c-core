@@ -31,7 +31,6 @@ module i3c_axi_sub_wr import axi_pkg::*; #(
     parameter AW = 32,         // Address Width
     parameter DW = 32,         // Data Width
               BC = DW/8,       // Byte Count
-              BW = $clog2(BC), // Byte count Width
     parameter AG = $clog2(BC), // Address access granularity
     parameter UW = 32,         // User Width
     parameter IW = 1,          // ID Width

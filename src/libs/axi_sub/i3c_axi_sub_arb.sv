@@ -26,15 +26,8 @@ module i3c_axi_sub_arb import axi_pkg::*; #(
     parameter AW = 32,         // Address Width
     parameter DW = 32,         // Data Width
               BC = DW/8,       // Byte Count
-              BW = $clog2(BC), // Byte count Width
     parameter UW = 32,         // User Width
-    parameter IW = 1,          // ID Width
-              ID_NUM = 1 << IW, // Don't override
-
-    parameter C_LAT = 0    // Component latency in clock cycles from (dv&&!hld) -> rdata
-                           // Must be const per component
-                           // For registers, typically 0
-                           // For SRAM, 1 or more
+    parameter IW = 1           // ID Width
 ) (
     input clk,
     input rst_n,

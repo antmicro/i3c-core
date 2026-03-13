@@ -333,7 +333,7 @@ module controller_standby_i3c
         bus_tx_rsp_ccc = bus_tx_rsp;
         bus_rx_rsp_ccc = bus_rx_rsp;
       end
-      default: ;
+      default: begin end
     endcase
   end
 

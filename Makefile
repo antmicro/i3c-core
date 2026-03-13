@@ -170,6 +170,14 @@ tests-axi: ## Run all verification/cocotb/* RTL tests for AXI bus configuration 
 	$(MAKE) config CFG_NAME=axi
 	$(NOX) -f $(COCOTB_NOXFILE) -t "axi"
 
+tests-axi-fast: ## Run all verification/cocotb/top/* RTL tests for AXI bus configuration without coverage
+	$(MAKE) config CFG_NAME=axi
+	$(NOX) -f $(COCOTB_NOXFILE) -t "axi_fast"
+
+tests-axi-block: ## Run all verification/cocotb/block/* RTL tests for AXI bus configuration without coverage
+	$(MAKE) config CFG_NAME=axi
+	$(NOX) -f $(COCOTB_NOXFILE) -t "axi_block"
+
 tests-ahb: ## Run all verification/cocotb/* RTL tests for AHB bus configuration without coverage
 	$(MAKE) config CFG_NAME=ahb
 	$(NOX) -f $(COCOTB_NOXFILE) -t "ahb"

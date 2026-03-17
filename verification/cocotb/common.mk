@@ -44,7 +44,7 @@ ifeq ($(SIM), verilator)
     COMPILE_ARGS += --x-assign unique --x-initial unique
 
     ifeq ($(WAVES), 1)
-        EXTRA_ARGS += --trace --trace-structs --trace-fst
+        EXTRA_ARGS += --trace --trace-structs
     endif
     EXTRA_ARGS += $(VERILATOR_COVERAGE)
     EXTRA_ARGS += -Wno-DECLFILENAME -Wno-TIMESCALEMOD
@@ -57,6 +57,11 @@ ifeq ($(SIM), vcs)
     COMPILE_ARGS += -debug_access+all +vcs+fsdbon
     ifeq ($(WAVES), 1)
         SIM_ARGS += +fsdbfile+dump.fsdb +fsdb+all=on +fsdb+mda=on
+    endif
+    ifeq ($(WAVES_VPD), 1)
+    EXTRA_ARGS += +vcs+vcdpluson +vpdfile+dump.vpd
+    COMPILE_ARGS += -debug_access+all +memcbk -kdb
+    SIM_ARGS += +dumpon
     endif
     EXTRA_ARGS += +vcs+lic+wait
 

@@ -1556,3 +1556,137 @@ async def test_priv_write_tight_timing_sr(dut):
     await ClockCycles(tb.clk, 50)
 
     await tb.teardown()
+
+
+@cocotb.test()
+async def test_bypass_to_normal_mode_switch(dut):
+    """
+    Tests indirect FIFO bypass followed by I3C traffic
+    """
+
+    # Initialize
+    i3c_controller, i3c_target, tb = await test_setup(dut)
+
+    # Enable the recovery mode
+    status = 0x3
+    await tb.write_csr(
+        tb.reg_map.I3C_EC.SECFWRECOVERYIF.DEVICE_STATUS_0.base_addr, int2dword(status), 4
+    )
+
+    # Enable bypass
+    enable_bypass = 1
+    await tb.write_csr(
+        tb.reg_map.I3C_EC.SOCMGMTIF.REC_INTF_CFG.base_addr, int2dword(enable_bypass), 4
+    )
+
+    # Disable PHY
+    base = dword2int(
+        await tb.read_csr(tb.reg_map.I3CBASE.HC_CONTROL.base_addr, 4)
+    )
+    base = base & (~tb.reg_map.I3CBASE.HC_CONTROL.BUS_ENABLE.mask)
+    await tb.write_csr(
+        tb.reg_map.I3CBASE.HC_CONTROL.base_addr, int2dword(base), 4
+    )
+
+    fifo_size = dword2int(
+        await tb.read_csr(tb.reg_map.I3C_EC.SECFWRECOVERYIF.INDIRECT_FIFO_STATUS_3.base_addr, 4)
+    )
+
+    # Write data to indirect FIFO through the recovery interface
+    tx_data = [random.randint(2, 2**32 - 1) for _ in range(fifo_size)]
+    for d in tx_data:
+        tb.dut._log.info(f"Writing data to TTI TX Data Queue: 0x{d:08X}")
+        await tb.write_csr(
+            tb.reg_map.I3C_EC.TTI.TX_DATA_PORT.base_addr,
+            int2dword(d),
+            awid=None,
+            timeout=1,
+            units="us",
+        )
+
+    # Random trafic while in bypass
+    tx_resp = await i3c_controller.i3c_write(TARGET_ADDRESS, [random.randint(0, 2**8 - 1) for _ in range(3)])
+    assert tx_resp.nack
+    rx_resp = await i3c_controller.i3c_read(TARGET_ADDRESS, random.randint(0, 2**8 - 1))
+    assert rx_resp.nack
+
+    # Read data back
+    rx_words = []
+    for _ in range(fifo_size):
+
+        # Read data
+        res = await tb.read_csr(tb.reg_map.I3C_EC.SECFWRECOVERYIF.INDIRECT_FIFO_DATA.base_addr, 4)
+        data = dword2int(res)
+        dut._log.info(f"INDIRECT_FIFO_DATA = 0x{data:08X}")
+        rx_words.append(data)
+
+    # Clear FIFO (pointers too)
+    await tb.write_csr_field(
+        tb.reg_map.I3C_EC.SOCMGMTIF.REC_INTF_REG_W1C_ACCESS.base_addr,
+        tb.reg_map.I3C_EC.SOCMGMTIF.REC_INTF_REG_W1C_ACCESS.INDIRECT_FIFO_CTRL_RESET,
+        1,
+    )
+
+    # Clear FIFO reset
+    await tb.write_csr_field(
+        tb.reg_map.I3C_EC.SECFWRECOVERYIF.INDIRECT_FIFO_CTRL_0.base_addr,
+        tb.reg_map.I3C_EC.SECFWRECOVERYIF.INDIRECT_FIFO_CTRL_0.RESET,
+        1,
+    )
+
+    # Check data readback
+    dut._log.info("TX data: " + " ".join([hex(w) for w in tx_data]))
+    dut._log.info("Indirect FIFO: " + " ".join([hex(w) for w in rx_words]))
+
+    assert tx_data == rx_words, f"Data mismatch"
+
+    # Disable bypass
+    await tb.write_csr(
+        tb.reg_map.I3C_EC.SOCMGMTIF.REC_INTF_CFG.base_addr, int2dword(0), 4
+    )
+
+    # Enable PHY
+    base = dword2int(
+        await tb.read_csr(tb.reg_map.I3CBASE.HC_CONTROL.base_addr, 4)
+    )
+    base = base | tb.reg_map.I3CBASE.HC_CONTROL.BUS_ENABLE.mask
+    await tb.write_csr(
+        tb.reg_map.I3CBASE.HC_CONTROL.base_addr, int2dword(base), 4
+    )
+
+    # Do some traffic
+    test_data = [[0xAA, 0x00, 0xBB, 0xCC, 0xDD], [0xDE, 0xAD, 0xBA, 0xBE]]
+
+    # Start the device firmware agent
+    rx_agent_work = cocotb.start_soon(rx_agent(tb, [len(data) for data in test_data]))
+
+    # Send Private Writes on I3C. The agent will handle them as their come
+    for test_vec in test_data:
+        await i3c_controller.i3c_write(TARGET_ADDRESS, test_vec)
+        await ClockCycles(tb.clk, 10)
+
+    # Wait
+    recv_data = await rx_agent_work
+
+    # Compare
+    dut._log.info(
+        "Comparing input [{}] and RX data [{}]".format(
+            " ".join(["[ " + " ".join([f"0x{d:02X}" for d in s]) + " ]" for s in test_data]),
+            " ".join(["[ " + " ".join([f"0x{d:02X}" for d in s]) + " ]" for s in recv_data]),
+        )
+    )
+    assert test_data == recv_data, f"Private write mismatch: sent={test_data}, recv={recv_data}"
+
+    # Send Private Reads on I3C.
+    dut._log.info("3 consecutive read transfers, enqueued then serviced")
+    tx_data = []
+    for i in range(3):
+        tx_data.append(await make_transfer(tb))
+
+    for i in range(3):
+        rx_resp = await i3c_controller.i3c_read(TARGET_ADDRESS, len(tx_data[i]))
+        assert not rx_resp.nack, f"Unexpected NACK on private read (batch, index {i})"
+        rx_data = list(rx_resp.data)
+        compare(tb, tx_data[i], rx_data)
+
+    await tb.teardown()

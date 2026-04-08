@@ -22,7 +22,7 @@ TARGET_ADDRESS = 0x5A
 
 async def test_setup(dut, fclk=333.0, fbus=12.5,
                      static_addr=TARGET_ADDRESS, virtual_static_addr=0x5B,
-                     dynamic_addr=None, virtual_dynamic_addr=None):
+                     dynamic_addr=None, virtual_dynamic_addr=None, verify_boot=True):
     """
     Sets up controller, target models and top-level core interface
     """
@@ -70,7 +70,8 @@ async def test_setup(dut, fclk=333.0, fbus=12.5,
 
     await boot_init(tb, timings, fclk=fclk,
                     static_addr=static_addr, virtual_static_addr=virtual_static_addr,
-                    dynamic_addr=dynamic_addr, virtual_dynamic_addr=virtual_dynamic_addr)
+                    dynamic_addr=dynamic_addr, virtual_dynamic_addr=virtual_dynamic_addr,
+                    verify=verify_boot)
 
     # Set TTI queues thresholds
     await tb.write_csr_field(
@@ -423,7 +424,7 @@ async def test_i3c_target_ibi(dut):
     """
 
     # Setup
-    i3c_controller, i3c_target, tb = await test_setup(dut)
+    i3c_controller, i3c_target, tb = await test_setup(dut, verify_boot=True)
 
     target = i3c_controller.add_target(TARGET_ADDRESS)
     target.set_bcr_fields(ibi_req_capable=True, ibi_payload=True)
@@ -501,7 +502,7 @@ async def test_i3c_target_ibi_retry(dut):
     """
 
     # Setup
-    i3c_controller, i3c_target, tb = await test_setup(dut)
+    i3c_controller, i3c_target, tb = await test_setup(dut, verify_boot=True)
 
     # Enable indefinite IBI retries
     #  TTI.CONTROL.IBI_EN        = 1
@@ -570,7 +571,7 @@ async def test_i3c_target_ibi_data(dut):
     """
 
     # Setup
-    i3c_controller, i3c_target, tb = await test_setup(dut)
+    i3c_controller, i3c_target, tb = await test_setup(dut, verify_boot=True)
 
     target = i3c_controller.add_target(TARGET_ADDRESS)
     target.set_bcr_fields(ibi_req_capable=True, ibi_payload=True)

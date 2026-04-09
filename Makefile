@@ -37,7 +37,7 @@ TESTS_XML_BASE_PATH ?= $(I3C_ROOT_DIR)
 
 NOX                 ?= $(PYTHON) -m nox $(NOX_COMMON_ARGS) $(NOX_EXTRA_ARGS)
 ## The python environment is managed outside of Nox, so always pass these flags
-NOX_COMMON_ARGS     ?= -R --no-venv
+NOX_COMMON_ARGS     ?= -R --no-venv --forcecolor
 NOX_EXTRA_ARGS      ?=
 COCOTB_NOXFILE      := $(COCOTB_VERIF_DIR)/noxfile.py
 UVM_NOXFILE         := $(UVM_VERIF_DIR)/noxfile.py

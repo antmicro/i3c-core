@@ -146,7 +146,7 @@
         deliberately corrupts the recovery packet's checksum (PEC).
         Finally, reads the content of DEVICE_RESET CSR over AHB/AXI
         and ensures that it matches with what was written in the first
-        transfer.
+        transfer. The test shall use random data length and value.
 
         The test runs at core clock of 100 and 200 MHz. The slowest clock that does not result in a tSCO violation is 166 MHz.
         The I3C bus clock is set to 12.5 MHz.

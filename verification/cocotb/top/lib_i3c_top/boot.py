@@ -333,31 +333,33 @@ async def umbrella_stby_init(
         assert mode == 2
 
         # Set static address and valid
-        static_addr_rd = await tb.read_csr_field(
-            tb.reg_map.I3C_EC.STDBYCTRLMODE.STBY_CR_DEVICE_ADDR.base_addr,
-            tb.reg_map.I3C_EC.STDBYCTRLMODE.STBY_CR_DEVICE_ADDR.STATIC_ADDR,
-        )
-        assert static_addr_rd == static_addr
+        if static_addr is not None:
+            static_addr_rd = await tb.read_csr_field(
+                tb.reg_map.I3C_EC.STDBYCTRLMODE.STBY_CR_DEVICE_ADDR.base_addr,
+                tb.reg_map.I3C_EC.STDBYCTRLMODE.STBY_CR_DEVICE_ADDR.STATIC_ADDR,
+            )
+            assert static_addr_rd == static_addr
 
-        static_addr_valid = await tb.read_csr_field(
-            tb.reg_map.I3C_EC.STDBYCTRLMODE.STBY_CR_DEVICE_ADDR.base_addr,
-            tb.reg_map.I3C_EC.STDBYCTRLMODE.STBY_CR_DEVICE_ADDR.STATIC_ADDR_VALID,
-        )
-        assert static_addr_valid == 0x1
+            static_addr_valid = await tb.read_csr_field(
+                tb.reg_map.I3C_EC.STDBYCTRLMODE.STBY_CR_DEVICE_ADDR.base_addr,
+                tb.reg_map.I3C_EC.STDBYCTRLMODE.STBY_CR_DEVICE_ADDR.STATIC_ADDR_VALID,
+            )
+            assert static_addr_valid == 0x1
 
         # Set static address and valid for virtual device
-        virtual_static_addr_rd = await tb.read_csr_field(
-            tb.reg_map.I3C_EC.STDBYCTRLMODE.STBY_CR_VIRT_DEVICE_ADDR.base_addr,
-            tb.reg_map.I3C_EC.STDBYCTRLMODE.STBY_CR_VIRT_DEVICE_ADDR.VIRT_STATIC_ADDR,
-        )
-        assert virtual_static_addr_rd == virtual_static_addr
+        if virtual_static_addr is not None:
+            virtual_static_addr_rd = await tb.read_csr_field(
+                tb.reg_map.I3C_EC.STDBYCTRLMODE.STBY_CR_VIRT_DEVICE_ADDR.base_addr,
+                tb.reg_map.I3C_EC.STDBYCTRLMODE.STBY_CR_VIRT_DEVICE_ADDR.VIRT_STATIC_ADDR,
+            )
+            assert virtual_static_addr_rd == virtual_static_addr
 
-        virtual_static_addr_valid = await tb.read_csr_field(
-            tb.reg_map.I3C_EC.STDBYCTRLMODE.STBY_CR_VIRT_DEVICE_ADDR.base_addr,
-            tb.reg_map.I3C_EC.STDBYCTRLMODE.STBY_CR_VIRT_DEVICE_ADDR.VIRT_STATIC_ADDR_VALID,
-            0x1,
-        )
-        assert virtual_static_addr_valid == 0x1
+            virtual_static_addr_valid = await tb.read_csr_field(
+                tb.reg_map.I3C_EC.STDBYCTRLMODE.STBY_CR_VIRT_DEVICE_ADDR.base_addr,
+                tb.reg_map.I3C_EC.STDBYCTRLMODE.STBY_CR_VIRT_DEVICE_ADDR.VIRT_STATIC_ADDR_VALID,
+                0x1,
+            )
+            assert virtual_static_addr_valid == 0x1
 
         # Enable Target Interface
         tgt_en = await tb.read_csr_field(

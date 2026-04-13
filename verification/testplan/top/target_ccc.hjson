@@ -741,5 +741,25 @@
       tests: ["ccc_csr_concurrent_stress"]
       tags: ["top"]
     }
+    {
+      name: entdaa
+      desc:
+        '''
+        Perform the ENTDAA procedure, validate the addresses were assigned correctly.
+        '''
+      tests: [""]
+      tags: ["top"]
+    }
+    {
+      name: entdaa_parity_errors
+      desc:
+        '''
+        Perform the ENTDAA procedure, inject parity errors to offered addresses.
+        Validate no address with a parity error was assigned.
+        Disable parity checking and validate that addresses are assigned despite the error.
+        '''
+      tests: [""]
+      tags: ["top"]
+    }
   ]
 }

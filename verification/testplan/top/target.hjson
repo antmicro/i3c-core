@@ -279,5 +279,43 @@
       tests: ["priv_write_tight_timing_sr"]
       tags: ["top"]
     }
+    {
+      name: rx_descriptor_overflow
+      desc:
+        '''
+        Perform a large number of short private writes causing an RX descriptor queue overflow.
+        '''
+      tests: [""]
+      tags: ["top"]
+    }
+    {
+      name: descriptor_queues_stress
+      desc:
+        '''
+        Perform read and write tests with various descriptor FIFO depth configs.
+        Stress the FIFOs by filling them by writes from the SW and I3C sides.
+        '''
+      tests: [""]
+      tags: ["top"]
+    }
+    {
+      name: descriptor_queues_flush_stress
+      desc:
+        '''
+        Force descriptor queues flushing by randomly cancelling transactions and injecting errors.
+        '''
+      tests: [""]
+      tags: ["top"]
+    }
+    {
+      name: push_pull_open_drain_check
+      desc:
+        '''
+        Perform a random I3C transactions to the target device. Monitor the `sel_od_pp_o` optput and ensure
+        the core drives the bus in the correct mode.
+        '''
+      tests: [""]
+      tags: ["top"]
+    }
   ]
 }

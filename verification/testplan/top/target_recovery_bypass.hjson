@@ -31,7 +31,7 @@
       desc: '''
             Verify recovery status wires as specified in the Caliptra SS Hardware Specification
             - Write to the TTI TX Queue and read from the Indirect FIFO Queue.
-            - Ensuring correct state of the `payload_available` wire
+            - Ensure correct state of the `payload_available` wire
             - Write to the Recovery Control CSR to activate an image
             - Ensure correct state of the `image_activated` wire'''
       tests: ["payload_available", "image_activated"]
@@ -54,7 +54,7 @@
     {
       name: i3c_bus_traffic_during_loopback
       desc: '''
-            Verify that Recovery Handler with bypass enabled is not in any way interfered by any
+            Verify that the Recovery Handler with bypass enabled is not in any way interfered by any
             I3C bus traffic'''
       tests: ["i3c_bus_traffic_during_loopback"]
       tags: ["top"]
@@ -63,7 +63,7 @@
       name: check_axi_filtering
       desc: '''
             Verify that AXI access to Secure Firmware Recovery registers is filtered
-            - AXI IDs from privileged ID list should always grant access to all registers
+            - AXI IDs from the privileged ID list should always grant access to all registers
             - Once ID filtering is disabled, register access should be granted regardless of the
               transaction ID
             - With ID filtering enabled, all transactions with ID outside of the privileged ID list
@@ -85,7 +85,7 @@
     {
       name: recovery_flow
       desc: '''
-            Verify that Recovery Handler with bypass enabled can perform full Recovery Sequence
+            Verify that Recovery Handler with bypass enabled can perform a full Recovery Sequence
             as specified in the Caliptra Root of Trust specification'''
       tests: ["recovery_flow"]
       tags: ["top"]
@@ -93,16 +93,27 @@
     {
       name: cptra_mcu_recovery
       desc: '''
-            Verify that Caliptra Subsystem can perform full Recovery Sequence with I3C Core with
-            bypass feature enabled. This test will run software on both Caliptra core and Caliptra
+            Verify that Caliptra Subsystem can perform a full Recovery Sequence with the I3C Core with
+            the bypass feature enabled. This test will run software on both Caliptra core and Caliptra
             MCU to interact with the I3C Core and Caliptra RoT.
-            - MCU should initialize I3C Core with bypass enabled
+            - MCU should initialize the I3C Core with bypass enabled
             - Caliptra ROM should enable Recovery Mode
-            - MCU should load image to Indirect FIFO Queue which will be read by Caliptra ROM
-            - MCU should activate an image
-            - Caliptra ROM should write an image to MCU SRAM
-            - The image should be identical with the one read form simulated QSPI'''
+            - MCU should load the image to the Indirect FIFO Queue which will be read by Caliptra ROM
+            - MCU should activate the image
+            - Caliptra ROM should write the image to the MCU SRAM
+            - The image should be identical with the one read form a simulated QSPI'''
       tests: ["cptra_mcu_recovery"]
+      tags: ["top"]
+    }
+    {
+      name: bypass_to_i3c_switch
+      desc: '''
+            Boot the core in bypass mode and perform AXI recovery flow. During AXI recovery
+            send random I3C traffic and assert all I3C packets are ACKed.
+            Switch to I3C mode and send regular I3C traffic, make sure it is handled correctly.
+            The test should cover corner cases where the switch happens in the middle of an I3C transaction.
+            '''
+      tests: [""]
       tags: ["top"]
     }
   ]

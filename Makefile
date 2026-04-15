@@ -170,6 +170,14 @@ tests-axi: ## Run all verification/cocotb/* RTL tests for AXI bus configuration 
 	$(MAKE) config CFG_NAME=axi
 	$(NOX) -f $(COCOTB_NOXFILE) -t "axi"
 
+tests-axi-fast: ## Run all verification/cocotb/top/* RTL tests for AXI bus configuration without coverage
+	$(MAKE) config CFG_NAME=axi
+	$(NOX) -f $(COCOTB_NOXFILE) -t "axi_fast"
+
+tests-axi-block: ## Run all verification/cocotb/block/* RTL tests for AXI bus configuration without coverage
+	$(MAKE) config CFG_NAME=axi
+	$(NOX) -f $(COCOTB_NOXFILE) -t "axi_block"
+
 tests-ahb: ## Run all verification/cocotb/* RTL tests for AHB bus configuration without coverage
 	$(MAKE) config CFG_NAME=ahb
 	$(NOX) -f $(COCOTB_NOXFILE) -t "ahb"
@@ -224,8 +232,8 @@ install-uvm:
 clean: ## Clean all generated sources
 	rm -rf $(I3C_ROOT_DIR)/{dsim.env,dsim_work,sw,*.log,*.rpt,*.vcd}
 	rm -rf $(GENERIC_UVM_DIR) $(VERILATOR_UVM_DIR)
-	rm -rf {$(VERIFICATION_DIR),$(COCOTB_VERIF_DIR),$(BLOCK_VERIF_DIR),$(TOP_VERIF_DIR),$(UVM_VERIF_DIR)}/**/{.nox,obj_dir,__pycache__,report,sim_build,*.dat,*.info,*.json,*.log,*.vpd,*.vcd,*.vdb,*.fsdb*,*.fst,*.shm,*.xml,ucli.key,xrun.history}
-	rm -rf $(TOOL_DIR)/**/{.nox,obj_dir,__pycache__,report,sim_build,*.dat,*.info,*.log,*.vcd,*.xml}
+	rm -rf {$(VERIFICATION_DIR),$(COCOTB_VERIF_DIR),$(BLOCK_VERIF_DIR),$(TOP_VERIF_DIR),$(UVM_VERIF_DIR)}/**/{.nox,obj_dir,__pycache__,report,sim_build,sim_build-*,*.dat,*.info,*.json,*.log,*.vpd,*.vcd,*.fsdb,*.fst,*.shm,*.xml,ucli.key,xrun.history}
+	rm -rf $(TOOL_DIR)/**/{.nox,obj_dir,__pycache__,report,sim_build,sim_build-*,*.dat,*.info,*.log,*.vcd,*.xml}
 
 .PHONY: lint lint-check lint-rtl lint-tests \
         test tests \

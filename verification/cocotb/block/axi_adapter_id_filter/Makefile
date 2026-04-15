@@ -17,9 +17,12 @@ TOPLEVEL = axi_adapter_wrapper
 CFG_NAME = axi
 CFG_FILE = $(TEST_DIR)/i3c_cfg.yaml
 
-include $(TEST_DIR)/../../caliptra_common.mk
-
-VERILOG_SOURCES  += \
+VERILOG_SOURCES  = \
+    $(CALIPTRA_ROOT)/src/caliptra_prim/rtl/caliptra_prim_pkg.sv \
+    $(CALIPTRA_ROOT)/src/caliptra_prim/rtl/caliptra_prim_util_pkg.sv \
+    $(CALIPTRA_ROOT)/src/caliptra_prim/rtl/caliptra_prim_count_pkg.sv \
+    $(CALIPTRA_ROOT)/src/caliptra_prim/rtl/caliptra_prim_fifo_sync.sv \
+    $(CALIPTRA_ROOT)/src/caliptra_prim/rtl/caliptra_prim_fifo_sync_cnt.sv \
     $(SRC_DIR)/i3c_pkg.sv \
     $(CALIPTRA_ROOT)/src/axi/rtl/axi_pkg.sv \
     $(CALIPTRA_ROOT)/src/axi/rtl/axi_if.sv \

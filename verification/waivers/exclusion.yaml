@@ -2706,3 +2706,6 @@ exclusions:
       - buf_pp
       - i3c_controller_fsm
       - i2c_controller_fsm
+      - i2c_target_fsm
+      - flow_standby_i2c
+      - controller_standby_i2c

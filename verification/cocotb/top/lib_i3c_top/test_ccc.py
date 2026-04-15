@@ -1549,7 +1549,7 @@ async def test_ccc_rstact_unsupported_db(dut):
         dynamic_addr=DYNAMIC_ADDR, virtual_dynamic_addr=VIRT_DYNAMIC_ADDR)
     await ClockCycles(tb.clk, 50)
 
-    unsupported_dbs = [0x03, 0x05, 0x83]
+    unsupported_dbs = [0x03, 0x05, 0x83, 0x55, 0xAA]
     for db in unsupported_dbs:
         for tgt_addr in [DYNAMIC_ADDR, VIRT_DYNAMIC_ADDR]:
             acks = await i3c_controller.i3c_ccc_write(

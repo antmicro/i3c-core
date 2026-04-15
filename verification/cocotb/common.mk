@@ -44,7 +44,7 @@ ifeq ($(SIM), verilator)
     COMPILE_ARGS += --x-assign unique --x-initial unique
 
     ifeq ($(WAVES), 1)
-        EXTRA_ARGS += --trace --trace-structs --trace-fst
+        EXTRA_ARGS += --trace --trace-structs
     endif
     EXTRA_ARGS += $(VERILATOR_COVERAGE)
     EXTRA_ARGS += -Wno-DECLFILENAME -Wno-TIMESCALEMOD
@@ -52,11 +52,17 @@ endif
 
 ifeq ($(SIM), vcs)
     COMPILE_ARGS += -assert svaext
+    COMPILE_ARGS += -deraceclockdata
     COMPILE_ARGS += -Xcflags='-Wno-error=implicit-function-declaration -Wno-error=int-conversion'
     COMPILE_ARGS += -kdb
     COMPILE_ARGS += -debug_access+all +vcs+fsdbon
     ifeq ($(WAVES), 1)
         SIM_ARGS += +fsdbfile+dump.fsdb +fsdb+all=on +fsdb+mda=on
+    endif
+    ifeq ($(WAVES_VPD), 1)
+    EXTRA_ARGS += +vcs+vcdpluson +vpdfile+dump.vpd
+    COMPILE_ARGS += -debug_access+all +memcbk -kdb
+    SIM_ARGS += +dumpon
     endif
     EXTRA_ARGS += +vcs+lic+wait
 
@@ -68,6 +74,16 @@ ifeq ($(SIM), vcs)
     ifneq ($(COVERAGE_TYPE),)
         EXTRA_ARGS += -cm line+cond+fsm+tgl+branch -lca
     endif
+    # Generate cm.cfg file
+    ifeq ($(TOPLEVEL),)
+        $(error TOPLEVEL undefined!)
+    endif
+    $(shell mkdir -p $(TEST_DIR)/sim_build)
+    CM_FILE := $(TEST_DIR)/sim_build/cm.cfg
+    $(shell echo "+tree $(TOPLEVEL)" > $(CM_FILE))
+    $(shell echo "-module $(TOPLEVEL)" >> $(CM_FILE))
+
+    COMPILE_ARGS += -cm_hier $(CM_FILE)
 endif
 
 ifeq ($(SIM), xcelium)

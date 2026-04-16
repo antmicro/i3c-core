@@ -88,73 +88,112 @@ async def test_setup(dut, fclk=333.0, fbus=12.5,
     return i3c_controller, i3c_target, tb
 
 
-async def base_test_i3c_target_write(dut, test_data):
+# Receiver agent (firmware side)
+async def rx_agent(tb, data_transfers):
     recv_data = []
+
+    # Enable RX descriptor interrupt
+    await tb.write_csr_field(
+        tb.reg_map.I3C_EC.TTI.INTERRUPT_ENABLE.base_addr,
+        tb.reg_map.I3C_EC.TTI.INTERRUPT_ENABLE.RX_DESC_STAT_EN,
+        1,
+    )
+
+    for i, tx_length in enumerate(data_transfers):
+
+        # Wait for the interrupt signal to go high
+        irq = tb.dut.xi3c_wrapper.i3c.irq_o
+        if irq.value == 0:
+            await RisingEdge(irq)
+
+        # Read & check interrupt status
+        intrs = await get_interrupt_status(tb)
+        assert intrs["RX_DESC_STAT"] == 1, f"RX_DESC_STAT expected 1, got {intrs['RX_DESC_STAT']}"
+
+        # Read RX descriptor, the interrupt should go low
+        data = dword2int(
+            await tb.read_csr(tb.reg_map.I3C_EC.TTI.RX_DESC_QUEUE_PORT.base_addr, 4)
+        )
+        desc_len = data & 0xFFFF
+
+        # Examine the descriptor
+        assert tx_length == desc_len, "Incorrect number of bytes in RX descriptor"
+        remainder = desc_len % 4
+
+        err_stat = data >> 28
+        assert err_stat == 0, "Unexpected error detected"
+
+        # Wait for the interrupt signal to go low
+        irq = tb.dut.xi3c_wrapper.i3c.irq_o
+        if irq.value != 0:
+            await FallingEdge(irq)
+
+        # Read & check interrupt status
+        intrs = await get_interrupt_status(tb)
+        assert intrs["RX_DESC_STAT"] == 0, f"RX_DESC_STAT expected 0, got {intrs['RX_DESC_STAT']}"
+
+        # Read RX data
+        data_len = ceil(desc_len / 4)
+        rx_data = []
+        for _ in range(data_len):
+            data = dword2int(await tb.read_csr(tb.reg_map.I3C_EC.TTI.RX_DATA_PORT.base_addr, 4))
+            for k in range(4):
+                rx_data.append((data >> (k * 8)) & 0xFF)
+
+        # Remove entries that are outside of the data length
+        if remainder:
+            for k in range(4 - remainder):
+                rx_data.pop()
+
+        recv_data.append(rx_data)
+    return recv_data
+
+
+# Generates a randomized transfer and puts it into the TTI TX queue
+async def make_transfer(tb, min_len=1, max_len=16):
+
+    length = random.randint(min_len, max_len)
+    data = [random.randint(0, 255) for _ in range(length)]
+
+    tb.dut._log.info(f"Enqueueing transfer of length {length}")
+
+    # Write data to TTI TX FIFO
+    for i in range((length + 3) // 4):
+        word = data[4 * i]
+        if 4 * i + 1 < length:
+            word |= data[4 * i + 1] << 8
+        if 4 * i + 2 < length:
+            word |= data[4 * i + 2] << 16
+        if 4 * i + 3 < length:
+            word |= data[4 * i + 3] << 24
+
+        await tb.write_csr(tb.reg_map.I3C_EC.TTI.TX_DATA_PORT.base_addr, int2dword(word), 4)
+
+    # Write the TX descriptor
+    await tb.write_csr(tb.reg_map.I3C_EC.TTI.TX_DESC_QUEUE_PORT.base_addr, int2dword(length), 4)
+
+    return data
+
+
+def compare(tb, expected, received, lnt=None):
+    if lnt is None or lnt == len(expected):
+        sfx = ""
+    else:
+        sfx = " ([" + " ".join([f"{d:02X}" for d in expected[lnt:]]) + "] skipped)"
+        expected = expected[:lnt]
+
+    tb.dut._log.info("Expected: [" + " ".join([f"{d:02X}" for d in expected]) + "]" + sfx)
+    tb.dut._log.info("Received: [" + " ".join([f"{d:02X}" for d in received]) + "]")
+    assert expected == received, f"Data mismatch: exp=[{' '.join(f'{d:02X}' for d in expected)}] got=[{' '.join(f'{d:02X}' for d in received)}]"
+
+
+async def base_test_i3c_target_write(dut, test_data):
 
     # Setup
     i3c_controller, i3c_target, tb = await test_setup(dut)
 
-    # Receiver agent (firmware side)
-    async def rx_agent():
-        nonlocal recv_data
-
-        # Enable RX descriptor interrupt
-        await tb.write_csr_field(
-            tb.reg_map.I3C_EC.TTI.INTERRUPT_ENABLE.base_addr,
-            tb.reg_map.I3C_EC.TTI.INTERRUPT_ENABLE.RX_DESC_STAT_EN,
-            1,
-        )
-
-        for i, tx_data in enumerate(test_data):
-
-            # Wait for the interrupt signal to go high
-            irq = dut.xi3c_wrapper.i3c.irq_o
-            if irq.value == 0:
-                await RisingEdge(irq)
-
-            # Read & check interrupt status
-            intrs = await get_interrupt_status(tb)
-            assert intrs["RX_DESC_STAT"] == 1, f"RX_DESC_STAT expected 1, got {intrs['RX_DESC_STAT']}"
-
-            # Read RX descriptor, the interrupt should go low
-            data = dword2int(
-                await tb.read_csr(tb.reg_map.I3C_EC.TTI.RX_DESC_QUEUE_PORT.base_addr, 4)
-            )
-            desc_len = data & 0xFFFF
-
-            # Examine the descriptor
-            assert len(tx_data) == desc_len, "Incorrect number of bytes in RX descriptor"
-            remainder = desc_len % 4
-
-            err_stat = data >> 28
-            assert err_stat == 0, "Unexpected error detected"
-
-            # Wait for the interrupt signal to go low
-            irq = dut.xi3c_wrapper.i3c.irq_o
-            if irq.value != 0:
-                await FallingEdge(irq)
-
-            # Read & check interrupt status
-            intrs = await get_interrupt_status(tb)
-            assert intrs["RX_DESC_STAT"] == 0, f"RX_DESC_STAT expected 0, got {intrs['RX_DESC_STAT']}"
-
-            # Read RX data
-            data_len = ceil(desc_len / 4)
-            rx_data = []
-            for _ in range(data_len):
-                data = dword2int(await tb.read_csr(tb.reg_map.I3C_EC.TTI.RX_DATA_PORT.base_addr, 4))
-                for k in range(4):
-                    rx_data.append((data >> (k * 8)) & 0xFF)
-
-            # Remove entries that are outside of the data length
-            if remainder:
-                for k in range(4 - remainder):
-                    rx_data.pop()
-
-            recv_data.append(rx_data)
-
     # Start the device firmware agent
-    cocotb.start_soon(rx_agent())
+    rx_agent_work = cocotb.start_soon(rx_agent(tb, [len(data) for data in test_data]))
 
     # Send Private Writes on I3C. The agent will handle them as their come
     for test_vec in test_data:
@@ -162,7 +201,7 @@ async def base_test_i3c_target_write(dut, test_data):
         await ClockCycles(tb.clk, 10)
 
     # Wait
-    await ClockCycles(tb.clk, 100)
+    recv_data = await rx_agent_work
 
     # Compare
     dut._log.info(
@@ -201,65 +240,29 @@ async def test_i3c_target_read(dut):
     # Setup
     i3c_controller, i3c_target, tb = await test_setup(dut)
 
-    # Generates a randomized transfer and puts it into the TTI TX queue
-    async def make_transfer(min_len=1, max_len=16):
-
-        length = random.randint(min_len, max_len)
-        data = [random.randint(0, 255) for _ in range(length)]
-
-        dut._log.info(f"Enqueueing transfer of length {length}")
-
-        # Write data to TTI TX FIFO
-        for i in range((length + 3) // 4):
-            word = data[4 * i]
-            if 4 * i + 1 < length:
-                word |= data[4 * i + 1] << 8
-            if 4 * i + 2 < length:
-                word |= data[4 * i + 2] << 16
-            if 4 * i + 3 < length:
-                word |= data[4 * i + 3] << 24
-
-            await tb.write_csr(tb.reg_map.I3C_EC.TTI.TX_DATA_PORT.base_addr, int2dword(word), 4)
-
-        # Write the TX descriptor
-        await tb.write_csr(tb.reg_map.I3C_EC.TTI.TX_DESC_QUEUE_PORT.base_addr, int2dword(length), 4)
-
-        return data
-
-    def compare(expected, received, lnt=None):
-        if lnt is None or lnt == len(expected):
-            sfx = ""
-        else:
-            sfx = " ([" + " ".join([f"{d:02X}" for d in expected[lnt:]]) + "] skipped)"
-            expected = expected[:lnt]
-
-        dut._log.info("Expected: [" + " ".join([f"{d:02X}" for d in expected]) + "]" + sfx)
-        dut._log.info("Received: [" + " ".join([f"{d:02X}" for d in received]) + "]")
-        assert expected == received, f"Data mismatch: exp=[{' '.join(f'{d:02X}' for d in expected)}] got=[{' '.join(f'{d:02X}' for d in received)}]"
-
     # .............
 
     # Test N consecutive transfers. Do not queue new transfers before completion
     dut._log.info("N consecutive transfers, one at a time")
     for i in range(2):
-        tx_data = await make_transfer()
+        tx_data = await make_transfer(tb)
         rx_resp = await i3c_controller.i3c_read(TARGET_ADDRESS, len(tx_data))
         assert not rx_resp.nack, "Unexpected NACK on private read (one-at-a-time)"
         rx_data = list(rx_resp.data)
-        compare(tx_data, rx_data)
+        compare(tb, tx_data, rx_data)
 
 
     # Test N consecutive transfers. First enqueue, then service
     dut._log.info("N consecutive transfers, enqueued then serviced")
     tx_data = []
     for i in range(3):
-        tx_data.append(await make_transfer())
+        tx_data.append(await make_transfer(tb))
 
     for i in range(3):
         rx_resp = await i3c_controller.i3c_read(TARGET_ADDRESS, len(tx_data[i]))
         assert not rx_resp.nack, f"Unexpected NACK on private read (batch, index {i})"
         rx_data = list(rx_resp.data)
-        compare(tx_data[i], rx_data)
+        compare(tb, tx_data[i], rx_data)
 
 
     # Test N consecutive transfers. First enqueue, then service. Occasionally
@@ -269,7 +272,7 @@ async def test_i3c_target_read(dut):
 
     tx_data = []
     for i in range(5):
-        tx_data.append(await make_transfer(min_len=4))
+        tx_data.append(await make_transfer(tb, min_len=4))
 
     for i in range(5):
         lnt = len(tx_data[i])
@@ -279,17 +282,17 @@ async def test_i3c_target_read(dut):
         rx_resp = await i3c_controller.i3c_read(TARGET_ADDRESS, lnt)
         assert not rx_resp.nack, f"Unexpected NACK on private read (short, index {i})"
         rx_data = list(rx_resp.data)
-        compare(tx_data[i], rx_data, lnt)
+        compare(tb, tx_data[i], rx_data, lnt)
 
 
     # Test N consecutive transfers. Do not queue new transfers before completion
     dut._log.info("N consecutive transfers, one at a time (again)")
     for i in range(2):
-        tx_data = await make_transfer()
+        tx_data = await make_transfer(tb)
         rx_resp = await i3c_controller.i3c_read(TARGET_ADDRESS, len(tx_data))
         assert not rx_resp.nack, "Unexpected NACK on private read (repeat)"
         rx_data = list(rx_resp.data)
-        compare(tx_data, rx_data)
+        compare(tb, tx_data, rx_data)
 
     # Dummy wait
 
@@ -332,41 +335,6 @@ async def test_i3c_target_read_empty(dut):
 
     # Setup
     i3c_controller, i3c_target, tb = await test_setup(dut)
-    # Generates a randomized transfer and puts it into the TTI TX queue
-    async def make_transfer(min_len=1, max_len=16):
-
-        length = random.randint(min_len, max_len)
-        data = [random.randint(0, 255) for _ in range(length)]
-
-        dut._log.info(f"Enqueueing transfer of length {length}")
-
-        # Write data to TTI TX FIFO
-        for i in range((length + 3) // 4):
-            word = data[4 * i]
-            if 4 * i + 1 < length:
-                word |= data[4 * i + 1] << 8
-            if 4 * i + 2 < length:
-                word |= data[4 * i + 2] << 16
-            if 4 * i + 3 < length:
-                word |= data[4 * i + 3] << 24
-
-            await tb.write_csr(tb.reg_map.I3C_EC.TTI.TX_DATA_PORT.base_addr, int2dword(word), 4)
-
-        # Write the TX descriptor
-        await tb.write_csr(tb.reg_map.I3C_EC.TTI.TX_DESC_QUEUE_PORT.base_addr, int2dword(length), 4)
-
-        return data
-
-    def compare(expected, received, lnt=None):
-        if lnt is None or lnt == len(expected):
-            sfx = ""
-        else:
-            sfx = " ([" + " ".join([f"{d:02X}" for d in expected[lnt:]]) + "] skipped)"
-            expected = expected[:lnt]
-
-        dut._log.info("Expected: [" + " ".join([f"{d:02X}" for d in expected]) + "]" + sfx)
-        dut._log.info("Received: [" + " ".join([f"{d:02X}" for d in received]) + "]")
-        assert expected == received, f"Data mismatch: exp=[{' '.join(f'{d:02X}' for d in expected)}] got=[{' '.join(f'{d:02X}' for d in received)}]"
 
     # issue 20 random read transactions
     # randomly choose to inicialize the FIFO or not
@@ -374,11 +342,11 @@ async def test_i3c_target_read_empty(dut):
     for i in range(20):
         transfer_data = random.choice([True, False])
         if transfer_data:
-            tx_data = await make_transfer()
+            tx_data = await make_transfer(tb)
             response = await i3c_controller.i3c_read(TARGET_ADDRESS, len(tx_data), send_rsvd = random.choice([True, False]))
             assert not response.nack, "Unexpected NACK"
             rx_data = list(response.data)
-            compare(tx_data, rx_data)
+            compare(tb, tx_data, rx_data)
         else:
             response = await i3c_controller.i3c_read(TARGET_ADDRESS, random.randint(1, 16), send_rsvd = random.choice([True, False]))
             assert response.nack, "Expected NACK but got ACK"
@@ -391,42 +359,6 @@ async def test_i3c_target_read_to_multiple_targets(dut):
 
     # Setup
     i3c_controller, i3c_target, tb = await test_setup(dut, virtual_static_addr=None)
-
-    # Generates a randomized transfer and puts it into the TTI TX queue
-    async def make_transfer(min_len=1, max_len=16):
-
-        length = random.randint(min_len, max_len)
-        data = [random.randint(0, 255) for _ in range(length)]
-
-        dut._log.info(f"Enqueueing transfer of length {length}")
-
-        # Write data to TTI TX FIFO
-        for i in range((length + 3) // 4):
-            word = data[4 * i]
-            if 4 * i + 1 < length:
-                word |= data[4 * i + 1] << 8
-            if 4 * i + 2 < length:
-                word |= data[4 * i + 2] << 16
-            if 4 * i + 3 < length:
-                word |= data[4 * i + 3] << 24
-
-            await tb.write_csr(tb.reg_map.I3C_EC.TTI.TX_DATA_PORT.base_addr, int2dword(word), 4)
-
-        # Write the TX descriptor
-        await tb.write_csr(tb.reg_map.I3C_EC.TTI.TX_DESC_QUEUE_PORT.base_addr, int2dword(length), 4)
-
-        return data
-
-    def compare(expected, received, lnt=None):
-        if lnt is None or lnt == len(expected):
-            sfx = ""
-        else:
-            sfx = " ([" + " ".join([f"{d:02X}" for d in expected[lnt:]]) + "] skipped)"
-            expected = expected[:lnt]
-
-        dut._log.info("Expected: [" + " ".join([f"{d:02X}" for d in expected]) + "]" + sfx)
-        dut._log.info("Received: [" + " ".join([f"{d:02X}" for d in received]) + "]")
-        assert expected == received, f"Data mismatch: exp=[{' '.join(f'{d:02X}' for d in expected)}] got=[{' '.join(f'{d:02X}' for d in received)}]"
 
     # issue 40 random read transactions
     # randomly choose to inicialize the FIFO or not
@@ -446,7 +378,7 @@ async def test_i3c_target_read_to_multiple_targets(dut):
             send_rsvd = random.choice([True, False]) if i == 0 else False
             stop = i == num_transfers - 1
             if addr == TARGET_ADDRESS:
-                tx_data = await make_transfer()
+                tx_data = await make_transfer(tb)
                 data_len_rsvd_stop_nack.append((tx_data, len(tx_data), send_rsvd, stop, False))
             else:
                 data_len_rsvd_stop_nack.append((None, random.randint(1, 16), send_rsvd, stop, True))
@@ -456,7 +388,7 @@ async def test_i3c_target_read_to_multiple_targets(dut):
             assert nack == response.nack, f"NACK mismatch: expected {nack}, got {response.nack}"
             if not nack:
                 rx_data = list(response.data)
-                compare(tx_data, rx_data)
+                compare(tb, tx_data, rx_data)
 
     await tb.teardown()
 

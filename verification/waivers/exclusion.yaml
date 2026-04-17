@@ -2503,8 +2503,8 @@ exclusions:
       For payload lengths longer than indirect FIFO depth:
         toggle:
         - cmd_len: [8-15]
-        - dcnt: [8-15]
-        - dcnt_next: [8-15]
+        - dcnt: [6-15]
+        - dcnt_next: [6-15]
         - len_msb: [1-7]
 
       Reserved:
@@ -2526,10 +2526,29 @@ exclusions:
           - hwif_rec_i.PROT_CAP_1.REC_MAGIC_STRING_1.value
           - hwif_rec_i.EXTCAP_HEADER.CAP_LENGTH.value
           - hwif_rec_i.EXTCAP_HEADER.CAP_ID.value
+          - hwif_rec_i.INDIRECT_FIFO_STATUS_0.REGION_TYPE.value
           - hwif_rec_o.INDIRECT_FIFO_STATUS_3.FIFO_SIZE.next
+          - hwif_rec_o.INDIRECT_FIFO_STATUS_0.REGION_TYPE.we
+          - hwif_rec_o.INDIRECT_FIFO_STATUS_0.REGION_TYPE.next
           - hwif_socmgmt_i.EXTCAP_HEADER.CAP_LENGTH.value
           - hwif_socmgmt_i.EXTCAP_HEADER.CAP_ID.value
           - hwif_rec_i.PROT_CAP_0.REC_MAGIC_STRING_0.value
+          - tti_rx_sel_o
+          - tx_data_queue_clr_o
+          - tx_desc_queue_clr_o
+          - tx_desc_data_o: [5-31]
+          - tx_data_queue_select_o
+          - tx_start_trig_o
+          - state_d: [3]
+          - state_q: [3]
+          - prot_cap_3: [24-31]
+          - device_reset: [24-31]
+          - recovery_ctrl: [24-31]
+          - recovery_status: [16-31]
+          - indirect_fifo_ctrl_1: [16-31]
+          - indirect_fifo_status_0: [2-31]
+          - fifo_size
+          - status_protocol: [3-7]
 
       FIFO depth limited to 64 entries:
         toggle:
@@ -2537,6 +2556,8 @@ exclusions:
           - hwif_rec_i.INDIRECT_FIFO_STATUS_1.WRITE_INDEX.value: [6-31]
           - hwif_rec_o.INDIRECT_FIFO_STATUS_2.READ_INDEX.next: [6-31]
           - hwif_rec_o.INDIRECT_FIFO_STATUS_1.WRITE_INDEX.next: [6-31]
+          - fifo_wrptr: [6-31]
+          - fifo_rdptr: [6-31]
 
       Unused:
         toggle:
@@ -2591,6 +2612,18 @@ exclusions:
           - hwif_rec_o.PROT_CAP_2.REC_PROT_VERSION.we
           - hwif_rec_o.PROT_CAP_2.REC_PROT_VERSION.next
 
+      Derived from CSR length, which is max 24:
+        toggle:
+          - csr_length: [5-15]
+          - csr_length_next: [5-15]
+
+      Derived from number of supported CSRs (csr_e enum):
+        toggle:
+          - csr_sel: [5-7]
+          - csr_end: [5-7]
+          - csr_sel_next: [5-7]
+          - csr_end_next: [5-7]
+
       Tied to 0:
         toggle:
           - hwif_rec_o.DEVICE_STATUS_0.REC_REASON_CODE.we
@@ -2601,6 +2634,45 @@ exclusions:
           - hwif_socmgmt_o.REC_INTF_REG_W1C_ACCESS.RECOVERY_CTRL_ACTIVATE_REC_IMG.next
           - hwif_socmgmt_o.REC_INTF_REG_W1C_ACCESS.DEVICE_RESET_CTRL.next
           - hwif_socmgmt_o.REC_INTF_CFG.REC_PAYLOAD_DONE.next
+
+      Handshake where valid is asserted only if ready is asserted:
+        cond:
+          - 41: [2 "10"]  # if ((tx_data_ready_i && tx_data_valid_o) || bus_rstart_i)
+          - 47: [1 "01"]  # dcnt_next = (tx_data_valid_o && tx_data_ready_i) ? (dcnt - 16'h1) : dcnt;
+          - 49: [1 "01"]  # bcnt_next = (tx_data_valid_o && tx_data_ready_i) ? (bcnt + 2'h1) : bcnt;
+          - 78: [2 "10"]  # assign rx_flow = rx_data_valid_i & rx_data_ready_o;
+
+      Data is not relevant when valid is deasserted:
+        cond:
+          - 5: [4 "011"]  # RxLenH: if (rx_desc_wvalid_i && |rx_desc_wdata_i[31:28] && pec_err_det_en_i)
+
+      Unreachable or guaranteed due to parent condition:
+        cond:
+          - 13: [1 "01"]  # length_underrun_err = ((payload_byte_cnt < cmd_len) || pec_rx_byte_cnt == '0) && length_err_det_en_i;
+          - 14  # length_underrun_err = ((payload_byte_cnt < cmd_len) || pec_rx_byte_cnt == '0) && length_err_det_en_i;
+          - 15  # length_underrun_err = ((payload_byte_cnt < cmd_len) || pec_rx_byte_cnt == '0) && length_err_det_en_i;
+          - 32: [2 "01"]  # ExecFifoWrite: if ((tti_rx_rack_i && (dcnt == 1)) || (bypass_i3c_core_i && hwif_socmgmt_i.REC_INTF_CFG.REC_PAYLOAD_DONE.value && ~indirect_rx_empty_i))
+          - 35  # ExecFifoWrite: if ((tti_rx_rack_i && (dcnt == 1)) || (bypass_i3c_core_i && hwif_socmgmt_i.REC_INTF_CFG.REC_PAYLOAD_DONE.value && ~indirect_rx_empty_i))
+          - 85: [2 "101"]  # assign tti_rx_rreq_o = (state_q inside {ExecCsrWrite, ExecFifoWrite}) && (dcnt != 0) && !tti_rx_rack_i;
+          - 99: [2 "101"]  # assign entering_done_directly = (state_q != Error) && (state_q != Done) && (state_d == Done);
+
+      Last data always comes with bus START or STOP:
+        cond:
+          - 3: [2 "001"]  # RxCmd:  if (bus_stop_i || bus_rstart_i || rx_data_last_i)
+          - 4: [2 "001"]  # RxLenL: if (bus_stop_i || bus_rstart_i || rx_data_last_i)
+          - 6: [2 "001"]  # RxData: if (bus_stop_i || bus_rstart_i || rx_data_last_i)
+          - 12: [2 "001"]  # RxPec: if ((pec_rx_byte_cnt == '0) && (bus_stop_i || bus_rstart_i || rx_data_last_i))
+
+      Did not reach default state:
+        branch:
+          - 17: [7]  # unique case (state_q)
+        line:
+          - 1143  # unique case (state_q)
+
+      Read only interface:
+        cond:
+          - 59: [2 "101"]  # indirect_rx_rreq_o = hwif_rec_i.INDIRECT_FIFO_DATA.req && !hwif_rec_i.INDIRECT_FIFO_DATA.req_is_wr && !indirect_rx_empty_i;
+          - 61: [2 "110"]  # hwif_rec_o.INDIRECT_FIFO_DATA.rd_ack = indirect_rx_rack_i || (indirect_rx_empty_i && hwif_rec_i.INDIRECT_FIFO_DATA.req && !hwif_rec_i.INDIRECT_FIFO_DATA.req_is_wr);
 
 
   bus_timers:

@@ -7,7 +7,7 @@ ${I3C_ROOT_DIR}/tools/peakrdl_cocotb
 
 # git repositories
 git+https://github.com/alexforencich/cocotbext-i2c@e5f4aa040e3c3ce2d7deced7caabfa91321d036a#egg=cocotbext_i2c
-git+https://github.com/antmicro/testplanner@54b6870a1b9c1518269beafe5dfd1465a9eddae6
+git+https://github.com/antmicro/testplanner@cbdb8ba72e796da885d7df2a9b6e27ac28cc32d8
 cocotb-AHB @ git+https://github.com/antmicro/cocotb-ahb@964eca08f2b524e68af9e002e48812649bc9308c
 
 # pypi

@@ -207,6 +207,8 @@ exclusions:
 
       Tied to 0:
         toggle:
+        - hwif_tti_inp.RESET_CONTROL.SOFT_RST.we
+        - hwif_tti_inp.RESET_CONTROL.SOFT_RST.next
         - hwif_rec_inp.DEVICE_STATUS_0.REC_REASON_CODE.we
         - hwif_rec_inp.DEVICE_STATUS_0.REC_REASON_CODE.next
         - hwif_rec_inp.DEVICE_STATUS_0.DEV_STATUS.we
@@ -352,10 +354,6 @@ exclusions:
         toggle:
         - hwif_tti_inp.QUEUE_THLD_CTRL.IBI_THLD.we
         - hwif_tti_inp.QUEUE_THLD_CTRL.IBI_THLD.next
-
-      hwclr CSR:
-        toggle:
-        - hwif_tti_inp.RESET_CONTROL.SOFT_RST.hwclr
 
       Unused:
         toggle:
@@ -511,6 +509,8 @@ exclusions:
 
       Tied to 0:
         toggle:
+        - hwif_tti_o.RESET_CONTROL.SOFT_RST.we
+        - hwif_tti_o.RESET_CONTROL.SOFT_RST.next
         - rx_desc_queue_reg_rst_data_i
         - rx_data_queue_reg_rst_data_i
         - tx_desc_queue_reg_rst_data_i
@@ -528,10 +528,6 @@ exclusions:
         toggle:
         - hwif_tti_o.QUEUE_THLD_CTRL.RX_DESC_THLD.next: [6-7]
         - hwif_tti_o.QUEUE_THLD_CTRL.TX_DESC_THLD.next: [6-7]
-
-      hwclr CSR:
-        toggle:
-        - hwif_tti_o.RESET_CONTROL.SOFT_RST.hwclr
 
 
   queues:
@@ -1008,8 +1004,10 @@ exclusions:
         - hwif_in.I3C_EC.StdbyCtrlMode.STBY_CR_INTR_FORCE.CRR_RESPONSE_FORCE.next
         - hwif_in.I3C_EC.StdbyCtrlMode.STBY_CR_INTR_STATUS.STBY_CR_OP_RSTACT_STAT.next
         - hwif_in.I3C_EC.StdbyCtrlMode.STBY_CR_INTR_STATUS.ACR_HANDOFF_ERR_M3_STAT.next
-        - hwif_in.I3C_EC.TTI.RESET_CONTROL.SOFT_RST.hwclr
-        - hwif_in.I3CBase.RESET_CONTROL.SOFT_RST.hwclr
+        - hwif_in.I3C_EC.TTI.RESET_CONTROL.SOFT_RST.we
+        - hwif_in.I3C_EC.TTI.RESET_CONTROL.SOFT_RST.next
+        - hwif_in.I3CBase.RESET_CONTROL.SOFT_RST.we
+        - hwif_in.I3CBase.RESET_CONTROL.SOFT_RST.next
         - hwif_in.I3C_EC.StdbyCtrlMode.STBY_CR_INTR_FORCE.STBY_CR_OP_RSTACT_FORCE.we
         - hwif_in.I3C_EC.StdbyCtrlMode.STBY_CR_INTR_FORCE.STBY_CR_ACCEPT_OK_FORCE.next
         - hwif_in.I3C_EC.StdbyCtrlMode.STBY_CR_STATUS.AC_CURRENT_OWN.next

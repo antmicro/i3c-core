@@ -166,6 +166,32 @@ generate_vp_docs:
     paths:
       - verification/testplan/generated
 
+generate_timing_docs:
+  image: debian:bookworm
+  stage: prebuild
+  variables:
+    DEBIAN_FRONTEND: noninteractive
+    GIT_SUBMODULE_STRATEGY: normal
+    SCALENODE_CPU: 2
+    SCALENODE_RAM: 4098
+    SCALENODE_DISK: 8
+  before_get_sources:
+    - apt -qqy update &> /dev/null
+    - apt -qqy --no-install-recommends install wget curl help2man libfl-dev make g++ git bison flex gperf libreadline-dev libbz2-dev autoconf python3-dev python3-venv python3-jsonschema python3-yaml python3-sphinx python3-docopt &> /dev/null
+  script:
+    - export I3C_ROOT_DIR="`pwd`"
+    - python3.11 -m venv .venv
+    - source .venv/bin/activate
+    - python3.11 -m pip install -r requirements.txt
+    - echo "" >> ${I3C_ROOT_DIR}/doc/source/timing_csr.md
+    - python ${I3C_ROOT_DIR}/tools/timing/timings.py --freq=200e6 --target_name="FPGA" --md >> ${I3C_ROOT_DIR}/doc/source/timing_csr.md
+    - echo "" >> ${I3C_ROOT_DIR}/doc/source/timing_csr.md
+    - python ${I3C_ROOT_DIR}/tools/timing/timings.py --freq=500e6 --target_name="ASIC" --md >> ${I3C_ROOT_DIR}/doc/source/timing_csr.md
+    
+  artifacts:
+    paths:
+      - doc/source/timing_csr.md
+
 .cocotb_verilator_templ:
   image: debian:bookworm
   stage: build

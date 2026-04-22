@@ -91,6 +91,26 @@ exclusions:
           - hwif_out.PIOControl.TX_DATA_PORT.req
           - hwif_out.PIOControl.RESPONSE_PORT.req
           - hwif_out.PIOControl.COMMAND_PORT.wr_biten.COMMAND_DATA
+          - hwif_out.I3C_EC.StdbyCtrlMode.STBY_CR_CCC_CONFIG_RSTACT_PARAMS.RESET_DYNAMIC_ADDR.value
+          - hwif_out.I3C_EC.StdbyCtrlMode.STBY_CR_INTR_FORCE.CCC_FATAL_RSTDAA_ERR_FORCE.value
+          - hwif_out.I3C_EC.StdbyCtrlMode.STBY_CR_INTR_FORCE.CCC_UNHANDLED_NACK_FORCE.value
+          - hwif_out.I3C_EC.StdbyCtrlMode.STBY_CR_INTR_FORCE.CCC_PARAM_MODIFIED_FORCE.value
+          - hwif_out.I3C_EC.StdbyCtrlMode.STBY_CR_INTR_FORCE.STBY_CR_OP_RSTACT_FORCE.value
+          - hwif_out.I3C_EC.StdbyCtrlMode.STBY_CR_INTR_FORCE.STBY_CR_ACCEPT_ERR_FORCE.value
+          - hwif_out.I3C_EC.StdbyCtrlMode.STBY_CR_INTR_FORCE.STBY_CR_ACCEPT_OK_FORCE.value
+          - hwif_out.I3C_EC.StdbyCtrlMode.STBY_CR_INTR_FORCE.STBY_CR_ACCEPT_NACKED_FORCE.value
+          - hwif_out.I3C_EC.StdbyCtrlMode.STBY_CR_INTR_FORCE.STBY_CR_DYN_ADDR_FORCE.value
+          - hwif_out.I3C_EC.StdbyCtrlMode.STBY_CR_INTR_FORCE.CRR_RESPONSE_FORCE.value
+          - hwif_out.I3C_EC.StdbyCtrlMode.STBY_CR_INTR_SIGNAL_ENABLE.CCC_PARAM_MODIFIED_SIGNAL_EN.value
+          - hwif_out.I3C_EC.StdbyCtrlMode.STBY_CR_INTR_SIGNAL_ENABLE.ACR_HANDOFF_OK_REMAIN_SIGNAL_EN.value
+          - hwif_out.I3C_EC.StdbyCtrlMode.STBY_CR_CONTROL.RSTACT_DEFBYTE_02.value
+          - hwif_out.I3C_EC.StdbyCtrlMode.STBY_CR_CONTROL.PENDING_RX_NACK.value
+          - hwif_out.I3CBase.INTR_STATUS.intr
+          - hwif_out.I3CBase.HC_CONTROL.RESUME.value
+          - i3c_fsm_en_i
+          - i3c_fsm_idle_o
+        cond:
+          - 5: [4 "100"]  # assign irq_o = ctl_irq | tti_irq | recovery_irq;
 
       Unconnected internal signals:
         toggle:
@@ -195,6 +215,11 @@ exclusions:
         - hwif_tti_inp.INTERRUPT_STATUS.TX_DESC_TIMEOUT.next
         - hwif_tti_inp.INTERRUPT_STATUS.RX_DESC_TIMEOUT.we
         - hwif_tti_inp.INTERRUPT_STATUS.RX_DESC_TIMEOUT.next
+        - hwif_tti_inp.RESET_CONTROL.IBI_QUEUE_RST.next
+        - hwif_tti_inp.RESET_CONTROL.RX_DATA_RST.next
+        - hwif_tti_inp.RESET_CONTROL.TX_DATA_RST.next
+        - hwif_tti_inp.RESET_CONTROL.RX_DESC_RST.next
+        - hwif_tti_inp.RESET_CONTROL.TX_DESC_RST.next
 
       FIFO depth limited to 64 entries:
         toggle:
@@ -204,6 +229,11 @@ exclusions:
         - hwif_rec_out.INDIRECT_FIFO_STATUS_1.WRITE_INDEX.value: [6-31]
         - hwif_out.I3C_EC.SecFwRecoveryIf.INDIRECT_FIFO_STATUS_2.READ_INDEX.value: [6-31]
         - hwif_out.I3C_EC.SecFwRecoveryIf.INDIRECT_FIFO_STATUS_1.WRITE_INDEX.value: [6-31]
+        - hwif_tti_inp.IBI_QUEUE_DEPTH.IBI_QUEUE_DEPTH.next: [7]
+        - hwif_tti_inp.DATA_QUEUE_DEPTH.TX_DATA_QUEUE_DEPTH.next: [7]
+        - hwif_tti_inp.DATA_QUEUE_DEPTH.RX_DATA_QUEUE_DEPTH.next: [7]
+        - hwif_tti_inp.DESC_QUEUE_DEPTH.TX_DESC_QUEUE_DEPTH.next: [7]
+        - hwif_tti_inp.DESC_QUEUE_DEPTH.RX_DESC_QUEUE_DEPTH.next: [7]
 
       Tied to 0:
         toggle:
@@ -265,6 +295,8 @@ exclusions:
         - hwif_out.I3C_EC.SoCMgmtIf.SOC_MGMT_RSVD_2.PLACEHOLDER.value: [8]
         - hwif_socmgmt_out.SOC_MGMT_FEATURE_3.PLACEHOLDER.value: [22, 27]
         - hwif_socmgmt_out.SOC_MGMT_RSVD_2.PLACEHOLDER.value: [8]
+        - hwif_out.I3C_EC.StdbyCtrlMode.STBY_CR_CCC_CONFIG_RSTACT_PARAMS.RST_ACTION.value: [2-7]
+        - rst_action: [2-7]
 
       Only 2 status values are implemented:
         toggle:
@@ -284,6 +316,7 @@ exclusions:
         toggle:
         - araddr_i: [11]
         - awaddr_i: [11]
+        - s_cpuif_addr: [11]
 
       BUSER is unimplemented (tied to 0):
         toggle:
@@ -407,6 +440,17 @@ exclusions:
         - hwif_rec_inp.PROT_CAP_2.AGENT_CAPS.next
         - hwif_rec_inp.PROT_CAP_2.REC_PROT_VERSION.we
         - hwif_rec_inp.PROT_CAP_2.REC_PROT_VERSION.next
+        - arlock_i
+        - awlock_i
+        - wuser_i
+
+      Handshake where valid is asserted only if ready is asserted:
+        cond:
+          - 2: [2 "10"]  # tti xtti (.rx_data_queue_write_i(tti_rx_wvalid & tti_rx_wready),)
+
+      Recovery module does not generate interrupts:
+        cond:
+          - 5: [2 "001"]  # assign irq_o = ctl_irq | tti_irq | recovery_irq;
 
 
   i3c_wrapper:

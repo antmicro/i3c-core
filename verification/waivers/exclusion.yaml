@@ -1876,7 +1876,7 @@ exclusions:
           - 70;3-7 # Completely tied-off
           - 70;8-11 # (decoded_reg_strb.I3C_EC.StdbyCtrlMode.STBY_CR_CCC_CONFIG_GETCAPS && !decoded_req_is_wr) ? field_storage.I3C_EC.StdbyCtrlMode.STBY_CR_CCC_CONFIG_GETCAPS.F2_CRCAP2_DEV_INTERACT.value : '0; // R2
           - 70;12-31 # Completely tied-off
-          # MISSING: - 71;2-7 # (decoded_reg_strb.I3C_EC.StdbyCtrlMode.STBY_CR_CCC_CONFIG_RSTACT_PARAMS && !decoded_req_is_wr) ? field_storage.I3C_EC.StdbyCtrlMode.STBY_CR_CCC_CONFIG_RSTACT_PARAMS.RST_ACTION.value : '0; // R2
+          - 71;2-7 # (decoded_reg_strb.I3C_EC.StdbyCtrlMode.STBY_CR_CCC_CONFIG_RSTACT_PARAMS && !decoded_req_is_wr) ? field_storage.I3C_EC.StdbyCtrlMode.STBY_CR_CCC_CONFIG_RSTACT_PARAMS.RST_ACTION.value : '0; // R2
           - 71;8-15 # (decoded_reg_strb.I3C_EC.StdbyCtrlMode.STBY_CR_CCC_CONFIG_RSTACT_PARAMS && !decoded_req_is_wr) ? field_storage.I3C_EC.StdbyCtrlMode.STBY_CR_CCC_CONFIG_RSTACT_PARAMS.RESET_TIME_PERIPHERAL.value : '0; // R2
           - 71;16-23 # (decoded_reg_strb.I3C_EC.StdbyCtrlMode.STBY_CR_CCC_CONFIG_RSTACT_PARAMS && !decoded_req_is_wr) ? field_storage.I3C_EC.StdbyCtrlMode.STBY_CR_CCC_CONFIG_RSTACT_PARAMS.RESET_TIME_TARGET.value : '0; // R2
           - 71;24-30 # Completely tied-off
@@ -1894,11 +1894,11 @@ exclusions:
           - 77;0-7 # Completely tied-off
           - 77;9-11 # Completely tied-off
           - 77;15-31 # Completely tied-off
-          # POTENTIALLY MISSING - 78;1-1 # (decoded_reg_strb.I3C_EC.TTI.RESET_CONTROL && !decoded_req_is_wr) ? field_storage.I3C_EC.TTI.RESET_CONTROL.TX_DESC_RST.value : '0; // R2
-          # POTENTIALLY MISSING - 78;2-2 # (decoded_reg_strb.I3C_EC.TTI.RESET_CONTROL && !decoded_req_is_wr) ? field_storage.I3C_EC.TTI.RESET_CONTROL.RX_DESC_RST.value : '0; // R2
-          # POTENTIALLY MISSING - 78;3-3 # (decoded_reg_strb.I3C_EC.TTI.RESET_CONTROL && !decoded_req_is_wr) ? field_storage.I3C_EC.TTI.RESET_CONTROL.TX_DATA_RST.value : '0; // R2
-          # POTENTIALLY MISSING - 78;4-4 # (decoded_reg_strb.I3C_EC.TTI.RESET_CONTROL && !decoded_req_is_wr) ? field_storage.I3C_EC.TTI.RESET_CONTROL.RX_DATA_RST.value : '0; // R2
-          # POTENTIALLY MISSING - 78;5-5 # (decoded_reg_strb.I3C_EC.TTI.RESET_CONTROL && !decoded_req_is_wr) ? field_storage.I3C_EC.TTI.RESET_CONTROL.IBI_QUEUE_RST.value : '0; // R2
+          - 78;1-1 # (decoded_reg_strb.I3C_EC.TTI.RESET_CONTROL && !decoded_req_is_wr) ? field_storage.I3C_EC.TTI.RESET_CONTROL.TX_DESC_RST.value : '0; // Constant
+          - 78;2-2 # (decoded_reg_strb.I3C_EC.TTI.RESET_CONTROL && !decoded_req_is_wr) ? field_storage.I3C_EC.TTI.RESET_CONTROL.RX_DESC_RST.value : '0; // Constant
+          - 78;3-3 # (decoded_reg_strb.I3C_EC.TTI.RESET_CONTROL && !decoded_req_is_wr) ? field_storage.I3C_EC.TTI.RESET_CONTROL.TX_DATA_RST.value : '0; // Constant
+          - 78;4-4 # (decoded_reg_strb.I3C_EC.TTI.RESET_CONTROL && !decoded_req_is_wr) ? field_storage.I3C_EC.TTI.RESET_CONTROL.RX_DATA_RST.value : '0; // Constant
+          - 78;5-5 # (decoded_reg_strb.I3C_EC.TTI.RESET_CONTROL && !decoded_req_is_wr) ? field_storage.I3C_EC.TTI.RESET_CONTROL.IBI_QUEUE_RST.value : '0; // Constant
           - 78;6-31 # Completely tied-off
           # POTENTIALLY MISSING - 79;0-0 # (decoded_reg_strb.I3C_EC.TTI.QUEUE_STATUS && !decoded_req_is_wr) ? hwif_in.I3C_EC.TTI.QUEUE_STATUS.RX_DESC_QUEUE_FULL.next : '0; // R1
           # POTENTIALLY MISSING - 79;2-2 # (decoded_reg_strb.I3C_EC.TTI.QUEUE_STATUS && !decoded_req_is_wr) ? hwif_in.I3C_EC.TTI.QUEUE_STATUS.TX_DESC_QUEUE_FULL.next : '0; // R1
@@ -2248,6 +2248,9 @@ exclusions:
             - 3 "11" # (cpuif_req_masked & (cpuif_addr == 12'h1a8)) 1 -1
           - 51:
             - 3 "110" # (cpuif_req_masked & (cpuif_addr == 12'h084) & ((!cpuif_req_is_wr))) 1 -1
+          - 646 # ((field_storage.I3C_EC.SecFwRecoveryIf.HW_STATUS.FATAL_ERR.value & ((~decoded_wr_biten[2]))) | (decoded_wr_data[2] & decoded_wr_biten[2])) 1 -1
+          - 642 # ((field_storage.I3C_EC.SecFwRecoveryIf.HW_STATUS.SOFT_ERR.value & ((~decoded_wr_biten[1]))) | (decoded_wr_data[1] & decoded_wr_biten[1])) 1 -1
+          - 638 # ((field_storage.I3C_EC.SecFwRecoveryIf.HW_STATUS.TEMP_CRITICAL.value & ((~decoded_wr_biten[0]))) | (decoded_wr_data[0] & decoded_wr_biten[0])) 1 -1
 
       Placeholder CSRs:
         cond:
@@ -2347,6 +2350,9 @@ exclusions:
           - 597 # ((field_storage.PIOControl.PIO_CONTROL.ENABLE.value & ((~decoded_wr_biten[0]))) | (decoded_wr_data[0] & decoded_wr_biten[0])) 1 -1
           - 601 # ((field_storage.PIOControl.PIO_CONTROL.RS.value & ((~decoded_wr_biten[1]))) | (decoded_wr_data[1] & decoded_wr_biten[1])) 1 -1
           - 605 # ((field_storage.PIOControl.PIO_CONTROL.ABORT.value & ((~decoded_wr_biten[2]))) | (decoded_wr_data[2] & decoded_wr_biten[2])) 1 -1
+          - 895 # ((field_storage.I3C_EC.TTI.CONTROL.IBI_EN.value & ((~decoded_wr_biten[12]))) | (decoded_wr_data[12] & decoded_wr_biten[12])) 1 -1
+          - 891 # ((field_storage.I3C_EC.TTI.CONTROL.CRR_EN.value & ((~decoded_wr_biten[11]))) | (decoded_wr_data[11] & decoded_wr_biten[11])) 1 -1
+          - 887 # ((field_storage.I3C_EC.TTI.CONTROL.HJ_EN.value & ((~decoded_wr_biten[10]))) | (decoded_wr_data[10] & decoded_wr_biten[10])) 1 -1
 
       No SW write for RO CSR:
         cond:
@@ -2376,6 +2382,11 @@ exclusions:
           - 1382:
             - 2 "101" # (cpuif_req & ( ! (((!cpuif_req_is_wr)) & cpuif_req_stall_rd) ) & ( ! (cpuif_req_is_wr & cpuif_req_stall_wr) )) 1 -1
             - 3 "110" # (cpuif_req & ( ! (((!cpuif_req_is_wr)) & cpuif_req_stall_rd) ) & ( ! (cpuif_req_is_wr & cpuif_req_stall_wr) )) 1 -1
+
+      Unreachable condition:
+        cond:
+          - 623:
+            - 2 "10" # (decoded_reg_strb.I3C_EC.SecFwRecoveryIf.DEVICE_STATUS_0 && decoded_req_is_wr) 1 -1
 
 
   recovery_handler:

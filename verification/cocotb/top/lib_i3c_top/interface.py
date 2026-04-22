@@ -33,6 +33,45 @@ class I3CTopTestInterface:
         self.te2_integrity_monitor = None
 
     async def setup(self, fclk=500.0):
+        frontend_bus_name = cocotb.plusargs["FrontendBusInterface"]
+        if frontend_bus_name == "AXI":
+            self.dut.aclk.value = 0
+            self.dut.areset_n.value = 0
+            self.dut.araddr.value = 0
+            self.dut.arburst.value = 0
+            self.dut.arsize.value = 0
+            self.dut.arlen.value = 0
+            self.dut.aruser.value = 0
+            self.dut.arid.value = 0
+            self.dut.arlock.value = 0
+            self.dut.arvalid.value = 0
+            self.dut.rready.value = 0
+            self.dut.awaddr.value = 0
+            self.dut.awburst.value = 0
+            self.dut.awsize.value = 0
+            self.dut.awlen.value = 0
+            self.dut.awuser.value = 0
+            self.dut.awid.value = 0
+            self.dut.awlock.value = 0
+            self.dut.awvalid.value = 0
+            self.dut.wdata.value = 0
+            self.dut.wstrb.value = 0
+            self.dut.wlast.value = 0
+            self.dut.wvalid.value = 0
+            self.dut.bready.value = 0
+        elif frontend_bus_name == "AHB":
+            self.dut.hclk.value = 0
+            self.dut.hreset_n.value = 0
+            self.dut.haddr.value = 0
+            self.dut.hburst.value = 0
+            self.dut.hprot.value = 0
+            self.dut.hsize.value = 0
+            self.dut.htrans.value = 0
+            self.dut.hwdata.value = 0
+            self.dut.hwstrb.value = 0
+            self.dut.hwrite.value = 0
+            self.dut.hsel.value = 0
+            self.dut.hready.value = 0
 
         # Limit the requested clock frequency if a limit is set via cocotb
         # plusargs

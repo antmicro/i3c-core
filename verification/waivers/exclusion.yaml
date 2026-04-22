@@ -3182,19 +3182,52 @@ exclusions:
       Reserved upper 3 bits of the RX descriptor ERROR field:
         toggle:
         - rx_desc_queue_wdata_o: [29-31]
+        - i3c_rx_desc_queue_wdata_o: [29-31]
 
       Meaningless bits:
         toggle:
         - rx_desc_queue_wdata_o: [16-27]
+        - i3c_rx_desc_queue_wdata_o: [16-27]
 
       Unachievable RX descriptor DATA_LENGTH field values:
         toggle:
         - rx_desc_queue_wdata_o: [9-15]
+        - i3c_rx_desc_queue_wdata_o: [9-15]
 
       I2C target/controller modules are not enabled:
         toggle:
         - i2c_active_en_i
         - i2c_standby_en_i
+        - ctrl_bus_i[0].stop_det
+        - ctrl_bus_i[0].rstart_det
+        - ctrl_bus_i[0].start_det
+        - ctrl_bus_i[0].scl.stable_low
+        - ctrl_bus_i[0].scl.stable_high
+        - ctrl_bus_i[0].scl.neg_edge
+        - ctrl_bus_i[0].scl.pos_edge
+        - ctrl_bus_i[0].scl.value
+        - ctrl_bus_i[0].sda.stable_low
+        - ctrl_bus_i[0].sda.stable_high
+        - ctrl_bus_i[0].sda.neg_edge
+        - ctrl_bus_i[0].sda.pos_edge
+        - ctrl_bus_i[0].sda.value
+        - i2c_rx_desc_queue_wvalid_o
+        - i2c_rx_desc_queue_wdata_o
+        - i2c_rx_queue_wvalid_o
+        - i2c_rx_queue_wdata_o
+        - i2c_rx_queue_flush_o
+        - i2c_tx_desc_queue_rready_o
+        - i2c_bus_start_o
+        - i2c_bus_rstart_o
+        - i2c_bus_stop_o
+        - i2c_bus_addr_o
+        - i2c_bus_addr_valid_o
+        - i3c_ibi_queue_full_i
+        - i2c_tx_host_nack_o
+        - i2c_rx_queue_wvalid_int
+        - rx_queue_wready_int
+        - i2c_rx_queue_wdata_int
+        - i2c_tx_queue_rready_int
 
       Reserved for vendor-specific meaning, unused:
         toggle:
@@ -3216,6 +3249,15 @@ exclusions:
       PID[32]:
         toggle:
         - daa_unique_response_i: [48]
+
+      Unused:
+        toggle:
+          - tx_host_nack_o
+          - i3c_tx_host_nack_o
+
+      Reserved:
+        toggle:
+          - rst_action_o: [2-7]
 
 
   stable_high_detector:

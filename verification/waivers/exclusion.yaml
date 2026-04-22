@@ -3453,16 +3453,34 @@ exclusions:
     all:
       CSR addresses are aligned to 4 bytes:
         toggle:
-        - addr: [0-1]
+          - addr: [0-1]
+          - txn_ctx.addr: [0-1]
+          - txn_addr_nxt: [0-1]
+
+      High address bits not used in target only configs:
+        toggle:
+          - addr: [11]
+          - txn_ctx.addr: [11]
+          - txn_addr_nxt: [11]
 
       Data width is only 32-bit:
         toggle:
-        - size: [2]
-        - txn_ctx.size: [2]
+          - size: [2]
+          - txn_ctx.size: [2]
 
       AXI controller doesn't stall the R channel:
         toggle:
-        - dp_rready: [0]
+          - dp_rready: [0]
+
+      Tied to 0 in !(CALIPTRA_AXI_SUB_EX_EN) configs:
+        toggle:
+          - txn_xfer_ctx[0].resp
+          - dp_xfer_ctx[0].resp[0]
+          - dp_xfer_ctx[1].resp[0]
+
+      Unused:
+        toggle:
+          - txn_ctx.lock
 
 
   write_queue:

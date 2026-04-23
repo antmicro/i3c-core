@@ -3575,34 +3575,49 @@ exclusions:
     all:
       CSR addresses are aligned to 4 bytes:
         toggle:
-        - addr: [0-1]
-        - s_axi_if_ctx.addr: [0-1]
-        - req_ctx.addr: [0-1]
+          - addr: [0-1]
+          - s_axi_if_ctx.addr: [0-1]
+          - req_ctx.addr: [0-1]
 
       Data width is only 32-bit:
         toggle:
-        - wsize: [2]
-        - s_axi_if_ctx.size: [2]
-        - req_ctx.size: [2]
-        - txn_ctx.size: [2]
+          - wsize: [2]
+          - s_axi_if_ctx.size: [2]
+          - req_ctx.size: [2]
+          - txn_ctx.size: [2]
 
       Tied to 0 in !(CALIPTRA_AXI_SUB_EX_EN) configs:
         toggle:
-        - s_axi_if_ctx.lock
-        - req_ctx.lock
-        - txn_ctx.lock
+          - s_axi_if_ctx.lock
+          - req_ctx.lock
+          - txn_ctx.lock
 
       Tied to 1 in !(CALIPTRA_AXI_SUB_EX_EN) configs:
         toggle:
-        - txn_allow
+          - txn_allow
+        cond:
+          - 8: [3 "10"]  # always_comb txn_final_beat = dv_pre && (!txn_allow || !hld) && last;
+          - 11: [2 "10"]  # always_comb dv = dv_pre && txn_allow;
+          - 13: [1 "01"]  # rp_resp  = txn_allow && (txn_err || err) ? AXI_RESP_SLVERR : txn_allow && txn_ctx.lock ? AXI_RESP_EXOKAY : AXI_RESP_OKAY;
+        branch:
+          - 3: [2]  # rp_resp  = txn_allow && (txn_err || err) ? AXI_RESP_SLVERR : txn_allow && txn_ctx.lock ? AXI_RESP_EXOKAY : AXI_RESP_OKAY;
 
       AXI controller doesn't stall the B channel:
         toggle:
-        - rp_ready
+          - rp_ready
 
       Neither EXOKAY nor DECERR are issued:
         toggle:
-        - rp_resp: [0]
+          - rp_resp: [0]
+
+      Impossible to hit because I3C stalls responses:
+        cond:
+          - 6: [3 "10"]  # txn_err <= txn_err || err;
+
+      Usupported AXI lock feature:
+        cond:
+          - 15: [1 "1"]  # rp_resp  = txn_allow && (txn_err || err) ? AXI_RESP_SLVERR : txn_allow && txn_ctx.lock ? AXI_RESP_EXOKAY : AXI_RESP_OKAY;
+          - 16: [1 "01", 3 "11"]  # rp_resp  = txn_allow && (txn_err || err) ? AXI_RESP_SLVERR : txn_allow && txn_ctx.lock ? AXI_RESP_EXOKAY : AXI_RESP_OKAY;
 
 
   i3c_axi_sub_rd:

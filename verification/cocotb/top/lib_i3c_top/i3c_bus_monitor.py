@@ -23,6 +23,7 @@ Checks performed (with spec section references):
  14. ENTDAA PID/BCR/DCR in Open Drain mode    -- S5.1.4.2
  15. ENTDAA DA handoff (DCR->DA, tSCO)        -- S5.1.2.5.4, Fig 23
  16. ENTDAA DA+PAR contention check           -- S5.1.4.2 step 9
+ 17. Per-phase OD/PP mode validation          -- S5.1.2.2, S5.1.2.3, S5.1.2.3.2
 
 Started automatically by I3CTopTestInterface.setup(); raises on violation.
 """
@@ -88,6 +89,24 @@ class I3cBusMonitor:
         0x29,  # SETAASA (broadcast)
         0x87,  # SETDASA (direct)
         0x88,  # SETNEWDA (direct)
+    }
+
+    # Check 17: expected PP (True) or OD (False) per bus phase, with spec ref.
+    # This applies only to the states where target is driving the bus.
+    # ADDR_BITS (Sr-dependent) and ENTDAA (bit-count-dependent) are handled
+    # inline in _check_phase_bus_mode rather than via this table.
+    _PHASE_EXPECTED_PP = {
+        # Open-Drain phases
+        BusPhase.ADDR_ACK:       (False, "S5.1.2.2.4"),  # ACK/NACK always OD
+        BusPhase.IBI_ADDR_ACK:   (False, "S5.1.6.2"),    # IBI ACK/NACK always OD
+        # Push-Pull phases
+        BusPhase.WRITE_DATA:     (True,  "S5.1.2.3.1"),  # controller writes in PP after OD->PP handoff
+        BusPhase.WRITE_TBIT:     (True,  "S5.1.2.3.2"),  # parity/T-bit in PP
+        BusPhase.IBI_MDB:        (True,  "S5.1.2.3.2"),  # IBI Mandatory Data Byte in PP
+        BusPhase.IBI_DATA:       (True,  "S5.1.2.3.2"),  # IBI additional data in PP
+        BusPhase.IBI_DATA_TBIT:  (True,  "S5.1.2.3.4"),  # IBI data T-bit in PP
+        BusPhase.CCC_BYTE:       (True,  "S5.1.2.3.1"),  # CCC bytes driven by controller in PP
+        BusPhase.CCC_TBIT:       (True,  "S5.1.2.3.2"),  # CCC T-bit in PP
     }
 
     def __init__(self, dut, log=None):
@@ -362,6 +381,43 @@ class I3cBusMonitor:
                     f"DUT PP-driving SDA=1 but bus_sda=0 -- bus contention!"
                 )
 
+    def _check_phase_bus_mode(self):
+        """
+        Check 17: i3c_sel_od_pp must match the expected OD/PP mode for the
+        current protocol phase (S5.1.2.2, S5.1.2.3, S5.1.2.3.2).
+
+        Only fires when DUT is actively driving SDA, consistent with other checks.
+        Phases handled inline (context-dependent):
+          - ADDR_BITS after START: OD (S5.1.2.2.1); skipped after Sr (DUT must not drive).
+          - ENTDAA bits 0-63: OD (S5.1.4.2); bits 64+ are Controller-driven.
+        All other phases are looked up in _PHASE_EXPECTED_PP.
+        """
+        if not self._dut_is_driving():
+            return
+
+        if self._phase == BusPhase.ADDR_BITS:
+            if self._is_repeated_start:
+                return  # DUT must not drive after Sr; Check 3 handles that
+            expected_pp, spec_ref = False, "S5.1.2.2.1"
+        elif self._phase == BusPhase.ENTDAA:
+            if self._entdaa_bit_count >= 64:
+                return  # DA+PAR phase: Controller drives; Check 16 handles spurious drive
+            expected_pp, spec_ref = False, "S5.1.4.2"
+        else:
+            entry = self._PHASE_EXPECTED_PP.get(self._phase)
+            if entry is None:
+                return
+            expected_pp, spec_ref = entry
+
+        if self._dut_is_pp() != expected_pp:
+            expected_str = "PP" if expected_pp else "OD"
+            actual_str = "PP" if self._dut_is_pp() else "OD"
+            self._record_violation(
+                "PHASE_BUS_MODE",
+                f"Phase {self._phase.name}: expected {expected_str} mode, "
+                f"got {actual_str} ({spec_ref})"
+            )
+
     def _check_target_silent_nonmatching(self):
         """
         Check 11: Target shall not transmit on the Bus in response
@@ -388,6 +444,7 @@ class I3cBusMonitor:
         # Always check truth table and contention
         self._check_od_pp_truth_table()
         self._check_contention()
+        self._check_phase_bus_mode()
 
         if self._phase == BusPhase.ADDR_BITS:
             self._on_addr_bit_rise(bus_sda)

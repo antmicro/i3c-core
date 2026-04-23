@@ -9,6 +9,26 @@ testplans:
     - name: "^(.*)$"
       source: ".*verification/cocotb/top/lib_i3c_top/test_bypass.py"
       cocotb_xml: ".*verification/cocotb/top/i3c_axi/test_(bypass|i3c_target)(_[0-9]+)?.xml"
+  - name: 'CCC handling'
+    testpoints:
+    - name: "^(.*)$"
+      source: "verification/cocotb/top/lib_i3c_top/test_ccc.py"
+  - name: 'CSR access check'
+    testpoints:
+    - name: "^(.*)$"
+      source: "verification/cocotb/top/lib_i3c_top/test_csr_access.py"
+  - name: 'Bus timers top-level'
+    testpoints:
+    - name: "^(.*)$"
+      source: "verification/cocotb/top/lib_i3c_top/test_bus_timers.py"
+  - name: 'Enter and exit HDR mode'
+    testpoints:
+    - name: "^(.*)$"
+      source: "verification/cocotb/top/lib_i3c_top/test_enter_exit_hdr_mode.py"
+  - name: 'Target'
+    testpoints:
+    - name: "^(.*)$"
+      source: "verification/cocotb/top/lib_i3c_top/test_i3c_target.py"
   - name: 'Target interrupts'
     testpoints:
     - name: "^(.*)$"

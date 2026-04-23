@@ -1,0 +1,41 @@
+{
+  name: Bus timers top-level
+  testpoints:
+  [
+    {
+      name: STOP condition starts the counter
+      desc:
+        '''
+        Verifies that detecting a STOP condition on the I3C bus starts the
+        bus_timers counter and that the counter progresses through the bus
+        busy, free, available and idle states in the correct order with the
+        expected timing.
+        '''
+      tests: ["bus_timers_stop_starts_counter"]
+      tags: ["top"]
+    }
+    {
+      name: START condition resets the counter
+      desc:
+        '''
+        Verifies that a START condition detected after a STOP resets the
+        bus_timers counter back to 0 and deasserts all timer-state outputs
+        (bus_free, bus_available, bus_idle), leaving bus_busy asserted.
+        '''
+      tests: ["bus_timers_reset_on_start"]
+      tags: ["top"]
+    }
+    {
+      name: HDR mode entry holds the counter at 0
+      desc:
+        '''
+        Verifies that entering HDR mode (in_hdr_mode_i asserted) continuously
+        holds the bus_timers counter at 0 for the duration of HDR mode.
+        After HDR exit the counter stays at 0 until the next STOP condition,
+        which must then restart normal timer operation.
+        '''
+      tests: ["bus_timers_reset_on_hdr_entry"]
+      tags: ["top"]
+    }
+  ]
+}

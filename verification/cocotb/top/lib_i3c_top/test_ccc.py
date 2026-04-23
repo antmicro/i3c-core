@@ -1026,6 +1026,12 @@ async def test_ccc_rstact(dut, type, rstact):
     # Check if reset action got stored correctly in the logic after RSTACT CCC
     sig = dut.xi3c_wrapper.i3c.xcontroller.xcontroller_standby.xcontroller_standby_i3c.rst_action_o
     assert rst_action == int(sig), f"Expected rst_action_o={rst_action}, got {int(sig)}"
+
+    # Check if RST_ACTION field in STBY_CR_CCC_CONFIG_RSTACT_PARAMS CSR was updated
+    rstact_reg = tb.reg_map.I3C_EC.STDBYCTRLMODE.STBY_CR_CCC_CONFIG_RSTACT_PARAMS
+    rst_action_csr = await tb.read_csr_field(rstact_reg.base_addr, rstact_reg.RST_ACTION)
+    assert rst_action == rst_action_csr, \
+        f"Expected STBY_CR_CCC_CONFIG_RSTACT_PARAMS.RST_ACTION={rst_action}, got {rst_action_csr}"
     await i3c_controller.send_target_reset_pattern()
     await i3c_controller.send_stop()
 

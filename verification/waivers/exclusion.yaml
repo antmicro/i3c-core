@@ -1197,6 +1197,7 @@ exclusions:
         - araddr_i: [11]
         - awaddr_i: [11]
         - i3c_req_addr: [11]
+        - s_cpuif_addr: [11]
 
       BUSER is unimplemented (tied to 0):
         toggle:
@@ -1225,6 +1226,17 @@ exclusions:
         toggle:
         - s_cpuif_rd_err
         - s_cpuif_wr_err
+
+      Extended hold can't be asserted alone since it would require AXI ID become illegal during transaction:
+        cond:
+          - 10: [3 "010"]  # rd_hld = (rd_req_legal | rd_hld_ext | s_cpuif_req_stall_rd) & cpuif_no_ack;
+          - 12: [3 "010"]  # wr_hld = (wr_req_legal | wr_hld_ext | s_cpuif_req_stall_wr) & cpuif_no_ack;
+          - 14: [2 "01"]  # i3c_rd_err = ((rd_req & !rlegal) | s_cpuif_rd_err) & !wr_hld;
+          - 17: [2 "01"]  # i3c_wr_err = ((wr_req & !wlegal) | s_cpuif_wr_err) & !rd_hld;
+
+      Unreachable due to common contradictory signal dependencies:
+        cond:
+          - 16: [2 "10"]  # i3c_wr_err = ((wr_req & !wlegal) | s_cpuif_wr_err) & !rd_hld;
 
 
   I3CCSR:

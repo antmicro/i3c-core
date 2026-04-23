@@ -244,6 +244,20 @@
       tags: ["top"]
     }
     {
+      name: i3c_target_rx_flush_clears_converter
+      desc:
+        '''
+        Verifies that TTI RESET_CONTROL.RX_DATA_RST flushes both the RX FIFO
+        and the width_converter_8toN shift register.
+
+        Writes data to the RX FIFO via Private Write to overflow the queue,
+        asserts RX_DATA_RST, then writes new data via Private Write.
+        Verifies that data from first transfer does not corrupt second transfer.
+        '''
+      tests: ["i3c_target_rx_flush_clears_converter"]
+      tags: ["top"]
+    }
+    {
       name: priv_write_normal_stop_baseline
       desc:
         '''

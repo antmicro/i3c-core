@@ -539,6 +539,16 @@
       tags: ["top"]
     }
     {
+      name: ccc_getstatus_sr_abort_done_assert
+      desc:
+        '''
+        Verifies that aborting GETSTATUS during T-Bit transfer does not fire get_status_done
+        and reports protocol error.
+        '''
+      tests: ["ccc_getstatus_sr_abort_done_assert"]
+      tags: ["top"]
+    }
+    {
       name: ccc_entdaa_virtual_only
       desc:
         '''

@@ -65,5 +65,18 @@
       tests: ["basic_burst_write"]
       tags: ["top"]
     }
+    {
+      name: AXI stall accesses
+      desc:
+        '''
+        Issue randomized read and write transactions, stall R and B channels
+        for random time, release the bus and compare with expected output.
+        '''
+      tests: [
+        "test_write_stall",
+        "test_read_stall"
+      ]
+      tags: ["top"]
+    }
   ]
 }

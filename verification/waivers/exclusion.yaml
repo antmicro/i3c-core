@@ -1393,6 +1393,16 @@ exclusions:
         - hwif_in.I3C_EC.SecFwRecoveryIf.INDIRECT_FIFO_STATUS_0.REGION_TYPE.we
         - hwif_in.I3C_EC.SecFwRecoveryIf.INDIRECT_FIFO_STATUS_0.REGION_TYPE.next
         - decoded_reg_strb.I3C_EC.StdbyCtrlMode.STBY_CR_CAPABILITIES: [0]
+        - hwif_in.I3C_EC.TTI.RESET_CONTROL.IBI_QUEUE_RST.next
+        - hwif_in.I3C_EC.TTI.RESET_CONTROL.RX_DATA_RST.next
+        - hwif_in.I3C_EC.TTI.RESET_CONTROL.TX_DATA_RST.next
+        - hwif_in.I3C_EC.TTI.RESET_CONTROL.RX_DESC_RST.next
+        - hwif_in.I3C_EC.TTI.RESET_CONTROL.TX_DESC_RST.next
+        - hwif_in.I3CBase.RESET_CONTROL.IBI_QUEUE_RST.next
+        - hwif_in.I3CBase.RESET_CONTROL.RX_FIFO_RST.next
+        - hwif_in.I3CBase.RESET_CONTROL.TX_FIFO_RST.next
+        - hwif_in.I3CBase.RESET_CONTROL.RESP_QUEUE_RST.next
+        - hwif_in.I3CBase.RESET_CONTROL.CMD_QUEUE_RST.next
 
       FIFO depth limited to 64 entries:
         toggle:
@@ -1428,6 +1438,9 @@ exclusions:
         - field_combo.I3C_EC.SoCMgmtIf.SOC_MGMT_CONTROL.PLACEHOLDER.next: [28]
         - field_storage.I3C_EC.SoCMgmtIf.SOC_MGMT_RSVD_2.PLACEHOLDER.value: [30]
         - field_storage.I3C_EC.SoCMgmtIf.SOC_MGMT_CONTROL.PLACEHOLDER.value: [28]
+        - hwif_in.I3C_EC.StdbyCtrlMode.STBY_CR_CCC_CONFIG_RSTACT_PARAMS.RST_ACTION.next: [2-7]
+        - hwif_out.I3C_EC.StdbyCtrlMode.STBY_CR_CCC_CONFIG_RSTACT_PARAMS.RST_ACTION.value: [2-7]
+        - field_storage.I3C_EC.StdbyCtrlMode.STBY_CR_CCC_CONFIG_RSTACT_PARAMS.RST_ACTION.value: [2-7]
 
       Controller mode placeholder CSRs:
         toggle:

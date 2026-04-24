@@ -2691,10 +2691,15 @@ exclusions:
           - 5: [4 "011"]  # RxLenH: if (rx_desc_wvalid_i && |rx_desc_wdata_i[31:28] && pec_err_det_en_i)
 
       Unreachable or guaranteed due to parent condition:
+        line:
+          - 710  # RxPec: pec_err = 1'b1;
+          - 711  # RxPec: state_d = Error;
         cond:
-          - 13: [1 "01"]  # length_underrun_err = ((payload_byte_cnt < cmd_len) || pec_rx_byte_cnt == '0) && length_err_det_en_i;
+          - 13: [1 "01", 2 "10"]  # length_underrun_err = ((payload_byte_cnt < cmd_len) || pec_rx_byte_cnt == '0) && length_err_det_en_i;
           - 14  # length_underrun_err = ((payload_byte_cnt < cmd_len) || pec_rx_byte_cnt == '0) && length_err_det_en_i;
           - 15  # length_underrun_err = ((payload_byte_cnt < cmd_len) || pec_rx_byte_cnt == '0) && length_err_det_en_i;
+          - 16: [3 "110", 4 "111"]  # RxPec: if (rx_data_last_i && |rx_desc_wdata_i[31:28] && pec_err_det_en_i)
+          - 31: [3 "110"]  # ExecFifoWrite: if (tti_rx_rack_i && !indirect_rx_wready_i && indirect_fifo_overflow_err_det_en_i)
           - 32: [2 "01"]  # ExecFifoWrite: if ((tti_rx_rack_i && (dcnt == 1)) || (bypass_i3c_core_i && hwif_socmgmt_i.REC_INTF_CFG.REC_PAYLOAD_DONE.value && ~indirect_rx_empty_i))
           - 35  # ExecFifoWrite: if ((tti_rx_rack_i && (dcnt == 1)) || (bypass_i3c_core_i && hwif_socmgmt_i.REC_INTF_CFG.REC_PAYLOAD_DONE.value && ~indirect_rx_empty_i))
           - 85: [2 "101"]  # assign tti_rx_rreq_o = (state_q inside {ExecCsrWrite, ExecFifoWrite}) && (dcnt != 0) && !tti_rx_rack_i;
@@ -2717,6 +2722,10 @@ exclusions:
         cond:
           - 59: [2 "101"]  # indirect_rx_rreq_o = hwif_rec_i.INDIRECT_FIFO_DATA.req && !hwif_rec_i.INDIRECT_FIFO_DATA.req_is_wr && !indirect_rx_empty_i;
           - 61: [2 "110"]  # hwif_rec_o.INDIRECT_FIFO_DATA.rd_ack = indirect_rx_rack_i || (indirect_rx_empty_i && hwif_rec_i.INDIRECT_FIFO_DATA.req && !hwif_rec_i.INDIRECT_FIFO_DATA.req_is_wr);
+
+      Would require precision in generating Sr up to 1 clock cycle:
+        cond:
+          - 7: [1 "01"]  # length_underrun_err  = (payload_byte_cnt < cmd_len) && length_err_det_en_i;
 
 
   bus_timers:

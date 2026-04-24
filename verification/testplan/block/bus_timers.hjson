@@ -1,5 +1,5 @@
 {
-  name: bus_timers
+  name: Bus timers top-level
   testpoints:
   [
     {

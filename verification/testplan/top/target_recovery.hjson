@@ -534,6 +534,16 @@
       tags: ["top"]
     }
     {
+      name: recovery_write_pec_overflow
+      desc:
+        '''
+        Send a recovery WRITE command with more than one PEC bytes with
+        length_err_det_en_i enabled and disabled.
+        '''
+      tests: ["recovery_write_pec_overflow"]
+      tags: ["top"]
+    }
+    {
       name: recovery_all_det_en_toggle
       desc:
         '''
@@ -621,6 +631,16 @@
         verifying correct error handling.
         '''
       tests: ["recovery_write_premature_stop_in_data"]
+      tags: ["top"]
+    }
+    {
+      name: recovery_read_premature_start_in_pec
+      desc:
+        '''
+        Coverage: Premature Sr in TxPec.
+        Sends a recovery read with premature Start during PEC phase.
+        '''
+      tests: ["recovery_read_premature_start_in_pec"]
       tags: ["top"]
     }
     {

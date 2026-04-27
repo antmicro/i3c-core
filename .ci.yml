@@ -11,13 +11,16 @@ variables:
   TEST_SKIP_OPTIONS: 0
   SKIP_CUSTOM: 0
   SKIP_VERILATOR: 0
+  # Default Verilator version to build (Branch name, commit SHA, or tag)
+  # This can be overridden in GitLab Pipeline Schedules for nightly runs.
+  VERILATOR_VERSION: "feature/four-state-i3c"
 
 .build_docs_templ:
   stage: build-docs
   variables:
     GIT_SUBMODULE_STRATEGY: normal
     SCALENODE_RAM: 8192
-    SCALENODE_DISK: 100
+    SCALENODE_DISK: 120
   image: debian:bookworm
   before_get_sources:
     - apt-get update &>/dev/null
@@ -51,8 +54,6 @@ build_docs:
       - $CI_DOCS_ARCHIVE
     when: always
 
-# This job, after setting TEST_SKIP_OPTIONS to 1, will test `build_docs` with
-# artifacts from one Verilator job to make sure it won't fail with SKIP_CUSTOM.
 test_build_docs_with_skip_custom_single:
   extends: .build_docs_templ
   dependencies: [verilator_cocotb_axi_single]
@@ -102,14 +103,17 @@ verilator_build:
     SCALENODE_RAM: 8192
     SCALENODE_DISK: 8
   before_get_sources:
-    - apt -qqy update 2> /dev/null > /dev/null
-    - apt -qqy --no-install-recommends install wget curl help2man libfl-dev make g++ git bison flex gperf libreadline-dev libbz2-dev autoconf python3-dev python3-venv python3-jsonschema python3-yaml python3-sphinx python3-docopt 2> /dev/null > /dev/null
+    - apt -qqy update &>/dev/null
+    - apt -qqy --no-install-recommends install wget curl help2man libfl-dev make g++ git bison flex gperf libreadline-dev libbz2-dev autoconf python3-dev python3-venv python3-jsonschema python3-yaml python3-sphinx python3-docopt &>/dev/null
   script:
-    - git clone --branch v5.044 https://github.com/verilator/verilator
+    - echo "Building Verilator from version/branch -> $VERILATOR_VERSION"
+    - git clone https://github.com/antmicro/verilator
     - cd verilator
-    - autoconf 2> /dev/null > /dev/null
-    - ./configure 2> /dev/null > /dev/null
-    - make -j$(nproc) 2> /dev/null > /dev/null
+    - git checkout $VERILATOR_VERSION
+    - git log -1 --oneline
+    - autoconf &>/dev/null
+    - ./configure &>/dev/null
+    - make -j$(nproc) &>/dev/null
     - rm -rf .git*
     - cd ..
   artifacts:
@@ -129,15 +133,15 @@ icarus_build:
     SCALENODE_RAM: 8192
     SCALENODE_DISK: 8
   before_get_sources:
-    - apt -qqy update 2> /dev/null > /dev/null
-    - apt -qqy --no-install-recommends install wget curl help2man libfl-dev make g++ git bison flex gperf libreadline-dev libbz2-dev autoconf python3-dev python3-venv python3-jsonschema python3-yaml python3-sphinx python3-docopt 2> /dev/null > /dev/null
+    - apt -qqy update &>/dev/null
+    - apt -qqy --no-install-recommends install wget curl help2man libfl-dev make g++ git bison flex gperf libreadline-dev libbz2-dev autoconf python3-dev python3-venv python3-jsonschema python3-yaml python3-sphinx python3-docopt &> /dev/null
   script:
     - git clone https://github.com/steveicarus/iverilog.git
     - cd iverilog
     - git checkout 06077ed026b4d8498d9129a6acfb0b44d0b51f18
-    - sh autoconf.sh 2> /dev/null > /dev/null
-    - ./configure 2> /dev/null > /dev/null
-    - make -j$(nproc) 2> /dev/null > /dev/null
+    - sh autoconf.sh &> /dev/null
+    - ./configure &> /dev/null
+    - make -j$(nproc) &> /dev/null
     - rm -rf .git*
     - cd ..
   artifacts:
@@ -204,11 +208,11 @@ generate_timing_docs:
     - apt -qqy --no-install-recommends install wget curl help2man libfl-dev make g++ git bison flex gperf libreadline-dev libbz2-dev autoconf python3-dev python3-venv python3-jsonschema python3-yaml python3-sphinx python3-docopt &> /dev/null
   before_script:
     - cd iverilog
-    - make install 2> /dev/null > /dev/null
+    - make install &> /dev/null
     - cd ..
     - rm -rf iverilog
     - cd verilator
-    - make install 2> /dev/null > /dev/null
+    - make install &> /dev/null
     - cd ..
     - rm -rf verilator
   script:
@@ -254,7 +258,6 @@ generate_timing_docs:
       - verification/cocotb
     when: always
 
-# verilator_ prefix is stripped for Coverview test names, see build_docs job.
 verilator_cocotb_axi_single:
   extends: .cocotb_verilator_templ
   parallel: 1

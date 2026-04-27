@@ -1127,6 +1127,68 @@ async def test_i3c_target_tx_flush_clears_converter(dut):
     await ClockCycles(tb.clk, 100)
 
 
+@cocotb.test()
+async def test_i3c_target_rx_flush_clears_converter(dut):
+    """
+    Verify that TTI RESET_CONTROL.RX_DATA_RST flushes both the RX FIFO
+    and the width_converter_8toN shift register.
+
+    Steps:
+    1. Send a private write with stale data; leave the RX descriptor unread.
+    2. Flush RX data and descriptor queues via RESET_CONTROL.
+    3. Send a new private write with fresh data.
+    4. Verify the RX descriptor and data match only the fresh data.
+    """
+    i3c_controller, _, tb = await test_setup(dut)
+    await _enable_rx_interrupt(tb)
+
+    # Step 1: Private write with stale data – intentionally left unread in the RX FIFO.
+    # TtiRxFifoDepth=64 entries × 4 bytes = 256 bytes; write one extra dword to overflow.
+    fifo_overflow_bytes = 64 * 4 + 4
+    stale_data = [random.randint(0, 255) for _ in range(fifo_overflow_bytes)]
+    await _do_lowlevel_private_write(i3c_controller, TARGET_ADDRESS, stale_data)
+
+    # Step 2: Flush RX data queue via RESET_CONTROL
+    await tb.write_csr_field(
+        tb.reg_map.I3C_EC.TTI.RESET_CONTROL.base_addr,
+        tb.reg_map.I3C_EC.TTI.RESET_CONTROL.RX_DATA_RST,
+        1,
+    )
+    await tb.write_csr_field(
+        tb.reg_map.I3C_EC.TTI.RESET_CONTROL.base_addr,
+        tb.reg_map.I3C_EC.TTI.RESET_CONTROL.RX_DATA_RST,
+        0,
+    )
+
+    # Also flush the RX descriptor queue
+    await tb.write_csr_field(
+        tb.reg_map.I3C_EC.TTI.RESET_CONTROL.base_addr,
+        tb.reg_map.I3C_EC.TTI.RESET_CONTROL.RX_DESC_RST,
+        1,
+    )
+    await tb.write_csr_field(
+        tb.reg_map.I3C_EC.TTI.RESET_CONTROL.base_addr,
+        tb.reg_map.I3C_EC.TTI.RESET_CONTROL.RX_DESC_RST,
+        0,
+    )
+
+    # Step 3: Send fresh data via private write
+    new_data = [random.randint(0, 255) for _ in range(8)]
+    await _do_lowlevel_private_write(i3c_controller, TARGET_ADDRESS, new_data)
+
+    # Step 4: Read RX descriptor and data, verify only fresh data is returned
+    result = await _read_rx_descriptor(tb, dut)
+    assert result is not None, "Expected RX descriptor after post-flush write"
+    byte_count, err_stat = result
+    assert byte_count == len(new_data), f"Expected byte_count={len(new_data)}, got {byte_count}"
+    assert err_stat == 0, f"Expected no error, got err_stat=0x{err_stat:X}"
+
+    rx_data = await _read_rx_data(tb, byte_count)
+    dut._log.info("Expected: [" + " ".join([f"{d:02X}" for d in new_data]) + "]")
+    dut._log.info("Received: [" + " ".join([f"{d:02X}" for d in rx_data]) + "]")
+    assert rx_data == new_data, f"Data mismatch: expected {new_data}, got {rx_data}"
+
+
 # =============================================================================
 # Private Write Abort Test Helpers
 # =============================================================================

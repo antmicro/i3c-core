@@ -7345,6 +7345,52 @@ async def test_recovery_write_premature_stop_in_data(dut):
 
 
 @cocotb.test()
+async def test_recovery_read_premature_start_in_pec(dut):
+    """
+    Coverage target: Premature Sr in TxPec (recovery_receiver.sv line 860)
+
+    Issues a recovery READ for PROT_CAP and aborts with Sr after receiving
+    all data bytes but before the PEC byte. The target FSM should be in TxPec
+    when bus_rstart_i fires and transition directly to Done.
+    """
+    i3c_controller, i3c_target, tb, recovery = await initialize(dut, timeout=500)
+
+    await i3c_controller.i3c_ccc_write(
+        ccc=CCC.DIRECT.SETDASA,
+        directed_data=[(VIRT_STATIC_ADDR, [VIRT_DYNAMIC_ADDR << 1])]
+    )
+
+    async def clear_device_status():
+        await tb.write_csr(
+            tb.reg_map.I3C_EC.SECFWRECOVERYIF.DEVICE_STATUS_0.base_addr,
+            int2dword(0x03), 4
+        )
+
+    # PROT_CAP returns 15 data bytes.
+    # Abort after LEN_L + LEN_H + all 15 data bytes = 17 bytes total so that
+    # the Sr arrives while the target is in TxPec (preparing to send PEC).
+    PROT_CAP_DATA_LEN = 15
+
+    dut._log.info("Issuing PROT_CAP read abort after all data bytes (Sr in TxPec)")
+    await clear_device_status()
+
+    await recovery.command_read_abort(
+        VIRT_DYNAMIC_ADDR,
+        I3cRecoveryInterface.Command.PROT_CAP,
+        abort_after_bytes=2 + PROT_CAP_DATA_LEN,
+    )
+
+    # Verify device still functional after the premature Sr
+    data, pec_ok = await recovery.command_read(
+        VIRT_DYNAMIC_ADDR, I3cRecoveryInterface.Command.PROT_CAP
+    )
+    assert data is not None and pec_ok, "Device not functional after premature Sr in TxPec"
+    dut._log.info(f"PASS: Device recovered after premature Sr in TxPec ({len(data)} bytes)")
+
+    await tb.teardown()
+
+
+@cocotb.test()
 async def test_recovery_indirect_fifo_overflow(dut):
     """
     Coverage target: Toggle indirect_fifo_overflow_err_det_en_i,

@@ -10,7 +10,7 @@ from interface import I3CTopTestInterface
 
 import cocotb
 from cocotb_helpers import reset_n
-from cocotb.triggers import RisingEdge, Timer
+from cocotb.triggers import ClockCycles, RisingEdge, Timer
 from cocotbext.axi import AxiLockType, AxiBurstType
 from common import timeout_task, log_seed
 
@@ -351,5 +351,85 @@ async def test_ec_contrl_config_csr_access(dut):
 async def test_ec_csr_access(dut):
     tb = await initialize(dut)
     await run_basic_csr_access(tb, tb.reg_map.I3C_EC)
+
+    await tb.teardown()
+
+
+@cocotb.test()
+async def test_write_stall(dut):
+    """
+    AXI stall: Issue randomized write transactions, stall B channel for a
+    random number of cycles, then release and verify correct read-back.
+    """
+    tb = await initialize(dut)
+
+    if cocotb.plusargs.get("FrontendBusInterface") != "AXI":
+        dut._log.warning("Skipping: not using AXI frontend")
+        await tb.teardown()
+        return
+
+    b_channel = tb.busIf.axi_m.write_if.b_channel
+
+    ITERS = 10
+    for i in range(ITERS):
+        stall_cycles = random.randint(1, 20)
+        test_data = csr_access_test_data(tb.reg_map.I3CBASE, skip_regs=["RESET_CONTROL"])
+        reg_name, addr, wdata, exp_rd = random.choice(test_data)
+
+        b_channel.pause = True
+        write_task = cocotb.start_soon(tb.write_csr(addr, int2dword(wdata), 4))
+
+        while not dut.bvalid.value:
+            await RisingEdge(dut.aclk)
+        await ClockCycles(dut.aclk, stall_cycles)
+
+        b_channel.pause = False
+        await write_task
+
+        rd_data = bytes2int(await tb.read_csr(addr, 4))
+        assert rd_data == exp_rd, (
+            f"iter {i}: {reg_name} @ 0x{addr:X}: wrote 0x{wdata:X}, "
+            f"expected 0x{exp_rd:X}, got 0x{rd_data:X}")
+
+        await reset_n(tb.clk, tb.rst_n, cycles=2)
+
+    await tb.teardown()
+
+
+@cocotb.test()
+async def test_read_stall(dut):
+    """
+    AXI stall: Issue randomized read transactions, stall R channel for a
+    random number of cycles, then release and verify correct data is returned.
+    """
+    tb = await initialize(dut)
+
+    if cocotb.plusargs.get("FrontendBusInterface") != "AXI":
+        dut._log.warning("Skipping: not using AXI frontend")
+        await tb.teardown()
+        return
+
+    r_channel = tb.busIf.axi_m.read_if.r_channel
+
+    # HCI_VERSION is read-only with a fixed reset value — safe to read repeatedly
+    addr = tb.reg_map.I3CBASE.HCI_VERSION.base_addr
+    expected = 0x120
+
+    ITERS = 10
+    for i in range(ITERS):
+        stall_cycles = random.randint(1, 20)
+
+        r_channel.pause = True
+        read_task = cocotb.start_soon(tb.read_csr(addr, 4))
+
+        while not dut.rvalid.value:
+            await RisingEdge(dut.aclk)
+        await ClockCycles(dut.aclk, stall_cycles)
+
+        r_channel.pause = False
+        rd_data = bytes2int(await read_task)
+
+        assert rd_data == expected, (
+            f"iter {i}: HCI_VERSION expected 0x{expected:X}, got 0x{rd_data:X}")
 
     await tb.teardown()

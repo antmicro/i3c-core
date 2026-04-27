@@ -6341,6 +6341,111 @@ async def test_recovery_write_pec_tbit_error(dut):
 
 
 @cocotb.test()
+async def test_recovery_write_pec_overflow(dut):
+    """
+    Coverage target: RxPec state pec_rx_byte_cnt overflow
+    (recovery_receiver.sv lines 698-700)
+
+    Sends a recovery WRITE command with more than one PEC byte:
+    Part 1: length_err_det_en=1 -> overflow detected (PROT_ERROR=0x03)
+    Part 2: length_err_det_en=0 -> overflow suppressed
+    Part 3: Verify device still functional
+    """
+    i3c_controller, i3c_target, tb, recovery = await initialize(dut, timeout=500)
+
+    await i3c_controller.i3c_ccc_write(
+        ccc=CCC.DIRECT.SETDASA,
+        directed_data=[(VIRT_STATIC_ADDR, [VIRT_DYNAMIC_ADDR << 1])]
+    )
+
+    async def get_prot_error():
+        status = dword2int(
+            await tb.read_csr(
+                tb.reg_map.I3C_EC.SECFWRECOVERYIF.DEVICE_STATUS_0.base_addr, 4
+            )
+        )
+        return (status >> 8) & 0xFF
+
+    async def clear_device_status():
+        await tb.write_csr(
+            tb.reg_map.I3C_EC.SECFWRECOVERYIF.DEVICE_STATUS_0.base_addr,
+            int2dword(0x03), 4
+        )
+
+    async def get_err_ctrl():
+        return dword2int(
+            await tb.read_csr(tb.reg_map.I3C_EC.TTI.TARGET_ERR_CTRL.base_addr, 4)
+        )
+
+    async def set_err_ctrl(val):
+        await tb.write_csr(
+            tb.reg_map.I3C_EC.TTI.TARGET_ERR_CTRL.base_addr, int2dword(val), 4
+        )
+
+    baseline_ctrl = await get_err_ctrl()
+
+    # =========================================================================
+    # Part 1: length_err_det_en=1, send >1 PEC bytes -> overflow detected
+    # =========================================================================
+    dut._log.info("Part 1: length_err_det_en=1, PEC overflow -> detected")
+    await clear_device_status()
+
+    await set_err_ctrl(baseline_ctrl | (1 << 8))
+
+    await recovery.command_write_pec_overflow(
+        VIRT_DYNAMIC_ADDR,
+        I3cRecoveryInterface.Command.DEVICE_RESET,
+        data=[random.randint(0, 0xFF) for _ in range(3)],
+        extra_pec_bytes=1
+    )
+    await ClockCycles(tb.clk, 20)
+
+    prot_err = await get_prot_error()
+    dut._log.info(f"  PROT_ERROR=0x{prot_err:02X} (expected 0x03)")
+    assert prot_err == 0x03, (
+        f"Expected LENGTH error 0x03 for PEC overflow with det_en=1, "
+        f"got 0x{prot_err:02X}")
+
+    # =========================================================================
+    # Part 2: length_err_det_en=0, send >1 PEC bytes -> overflow suppressed
+    # =========================================================================
+    dut._log.info("Part 2: length_err_det_en=0, PEC overflow -> suppressed")
+    await clear_device_status()
+
+    await set_err_ctrl(baseline_ctrl & ~(1 << 8))
+
+    await recovery.command_write_pec_overflow(
+        VIRT_DYNAMIC_ADDR,
+        I3cRecoveryInterface.Command.DEVICE_RESET,
+        data=[random.randint(0, 0xFF) for _ in range(3)],
+        extra_pec_bytes=1
+    )
+    await ClockCycles(tb.clk, 20)
+
+    prot_err = await get_prot_error()
+    dut._log.info(f"  PROT_ERROR=0x{prot_err:02X} (expected != 0x03)")
+    assert prot_err != 0x03, (
+        f"LENGTH error should be suppressed when det_en=0, got 0x{prot_err:02X}")
+
+    # Restore baseline
+    await set_err_ctrl(baseline_ctrl)
+
+    # =========================================================================
+    # Part 3: Verify device still functional
+    # =========================================================================
+    dut._log.info("Part 3: Verify device still functional")
+    await clear_device_status()
+
+    data, pec_ok = await recovery.command_read(
+        VIRT_DYNAMIC_ADDR, I3cRecoveryInterface.Command.PROT_CAP
+    )
+    assert data is not None and pec_ok, "Device not functional after PEC overflow tests"
+    dut._log.info(f"Part 3 PASS: PROT_CAP read OK ({len(data)} bytes)")
+
+    await tb.teardown()
+
+
+@cocotb.test()
 async def test_recovery_all_det_en_toggle(dut):
     """
     Coverage target: Section 8.0 -- toggle all *_det_en_i signals

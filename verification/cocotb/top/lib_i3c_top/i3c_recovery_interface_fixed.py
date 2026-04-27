@@ -39,6 +39,8 @@ Usage:
         from i3c_recovery_interface_fixed import I3cRecoveryInterfaceFixed as I3cRecoveryInterface
 """
 
+import random
+
 from cocotb.triggers import Timer
 from cocotbext_i3c.i3c_recovery_interface import I3cRecoveryInterface, I3cRecoveryException
 from cocotbext_i3c.common import I3C_RSVD_BYTE
@@ -441,6 +443,48 @@ class I3cRecoveryInterfaceFixed(I3cRecoveryInterface):
         # PEC is calculated over what we're actually sending
         pec = int(self.pec_calc.checksum(bytes([address << 1] + xfer)))
         xfer.append(pec)
+
+        await self.controller.take_bus_control()
+        await self.controller.send_start()
+        await self.controller.write_addr_header(I3C_RSVD_BYTE)
+        await self.controller.send_start()
+        ack = await self.controller.write_addr_header(address)
+
+        if ack:
+            for byte in xfer:
+                await self.controller.send_byte_tbit(byte)
+
+        await self.controller.send_stop()
+        self.controller.give_bus_control()
+
+    async def command_write_pec_overflow(self, address, command, data=None, extra_pec_bytes=1):
+        """
+        Issues a write command with extra bytes in the PEC field to trigger RxPec overflow.
+
+        Sends CMD + LEN_L + LEN_H + DATA then (1 + extra_pec_bytes) bytes in the PEC
+        field. The real PEC is sent first; the extras are random bytes. When
+        pec_rx_byte_cnt exceeds 1 in the RxPec state, length_overrun_err fires if
+        length_err_det_en_i is set.
+
+        Args:
+            address: I3C target address
+            command: OCP Recovery command code
+            data: Data bytes to write (optional)
+            extra_pec_bytes: Extra bytes beyond the real PEC (default: 1)
+        """
+        if not data:
+            data = []
+
+        xfer = [
+            command,
+            len(data) & 0xFF,
+            (len(data) >> 8) & 0xFF,
+        ]
+        xfer.extend(data)
+        pec = int(self.pec_calc.checksum(bytes([address << 1] + xfer)))
+        xfer.append(pec)
+        for _ in range(extra_pec_bytes):
+            xfer.append(random.randint(0, 0xFF))
 
         await self.controller.take_bus_control()
         await self.controller.send_start()

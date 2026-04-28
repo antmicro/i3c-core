@@ -3028,8 +3028,8 @@ exclusions:
         toggle:
         - scl_o
         - i3c_fsm_idle_o
-        - err
-        - irq
+        - err.err_0
+        - irq.irq_0
 
       Reserved upper 3 bits of the RX descriptor ERROR field:
         toggle:

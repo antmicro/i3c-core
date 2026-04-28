@@ -557,6 +557,11 @@ exclusions:
         toggle:
         - rx_desc_queue_ready_thld_i: [6-7]
         - tx_desc_queue_ready_thld_i: [6-7]
+        - rx_desc_queue_depth_i: [7]
+        - tx_desc_queue_depth_i: [7]
+        - rx_data_queue_depth_i: [7]
+        - tx_data_queue_depth_i: [7]
+        - ibi_queue_depth_i: [7]
 
       Tied to 0:
         toggle:
@@ -3126,6 +3131,7 @@ exclusions:
         - hwif_out_i.I3C_EC.StdbyCtrlMode.__rsvd_3.__rsvd.value
         - hwif_out_i.I3C_EC.SoCMgmtIf.SOC_MGMT_RSVD_2.PLACEHOLDER.value: [30]
         - hwif_out_i.I3C_EC.SoCMgmtIf.SOC_MGMT_CONTROL.PLACEHOLDER.value: [28]
+        - rst_action_o: [2-7]
 
 
   descriptor_rx:
@@ -3315,18 +3321,25 @@ exclusions:
         - get_acccr_i
         - get_mxds_i
         - entdaa_tx_sel_od_pp
+        - bus_tx_rsp_i.error
 
       Tied to 0, is TODO, unimplemented yet (SETBRGTGT CCC):
         toggle:
         - set_brgtgt_o
 
-      Only bit request is used:
+      Only bit request is used in TX ENTDAA (constant):
         toggle:
-        - entdaa_tx_req_byte
+        - tx_req_entdaa.req_type
+        - tx_req_entdaa.data: [0-6]
 
-      Bit request not used:
+      Only Open Drain is used in TX ENTDAA (constant):
+        toggle:
+        - tx_req_entdaa.drive_type
+
+      Bit request not used in RX ENTDAA:
         toggle:
         - entdaa_rx_req_bit
+        - rx_req_entdaa.req_bit
 
       Not enough states implemented:
         toggle:
@@ -3414,6 +3427,12 @@ exclusions:
           - 125: [1 "01"]  # assign set_peripheral_reset = target_reset_detect_i && ((rstact_armed_q && (rst_action_q == 8'h01)) || (~rstact_armed_q && ~escalate_rst_arm_q));
           - 130: [1 "01"]  # assign set_escalate_reset = target_reset_detect_i && ((rstact_armed_q && (rst_action_q == 8'h02)) || (~rstact_armed_q && escalate_rst_arm_q));
 
+      Reserved:
+        toggle:
+          - rst_action_o: [2-7]
+          - rst_action_d: [2-7]
+          - rst_action_q: [2-7]
+
 
   ccc_entdaa:
     source_path: src/ctrl/ccc_entdaa.sv
@@ -3424,6 +3443,7 @@ exclusions:
         - id_i: [32]
         - virtual_id_i: [32]
         - bus_tx_sel_od_pp_o
+        - bus_tx_rsp_i.error
 
       ID[32] ^:
         toggle:
@@ -3441,6 +3461,20 @@ exclusions:
         toggle:
         - state_q: [4-7]
         - state_d: [4-7]
+
+      Only bit request is used in TX ENTDAA (constant):
+        toggle:
+        - bus_tx_req_o.req_type
+        - bus_tx_req_o.data: [0-6]
+        - bus_tx_data: [0-6]
+
+      Bit request not used in RX ENTDAA:
+        toggle:
+        - bus_rx_req_o.req_bit
+
+      Only Open Drain is used in TX ENTDAA (constant):
+        toggle:
+        - bus_tx_req_o.drive_type
 
 
   bus_rx_flow:
@@ -3488,6 +3522,7 @@ exclusions:
       Tied to 0, reserved:
         toggle:
         - get_status_fmt1_i: [4]
+        - rst_action_o: [2-7]
 
       Tied to 0:
         toggle:
@@ -3498,6 +3533,10 @@ exclusions:
         - is_hotjoin_done
         - get_acccr
         - get_mxds
+        - bus_tx_rsp.error
+        - bus_tx_rsp_fsm.error
+        - bus_tx_rsp_ccc.error
+        - hotjoin_done
 
       PID[32]:
         toggle:
@@ -3573,6 +3612,7 @@ exclusions:
         toggle:
         - bus_timeout_i
         - is_hotjoin_done_i
+        - bus_tx_rsp_i.error
 
       'Tied to 0, is TODO: Set OD/PP in correct states':
         toggle:
@@ -3592,8 +3632,8 @@ exclusions:
 
       Not used by any state:
         toggle:
-        - state_d: [6]
-        - state_q: [6]
+        - state_d: [5-7]
+        - state_q: [5-7]
 
 
   i3c_axi_sub_arb:
@@ -3783,6 +3823,14 @@ exclusions:
       Tied to 0 when ThldWidth = 8 and is only 3-bits when not tied to 0:
         toggle:
         - start_thld_i: [3-7]
+
+
+  width_converter_8toN:
+    source_path: src/ctrl/width_converter_8toN.sv
+    all:
+      Constant parameter:
+        toggle:
+          - s_bytes
 
 
   i3c_test_wrapper:

@@ -2407,11 +2407,6 @@ exclusions:
           - 137:
             - 3 "110" # (cpuif_req_masked & (cpuif_addr == 12'h168) & ((!cpuif_req_is_wr))) 1 -1
 
-      Controller mode placeholder CSRs:
-        cond:
-          - 315 # (cpuif_req_masked & (cpuif_addr >= 12'h800) & (cpuif_addr <= (12'h800 + 12'h7ff))) 1 -1
-          - 316 # (cpuif_req_masked & (cpuif_addr >= 12'h800) & (cpuif_addr <= (12'h800 + 12'h7ff))) 1 -1
-
       RD and WR stalls come from the same source:
         cond:
           - 1382:

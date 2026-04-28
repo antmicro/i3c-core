@@ -3057,6 +3057,45 @@ exclusions:
         toggle:
         - i2c_active_en
         - i2c_standby_en
+        - ctrl_bus_i[0].stop_det
+        - ctrl_bus_i[0].rstart_det
+        - ctrl_bus_i[0].start_det
+        - ctrl_bus_i[0].scl.stable_low
+        - ctrl_bus_i[0].scl.stable_high
+        - ctrl_bus_i[0].scl.neg_edge
+        - ctrl_bus_i[0].scl.pos_edge
+        - ctrl_bus_i[0].scl.value
+        - ctrl_bus_i[0].sda.stable_low
+        - ctrl_bus_i[0].sda.stable_high
+        - ctrl_bus_i[0].sda.neg_edge
+        - ctrl_bus_i[0].sda.pos_edge
+        - ctrl_bus_i[0].sda.value
+        - ctrl_bus_i[1].stop_det
+        - ctrl_bus_i[1].rstart_det
+        - ctrl_bus_i[1].start_det
+        - ctrl_bus_i[1].scl.stable_low
+        - ctrl_bus_i[1].scl.stable_high
+        - ctrl_bus_i[1].scl.neg_edge
+        - ctrl_bus_i[1].scl.pos_edge
+        - ctrl_bus_i[1].scl.value
+        - ctrl_bus_i[1].sda.stable_low
+        - ctrl_bus_i[1].sda.stable_high
+        - ctrl_bus_i[1].sda.neg_edge
+        - ctrl_bus_i[1].sda.pos_edge
+        - ctrl_bus_i[1].sda.value
+        - ctrl_bus_i[2].stop_det
+        - ctrl_bus_i[2].rstart_det
+        - ctrl_bus_i[2].start_det
+        - ctrl_bus_i[2].scl.stable_low
+        - ctrl_bus_i[2].scl.stable_high
+        - ctrl_bus_i[2].scl.neg_edge
+        - ctrl_bus_i[2].scl.pos_edge
+        - ctrl_bus_i[2].scl.value
+        - ctrl_bus_i[2].sda.stable_low
+        - ctrl_bus_i[2].sda.stable_high
+        - ctrl_bus_i[2].sda.neg_edge
+        - ctrl_bus_i[2].sda.pos_edge
+        - ctrl_bus_i[2].sda.value
 
       Reserved for vendor-specific meaning, unused:
         toggle:

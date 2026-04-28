@@ -336,6 +336,11 @@ exclusions:
         - rresp_o: [0]
         - bresp_o: [0]
 
+      AXI WRAP bursts are not used:
+        toggle:
+          - arburst_i: [1]
+          - awburst_i: [1]
+
       RDL code doesn't generate access errors:
         toggle:
         - s_cpuif_rd_err
@@ -495,6 +500,11 @@ exclusions:
         toggle:
         - rresp_o: [0]
         - bresp_o: [0]
+
+      AXI WRAP bursts are not used:
+        toggle:
+          - arburst_i: [1]
+          - awburst_i: [1]
 
       Tied to 0:
         toggle:
@@ -1172,6 +1182,11 @@ exclusions:
         toggle:
         - rresp_o: [0]
         - bresp_o: [0]
+
+      AXI WRAP bursts are not used:
+        toggle:
+          - arburst_i: [1]
+          - awburst_i: [1]
 
       RDL code doesn't generate access errors:
         toggle:
@@ -3552,6 +3567,12 @@ exclusions:
         - w_addr: [0-1]
         - addr: [0-1]
 
+      High address bits not used in target only configs:
+        toggle:
+          - addr: [11]
+          - r_addr: [11]
+          - ww_addr: [11]
+
       Data width is only 32-bit:
         toggle:
         - r_size: [2]
@@ -3569,6 +3590,12 @@ exclusions:
         - w_addr: [0-1]
         - addr: [0-1]
 
+      High address bits not used in target only configs:
+        toggle:
+          - addr: [11]
+          - r_addr: [11]
+          - ww_addr: [11]
+
       Data width is only 32-bit:
         toggle:
         - r_size: [2]
@@ -3585,6 +3612,8 @@ exclusions:
           - addr: [0-1]
           - s_axi_if_ctx.addr: [0-1]
           - req_ctx.addr: [0-1]
+          - txn_ctx.addr: [0-1]
+          - txn_addr_nxt: [0-1]
 
       Data width is only 32-bit:
         toggle:
@@ -3612,6 +3641,21 @@ exclusions:
       AXI controller doesn't stall the B channel:
         toggle:
           - rp_ready
+
+      AXI WRAP bursts are not used:
+        toggle:
+          - s_axi_if_ctx.burst: [1]
+          - req_ctx.burst: [1]
+          - txn_ctx.burst: [1]
+
+      High address bits not used in target only configs:
+        toggle:
+          - addr: [11]
+          - s_axi_if_ctx.addr: [11]
+          - req_ctx.addr: [11]
+          - txn_ctx.addr: [11]
+          - s_cpuif_addr: [11]
+          - txn_addr_nxt: [11]
 
       Neither EXOKAY nor DECERR are issued:
         toggle:
@@ -3657,6 +3701,15 @@ exclusions:
           - txn_xfer_ctx[0].resp
           - dp_xfer_ctx[0].resp[0]
           - dp_xfer_ctx[1].resp[0]
+
+      Neither EXOKAY nor DECERR are issued:
+        toggle:
+        - dp_xfer_ctx[0].resp: [0]
+        - dp_xfer_ctx[1].resp: [0]
+
+      AXI WRAP bursts are not used:
+        toggle:
+          - txn_ctx.burst: [1]
 
 
   write_queue:

@@ -2854,6 +2854,201 @@ exclusions:
           - 706:
             - 3 "10" # ((field_storage.I3C_EC.StdbyCtrlMode.STBY_CR_DEVICE_ADDR.DYNAMIC_ADDR_VALID.value & ((~decoded_wr_biten[31]))) | (decoded_wr_data[31] & decoded_wr_biten[31])) 1 -1
 
+      Branch on .load_next not reaching else. load_next is tied to 1 on these CSRs.:
+        branch:
+          - 847:
+            - 2 # (~hwif_in.rst_ni) 0,0
+          - 872:
+            - 2 # (~hwif_in.rst_ni) 0,0
+          - 888:
+            - 2 # (~hwif_in.rst_ni) 0,0
+          - 910:
+            - 2 # (~hwif_in.rst_ni) 0,0
+          - 911:
+            - 2 # (~hwif_in.rst_ni) 0,0
+          - 843:
+            - 2 # (~hwif_in.rst_ni) 0,0
+          - 842:
+            - 2 # (~hwif_in.rst_ni) 0,0
+          - 840:
+            - 2 # (~hwif_in.rst_ni) 0,0
+          - 838:
+            - 2 # (~hwif_in.rst_ni) 0,0
+          - 836:
+            - 2 # (~hwif_in.rst_ni) 0,0
+          - 834:
+            - 2 # (~hwif_in.rst_ni) 0,0
+          - 830:
+            - 2 # (~hwif_in.rst_ni) 0,0
+          - 828:
+            - 2 # (~hwif_in.rst_ni) 0,0
+          - 826:
+            - 2 # (~hwif_in.rst_ni) 0,0
+          - 824:
+            - 2 # (~hwif_in.rst_ni) 0,0
+          - 822:
+            - 2 # (~hwif_in.rst_ni) 0,0
+          - 820:
+            - 2 # (~hwif_in.rst_ni) 0,0
+          - 818:
+            - 2 # (~hwif_in.rst_ni) 0,0
+          - 816:
+            - 2 # (~hwif_in.rst_ni) 0,0
+          - 812:
+            - 2 # (~hwif_in.rst_ni) 0,0
+          - 810:
+            - 2 # (~hwif_in.rst_ni) 0,0
+          - 808:
+            - 2 # (~hwif_in.rst_ni) 0,0
+          - 806:
+            - 2 # (~hwif_in.rst_ni) 0,0
+          - 804:
+            - 2 # (~hwif_in.rst_ni) 0,0
+          - 802:
+            - 2 # (~hwif_in.rst_ni) 0,0
+          - 800:
+            - 2 # (~hwif_in.rst_ni) 0,0
+          - 798:
+            - 2 # (~hwif_in.rst_ni) 0,0
+          - 796:
+            - 2 # (~hwif_in.rst_ni) 0,0
+          - 792:
+            - 2 # (~hwif_in.rst_ni) 0,0
+          - 790:
+            - 2 # (~hwif_in.rst_ni) 0,0
+          - 788:
+            - 2 # (~hwif_in.rst_ni) 0,0
+          - 784:
+            - 2 # (~hwif_in.rst_ni) 0,0
+          - 782:
+            - 2 # (~hwif_in.rst_ni) 0,0
+          - 780:
+            - 2 # (~hwif_in.rst_ni) 0,0
+          - 778:
+            - 2 # (~hwif_in.rst_ni) 0,0
+          - 776:
+            - 2 # (~hwif_in.rst_ni) 0,0
+          - 774:
+            - 2 # (~hwif_in.rst_ni) 0,0
+          - 772:
+            - 2 # (~hwif_in.rst_ni) 0,0
+          - 770:
+            - 2 # (~hwif_in.rst_ni) 0,0
+          - 768:
+            - 2 # (~hwif_in.rst_ni) 0,0
+          - 756:
+            - 2 # (~hwif_in.rst_ni) 0,0
+          - 754:
+            - 2 # (~hwif_in.rst_ni) 0,0
+          - 752:
+            - 2 # (~hwif_in.rst_ni) 0,0
+          - 716:
+            - 2 # (~hwif_in.rst_ni) 0,0
+          - 714:
+            - 2 # (~hwif_in.rst_ni) 0,0
+          - 712:
+            - 2 # (~hwif_in.rst_ni) 0,0
+          - 845:
+            - 2 # (~hwif_in.rst_ni) 0,0
+          - 698:
+            - 2 # (~hwif_in.rst_ni) 0,0
+          - 699:
+            - 2 # (~hwif_in.rst_ni) 0,0
+          - 706:
+            - 2 # (~hwif_in.rst_ni) 0,0
+          - 710:
+            - 2 # (~hwif_in.rst_ni) 0,0
+
+      Tied off HW writes:
+        branch:
+          - 464:
+            - 1 # (decoded_reg_strb.I3CBase.HC_CONTROL && decoded_req_is_wr) 0,1
+          - 690:
+            - 1 # (decoded_reg_strb.I3C_EC.SecFwRecoveryIf.HW_STATUS && decoded_req_is_wr) 0,1
+          - 688:
+            - 1 # (decoded_reg_strb.I3C_EC.SecFwRecoveryIf.HW_STATUS && decoded_req_is_wr) 0,1
+          - 686:
+            - 1 # (decoded_reg_strb.I3C_EC.SecFwRecoveryIf.HW_STATUS && decoded_req_is_wr) 0,1
+          - 684:
+            - 1 # (decoded_reg_strb.I3C_EC.SecFwRecoveryIf.HW_STATUS && decoded_req_is_wr) 0,1
+          - 682:
+            - 1 # (decoded_reg_strb.I3C_EC.SecFwRecoveryIf.HW_STATUS && decoded_req_is_wr) 0,1
+          - 680:
+            - 1 # (decoded_reg_strb.I3C_EC.SecFwRecoveryIf.HW_STATUS && decoded_req_is_wr) 0,1
+          - 678:
+            - 1 # (decoded_reg_strb.I3C_EC.SecFwRecoveryIf.HW_STATUS && decoded_req_is_wr) 0,1
+          - 676:
+            - 1 # (decoded_reg_strb.I3C_EC.SecFwRecoveryIf.RECOVERY_STATUS && decoded_req_is_wr) 0,1
+          - 674:
+            - 1 # (decoded_reg_strb.I3C_EC.SecFwRecoveryIf.RECOVERY_STATUS && decoded_req_is_wr) 0,1
+          - 672:
+            - 1 # (decoded_reg_strb.I3C_EC.SecFwRecoveryIf.RECOVERY_STATUS && decoded_req_is_wr) 0,1
+          - 658:
+            - 1 # (decoded_reg_strb.I3C_EC.SecFwRecoveryIf.DEVICE_STATUS_1 && decoded_req_is_wr) 0,1
+          - 656:
+            - 1 # (decoded_reg_strb.I3C_EC.SecFwRecoveryIf.DEVICE_STATUS_1 && decoded_req_is_wr) 0,1
+          - 654:
+            - 1 # (decoded_reg_strb.I3C_EC.SecFwRecoveryIf.DEVICE_STATUS_1 && decoded_req_is_wr) 0,1
+          - 646:
+            - 1 # (decoded_reg_strb.I3C_EC.SecFwRecoveryIf.DEVICE_ID_5 && decoded_req_is_wr) 0,1
+          - 644:
+            - 1 # (decoded_reg_strb.I3C_EC.SecFwRecoveryIf.DEVICE_ID_4 && decoded_req_is_wr) 0,1
+          - 642:
+            - 1 # (decoded_reg_strb.I3C_EC.SecFwRecoveryIf.DEVICE_ID_3 && decoded_req_is_wr) 0,1
+          - 640:
+            - 1 # (decoded_reg_strb.I3C_EC.SecFwRecoveryIf.DEVICE_ID_2 && decoded_req_is_wr) 0,1
+          - 638:
+            - 1 # (decoded_reg_strb.I3C_EC.SecFwRecoveryIf.DEVICE_ID_1 && decoded_req_is_wr) 0,1
+          - 636:
+            - 1 # (decoded_reg_strb.I3C_EC.SecFwRecoveryIf.DEVICE_ID_0 && decoded_req_is_wr) 0,1
+          - 634:
+            - 1 # (decoded_reg_strb.I3C_EC.SecFwRecoveryIf.DEVICE_ID_0 && decoded_req_is_wr) 0,1
+          - 632:
+            - 1 # (decoded_reg_strb.I3C_EC.SecFwRecoveryIf.DEVICE_ID_0 && decoded_req_is_wr) 0,1
+          - 630:
+            - 1 # (decoded_reg_strb.I3C_EC.SecFwRecoveryIf.PROT_CAP_3 && decoded_req_is_wr) 0,1
+          - 628:
+            - 1 # (decoded_reg_strb.I3C_EC.SecFwRecoveryIf.PROT_CAP_3 && decoded_req_is_wr) 0,1
+          - 626:
+            - 1 # (decoded_reg_strb.I3C_EC.SecFwRecoveryIf.PROT_CAP_3 && decoded_req_is_wr) 0,1
+          - 624:
+            - 1 # (decoded_reg_strb.I3C_EC.SecFwRecoveryIf.PROT_CAP_2 && decoded_req_is_wr) 0,1
+          - 622:
+            - 1 # (decoded_reg_strb.I3C_EC.SecFwRecoveryIf.PROT_CAP_2 && decoded_req_is_wr) 0,1
+          - 572:
+            - 1 # (decoded_reg_strb.PIOControl.PIO_INTR_STATUS && decoded_req_is_wr) 0,1
+          - 570:
+            - 1 # (decoded_reg_strb.PIOControl.PIO_INTR_STATUS && decoded_req_is_wr) 0,1
+          - 538:
+            - 1 # (decoded_reg_strb.I3CBase.IBI_DATA_ABORT_CTRL && decoded_req_is_wr) 0,1
+          - 524:
+            - 1 # (decoded_reg_strb.I3CBase.DCT_SECTION_OFFSET && decoded_req_is_wr) 0,1
+          - 492:
+            - 1 # (decoded_reg_strb.I3CBase.INTR_STATUS && decoded_req_is_wr) 0,1
+          - 490:
+            - 1 # (decoded_reg_strb.I3CBase.INTR_STATUS && decoded_req_is_wr) 0,1
+          - 488:
+            - 1 # (decoded_reg_strb.I3CBase.INTR_STATUS && decoded_req_is_wr) 0,1
+          - 486:
+            - 1 # (decoded_reg_strb.I3CBase.INTR_STATUS && decoded_req_is_wr) 0,1
+          - 484:
+            - 1 # (decoded_reg_strb.I3CBase.INTR_STATUS && decoded_req_is_wr) 0,1
+          - 472:
+            - 1 # (decoded_reg_strb.I3CBase.RESET_CONTROL && decoded_req_is_wr) 0,1
+          - 470:
+            - 1 # (decoded_reg_strb.I3CBase.CONTROLLER_DEVICE_ADDR && decoded_req_is_wr) 0,1
+          - 468:
+            - 1 # (decoded_reg_strb.I3CBase.CONTROLLER_DEVICE_ADDR && decoded_req_is_wr) 0,1
+          - 466:
+            - 1 # (decoded_reg_strb.I3CBase.HC_CONTROL && decoded_req_is_wr) 0,1
+          - 648:
+            - 1 # (decoded_reg_strb.I3C_EC.SecFwRecoveryIf.DEVICE_STATUS_0 && decoded_req_is_wr) 0,1
+          - 652:
+            - 1 # (decoded_reg_strb.I3C_EC.SecFwRecoveryIf.DEVICE_STATUS_0 && decoded_req_is_wr) 0,1
+          - 700:
+            - 0 # hwif_in.I3C_EC.SecFwRecoveryIf.INDIRECT_FIFO_STATUS_0.REGION_TYPE.we 1
+          - 701:
+            - 1 # (~hwif_in.rst_ni) 0,1
 
   recovery_handler:
     source_path: src/recovery/recovery_handler.sv

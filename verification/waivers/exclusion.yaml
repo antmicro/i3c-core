@@ -2401,6 +2401,157 @@ exclusions:
           - 623:
             - 2 "10" # (decoded_reg_strb.I3C_EC.SecFwRecoveryIf.DEVICE_STATUS_0 && decoded_req_is_wr) 1 -1
 
+      wr_data == 1 && biten == 0, this is impossible due to all CSR accesses being full width:
+        cond:
+          - 1035:
+            - 2 "10" # (decoded_wr_data[0] & decoded_wr_biten[0]) 1 -1
+          - 1379:
+            - 2 "10" # (decoded_wr_data[0] & decoded_wr_biten[0]) 1 -1
+          - 1321:
+            - 2 "10" # (decoded_wr_data[1] & decoded_wr_biten[1]) 1 -1
+          - 1317:
+            - 2 "10" # (decoded_wr_data[0] & decoded_wr_biten[0]) 1 -1
+          - 1291:
+            - 2 "10" # (decoded_wr_data[13] & decoded_wr_biten[13]) 1 -1
+          - 1287:
+            - 2 "10" # (decoded_wr_data[12] & decoded_wr_biten[12]) 1 -1
+          - 1283:
+            - 2 "10" # (decoded_wr_data[11] & decoded_wr_biten[11]) 1 -1
+          - 1279:
+            - 2 "10" # (decoded_wr_data[10] & decoded_wr_biten[10]) 1 -1
+          - 1275:
+            - 2 "10" # (decoded_wr_data[9] & decoded_wr_biten[9]) 1 -1
+          - 1271:
+            - 2 "10" # (decoded_wr_data[8] & decoded_wr_biten[8]) 1 -1
+          - 1267:
+            - 2 "10" # (decoded_wr_data[7] & decoded_wr_biten[7]) 1 -1
+          - 1263:
+            - 2 "10" # (decoded_wr_data[6] & decoded_wr_biten[6]) 1 -1
+          - 1259:
+            - 2 "10" # (decoded_wr_data[5] & decoded_wr_biten[5]) 1 -1
+          - 1255:
+            - 2 "10" # (decoded_wr_data[4] & decoded_wr_biten[4]) 1 -1
+          - 1251:
+            - 2 "10" # (decoded_wr_data[3] & decoded_wr_biten[3]) 1 -1
+          - 1247:
+            - 2 "10" # (decoded_wr_data[2] & decoded_wr_biten[2]) 1 -1
+          - 1243:
+            - 2 "10" # (decoded_wr_data[1] & decoded_wr_biten[1]) 1 -1
+          - 1239:
+            - 2 "10" # (decoded_wr_data[13] & decoded_wr_biten[13]) 1 -1
+          - 1235:
+            - 2 "10" # (decoded_wr_data[12] & decoded_wr_biten[12]) 1 -1
+          - 1231:
+            - 2 "10" # (decoded_wr_data[11] & decoded_wr_biten[11]) 1 -1
+          - 1227:
+            - 2 "10" # (decoded_wr_data[10] & decoded_wr_biten[10]) 1 -1
+          - 1223:
+            - 2 "10" # (decoded_wr_data[9] & decoded_wr_biten[9]) 1 -1
+          - 1219:
+            - 2 "10" # (decoded_wr_data[8] & decoded_wr_biten[8]) 1 -1
+          - 1215:
+            - 2 "10" # (decoded_wr_data[7] & decoded_wr_biten[7]) 1 -1
+          - 1211:
+            - 2 "10" # (decoded_wr_data[6] & decoded_wr_biten[6]) 1 -1
+          - 1207:
+            - 2 "10" # (decoded_wr_data[5] & decoded_wr_biten[5]) 1 -1
+          - 1203:
+            - 2 "10" # (decoded_wr_data[4] & decoded_wr_biten[4]) 1 -1
+          - 1199:
+            - 2 "10" # (decoded_wr_data[3] & decoded_wr_biten[3]) 1 -1
+          - 1195:
+            - 2 "10" # (decoded_wr_data[2] & decoded_wr_biten[2]) 1 -1
+          - 1191:
+            - 2 "10" # (decoded_wr_data[1] & decoded_wr_biten[1]) 1 -1
+          - 1187:
+            - 2 "10" # (decoded_wr_data[13] & decoded_wr_biten[13]) 1 -1
+          - 1183:
+            - 2 "10" # (decoded_wr_data[12] & decoded_wr_biten[12]) 1 -1
+          - 1179:
+            - 2 "10" # (decoded_wr_data[11] & decoded_wr_biten[11]) 1 -1
+          - 1175:
+            - 2 "10" # (decoded_wr_data[10] & decoded_wr_biten[10]) 1 -1
+          - 1171:
+            - 2 "10" # (decoded_wr_data[9] & decoded_wr_biten[9]) 1 -1
+          - 1167:
+            - 2 "10" # (decoded_wr_data[8] & decoded_wr_biten[8]) 1 -1
+          - 1163:
+            - 2 "10" # (decoded_wr_data[7] & decoded_wr_biten[7]) 1 -1
+          - 1159:
+            - 2 "10" # (decoded_wr_data[6] & decoded_wr_biten[6]) 1 -1
+          - 1155:
+            - 2 "10" # (decoded_wr_data[5] & decoded_wr_biten[5]) 1 -1
+          - 1151:
+            - 2 "10" # (decoded_wr_data[4] & decoded_wr_biten[4]) 1 -1
+          - 1147:
+            - 2 "10" # (decoded_wr_data[3] & decoded_wr_biten[3]) 1 -1
+          - 1143:
+            - 2 "10" # (decoded_wr_data[2] & decoded_wr_biten[2]) 1 -1
+          - 1139:
+            - 2 "10" # (decoded_wr_data[1] & decoded_wr_biten[1]) 1 -1
+          - 1135:
+            - 2 "10" # (decoded_wr_data[12] & decoded_wr_biten[12]) 1 -1
+          - 1131:
+            - 2 "10" # (decoded_wr_data[11] & decoded_wr_biten[11]) 1 -1
+          - 1127:
+            - 2 "10" # (decoded_wr_data[10] & decoded_wr_biten[10]) 1 -1
+          - 1123:
+            - 2 "10" # (decoded_wr_data[9] & decoded_wr_biten[9]) 1 -1
+          - 1119:
+            - 2 "10" # (decoded_wr_data[8] & decoded_wr_biten[8]) 1 -1
+          - 1115:
+            - 2 "10" # (decoded_wr_data[7] & decoded_wr_biten[7]) 1 -1
+          - 1111:
+            - 2 "10" # (decoded_wr_data[6] & decoded_wr_biten[6]) 1 -1
+          - 1107:
+            - 2 "10" # (decoded_wr_data[5] & decoded_wr_biten[5]) 1 -1
+          - 1103:
+            - 2 "10" # (decoded_wr_data[4] & decoded_wr_biten[4]) 1 -1
+          - 1099:
+            - 2 "10" # (decoded_wr_data[3] & decoded_wr_biten[3]) 1 -1
+          - 1095:
+            - 2 "10" # (decoded_wr_data[2] & decoded_wr_biten[2]) 1 -1
+          - 1091:
+            - 2 "10" # (decoded_wr_data[1] & decoded_wr_biten[1]) 1 -1
+          - 1087:
+            - 2 "10" # (decoded_wr_data[0] & decoded_wr_biten[0]) 1 -1
+          - 1083:
+            - 2 "10" # (decoded_wr_data[31] & decoded_wr_biten[31]) 1 -1
+          - 1079:
+            - 2 "10" # (decoded_wr_data[26] & decoded_wr_biten[26]) 1 -1
+          - 1071:
+            - 2 "10" # (decoded_wr_data[13] & decoded_wr_biten[13]) 1 -1
+          - 1063:
+            - 2 "10" # (decoded_wr_data[11] & decoded_wr_biten[11]) 1 -1
+          - 1055:
+            - 2 "10" # (decoded_wr_data[9] & decoded_wr_biten[9]) 1 -1
+          - 1039:
+            - 2 "10" # (decoded_wr_data[1] & decoded_wr_biten[1]) 1 -1
+          - 1027:
+            - 2 "10" # (decoded_wr_data[26] & decoded_wr_biten[26]) 1 -1
+          - 1019:
+            - 2 "10" # (decoded_wr_data[13] & decoded_wr_biten[13]) 1 -1
+          - 1011:
+            - 2 "10" # (decoded_wr_data[11] & decoded_wr_biten[11]) 1 -1
+          - 1003:
+            - 2 "10" # (decoded_wr_data[9] & decoded_wr_biten[9]) 1 -1
+          - 987:
+            - 2 "10" # (decoded_wr_data[1] & decoded_wr_biten[1]) 1 -1
+          - 983:
+            - 2 "10" # (decoded_wr_data[0] & decoded_wr_biten[0]) 1 -1
+          - 975:
+            - 2 "10" # (decoded_wr_data[26] & decoded_wr_biten[26]) 1 -1
+          - 966:
+            - 2 "10" # (decoded_wr_data[13] & decoded_wr_biten[13]) 1 -1
+          - 958:
+            - 2 "10" # (decoded_wr_data[11] & decoded_wr_biten[11]) 1 -1
+          - 950:
+            - 2 "10" # (decoded_wr_data[9] & decoded_wr_biten[9]) 1 -1
+          - 934:
+            - 2 "10" # (decoded_wr_data[1] & decoded_wr_biten[1]) 1 -1
+          - 930:
+            - 2 "10" # (decoded_wr_data[0] & decoded_wr_biten[0]) 1 -1
+
 
   recovery_handler:
     source_path: src/recovery/recovery_handler.sv

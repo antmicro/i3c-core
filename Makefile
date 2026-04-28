@@ -129,10 +129,9 @@ verification-docs:
 	testplanner $(BLOCKS_VERIFICATION_PLANS) -ot $(TESTPLAN_DIR)/generated/testplans_blocks.md --project-root $(I3C_ROOT_DIR) --testplan-file-map $(TESTPLAN_DIR)/source-maps.yml --source-url-prefix $(REPO_URL)
 	testplanner $(CORE_VERIFICATION_PLANS) -ot $(TESTPLAN_DIR)/generated/testplans_core.md --project-root $(I3C_ROOT_DIR) --testplan-file-map $(TESTPLAN_DIR)/source-maps.yml --source-url-prefix $(REPO_URL)
 
-VERIFICATION_SIM_RESULTS_XMLS = $(shell find $(TESTS_RESULTS_DIR) -type f -name "*.xml" | sort)
 cocotbxml-to-hjson-sim-results:
-	cocotbxml-to-hjson -i $(VERIFICATION_SIM_RESULTS_XMLS) -t $(BLOCKS_VERIFICATION_PLANS) -o $(TESTS_RESULTS_DIR) --tests-base-dir $(TESTS_XML_BASE_PATH) --tests-ignore-dirs venv .venv .pyenv
-	cocotbxml-to-hjson -i $(VERIFICATION_SIM_RESULTS_XMLS) -t $(CORE_VERIFICATION_PLANS) -o $(TESTS_RESULTS_DIR) --tests-base-dir $(TESTS_XML_BASE_PATH) --tests-ignore-dirs venv .venv .pyenv
+	cocotbxml-to-hjson -i $(TESTS_RESULTS_DIR) -t $(BLOCKS_VERIFICATION_PLANS) -o $(TESTS_RESULTS_DIR) --xml-root-dir $(TESTS_XML_BASE_PATH) --tests-ignore-dirs venv .venv .pyenv --test-tracking-summary-dir ./blocks --testplan-file-map $(TESTPLAN_DIR)/source-maps.yml
+	cocotbxml-to-hjson -i $(TESTS_RESULTS_DIR) -t $(CORE_VERIFICATION_PLANS) -o $(TESTS_RESULTS_DIR) --xml-root-dir $(TESTS_XML_BASE_PATH) --tests-ignore-dirs venv .venv .pyenv --test-tracking-summary-dir ./core --testplan-file-map $(TESTPLAN_DIR)/source-maps.yml
 
 BLOCKS_VERIFICATION_SIM_RESULTS = $(shell find $(TESTS_RESULTS_DIR) -type f -name "*.hjson" ! -name "target*.hjson" | sort)
 CORE_VERIFICATION_SIM_RESULTS = $(shell find $(TESTS_RESULTS_DIR) -type f -name "*target*.hjson" | sort)

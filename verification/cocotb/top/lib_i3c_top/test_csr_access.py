@@ -1,6 +1,6 @@
 # SPDX-License-Identifier: Apache-2.0
 
-from itertools import product
+from itertools import chain, product
 import logging
 from math import log2
 import random
@@ -11,7 +11,7 @@ from interface import I3CTopTestInterface
 import cocotb
 from cocotb_helpers import reset_n
 from cocotb.triggers import ClockCycles, RisingEdge, Timer
-from cocotbext.axi import AxiLockType, AxiBurstType
+from cocotbext.axi import AxiLockType, AxiBurstType, AxiResp
 from common import timeout_task, log_seed
 
 

@@ -433,3 +433,73 @@ async def test_read_stall(dut):
             f"iter {i}: HCI_VERSION expected 0x{expected:X}, got 0x{rd_data:X}")
 
     await tb.teardown()
+
+
+@cocotb.test()
+async def test_write_b_channel_skid_full(dut):
+    """
+    Verify that when the B-channel is stalled and two write responses are pending
+    (output stage + hold register of the response skidbuffer), rp_ready drops to 0,
+    req_ready follows, and AWREADY deasserts to prevent a third response from
+    overflowing the skidbuffer.  Releasing the stall drains all responses and all
+    three writes complete with correct data.
+    """
+    tb = await initialize(dut)
+
+    if cocotb.plusargs.get("FrontendBusInterface") != "AXI":
+        dut._log.warning("Skipping: not using AXI frontend")
+        await tb.teardown()
+        return
+
+    b_channel = tb.busIf.axi_m.write_if.b_channel
+
+    test_data = csr_access_test_data(tb.reg_map.I3CBASE, skip_regs=["RESET_CONTROL"])
+    assert len(test_data) >= 3, "Need at least 3 writable registers in I3CBASE"
+    (reg1_name, addr1, wdata1, exp_rd1) = test_data[0]
+    (reg2_name, addr2, wdata2, exp_rd2) = test_data[1]
+    (reg3_name, addr3, wdata3, exp_rd3) = test_data[2]
+
+    # Stall all write responses — no B-channel handshake until we release
+    b_channel.pause = True
+
+    # Write 1: fills the output stage of the response skidbuffer (bvalid=1)
+    task1 = cocotb.start_soon(tb.write_csr(addr1, int2dword(wdata1), 4))
+    while not dut.bvalid.value:
+        await RisingEdge(dut.aclk)
+
+    # Write 2: when its final beat completes with bvalid=1 already asserted,
+    # the skidbuffer hold register fills (r_valid=1) and rp_ready drops to 0.
+    task2 = cocotb.start_soon(tb.write_csr(addr2, int2dword(wdata2), 4))
+    # Allow enough cycles for write 2 to complete its AW+W phases
+    await ClockCycles(dut.aclk, 20)
+
+    # Write 3: AW arrives when req_ready=0 (rp_ready=0), so the request skidbuffer
+    # fills and AWREADY must deassert to apply backpressure
+    task3 = cocotb.start_soon(tb.write_csr(addr3, int2dword(wdata3), 4))
+
+    awready_went_low = False
+    for _ in range(30):
+        await RisingEdge(dut.aclk)
+        if not dut.awready.value:
+            awready_went_low = True
+            break
+
+    assert awready_went_low, "AWREADY did not deassert when response skidbuffer was full"
+
+    # Release the stall — all three responses drain, all three tasks complete
+    b_channel.pause = False
+    await task1
+    await task2
+    await task3
+
+    for reg_name, addr, exp_rd in [
+        (reg1_name, addr1, exp_rd1),
+        (reg2_name, addr2, exp_rd2),
+        (reg3_name, addr3, exp_rd3),
+    ]:
+        rd = bytes2int(await tb.read_csr(addr, 4))
+        assert rd == exp_rd, (
+            f"{reg_name} @ 0x{addr:X}: expected 0x{exp_rd:X}, got 0x{rd:X}"
+        )
+
+    await tb.teardown()

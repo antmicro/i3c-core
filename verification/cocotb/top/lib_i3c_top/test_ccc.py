@@ -2624,6 +2624,100 @@ async def test_ccc_getstatus_sr_abort_clears_protocol_err(dut):
     tb.te_error_monitor.check()
 
 
+@cocotb.test()
+async def test_ccc_getstatus_sr_abort_done_assert(dut):
+    """
+    Verifies that aborting GETSTATUS during T-Bit does not fire get_status_done_o
+    and that the protocol error remains reported.
+
+    RTL path exercised: ccc.sv TxDataTbitCont -> bus_tx_rsp_i.abort -> RxTargetAddr.
+    Because tx_data_complete is never set, get_status_done_o must not pulse.
+    """
+    log = logging.getLogger("test_ccc_getstatus_sr_abort_done_assert")
+    PROTOCOL_ERR_LOW = 5
+
+    (STATIC_ADDR, VIRT_STATIC_ADDR, DYNAMIC_ADDR, VIRT_DYNAMIC_ADDR) = \
+        random.sample(VALID_I3C_ADDRESSES, 4)
+    i3c_controller, _, tb = await test_setup(
+        dut, STATIC_ADDR, VIRT_STATIC_ADDR,
+        dynamic_addr=DYNAMIC_ADDR, virtual_dynamic_addr=VIRT_DYNAMIC_ADDR)
+
+    err_o_sig = dut.xi3c_wrapper.i3c.xcontroller.xcontroller_standby.err_o
+    get_status_done_sig = (
+        dut.xi3c_wrapper.i3c.xcontroller.xcontroller_standby
+        .xcontroller_standby_i3c.xccc.get_status_done_o
+    )
+
+    # Step 1: Trigger a Protocol Error via TE2 to set err_o
+    log.info("Step 1: Triggering TE2 error to set Protocol Error")
+    tb.te_error_monitor.expect_error(2)
+    await i3c_controller.send_te2_error(ccc=0x9A, defining_byte=0x01,
+                                        corrupt_defining_byte=True)
+    await i3c_controller.send_stop()
+    i3c_controller.give_bus_control()
+
+    assert int(err_o_sig.value) == 1, \
+        f"err_o should be 1 after TE2 error, got {int(err_o_sig.value)}"
+    log.info("Step 1 OK: err_o = 1")
+
+    # Step 2: Monitor get_status_done_o — it must never pulse high during the test
+    done_fired = False
+
+    async def monitor_get_status_done():
+        nonlocal done_fired
+        while True:
+            await RisingEdge(tb.clk)
+            if int(get_status_done_sig.value) == 1:
+                done_fired = True
+
+    monitor_task = cocotb.start_soon(monitor_get_status_done())
+
+    # Step 3: Start GETSTATUS, read byte 0, then abort during T-bit with Sr
+    log.info("Step 3: GETSTATUS — read byte 0, Sr abort during T-bit")
+    await i3c_controller.take_bus_control()
+    await i3c_controller.send_start()
+    await i3c_controller.write_addr_header(0x7E)
+    await i3c_controller.send_byte_tbit(CCC.DIRECT.GETSTATUS)
+    await i3c_controller.send_start()
+    ack = await i3c_controller.write_addr_header(DYNAMIC_ADDR, read=True)
+    assert ack, "Target should ACK GETSTATUS"
+
+    # stop=True issues Sr during the T-bit phase (Controller abort)
+    (byte0, _) = await i3c_controller.recv_byte_t_bit(stop=True)
+    log.info(f"Step 3: GETSTATUS byte 0 = 0x{byte0:02X}, Sr abort sent")
+
+    await i3c_controller.send_stop()
+    i3c_controller.give_bus_control()
+
+    monitor_task.kill()
+
+    # Step 4: Verify get_status_done_o never fired
+    assert not done_fired, \
+        "get_status_done_o must NOT fire when GETSTATUS is aborted during T-bit"
+    log.info("Step 4 OK: get_status_done_o did not fire")
+
+    # Step 5: Verify protocol error is still reported (err_o not cleared)
+    err_after = int(err_o_sig.value)
+    assert err_after == 1, (
+        f"err_o should still be 1 after aborted GETSTATUS, got err_o={err_after}")
+    log.info("Step 5 OK: err_o still 1 (protocol error persists)")
+
+    # Step 6: Full GETSTATUS — verify protocol error bit is set, then clears err_o
+    responses = await i3c_controller.i3c_ccc_read(
+        ccc=CCC.DIRECT.GETSTATUS, addr=DYNAMIC_ADDR, count=2)
+    assert responses[0][0], "Target should ACK full GETSTATUS"
+    status = int.from_bytes(responses[0][1], byteorder="big", signed=False)
+    log.info(f"Step 6: Full GETSTATUS returned 0x{status:04X}")
+    assert ((status >> PROTOCOL_ERR_LOW) & 1) == 1, \
+        f"Protocol error bit should be set in GETSTATUS status=0x{status:04X}"
+
+    err_final = int(err_o_sig.value)
+    assert err_final == 0, \
+        f"err_o should be 0 after full GETSTATUS, got {err_final}"
+    log.info("Step 6 OK: err_o = 0 (recovery complete)")
+    tb.te_error_monitor.check()
+
+
 # =============================================================================
 # SETMWL Sr Abort: Partial data must not corrupt CSRs
 # =============================================================================

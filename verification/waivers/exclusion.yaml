@@ -3113,65 +3113,6 @@ exclusions:
         - data_len_words: [7-31]
 
 
-  controller_standby_i2c:
-    source_path: src/ctrl/controller_standby_i2c.sv
-    source_sha: f394f38f45636eebedf11a339ca31fbba2d34d5a34bf723e711c03cbb94d9c8a
-    all:
-      I3C spec defines this value to be constant 'h02:
-        toggle:
-        - target_hot_join_addr_i
-
-      Tied to 0, is TODO:
-        toggle:
-        - phy_sel_od_pp_o
-
-      Unused in 64 FIFO depth configurations:
-        toggle:
-        - rx_desc_queue_ready_thld_i: [6-7]
-        - tx_desc_queue_ready_thld_i: [6-7]
-
-      Reserved upper 3 bits of the RX descriptor ERROR field:
-        toggle:
-        - rx_desc_queue_wdata_o: [29-31]
-
-      Meaningless bits:
-        toggle:
-        - rx_desc_queue_wdata_o: [16-27]
-
-      Unachievable RX descriptor DATA_LENGTH field values:
-        toggle:
-        - rx_desc_queue_wdata_o: [9-15]
-
-      Tied to 0, is TODO, make i2c fsm report start/stop condition:
-        toggle:
-        - bus_start_o
-        - bus_rstart_o
-        - bus_stop_o
-
-      Tied to 0, is TODO, make i2c fsm output address:
-        toggle:
-        - bus_addr_o
-        - bus_addr_valid_o
-
-      Tied to 0, is TODO, detect host NACKs and expose:
-        toggle:
-        - tx_host_nack_o
-
-      I2C target/controller modules are not enabled:
-        toggle:
-        - i2c_active_en_i
-        - i2c_standby_en_i
-
-      Tied to 0:
-        toggle:
-        - pid_i: [32]
-        - virtual_pid_i: [32]
-
-      PID[32]:
-        toggle:
-        - daa_unique_response_i: [48]
-
-
   controller_standby:
     source_path: src/ctrl/controller_standby.sv
     source_sha: f394f38f45636eebedf11a339ca31fbba2d34d5a34bf723e711c03cbb94d9c8a
@@ -3801,14 +3742,6 @@ exclusions:
         - SOC_MGMT_RSVD_2
         - SOC_MGMT_RSVD_3
         - __rsvd_3
-
-  flow_standby_i2c:
-    source_path: src/ctrl/flow_standby_i2c.sv
-    source_sha: 09e039a8d26743db89d1d6a27927910e3c5d07a6276792e6add40bfb0a9c014e
-    all:
-      Reserved:
-        toggle:
-          - response_fifo_wdata_o.__rsvd23_16
 
   flow_standby_i2c_harness:
     source_path: verification/cocotb/block/flow_standby_i2c/flow_standby_i2c_harness.sv

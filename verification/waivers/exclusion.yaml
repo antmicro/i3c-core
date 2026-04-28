@@ -3486,6 +3486,13 @@ exclusions:
         - state_d: [2]
         - state_q: [2]
 
+  i3c_bus_monitor:
+    source_path: src/ctrl/i3c_bus_monitor.sv
+    all:
+      Upper bits of a counter:
+        toggle:
+          - hdr_timeout_cnt: [8-19]
+
 
   controller_standby_i3c:
     source_path: src/ctrl/controller_standby_i3c.sv

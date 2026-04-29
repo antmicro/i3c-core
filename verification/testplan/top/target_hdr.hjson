@@ -89,5 +89,11 @@
       tests: ["hdr_exit_pattern_works_alongside_timer"]
       tags: ["top"]
     }
+    {
+      name: cycle_all_hdr_modes
+      desc: ''
+      tests: ["cycle_all_hdr_modes"]
+      tags: ["top"]
+    }
   ]
 }

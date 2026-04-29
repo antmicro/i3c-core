@@ -442,7 +442,6 @@ exclusions:
         - hwif_rec_inp.PROT_CAP_2.REC_PROT_VERSION.next
         - arlock_i
         - awlock_i
-        - wuser_i
 
       Handshake where valid is asserted only if ready is asserted:
         cond:

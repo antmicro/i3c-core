@@ -65,11 +65,22 @@ async def test_empty_indirect_fifo_read(dut):
 @cocotb.test()
 async def test_full_tx_desc_write(dut):
     tb = await initialize(dut)
-    for _ in range(TRANSACTION_COUNT):
+    QSIZE = tb.reg_map.I3C_EC.TTI.QUEUE_SIZE
+    QDEPTH = tb.reg_map.I3C_EC.TTI.DESC_QUEUE_DEPTH
+    QSTAT = tb.reg_map.I3C_EC.TTI.QUEUE_STATUS
+    MAX_DEPTH = 2 ** (await tb.read_csr_field(QSIZE.base_addr, QSIZE.TX_DESC_BUFFER_SIZE) + 1)
+
+    for i in range(TRANSACTION_COUNT):
         await tb.write_csr(tb.reg_map.I3C_EC.TTI.TX_DESC_QUEUE_PORT.base_addr, int2dword(random.randint(0, 0xffffffff)), 4)
+        if i < MAX_DEPTH:
+            depth = await tb.read_csr_field(QDEPTH.base_addr, QDEPTH.TX_DESC_QUEUE_DEPTH)
+            assert i + 1 == depth, "Transaction did not increase queue depth"
+
     # Bus must not stall — verify it's still responsive
     data = dword2int(await tb.read_csr(tb.reg_map.I3CBASE.HCI_VERSION.base_addr, 4))
     assert data == 0x120, f"Bus stalled: HCI_VERSION read returned 0x{data:X} after {TRANSACTION_COUNT} TX_DESC writes"
+
+    assert await tb.read_csr_field(QSTAT.base_addr, QSTAT.TX_DESC_QUEUE_FULL) == 1, "Queue is not full"
 
     await reset_n(tb.clk, tb.rst_n, cycles=5)
     await tb.teardown()
@@ -77,11 +88,22 @@ async def test_full_tx_desc_write(dut):
 @cocotb.test()
 async def test_full_tx_data_write(dut):
     tb = await initialize(dut)
-    for _ in range(TRANSACTION_COUNT):
+    QSIZE = tb.reg_map.I3C_EC.TTI.QUEUE_SIZE
+    QDEPTH = tb.reg_map.I3C_EC.TTI.DATA_QUEUE_DEPTH
+    QSTAT = tb.reg_map.I3C_EC.TTI.QUEUE_STATUS
+    MAX_DEPTH = 2 ** (await tb.read_csr_field(QSIZE.base_addr, QSIZE.TX_DATA_BUFFER_SIZE) + 1)
+
+    for i in range(TRANSACTION_COUNT):
         await tb.write_csr(tb.reg_map.I3C_EC.TTI.TX_DATA_PORT.base_addr, int2dword(random.randint(0, 0xffffffff)), 4)
+        if i <= MAX_DEPTH+1 and i > 0:
+            depth = await tb.read_csr_field(QDEPTH.base_addr, QDEPTH.TX_DATA_QUEUE_DEPTH)
+            assert i == depth + 1, "Transaction did not increase queue depth"
+
     # Bus must not stall — verify it's still responsive
     data = dword2int(await tb.read_csr(tb.reg_map.I3CBASE.HCI_VERSION.base_addr, 4))
     assert data == 0x120, f"Bus stalled: HCI_VERSION read returned 0x{data:X} after {TRANSACTION_COUNT} TX_DATA writes"
+
+    assert await tb.read_csr_field(QSTAT.base_addr, QSTAT.TX_DATA_QUEUE_FULL) == 1, "Queue is not full"
 
     await reset_n(tb.clk, tb.rst_n, cycles=5)
     await tb.teardown()
@@ -89,11 +111,22 @@ async def test_full_tx_data_write(dut):
 @cocotb.test()
 async def test_full_ibi_write(dut):
     tb = await initialize(dut)
-    for _ in range(TRANSACTION_COUNT):
+    QSIZE = tb.reg_map.I3C_EC.TTI.IBI_QUEUE_SIZE
+    QDEPTH = tb.reg_map.I3C_EC.TTI.IBI_QUEUE_DEPTH
+    QSTAT = tb.reg_map.I3C_EC.TTI.QUEUE_STATUS
+    MAX_DEPTH = 2 ** (await tb.read_csr_field(QSIZE.base_addr, QSIZE.IBI_QUEUE_SIZE) + 1)
+
+    for i in range(TRANSACTION_COUNT):
         await tb.write_csr(tb.reg_map.I3C_EC.TTI.IBI_PORT.base_addr, int2dword(random.randint(0, 0xffffffff)), 4)
+        if i < MAX_DEPTH:
+            depth = await tb.read_csr_field(QDEPTH.base_addr, QDEPTH.IBI_QUEUE_DEPTH)
+            assert i + 1 == depth, "Transaction did not increase queue depth"
+
     # Bus must not stall — verify it's still responsive
     data = dword2int(await tb.read_csr(tb.reg_map.I3CBASE.HCI_VERSION.base_addr, 4))
     assert data == 0x120, f"Bus stalled: HCI_VERSION read returned 0x{data:X} after {TRANSACTION_COUNT} IBI writes"
+
+    assert await tb.read_csr_field(QSTAT.base_addr, QSTAT.IBI_QUEUE_FULL) == 1, "Queue is not full"
 
     await reset_n(tb.clk, tb.rst_n, cycles=5)
     await tb.teardown()

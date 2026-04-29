@@ -340,17 +340,23 @@ async def test_rx_desc_overflow(dut):
 
     # Setup
     i3c_controller, _, tb = await test_setup(dut, timeout_us=500)
+    QSIZE = tb.reg_map.I3C_EC.TTI.QUEUE_SIZE
+    QDEPTH = tb.reg_map.I3C_EC.TTI.DESC_QUEUE_DEPTH
+    QSTAT = tb.reg_map.I3C_EC.TTI.QUEUE_STATUS
+    MAX_DEPTH = 2 ** (await tb.read_csr_field(QSIZE.base_addr, QSIZE.RX_DESC_BUFFER_SIZE) + 1)
 
-    for _ in range(65):
+    for i in range(MAX_DEPTH):
         data = [random.randint(0, 255) for i in range(4)]
         await i3c_controller.i3c_write(TARGET_ADDRESS, data)
+        depth = await tb.read_csr_field(QDEPTH.base_addr, QDEPTH.RX_DESC_QUEUE_DEPTH)
+        assert i + 1 == depth, "Transaction did not increase queue depth"
 
-    assert tb.dut.xi3c_wrapper.i3c.tti_rx_desc_full.value == 1
+    assert await tb.read_csr_field(QSTAT.base_addr, QSTAT.RX_DESC_QUEUE_FULL) == 1, "Queue is not full, but it should be"
 
     await tb.read_csr(tb.reg_map.I3C_EC.TTI.RX_DESC_QUEUE_PORT.base_addr, 4)
 
     await ClockCycles(tb.clk, 50)
 
-    assert tb.dut.xi3c_wrapper.i3c.tti_rx_desc_full.value == 0
+    assert await tb.read_csr_field(QSTAT.base_addr, QSTAT.RX_DESC_QUEUE_FULL) == 0, "Queue is full, but it should not be"
 
     await tb.teardown()

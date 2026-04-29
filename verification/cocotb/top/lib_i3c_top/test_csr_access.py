@@ -294,6 +294,7 @@ async def test_basic_burst_write(dut):
                 start_addr,
                 bytes(wdata),
                 user=awuser,
+                wuser=awuser,
                 lock=awlock,
                 size=awsize,
                 burst=awburst

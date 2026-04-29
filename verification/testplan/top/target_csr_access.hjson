@@ -74,7 +74,8 @@
         '''
       tests: [
         "test_write_stall",
-        "test_read_stall"
+        "test_read_stall",
+        "test_write_b_channel_skid_full"
       ]
       tags: ["top"]
     }

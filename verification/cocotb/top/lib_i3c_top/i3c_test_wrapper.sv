@@ -72,6 +72,7 @@ module i3c_test_wrapper #(
 
     input  logic [AxiDataWidth-1:0] wdata,
     input  logic [AxiDataWidth/8-1:0] wstrb,
+    input  logic [  AxiUserWidth-1:0] wuser,
     input  logic                    wlast,
     input  logic                    wvalid,
     output logic                    wready,
@@ -227,7 +228,7 @@ i3c_wrapper xi3c_wrapper (
     .wlast_i(wlast),
     .wvalid_i(wvalid),
     .wready_o(wready),
-    .wuser_i('0),
+    .wuser_i(wuser),
 
     .bresp_o(bresp),
     .bid_o(bid),

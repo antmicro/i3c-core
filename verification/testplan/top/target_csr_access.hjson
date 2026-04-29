@@ -73,9 +73,9 @@
         for random time, release the bus and compare with expected output.
         '''
       tests: [
-        "test_write_stall",
-        "test_read_stall",
-        "test_write_b_channel_skid_full"
+        "write_stall",
+        "read_stall",
+        "write_b_channel_skid_full"
       ]
       tags: ["top"]
     }

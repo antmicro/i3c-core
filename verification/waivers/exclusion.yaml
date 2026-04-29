@@ -1237,6 +1237,13 @@ exclusions:
           - 1557 # (hwif_in.PIOControl.IBI_PORT.rd_ack ? hwif_in.PIOControl.IBI_PORT.rd_data : '0) 1 -1
           - 1556 # (hwif_in.PIOControl.RX_DATA_PORT.rd_ack ? hwif_in.PIOControl.RX_DATA_PORT.rd_data : '0) 1 -1
           - 1555 # (hwif_in.PIOControl.RESPONSE_PORT.rd_ack ? hwif_in.PIOControl.RESPONSE_PORT.rd_data : '0) 1 -1
+        branch:
+          - 84:
+            - 0 # hwif_in.PIOControl.IBI_PORT.rd_ack 1
+          - 82:
+            - 0 # hwif_in.PIOControl.RESPONSE_PORT.rd_ack 1
+          - 83:
+            - 0 # hwif_in.PIOControl.RX_DATA_PORT.rd_ack 1
 
       PeakRDL does not currently handle bus error conditions:
         toggle:
@@ -1445,6 +1452,7 @@ exclusions:
         - hwif_in.I3C_EC.StdbyCtrlMode.STBY_CR_CCC_CONFIG_RSTACT_PARAMS.RST_ACTION.next: [2-7]
         - hwif_out.I3C_EC.StdbyCtrlMode.STBY_CR_CCC_CONFIG_RSTACT_PARAMS.RST_ACTION.value: [2-7]
         - field_storage.I3C_EC.StdbyCtrlMode.STBY_CR_CCC_CONFIG_RSTACT_PARAMS.RST_ACTION.value: [2-7]
+        - field_combo.I3C_EC.StdbyCtrlMode.STBY_CR_CCC_CONFIG_RSTACT_PARAMS.RST_ACTION.next: [2-7]
 
       Controller mode placeholder CSRs:
         toggle:
@@ -2384,6 +2392,9 @@ exclusions:
       DCT:
         cond:
           - 2288 # (hwif_in.DCT.rd_ack ? hwif_in.DCT.rd_data : '0) 1 -1
+        branch:
+          - 452:
+            - 0 # hwif_in.DCT.rd_ack 1
 
       No SW write for RO register:
         cond:
@@ -3031,6 +3042,62 @@ exclusions:
           - 700:
             - 0 # hwif_in.I3C_EC.SecFwRecoveryIf.INDIRECT_FIFO_STATUS_0.REGION_TYPE.we 1
           - 701:
+            - 1 # (~hwif_in.rst_ni) 0,1
+          - 707:
+            - 0 # hwif_in.I3C_EC.SecFwRecoveryIf.INDIRECT_FIFO_RESERVED.DATA.we 1
+          - 723:
+            - 1 # (decoded_reg_strb.I3C_EC.StdbyCtrlMode.STBY_CR_CONTROL && decoded_req_is_wr) 0,1
+          - 1186:
+            - 0 # hwif_in.I3C_EC.CtrlCfg.CONTROLLER_CONFIG.OPERATION_MODE.we 1
+          - 1104:
+            - 1 # (decoded_reg_strb.I3C_EC.TTI.QUEUE_THLD_CTRL && decoded_req_is_wr) 0,1
+          - 916:
+            - 1 # (decoded_reg_strb.I3C_EC.TTI.INTERRUPT_STATUS && decoded_req_is_wr) 0,1
+          - 912:
+            - 1 # (decoded_reg_strb.I3C_EC.TTI.INTERRUPT_STATUS && decoded_req_is_wr) 0,1
+          - 905:
+            - 1 # (decoded_reg_strb.I3C_EC.TTI.INTERRUPT_STATUS && decoded_req_is_wr) 0,1
+          - 901:
+            - 1 # (decoded_reg_strb.I3C_EC.TTI.INTERRUPT_STATUS && decoded_req_is_wr) 0,1
+          - 897:
+            - 1 # (decoded_reg_strb.I3C_EC.TTI.INTERRUPT_STATUS && decoded_req_is_wr) 0,1
+          - 895:
+            - 1 # (decoded_reg_strb.I3C_EC.TTI.INTERRUPT_STATUS && decoded_req_is_wr) 0,1
+          - 893:
+            - 1 # (decoded_reg_strb.I3C_EC.TTI.INTERRUPT_STATUS && decoded_req_is_wr) 0,1
+          - 875:
+            - 1 # (decoded_reg_strb.I3C_EC.TTI.RESET_CONTROL && decoded_req_is_wr) 0,1
+          - 852:
+            - 1 # (decoded_reg_strb.I3C_EC.StdbyCtrlMode.STBY_CR_VIRT_DEVICE_ADDR && decoded_req_is_wr) 0,1
+          - 850:
+            - 1 # (decoded_reg_strb.I3C_EC.StdbyCtrlMode.STBY_CR_VIRT_DEVICE_ADDR && decoded_req_is_wr) 0,1
+          - 848:
+            - 1 # (decoded_reg_strb.I3C_EC.StdbyCtrlMode.STBY_CR_CCC_CONFIG_RSTACT_PARAMS && decoded_req_is_wr) 0,1
+          - 831:
+            - 1 # (decoded_reg_strb.I3C_EC.StdbyCtrlMode.STBY_CR_INTR_FORCE && decoded_req_is_wr) 0,1
+          - 813:
+            - 1 # (decoded_reg_strb.I3C_EC.StdbyCtrlMode.STBY_CR_INTR_SIGNAL_ENABLE && decoded_req_is_wr) 0,1
+          - 785:
+            - 1 # (decoded_reg_strb.I3C_EC.StdbyCtrlMode.STBY_CR_INTR_STATUS && decoded_req_is_wr) 0,1
+          - 737:
+            - 1 # (decoded_reg_strb.I3C_EC.StdbyCtrlMode.STBY_CR_DEVICE_ADDR && decoded_req_is_wr) 0,1
+          - 735:
+            - 1 # (decoded_reg_strb.I3C_EC.StdbyCtrlMode.STBY_CR_DEVICE_ADDR && decoded_req_is_wr) 0,1
+          - 729:
+            - 1 # (decoded_reg_strb.I3C_EC.StdbyCtrlMode.STBY_CR_CONTROL && decoded_req_is_wr) 0,1
+          - 727:
+            - 1 # (decoded_reg_strb.I3C_EC.StdbyCtrlMode.STBY_CR_CONTROL && decoded_req_is_wr) 0,1
+          - 725:
+            - 1 # (decoded_reg_strb.I3C_EC.StdbyCtrlMode.STBY_CR_CONTROL && decoded_req_is_wr) 0,1
+          - 717:
+            - 1 # (decoded_reg_strb.I3C_EC.StdbyCtrlMode.STBY_CR_CONTROL && decoded_req_is_wr) 0,1,-
+            - 2 # (decoded_reg_strb.I3C_EC.StdbyCtrlMode.STBY_CR_CONTROL && decoded_req_is_wr) 0,0,1
+
+      load_next tied to 0:
+        branch:
+          - 708:
+            - 1 # (~hwif_in.rst_ni) 0,1
+          - 1187:
             - 1 # (~hwif_in.rst_ni) 0,1
 
   recovery_handler:

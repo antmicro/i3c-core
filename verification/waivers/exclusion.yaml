@@ -585,6 +585,26 @@ exclusions:
         - hwif_tti_o.QUEUE_THLD_CTRL.RX_DESC_THLD.next: [6-7]
         - hwif_tti_o.QUEUE_THLD_CTRL.TX_DESC_THLD.next: [6-7]
 
+      Read/write only port:
+        cond:
+          - 2: [2 "10"]  # hwif_tti_o.RX_DESC_QUEUE_PORT.rd_ack = hwif_tti_i.RX_DESC_QUEUE_PORT.req & ~hwif_tti_i.RX_DESC_QUEUE_PORT.req_is_wr;
+          - 4: [2 "10"]  # hwif_tti_o.TX_DESC_QUEUE_PORT.wr_ack = hwif_tti_i.TX_DESC_QUEUE_PORT.req & hwif_tti_i.TX_DESC_QUEUE_PORT.req_is_wr;
+          - 5: [2 "10"]  # tx_desc_queue_req_o  = hwif_tti_i.TX_DESC_QUEUE_PORT.req & hwif_tti_i.TX_DESC_QUEUE_PORT.req_is_wr;
+          - 7: [2 "10"]  # hwif_tti_o.RX_DATA_PORT.rd_ack = hwif_tti_i.RX_DATA_PORT.req & ~hwif_tti_i.RX_DATA_PORT.req_is_wr;
+          - 9: [2 "10"]  # hwif_tti_o.TX_DATA_PORT.wr_ack = hwif_tti_i.TX_DATA_PORT.req & hwif_tti_i.TX_DATA_PORT.req_is_wr;
+          - 10: [2 "10"]  # tx_data_queue_req_o = hwif_tti_i.TX_DATA_PORT.req & hwif_tti_i.TX_DATA_PORT.req_is_wr;
+          - 12: [2 "10"]  # hwif_tti_o.IBI_PORT.wr_ack = hwif_tti_i.IBI_PORT.req & hwif_tti_i.IBI_PORT.req_is_wr;
+          - 13: [2 "10"]  # ibi_queue_req_o = hwif_tti_i.IBI_PORT.req & hwif_tti_i.IBI_PORT.req_is_wr;
+
+      Unreachable or guaranteed due to parent condition:
+        cond:
+          - 2: [1 "01"]  # hwif_tti_o.RX_DESC_QUEUE_PORT.rd_ack = hwif_tti_i.RX_DESC_QUEUE_PORT.req & ~hwif_tti_i.RX_DESC_QUEUE_PORT.req_is_wr;
+          - 4: [1 "01"]  # hwif_tti_o.TX_DESC_QUEUE_PORT.wr_ack = hwif_tti_i.TX_DESC_QUEUE_PORT.req & hwif_tti_i.TX_DESC_QUEUE_PORT.req_is_wr;
+          - 7: [1 "01"]  # hwif_tti_o.RX_DATA_PORT.rd_ack = hwif_tti_i.RX_DATA_PORT.req & ~hwif_tti_i.RX_DATA_PORT.req_is_wr;
+          - 9: [1 "01"]  # hwif_tti_o.TX_DATA_PORT.wr_ack = hwif_tti_i.TX_DATA_PORT.req & hwif_tti_i.TX_DATA_PORT.req_is_wr;
+          - 12: [1 "01"]  # hwif_tti_o.IBI_PORT.wr_ack = hwif_tti_i.IBI_PORT.req & hwif_tti_i.IBI_PORT.req_is_wr;
+          - 22: [1 "01"]  # interrupt xintr5 (.irq_i(~virtual_device_sel_i & tx_pr_start_i))
+
 
   queues:
     source_path: src/hci/queues.sv

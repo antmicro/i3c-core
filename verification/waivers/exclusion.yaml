@@ -3359,6 +3359,66 @@ exclusions:
         toggle:
         - rx_data_count: [2-7]
 
+      Defining byte can never be valid or non-zero for commands without defining byte:
+        cond:
+          - 92: [1 "011", 2 "101"]  # assign unsupported_defining_byte = have_defining_byte & defining_byte_valid & ((command_code == CCC_DIRECT_RSTACT) & ~(defining_byte inside {8'h00, 8'h01, 8'h02, 8'h04, 8'h81, 8'h82, 8'h84})| (command_code == CCC_DIRECT_GETCAPS) & ~(defining_byte inside {8'h00, 8'h93}));
+
+      Command code can never be non-zero if not valid:
+        cond:
+          - 117: [2 "1011"]  # assign get_status_done_o = done_fsm_o && command_code_valid && (command_code == CCC_DIRECT_GETSTATUS) && tx_data_complete;
+          - 51: [1 "01"]  # if ((command_code_valid && (command_code == CCC_BCAST_RSTACT)) || (target_addr_ack_done && target_addr_matches_any && ((command_code == CCC_DIRECT_RSTACT) || (command_code == CCC_DIRECT_GETSTATUS))))
+
+      Defining byte can never be non-zero if not valid:
+        cond:
+          - 35: [3 "10"]  # if (!defining_byte_valid || defining_byte == 8'h00)
+          - 38: [1 "01"]  # if (defining_byte_valid && defining_byte == 8'h93)
+
+      Unsupported Sub Cmd Byte:
+        line:
+          - 1098  # state_d = WaitCCC;
+        branch:
+          - 11: [44]  # unique case (state_q): RxSubCmdByte
+
+      Num of received bytes will never be higher than 1 for SETDASA, SETNEWDA, ENEC and DISEC:
+        cond:
+          - 12: [2 "1011"]  # if (framing_err_det_en_i && rx_byte_num == 2'd0 && (command_code == CCC_DIRECT_SETDASA || command_code == CCC_DIRECT_SETNEWDA) && rx_data[0] == 1'b1)
+          - 40: [1 "0"]  # CCC_DIRECT_SETDASA: if (rx_byte_num == 2'd0)
+          - 41: [1 "0"]  # CCC_DIRECT_SETNEWDA: if (rx_byte_num == 2'd0)
+          - 42: [1 "0"]  # CCC_DIRECT_ENEC: if (rx_byte_num == 2'd0)
+          - 43: [1 "0"]  # CCC_DIRECT_DISEC: if (rx_byte_num == 2'd0)
+          - 44: [1 "0"]  # CCC_BCAST_ENEC: if (rx_byte_num == 2'd0)
+          - 45: [1 "0"]  # CCC_BCAST_DISEC: if (rx_byte_num == 2'd0)
+
+      Not needed else statements in CCC registers FSM:
+        branch:
+          - 19:
+            - 1  # CCC_DIRECT_SETDASA: if (rx_byte_num == 2'd0)
+            - 3  # CCC_DIRECT_SETNEWDA: if (rx_byte_num == 2'd0)
+            - 12  # CCC_DIRECT_ENEC: if (rx_byte_num == 2'd0)
+            - 14  # CCC_DIRECT_DISEC: if (rx_byte_num == 2'd0)
+            - 23  # CCC_BCAST_ENEC: if (rx_byte_num == 2'd0)
+            - 25  # CCC_BCAST_DISEC: if (rx_byte_num == 2'd0)
+          - 23:
+            - 2  # CCC_BCAST_RSTACT: if (def_byte_tbit_valid)
+            - 9  # CCC_DIRECT_RSTACT: if (target_addr_ack_done && addr_ack && ~target_rnw)
+
+      Not needed default statements in CCC registers FSM:
+        branch:
+          - 19:
+            - 6  # CCC_DIRECT_SETMWL: case (rx_byte_num)
+            - 10  # CCC_DIRECT_SETMRL: case (rx_byte_num)
+            - 17  # CCC_BCAST_SETMWL: case (rx_byte_num)
+            - 21  # CCC_BCAST_SETMRL: case (rx_byte_num)
+
+      Defining byte can never be set to value other than 0x1-0x2 or 0x4:
+        cond:
+          - 49: [1 "0"]  # CCC_DIRECT_RSTACT: else if(defining_byte == 8'h04)
+
+      Reset action is never set if reset is not armed:
+        cond:
+          - 125: [1 "01"]  # assign set_peripheral_reset = target_reset_detect_i && ((rstact_armed_q && (rst_action_q == 8'h01)) || (~rstact_armed_q && ~escalate_rst_arm_q));
+          - 130: [1 "01"]  # assign set_escalate_reset = target_reset_detect_i && ((rstact_armed_q && (rst_action_q == 8'h02)) || (~rstact_armed_q && escalate_rst_arm_q));
+
 
   ccc_entdaa:
     source_path: src/ctrl/ccc_entdaa.sv

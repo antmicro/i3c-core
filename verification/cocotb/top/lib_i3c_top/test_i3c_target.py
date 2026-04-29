@@ -90,6 +90,11 @@ async def test_setup(dut, fclk=333.0, fbus=12.5,
 
 # Receiver agent (firmware side)
 async def rx_agent(tb, data_transfers):
+    QSIZE = tb.reg_map.I3C_EC.TTI.QUEUE_SIZE
+    QDEPTH = tb.reg_map.I3C_EC.TTI.DATA_QUEUE_DEPTH
+    QSTAT = tb.reg_map.I3C_EC.TTI.QUEUE_STATUS
+    MAX_DEPTH = 2 ** (await tb.read_csr_field(QSIZE.base_addr, QSIZE.RX_DATA_BUFFER_SIZE) + 1)
+
     recv_data = []
 
     # Enable RX descriptor interrupt
@@ -134,8 +139,14 @@ async def rx_agent(tb, data_transfers):
 
         # Read RX data
         data_len = ceil(desc_len / 4)
+        assert data_len <= MAX_DEPTH
+        if data_len == MAX_DEPTH:
+            assert await tb.read_csr_field(QSTAT.base_addr, QSTAT.RX_DATA_QUEUE_FULL) == 1, "Queue is not full, but it should be"
+
         rx_data = []
-        for _ in range(data_len):
+        for i in range(data_len):
+            depth = await tb.read_csr_field(QDEPTH.base_addr, QDEPTH.RX_DATA_QUEUE_DEPTH)
+            assert depth == data_len - i, f"Unexpected queue depth: {depth}"
             data = dword2int(await tb.read_csr(tb.reg_map.I3C_EC.TTI.RX_DATA_PORT.base_addr, 4))
             for k in range(4):
                 rx_data.append((data >> (k * 8)) & 0xFF)

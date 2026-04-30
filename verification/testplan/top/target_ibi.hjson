@@ -339,15 +339,6 @@
       tags: ["top"]
     }
     {
-      name: ibi_long_payload
-      desc:
-        '''
-        Send an IBI request with data equal to the IBI queue depth.
-        '''
-      tests: [""]
-      tags: ["top"]
-    }
-    {
       name: ibi_retry_count_limit
       desc:
         '''

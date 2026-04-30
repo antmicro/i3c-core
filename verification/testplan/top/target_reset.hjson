@@ -152,15 +152,5 @@
       tests: ["mixed_valid_and_invalid_patterns"]
       tags: ["top"]
     }
-    {
-      name: rstact_csrs_read
-      desc:
-        '''
-        Send random reset patterns to the core. Read RSTACT CSRs and compare
-        the value with sent pattern.
-        '''
-      tests: ["rstact_csrs_read"]
-      tags: ["top"]
-    }
   ]
 }

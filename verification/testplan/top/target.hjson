@@ -329,15 +329,6 @@
       tags: ["top"]
     }
     {
-      name: rx_descriptor_overflow
-      desc:
-        '''
-        Perform a large number of short private writes causing an RX descriptor queue overflow.
-        '''
-      tests: [""]
-      tags: ["top"]
-    }
-    {
       name: descriptor_queues_stress
       desc:
         '''

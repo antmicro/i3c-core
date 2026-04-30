@@ -4170,6 +4170,29 @@ exclusions:
         toggle:
         - state_q: [3-7]
 
+      IBI queue cannot be flushed in WriteMdb state:
+        cond:
+          - 2  # WriteMdb: if (data_words == 0)
+          - 3  # WriteMdb: state_d = (data_words == 8'd1) ? Idle : Flush;
+          - 4  # WriteMdb: state_d = (data_words == 8'd1) ? Idle : Flush;
+        branch:
+          - 0:  # case (state_q)
+            - 5  # WriteMdb: state_d = Idle;
+            - 6  # WriteMdb: state_d = (data_words == 8'd1) ? Idle : Flush;
+            - 7  # WriteMdb: state_d = (data_words == 8'd1) ? Idle : Flush;
+
+      IBI queue cannot fit more than 251 data bytes so data byte counter cannot reach 252:
+        cond:
+          - 8: [1 "0"]  # WriteData: if (data_cnt_q[7:2] != '1)
+          - 12: [1 "0"]  # Flush: if (data_cnt_q[7:2] != '1)
+        line:
+          - 132  # data_cnt_d = '0;
+          - 133  # state_d = Idle;
+        branch:
+          - 0:  # case (state_q)
+            - 12  # WriteData: data_cnt_d = '0;
+            - 18  # Flush: data_cnt_d = '0;
+
 
   ccc:
     source_path: src/ctrl/ccc.sv

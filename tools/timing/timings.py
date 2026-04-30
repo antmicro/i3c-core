@@ -2,6 +2,7 @@
 
 import logging
 import math
+import argparse
 
 # --- 1. BASE SPECIFICATION CONSTRAINTS ---
 # Absolute minimums according to the I3C Basic/I2C FM spec (in nanoseconds)
@@ -79,7 +80,7 @@ def generate_timings(f_scl: float, f_sys: float, duty_cycle: float = 0.5) -> dic
     
     # Enforce maximum f_SCL limit
     if f_scl > MAX_F_SCL:
-        logging.warning(
+        logging.error(
             f"Requested f_SCL ({f_scl/1e6:.2f} MHz) exceeds the maximum allowed "
             f"limit! Clamping f_SCL to {MAX_F_SCL/1e6:.2f} MHz."
         )
@@ -97,7 +98,7 @@ def generate_timings(f_scl: float, f_sys: float, duty_cycle: float = 0.5) -> dic
 
     # Check if the requested parameters violate the baseline I3C specs
     if t_high_req_ns < min_t_high or t_low_req_ns < min_t_low:
-        logging.warning(
+        logging.error(
             f"Target f_SCL ({f_scl/1e6:.2f} MHz) with {duty_cycle*100:.0f}% duty cycle "
             f"yields T_HIGH={t_high_req_ns:.1f}ns and T_LOW={t_low_req_ns:.1f}ns. "
             f"This violates I3C limits! Overriding to safe minimums "
@@ -144,3 +145,89 @@ def log_timing_configuration(timings: dict, f_sys: float = None):
             logging.info(f"{key:<16} | {cycles:<8}")
             
     logging.info("================================")
+
+def print_myst_table(timings: dict, f_sys: float, target_name: str):
+    """Prints the timing configuration as a MyST list-table."""
+    t_sys_ns = 1e9 / f_sys
+    target_scl_mhz = 1e9 / (timings['T_HIGH']*t_sys_ns + timings['T_LOW']*t_sys_ns) / 1e6
+    
+    # Safe reference name (lowercase, no spaces)
+    ref_name = f"timing-csr-{target_name.lower().replace(' ', '-')}"
+
+    # Print header context outside the table
+    print(f"### {target_name} Configuration\n")
+    print(f"**System Clock:** {f_sys / 1e6:.2f} MHz | **Target SCL:** {target_scl_mhz:.2f} MHz\n")
+    
+    # Print the MyST table
+    print(f":::{{list-table}} {target_name} Timing Registers")
+    print(f":name: {ref_name}")
+    print(":widths: 40 30 30")
+    print(":header-rows: 1\n")
+    
+    # Table Headers
+    print("* - **Register**")
+    print("  - **Cycles**")
+    print("  - **Time (ns)**")
+    
+    # Table Data
+    for key, cycles in timings.items():
+        time_ns = cycles * t_sys_ns
+        print(f"* - {key}")
+        print(f"  - {cycles}")
+        print(f"  - {time_ns:.2f}")
+        
+    print(":::\n")
+
+if __name__ == "__main__":
+    parser = argparse.ArgumentParser(description="Generate and validate I3C timings.")
+    
+    parser.add_argument(
+        "--freq", 
+        type=float, 
+        default=200.0e6,
+        help="System clock frequency in Hz (Default: 200.0e6)"
+    )
+    
+    parser.add_argument(
+        "--bus_freq", 
+        type=float, 
+        default=12.5e6, 
+        help="Target I3C bus frequency in Hz (Default: 12.5e6)"
+    )
+    
+    parser.add_argument(
+        "--duty_cycle", 
+        type=float, 
+        default=0.5, 
+        help="Target duty cycle (Default: 0.5)"
+    )
+
+    parser.add_argument(
+        "--md", 
+        action="store_true", 
+        help="Output the results as a MyST Markdown table (suppresses standard logging)"
+    )
+    
+    parser.add_argument(
+        "--target_name", 
+        type=str, 
+        default="I3C Target", 
+        help="Name of the configuration for the Markdown header (e.g., 'FPGA', 'ASIC')"
+    )
+
+    args = parser.parse_args()
+
+    log_level = logging.WARNING if args.md else logging.INFO
+    logging.basicConfig(level=log_level, force=True)
+
+    if not args.md:
+        logging.info(f"Generating timings for System Clock: {args.freq / 1e6:.2f} MHz, Bus Clock: {args.bus_freq / 1e6:.2f} MHz")
+
+    # Generate the timings
+    timings = generate_timings(f_scl=args.bus_freq, f_sys=args.freq, duty_cycle=args.duty_cycle)
+    
+    # Output the results based on the flags
+    if args.md:
+        print_myst_table(timings, f_sys=args.freq, target_name=args.target_name)
+    else:
+        log_timing_configuration(timings, f_sys=args.freq)

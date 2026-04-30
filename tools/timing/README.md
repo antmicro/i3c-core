@@ -25,3 +25,24 @@ csr_timings = generate_timings(f_scl=12.5e6, f_sys=SYS_CLK)
 log_timing_configuration(csr_timings, f_sys=SYS_CLK)
 
 ```
+
+## Usage
+
+The `timing.py` script can be invoked to display register values corresponding to the clock settings provided in the command arguments:
+
+```python
+usage: timings.py [-h] [--freq FREQ] [--bus_freq BUS_FREQ] [--duty_cycle DUTY_CYCLE] [--md] [--target_name TARGET_NAME]
+
+Generate and validate I3C timings.
+
+options:
+  -h, --help            show this help message and exit
+  --freq FREQ           System clock frequency in Hz (Default: 200.0e6)
+  --bus_freq BUS_FREQ   Target I3C bus frequency in Hz (Default: 12.5e6)
+  --duty_cycle DUTY_CYCLE
+                        Target duty cycle (Default: 0.5)
+  --md                  Output the results as a MyST Markdown table (suppresses standard logging)
+  --target_name TARGET_NAME
+                        Name of the configuration for the Markdown header (e.g., 'FPGA', 'ASIC')
+
+```

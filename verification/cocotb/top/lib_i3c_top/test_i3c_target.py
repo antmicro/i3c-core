@@ -629,11 +629,14 @@ async def test_i3c_target_ibi_data_long(dut):
     await tb.write_csr_field(ctrl.base_addr, ctrl.IBI_EN, 1)
     await tb.write_csr_field(ctrl.base_addr, ctrl.IBI_RETRY_NUM, 7)
 
-    # Get max IBI payload size
+    # Get MRL values
     [(ack, data)] = await i3c_controller.i3c_ccc_read(CCC.DIRECT.GETMRL, TARGET_ADDRESS, 3)
+
+    # Set max IBI payload size
+    max_ibil = 255
+    await i3c_controller.i3c_ccc_write(
+        ccc=CCC.DIRECT.SETMRL, directed_data=[(TARGET_ADDRESS, [data[0], data[1], max_ibil])])
     assert ack
-    max_ibil = int(data[2])
-    assert max_ibil > 0
 
     # Send IBI
     mdb = random.randint(0, 255)

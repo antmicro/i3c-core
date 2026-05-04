@@ -296,7 +296,7 @@ async def test_ibi_accept_partial_no_repeat(dut):
 
     await tb.teardown()
 
-async def _test_ibi_refuse_retry(dut, retry_num):
+async def _refuse_retry(dut, retry_num):
     """
     Sec 5.1.6.2 item 2: Refuse IBI sweep over all retry_num values.
     Counts exact bus-level attempts via NACK counting.
@@ -380,9 +380,9 @@ async def _test_ibi_refuse_retry(dut, retry_num):
 
 
 # Use TestFactory to parameterize over all retry values
-tf_retry = TestFactory(_test_ibi_refuse_retry)
+tf_retry = TestFactory(_refuse_retry)
 tf_retry.add_option("retry_num", list(range(8)))
-tf_retry.generate_tests(prefix="test_ibi_refuse_retry_sweep_")
+tf_retry.generate_tests(prefix="test_ibi")
 
 
 # =============================================================================
@@ -688,7 +688,7 @@ async def test_ibi_initiation_bus_available_vs_start(dut):
 
     await tb.teardown()
 
-async def _test_ibi_pending_read_notification(dut, read_len, ibi_extra_bytes=0):
+async def _pending_read_notification(dut, read_len, ibi_extra_bytes=0):
     """
     Sec 5.1.6.2.2: IBI with Pending Read Notification MDB (IGI=101),
     followed by Private Read to consume data.
@@ -747,10 +747,10 @@ async def _test_ibi_pending_read_notification(dut, read_len, ibi_extra_bytes=0):
     await ClockCycles(tb.clk, 10)
 
 
-tf_prn = TestFactory(_test_ibi_pending_read_notification)
+tf_prn = TestFactory(_pending_read_notification)
 tf_prn.add_option("read_len", [0, 1, 4])
 tf_prn.add_option("ibi_extra_bytes", [0, 3])
-tf_prn.generate_tests(prefix="test_ibi_pending_read_notification_")
+tf_prn.generate_tests(prefix="test_ibi")
 
 
 # =============================================================================

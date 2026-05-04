@@ -3645,6 +3645,14 @@ exclusions:
           - hwif_out_i.PIOControl.TX_DATA_PORT.req
           - hwif_out_i.PIOControl.RESPONSE_PORT.req
           - hwif_out_i.PIOControl.COMMAND_PORT.wr_biten.COMMAND_DATA
+          - hwif_out_i.PIOControl.PIO_INTR_STATUS.intr
+          - hwif_out_i.PIOControl.QUEUE_THLD_CTRL.IBI_STATUS_THLD.value
+          - hwif_out_i.PIOControl.QUEUE_THLD_CTRL.IBI_DATA_SEGMENT_SIZE.value
+          - hwif_out_i.PIOControl.QUEUE_THLD_CTRL.RESP_BUF_THLD.value
+          - hwif_out_i.PIOControl.QUEUE_THLD_CTRL.CMD_EMPTY_BUF_THLD.value
+          - hwif_out_i.I3CBase.INTR_STATUS.intr
+          - resume
+          - hwif_out_i.I3CBase.HC_CONTROL.RESUME.value
 
       Constant:
         toggle:
@@ -3715,6 +3723,13 @@ exclusions:
         toggle:
         - i2c_active_en_o
         - i2c_standby_en_o
+        cond:
+        - 6: [3 "10"] # i2c_standby_en_o | i3c_standby_en_o;
+
+      Unused controller mode:
+        cond:
+        - 1: [3 "10"] # (stby_cr_enable_init == 2'b01) | (stby_cr_enable_init == 2'b11);
+        - 2: [2 "1"] # stby_cr_enable_init == 2'b01
 
       Reserved for vendor-specific meaning, unused:
         toggle:
@@ -3730,6 +3745,7 @@ exclusions:
         - hwif_out_i.I3C_EC.StdbyCtrlMode.__rsvd_3.__rsvd.value
         - hwif_out_i.I3C_EC.SecFwRecoveryIf.INDIRECT_FIFO_RESERVED.DATA.value
         - hwif_out_i.I3C_EC.SecFwRecoveryIf.DEVICE_ID_RESERVED.DATA.value
+        - hwif_out_i.I3C_EC.StdbyCtrlMode.STBY_CR_CCC_CONFIG_RSTACT_PARAMS.RST_ACTION.value: [2-7]
 
       Tied to 0:
         toggle:

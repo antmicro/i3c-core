@@ -4,6 +4,7 @@ from itertools import chain, product
 import logging
 from math import log2
 import random
+from typing import Optional
 
 from bus2csr import bytes2int, compare_values, int2dword
 from interface import I3CTopTestInterface
@@ -194,8 +195,7 @@ async def test_basic_burst_read(dut):
 
 @cocotb.test()
 async def test_basic_burst_write(dut):
-    UPPER_START_ADDR_BOUNDARY = 0x200
-    MAX_BURST_SIZE = (1 << 7) * 4  # Max INCR len multiplied by max AWSIZE
+    MAX_END_ADDR = 1024
 
     # inner registers that are problematic to validate
     # e.g. have hwclr fields that don't yield 0
@@ -224,66 +224,72 @@ async def test_basic_burst_write(dut):
 
     tb = await initialize(dut, timeout=500)
 
+    def generate_random_csr_data() -> tuple[list[int], list[Optional[int]]]:
+        i3ec = tb.reg_map.I3C_EC
+        filtered_regs = (
+            r for r in i3ec if r != "start_addr" and "base_addr" not in getattr(i3ec, r)
+        )
+        # an iterator over test data for all registers in all I3C_EC.* groups
+        test_data = chain(*(csr_access_test_data(getattr(i3ec, r), validation_exceptions) for r in filtered_regs))
+
+        write_map = [0] * MAX_END_ADDR
+        expect_map: list[Optional[int]] = [None] * MAX_END_ADDR # None values will not be verified
+
+        for reg_name, addr, wdata, exp_rd in test_data:
+            for i, (wb, eb) in enumerate(zip(int2dword(wdata), int2dword(exp_rd))):
+                write_map[addr+i] = wb
+                if reg_name not in validation_exceptions:
+                    expect_map[addr+i] = eb
+
+        return write_map, expect_map
+
     # Registers that hang the bus due to additional requirements when accessing them
-    access_exceptions = [
+    access_exceptions = sorted([
         tb.reg_map.PIOCONTROL.RESPONSE_PORT.base_addr,
         tb.reg_map.PIOCONTROL.TX_DATA_PORT.base_addr,
         tb.reg_map.PIOCONTROL.IBI_PORT.base_addr,
         tb.reg_map.I3C_EC.TTI.TX_DATA_PORT.base_addr,
         tb.reg_map.I3C_EC.TTI.RX_DATA_PORT.base_addr,
         tb.reg_map.I3C_EC.SECFWRECOVERYIF.INDIRECT_FIFO_DATA.base_addr,
-    ]
+    ])
+    max_access_size = max(a - b for a, b in zip(access_exceptions, [0, *access_exceptions]))
 
-    i3ec = tb.reg_map.I3C_EC
-    filtered_regs = (
-        r for r in i3ec if r != "start_addr" and "base_addr" not in getattr(i3ec, r)
+    assert max_access_size >= 256, (
+        "Max. access size is smaller than expected. The CSR map either got reordered"
+        " or new access exceptions that partitioned the existing gaps even more were"
+        " introduced. Make sure that this test still makes sense with the smaller"
+        " maximum gap and adjust this assertion accordingly if so."
     )
-
-    # an iterator over test data for all registers in all I3C_EC.* groups
-    test_data = chain(*(csr_access_test_data(getattr(i3ec, r), validation_exceptions) for r in filtered_regs))
-
-    legal_addr = list(range(0, UPPER_START_ADDR_BOUNDARY, 4))
-    write_map = [0] * (MAX_BURST_SIZE + UPPER_START_ADDR_BOUNDARY)
-    expect_map = [None] * (MAX_BURST_SIZE + UPPER_START_ADDR_BOUNDARY) # None values will not be verified
-
-    for reg_name, addr, wdata, exp_rd in test_data:
-        if reg_name in validation_exceptions:
-            continue
-        for i, (wb, eb) in enumerate(zip(int2dword(wdata), int2dword(exp_rd))):
-            write_map[addr+i] = wb
-            expect_map[addr+i] = eb
 
     burst_lens = {
         AxiBurstType.FIXED: range(15),
-        AxiBurstType.INCR: (1 << i for i in range(8)), # toggles each bit
+        AxiBurstType.INCR: [
+            *(1 << i for i in range(8)), # make sure to toggle each bit
+            *random.randbytes(10) # but also run through some random lengths
+        ]
     }
 
     for awburst, awlens in burst_lens.items():
         for awlen, awsize, awlock, awuser in product(
             awlens, (0, 1, 2), AxiLockType, (0, 0xAAAAAAAA, 0x55555555)
         ):
-            # When AWSIZE == 2 and AWLEN == 128, total burst range is too big
-            # for our address map
-            if awsize == 2 and awlen == 128:
+            write_map, expect_map = generate_random_csr_data()
+            size = 2 ** awsize
+
+            # The burst must fit between gaps in access_exceptions
+            if ((awlen + 1) * size) > max_access_size:
                 continue
 
-            start = None
-            size = 2 ** awsize
             # Try to randomize start address 1000 times, if didn't succeed then
             # it's probably impossible to randomize such burst on a given reg
             # map with given exceptions
             for _ in range(0, 1000):
-                start_addr = random.choice(legal_addr)
+                start_addr = random.choice(range(0, MAX_END_ADDR, 4))
                 end_addr = start_addr + ((awlen + 1) * size)
-                fail = False
-                for addr in access_exceptions:
-                    if addr >= start_addr and addr <= end_addr:
-                        fail = True
-                if not fail:
-                    start = start_addr
+                if end_addr < MAX_END_ADDR and all(a < start_addr or a >= end_addr for a in access_exceptions):
                     break
-
-            assert start is not None, "Failed to randomize start address for AWBURST: {}, AWLEN: {}, AWSIZE: {}, AWUSER: {}".format(awburst, awlen, awsize, awuser)
+            else:
+                assert False, "Failed to randomize start address for AWBURST: {}, AWLEN: {}, AWSIZE: {}, AWUSER: {}".format(awburst, awlen, awsize, awuser)
 
             if awburst is AxiBurstType.FIXED:
                 wdata = write_map[start_addr:start_addr+size] * (awlen + 1)

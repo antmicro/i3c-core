@@ -1962,19 +1962,14 @@ exclusions:
           - 78;4-4 # (decoded_reg_strb.I3C_EC.TTI.RESET_CONTROL && !decoded_req_is_wr) ? field_storage.I3C_EC.TTI.RESET_CONTROL.RX_DATA_RST.value : '0; // Constant
           - 78;5-5 # (decoded_reg_strb.I3C_EC.TTI.RESET_CONTROL && !decoded_req_is_wr) ? field_storage.I3C_EC.TTI.RESET_CONTROL.IBI_QUEUE_RST.value : '0; // Constant
           - 78;6-31 # Completely tied-off
-          # POTENTIALLY MISSING - 79;0-0 # (decoded_reg_strb.I3C_EC.TTI.QUEUE_STATUS && !decoded_req_is_wr) ? hwif_in.I3C_EC.TTI.QUEUE_STATUS.RX_DESC_QUEUE_FULL.next : '0; // R1
-          # POTENTIALLY MISSING - 79;2-2 # (decoded_reg_strb.I3C_EC.TTI.QUEUE_STATUS && !decoded_req_is_wr) ? hwif_in.I3C_EC.TTI.QUEUE_STATUS.TX_DESC_QUEUE_FULL.next : '0; // R1
-          # POTENTIALLY MISSING - 79;4-4 # (decoded_reg_strb.I3C_EC.TTI.QUEUE_STATUS && !decoded_req_is_wr) ? hwif_in.I3C_EC.TTI.QUEUE_STATUS.RX_DATA_QUEUE_FULL.next : '0; // R1
-          # POTENTIALLY MISSING - 79;6-6 # (decoded_reg_strb.I3C_EC.TTI.QUEUE_STATUS && !decoded_req_is_wr) ? hwif_in.I3C_EC.TTI.QUEUE_STATUS.TX_DATA_QUEUE_FULL.next : '0; // R1
-          # POTENTIALLY MISSING - 79;8-8 # (decoded_reg_strb.I3C_EC.TTI.QUEUE_STATUS && !decoded_req_is_wr) ? hwif_in.I3C_EC.TTI.QUEUE_STATUS.IBI_QUEUE_FULL.next : '0; // R1
           - 79;10-31 # Completely tied-off
-          # POTENTIALLY MISSING - 80;0-7 # (decoded_reg_strb.I3C_EC.TTI.DESC_QUEUE_DEPTH && !decoded_req_is_wr) ? hwif_in.I3C_EC.TTI.DESC_QUEUE_DEPTH.RX_DESC_QUEUE_DEPTH.next : '0; // R2
-          # POTENTIALLY MISSING - 80;8-15 # (decoded_reg_strb.I3C_EC.TTI.DESC_QUEUE_DEPTH && !decoded_req_is_wr) ? hwif_in.I3C_EC.TTI.DESC_QUEUE_DEPTH.TX_DESC_QUEUE_DEPTH.next : '0; // R2
+          - 80;7 # (decoded_reg_strb.I3C_EC.TTI.DESC_QUEUE_DEPTH && !decoded_req_is_wr) ? hwif_in.I3C_EC.TTI.DESC_QUEUE_DEPTH.RX_DESC_QUEUE_DEPTH.next[7] : '0; // Upper bit unused on 64 depth
+          - 80;15 # (decoded_reg_strb.I3C_EC.TTI.DESC_QUEUE_DEPTH && !decoded_req_is_wr) ? hwif_in.I3C_EC.TTI.DESC_QUEUE_DEPTH.TX_DESC_QUEUE_DEPTH.next[7] : '0; // Upper bit unused on 64 depth
           - 80;16-31 # Completely tied-off
-          # POTENTIALLY MISSING - 81;0-7 # (decoded_reg_strb.I3C_EC.TTI.DATA_QUEUE_DEPTH && !decoded_req_is_wr) ? hwif_in.I3C_EC.TTI.DATA_QUEUE_DEPTH.RX_DATA_QUEUE_DEPTH.next : '0; // R2
-          # POTENTIALLY MISSING - 81;8-15 # (decoded_reg_strb.I3C_EC.TTI.DATA_QUEUE_DEPTH && !decoded_req_is_wr) ? hwif_in.I3C_EC.TTI.DATA_QUEUE_DEPTH.TX_DATA_QUEUE_DEPTH.next : '0; // R2
+          - 81;7 # (decoded_reg_strb.I3C_EC.TTI.DATA_QUEUE_DEPTH && !decoded_req_is_wr) ? hwif_in.I3C_EC.TTI.DATA_QUEUE_DEPTH.RX_DATA_QUEUE_DEPTH.next[7] : '0; // Upper bit unused on 64 depth
+          - 81;15 # (decoded_reg_strb.I3C_EC.TTI.DATA_QUEUE_DEPTH && !decoded_req_is_wr) ? hwif_in.I3C_EC.TTI.DATA_QUEUE_DEPTH.TX_DATA_QUEUE_DEPTH.next[7] : '0; // Upper bit unused on 64 depth
           - 81;16-31 # Completely tied-off
-          # POTENTIALLY MISSING - 82;0-7 # (decoded_reg_strb.I3C_EC.TTI.IBI_QUEUE_DEPTH && !decoded_req_is_wr) ? hwif_in.I3C_EC.TTI.IBI_QUEUE_DEPTH.IBI_QUEUE_DEPTH.next : '0; // R2
+          - 82;7 # (decoded_reg_strb.I3C_EC.TTI.IBI_QUEUE_DEPTH && !decoded_req_is_wr) ? hwif_in.I3C_EC.TTI.IBI_QUEUE_DEPTH.IBI_QUEUE_DEPTH.next[7] : '0; // Upper bit unused on 64 depth
           - 82;8-31 # Completely tied-off
           - 83;2-2 # (decoded_reg_strb.I3C_EC.TTI.INTERRUPT_STATUS && !decoded_req_is_wr) ? field_storage.I3C_EC.TTI.INTERRUPT_STATUS.RX_DESC_TIMEOUT.value : '0; // R2
           - 83;3-3 # (decoded_reg_strb.I3C_EC.TTI.INTERRUPT_STATUS && !decoded_req_is_wr) ? field_storage.I3C_EC.TTI.INTERRUPT_STATUS.TX_DESC_TIMEOUT.value : '0; // R2
@@ -1996,7 +1991,6 @@ exclusions:
           - 85;27-30 # Completely tied-off
           - 86;13-31 # Completely tied-off
           - 87;0-0 # Completely tied-off
-          # POTENTIALLY MISSING - 87;9-9 # (decoded_reg_strb.I3C_EC.TTI.TARGET_ERR_INTR_STATUS && !decoded_req_is_wr) ? field_storage.I3C_EC.TTI.TARGET_ERR_INTR_STATUS.RI_LENGTH_ERR_STAT.value : '0; // R1
           - 87;14-31 # Completely tied-off
           - 88;0-0 # Completely tied-off
           - 88;14-31 # Completely tied-off
@@ -2015,8 +2009,6 @@ exclusions:
           - 100;8-31 # Completely tied-off
           - 101;8-31 # Completely tied-off
           - 102;8-31 # Completely tied-off
-          # POTENTIALLY MISSING - 103 # hwif_in.I3C_EC.TTI.RX_DESC_QUEUE_PORT.rd_ack ? hwif_in.I3C_EC.TTI.RX_DESC_QUEUE_PORT.rd_data : '0;
-          # POTENTIALLY MISSING - 104 # hwif_in.I3C_EC.TTI.RX_DATA_PORT.rd_ack ? hwif_in.I3C_EC.TTI.RX_DATA_PORT.rd_data : '0;
           - 105;1-1 # (decoded_reg_strb.I3C_EC.TTI.QUEUE_SIZE && !decoded_req_is_wr) ? 8'h5 : '0; // R1
           - 105;3-7 # (decoded_reg_strb.I3C_EC.TTI.QUEUE_SIZE && !decoded_req_is_wr) ? 8'h5 : '0; // R1
           - 105;9-9 # (decoded_reg_strb.I3C_EC.TTI.QUEUE_SIZE && !decoded_req_is_wr) ? 8'h5 : '0; // R1

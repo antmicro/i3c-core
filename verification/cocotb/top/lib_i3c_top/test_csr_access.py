@@ -4,6 +4,7 @@ from itertools import chain, product
 import logging
 from math import log2
 import random
+from typing import Optional
 
 from bus2csr import bytes2int, compare_values, int2dword
 from interface import I3CTopTestInterface

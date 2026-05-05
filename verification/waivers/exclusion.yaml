@@ -3827,6 +3827,8 @@ exclusions:
           - hwif_out_i.PIOControl.TX_DATA_PORT.req
           - hwif_out_i.PIOControl.RESPONSE_PORT.req
           - hwif_out_i.PIOControl.COMMAND_PORT.wr_biten.COMMAND_DATA
+          - hwif_out_i.I3CBase.INTR_STATUS.intr
+          - hwif_out_i.I3CBase.HC_CONTROL.RESUME.value
           - hwif_out_o.PIOControl.QUEUE_THLD_CTRL.IBI_DATA_SEGMENT_SIZE.value
           - hwif_out_o.PIOControl.TX_DATA_PORT.wr_biten.TX_DATA
           - hwif_out_o.PIOControl.COMMAND_PORT.wr_biten.COMMAND_DATA
@@ -4006,6 +4008,7 @@ exclusions:
         - hwif_out_i.I3C_EC.SoCMgmtIf.SOC_MGMT_RSVD_2.PLACEHOLDER.value: [30]
         - hwif_out_i.I3C_EC.SoCMgmtIf.SOC_MGMT_CONTROL.PLACEHOLDER.value: [28]
         - rst_action_o: [2-7]
+        - hwif_out_i.I3C_EC.StdbyCtrlMode.STBY_CR_CCC_CONFIG_RSTACT_PARAMS.RST_ACTION.value: [2-7]
 
 
   descriptor_rx:

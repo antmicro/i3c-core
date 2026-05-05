@@ -3319,6 +3319,38 @@ exclusions:
         - recv_cmd_cmd: [4, 6-7]
         - exec_cmd_cmd: [4, 6-7]
 
+      Device will never be selected if transfer is not in progress and bus address is not valid:
+        cond:
+          - 16: [1 "01"]  # assign recovery_xfer_pending = xfer_in_progress_i && (virtual_device_sel_i || virtual_device_sel_q);
+          - 19: [1 "01"]  # assign virtual_target_active = ctl_bus_addr_valid_i && virtual_device_sel_i;
+
+      Writes to Indirect FIFO when full are ignored:
+        cond:
+          - 10: [2 "10"]  # queues #([...]) tti_queues ([...], .tx_req_i(tti_tx_data_queue_req & allow_indirect_write), [...]);
+
+      Reads from Indirect FIFO when empty are ignored:
+        cond:
+          - 14: [2 "10"]  # read_queue #([...]) xindirect_rx_fifo ([...], .req_i (indirect_rx_rreq & allow_indirect_read), [...]);
+
+      Writes to TX Data queue depend on the same flag as writes to Indirect FIFO:
+        cond:
+          - 30: [2 "10"]  # assign indirect_rx_wvalid_muxed = bypass_i3c_core_i ? (tti_tx_data_queue_rvalid & allow_indirect_write) : indirect_rx_wvalid;
+
+      Recovery RX queue selection can only be valid when recovery is pending:
+        cond:
+          - 1: [1 "01"]  # if (recovery_pending && recv_tti_rx_data_queue_select)
+
+      Assigned to constant value in recovery_receiver:
+        cond:
+          - 2: [2 "10"]  # if (recovery_pending & send_tti_tx_data_queue_select)
+          - 4: [2 "10"]  # if (recovery_pending & exec_tti_rx_queue_sel)
+          - 24: [2 "01"]  # assign tti_tx_desc_queue_reg_rst = csr_tti_tx_desc_queue_reg_rst_i | exec_tti_tx_desc_queue_clr;
+          - 26: [2 "01"]  # assign tti_tx_data_queue_reg_rst = csr_tti_tx_data_queue_reg_rst_i | exec_tti_tx_data_queue_clr;
+
+      TX PEC soft reset is controlled by recovery_receiver which is inactive during bypass:
+        cond:
+          - 13: [2 "10"]  # recovery_pec xrecovery_tx_pec ([...], .soft_reset_ni(tx_pec_soft_rst_n & ~bypass_i3c_core_i), [...]);
+
       Tied off:
         toggle:
         - ctl_tti_tx_host_nack_i
@@ -3340,6 +3372,7 @@ exclusions:
         - unused_rx_desc_start_thld_trig
         - unused_tx_desc_start_thld_trig
         - unused_ibi_queue_start_thld_trig
+        - unused_tti_rx_desc_start_thld_trig
         - unused_ready_thld_o
         - hwif_rec_o.HW_STATUS.VENDOR_HW_STATUS_LEN.we
         - hwif_rec_o.HW_STATUS.VENDOR_HW_STATUS_LEN.next

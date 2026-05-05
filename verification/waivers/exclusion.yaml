@@ -4669,6 +4669,73 @@ exclusions:
         - state_d: [5-7]
         - state_q: [5-7]
 
+      A bit TX request is never issued by the FSM:
+        toggle:
+          - bus_tx_req_bit
+        cond:
+          - 41: [3 "11"] # assign bus_tx_req_bit = bus_tx_req_o.req_valid && (bus_tx_req_o.req_type == RawBit);
+
+      Redundant logic. ibi_retry_num_i == 7 implies ibi_retry_cnt_q not increasing:
+        cond: [56: [3 "10"]]  # assign ibi_can_retry = (ibi_retry_num_i == 3'd7) || (ibi_retry_cnt_q <= ibi_retry_num_i);
+
+      Redundant logic. ibi_status_o is always set together with ibi_status_we_o = 1:
+        cond:
+          - 9: [2 "101"] # end else if ((ibi_retry_num_i != 3'd7) && ibi_status_we_o && (ibi_status_o inside {IbiFailureAddressArb, IbiFailureNack})) begin
+          - 11: [1 "01"] # if (ibi_status_we_o && (ibi_status_o == IbiFailureAddressArb))
+          - 13: [1 "01"] # end else if (ibi_status_we_o && (ibi_status_o == IbiFailureRetry))
+
+      Redundant logic. A reserved byte with RnW=1 is only encountered during the DAA procedure:
+        cond: [25: [2 "10"]] # (bus_rnw_q && !is_rsvd_byte_match)
+
+      Redundant logic. We will never set InHDRMode from DoneCCC because it's overriden later:
+        line:
+          - 813 # state_d = InHDRMode;
+        branch:
+          - 11: [73] # if (in_hdr_mode_i) begin
+
+      Redundant logic. RxFByteArb can be only entered from Idle with ibi_inhibit_q == InhibitNone. But ibi_can_retry == 0 implies that ibi_inhibit_q went through the InhibitRetry state and latched on it:
+        line:
+          - 636 # ibi_status_we_o = 1'b1;
+          - 637 # ibi_status_o    = IbiFailureRetry;
+          - 638 # state_d = RxFByte;
+        branch:
+          - 11: [29] # end else begin
+
+      Redundant logic. is_rsvd_byte_match && virtual_device_sel_o can't be true since the latter is reset on transaction boundaries:
+        cond: [36: [1 "01"], 38: [1 "01"]] # (!is_rsvd_byte_match && virtual_device_sel_o != is_virtual_addr_match)
+
+      Unreachable. SDA is controlled in PP-high by us:
+        line:
+          - 786 # tx_pr_abort_o = 1'b1;
+          - 787 # state_d = WaitRestart;
+        branch:
+          - 11: [65] # end else if (bus_stop_det_i) begin
+
+      Unreachable. TxAckFByte state is only entered when is reserved byte or is any addr match:
+        line: [668] # state_d = WaitRestart;
+        branch: [11: [38]] # end else begin
+
+      Reset pattern ends with a stop condition, which overrides the FSM state transition to Idle, so DoRstAction is never reached:
+        line:
+          - 504 # state_d = DoRstAction;
+          - 822 # state_d = Idle;
+        branch:
+          - 11:
+            - 4 # if (target_reset_detect_i) begin
+            - 75 # DoRstAction: begin
+
+      HotJoin not supported:
+        line:
+          - 832 # if (is_hotjoin_done_i) begin
+          - 833 # state_d = Idle;
+        branch:
+          - 11:
+            - 77 # if (is_hotjoin_done_i) begin
+            - 78 # MISSING_ELSE
+
+      valid is asserted only if ready is asserted:
+        cond: [5: [2 "10"]] # rx_fifo_wvalid_o & rx_fifo_wready_i
+
 
   i3c_axi_sub_arb:
     source_path: src/libs/axi_sub/i3c_axi_sub_arb.sv

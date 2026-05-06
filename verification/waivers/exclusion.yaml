@@ -4783,6 +4783,20 @@ exclusions:
         toggle:
         - start_thld_i: [3-7]
 
+      We don't use queue in configuration with `LimitReadyThld` and `ThldIsPow==1` simultaneously:
+        line:
+          - 89  # if ((1 << (ready_thld_i + 1)) >= ThldWidth'(Depth)) begin
+          - 91  # ready_thld_o <= ThldWidth'($clog2(Depth) - 1);
+          - 93  # ready_thld_o <= ready_thld_i;
+        branch:
+          - 1:  # if (!rst_ni) begin
+            - 1  # if ((1 << (ready_thld_i + 1)) >= ThldWidth'(Depth)) begin
+            - 2  # end else begin
+
+      TX Desc start threshold is tied to constant 0:
+        cond:
+          - 1: [2 "10", 3 "11"]  # start_thld_trig_o = |start_thld_i && (fifo_depth >= FifoDepthWidth'(start_thld_i));
+
 
   read_queue:
     source_path: src/hci/queues/read_queue.sv

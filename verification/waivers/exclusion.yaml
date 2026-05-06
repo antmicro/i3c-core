@@ -552,6 +552,11 @@ exclusions:
         - hwif_tti_o.INTERRUPT_STATUS.TX_DESC_TIMEOUT.next
         - hwif_tti_o.INTERRUPT_STATUS.RX_DESC_TIMEOUT.we
         - hwif_tti_o.INTERRUPT_STATUS.RX_DESC_TIMEOUT.next
+        - hwif_tti_o.RESET_CONTROL.IBI_QUEUE_RST.next
+        - hwif_tti_o.RESET_CONTROL.RX_DATA_RST.next
+        - hwif_tti_o.RESET_CONTROL.TX_DATA_RST.next
+        - hwif_tti_o.RESET_CONTROL.RX_DESC_RST.next
+        - hwif_tti_o.RESET_CONTROL.TX_DESC_RST.next
 
       Unused in 64 FIFO depth configurations:
         toggle:
@@ -562,6 +567,13 @@ exclusions:
         - rx_data_queue_depth_i: [7]
         - tx_data_queue_depth_i: [7]
         - ibi_queue_depth_i: [7]
+        - hwif_tti_o.QUEUE_THLD_CTRL.RX_DESC_THLD.next: [6-7]
+        - hwif_tti_o.QUEUE_THLD_CTRL.TX_DESC_THLD.next: [6-7]
+        - hwif_tti_o.IBI_QUEUE_DEPTH.IBI_QUEUE_DEPTH.next: [7]
+        - hwif_tti_o.DATA_QUEUE_DEPTH.TX_DATA_QUEUE_DEPTH.next: [7]
+        - hwif_tti_o.DATA_QUEUE_DEPTH.RX_DATA_QUEUE_DEPTH.next: [7]
+        - hwif_tti_o.DESC_QUEUE_DEPTH.TX_DESC_QUEUE_DEPTH.next: [7]
+        - hwif_tti_o.DESC_QUEUE_DEPTH.RX_DESC_QUEUE_DEPTH.next: [7]
 
       Tied to 0:
         toggle:
@@ -579,11 +591,6 @@ exclusions:
         toggle:
         - hwif_tti_o.QUEUE_THLD_CTRL.IBI_THLD.we
         - hwif_tti_o.QUEUE_THLD_CTRL.IBI_THLD.next
-
-      Unused on 64 FIFO depth:
-        toggle:
-        - hwif_tti_o.QUEUE_THLD_CTRL.RX_DESC_THLD.next: [6-7]
-        - hwif_tti_o.QUEUE_THLD_CTRL.TX_DESC_THLD.next: [6-7]
 
       Read/write only port:
         cond:

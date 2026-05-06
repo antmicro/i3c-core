@@ -11,7 +11,7 @@ from interface import I3CTopTestInterface
 
 import cocotb
 from cocotb_helpers import reset_n
-from cocotb.triggers import ClockCycles, RisingEdge, Timer
+from cocotb.triggers import ClockCycles, RisingEdge, Combine
 from cocotbext.axi import AxiLockType, AxiBurstType, AxiResp
 from common import timeout_task, log_seed
 
@@ -657,11 +657,11 @@ async def test_read_stall(dut):
 @cocotb.test()
 async def test_write_b_channel_skid_full(dut):
     """
-    Verify that when the B-channel is stalled and two write responses are pending
+    Verify that when the B-channel is stalled and three write responses are pending
     (output stage + hold register of the response skidbuffer), rp_ready drops to 0,
-    req_ready follows, and AWREADY deasserts to prevent a third response from
-    overflowing the skidbuffer.  Releasing the stall drains all responses and all
-    three writes complete with correct data.
+    req_ready follows, and AWREADY deasserts to prevent a third and fourth responses
+    from overflowing the skidbuffer. Releasing the stall drains all responses and all
+    four writes complete with correct data.
     """
     tb = await initialize(dut)
 
@@ -673,10 +673,11 @@ async def test_write_b_channel_skid_full(dut):
     b_channel = tb.busIf.axi_m.write_if.b_channel
 
     test_data = csr_access_test_data(tb.reg_map.I3CBASE, skip_regs=["RESET_CONTROL"])
-    assert len(test_data) >= 3, "Need at least 3 writable registers in I3CBASE"
+    assert len(test_data) >= 4, "Need at least 4 writable registers in I3CBASE"
     (reg1_name, addr1, wdata1, exp_rd1) = test_data[0]
     (reg2_name, addr2, wdata2, exp_rd2) = test_data[1]
     (reg3_name, addr3, wdata3, exp_rd3) = test_data[2]
+    (reg4_name, addr4, wdata4, exp_rd4) = test_data[3]
 
     # Stall all write responses — no B-channel handshake until we release
     b_channel.pause = True
@@ -687,14 +688,19 @@ async def test_write_b_channel_skid_full(dut):
         await RisingEdge(dut.aclk)
 
     # Write 2: when its final beat completes with bvalid=1 already asserted,
-    # the skidbuffer hold register fills (r_valid=1) and rp_ready drops to 0.
+    #          the skidbuffer hold register fills (r_valid=1) and rp_ready
+    #          drops to 0.
     task2 = cocotb.start_soon(tb.write_csr(addr2, int2dword(wdata2), 4))
     # Allow enough cycles for write 2 to complete its AW+W phases
     await ClockCycles(dut.aclk, 20)
 
     # Write 3: AW arrives when req_ready=0 (rp_ready=0), so the request skidbuffer
-    # fills and AWREADY must deassert to apply backpressure
+    #          fills and AWREADY must deassert to apply backpressure
     task3 = cocotb.start_soon(tb.write_csr(addr3, int2dword(wdata3), 4))
+
+    # Write 4: Request skidbuffer is already full, AWVALID is asserted while
+    #          AWREADY is deasserted
+    task4 = cocotb.start_soon(tb.write_csr(addr4, int2dword(wdata4), 4))
 
     awready_went_low = False
     for _ in range(30):
@@ -707,14 +713,13 @@ async def test_write_b_channel_skid_full(dut):
 
     # Release the stall — all three responses drain, all three tasks complete
     b_channel.pause = False
-    await task1
-    await task2
-    await task3
+    await Combine(task1, task2, task3, task4)
 
     for reg_name, addr, exp_rd in [
         (reg1_name, addr1, exp_rd1),
         (reg2_name, addr2, exp_rd2),
         (reg3_name, addr3, exp_rd3),
+        (reg4_name, addr4, exp_rd4),
     ]:
         rd = bytes2int(await tb.read_csr(addr, 4))
         assert rd == exp_rd, (

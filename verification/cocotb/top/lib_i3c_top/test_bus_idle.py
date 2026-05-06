@@ -8,6 +8,13 @@ from i3c_controller_fixed import I3cControllerFixed as I3cController
 from interface import I3CTopTestInterface
 from common import log_seed
 
+
+_BUS_IDLE_PATH = (
+    "xi3c_wrapper.i3c.xcontroller.xcontroller_standby"
+    ".xcontroller_standby_i3c.xbus_timers.bus_idle_o"
+)
+
+
 async def test_setup(dut):
     cocotb.log.setLevel(logging.DEBUG)
     log_seed(dut)
@@ -27,13 +34,15 @@ async def test_setup(dut):
     await boot_init(tb, fclk=333.0)
     return i3c_controller, tb
 
+
 @cocotb.test()
-async def test_bus_idle_coverage(dut):
+async def test_bus_idle(dut):
     """
-    Coverage: bus_idle_o is toggled and reset_counter = 0 and bus_idle_o = 1.
+    Ensures target enters and leaves bus idle state after certain delays.
     """
     i3c_controller, tb = await test_setup(dut)
-    
+    bus_idle_sig = getattr(dut, _BUS_IDLE_PATH)
+
     # 1. Generate a manual STOP condition to start the bus timers
     # (The timer requires a STOP detection edge to restart its internal counters)
     dut._log.info("Generating STOP condition (SDA 0->1 while SCL=1) to start bus timers")
@@ -42,14 +51,16 @@ async def test_bus_idle_coverage(dut):
     await Timer(2, "us")
     i3c_controller.sda = 1  # STOP edge
     await Timer(2, "us")
-    
+
     # 2. Wait > 200us for T_IDLE. This forces bus_idle_o to toggle 0 -> 1.
     dut._log.info("Waiting 210us for bus_idle_o to assert")
     await Timer(210, "us")
-    
+    assert bus_idle_sig.value == 1, "Target should be in bus idle state"
+
     # 3. Generate a manual START condition to break the idle state (1 -> 0 toggle)
     dut._log.info("Generating START condition (SDA 1->0 while SCL=1) to deassert bus_idle_o")
     i3c_controller.sda = 0
     await Timer(2, "us")
-    
+    assert bus_idle_sig.value == 0, "Target should not be in bus idle state"
+
     await tb.teardown()

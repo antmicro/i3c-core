@@ -532,6 +532,7 @@ def recovery_pec_verify(session, test_group, test_name, coverage, simulator):
         "test_ibi_multi_queue",
         "test_te_errors",
         "test_tsco_violation",
+        "test_bus_idle",
     ],
 )
 @nox.parametrize("coverage", coverage_types)

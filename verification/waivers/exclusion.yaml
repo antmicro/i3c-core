@@ -979,6 +979,7 @@ exclusions:
           - hwif_in.I3C_EC.TTI.INTERRUPT_STATUS.TX_DESC_TIMEOUT.next
           - hwif_in.I3C_EC.TTI.INTERRUPT_STATUS.RX_DESC_TIMEOUT.we
           - hwif_in.I3C_EC.TTI.INTERRUPT_STATUS.RX_DESC_TIMEOUT.next
+          - hwif_in.I3C_EC.TTI.INTERRUPT_STATUS.PENDING_INTERRUPT.next: [1-3]
           - hwif_in.I3CBase.RESET_CONTROL.SOFT_RST.we
           - hwif_in.I3CBase.RESET_CONTROL.SOFT_RST.next
           - hwif_in.I3C_EC.TTI.RESET_CONTROL.SOFT_RST.we
@@ -1166,8 +1167,8 @@ exclusions:
           - hwif_in.I3C_EC.TTI.DESC_QUEUE_DEPTH.TX_DESC_QUEUE_DEPTH.next: [7]
           - hwif_in.I3C_EC.TTI.DATA_QUEUE_DEPTH.RX_DATA_QUEUE_DEPTH.next: [7]
           - hwif_in.I3C_EC.TTI.DESC_QUEUE_DEPTH.RX_DESC_QUEUE_DEPTH.next: [7]
-          - hwif_in.PIOControl.QUEUE_THLD_CTRL.RESP_BUF_THLD.next: [7]
-          - hwif_in.PIOControl.QUEUE_THLD_CTRL.CMD_EMPTY_BUF_THLD.next: [7]
+          - hwif_in.PIOControl.QUEUE_THLD_CTRL.RESP_BUF_THLD.next: [6-7]
+          - hwif_in.PIOControl.QUEUE_THLD_CTRL.CMD_EMPTY_BUF_THLD.next: [6-7]
 
       Unreachable condition that can be optimized:
         cond:

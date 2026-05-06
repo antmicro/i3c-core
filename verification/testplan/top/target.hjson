@@ -357,5 +357,15 @@
       tests: [""]
       tags: ["top"]
     }
+    {
+      name: bus_idle
+      desc:
+        '''
+        Generate STOP condition, wait for over 200us and ensure the target entered idle state. Then
+        generate START condition and ensure target left idle state.
+        '''
+      tests: ["bus_idle"]
+      tags: ["top"]
+    }
   ]
 }

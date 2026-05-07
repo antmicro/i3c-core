@@ -4671,44 +4671,44 @@ exclusions:
     all:
       CSR addresses are aligned to 4 bytes:
         toggle:
-        - r_addr: [0-1]
-        - w_addr: [0-1]
-        - addr: [0-1]
+          - r_addr: [0-1]
+          - w_addr: [0-1]
+          - addr: [0-1]
 
       High address bits not used in target only configs:
         toggle:
           - addr: [11]
           - r_addr: [11]
-          - ww_addr: [11]
+          - w_addr: [11]
 
       Data width is only 32-bit:
         toggle:
-        - r_size: [2]
-        - w_size: [2]
-        - size: [2]
+          - r_size: [2]
+          - w_size: [2]
+          - size: [2]
 
 
   i3c_axi_sub:
-    source_path: src/libs/axi_sub/i3c_axi_sub_arb.sv
+    source_path: src/libs/axi_sub/i3c_axi_sub.sv
     source_sha: 76957d4c9b5531f0aec9372f7d3bc2d0d5a39b04d688b28e85c8984cd3b35d97
     all:
       CSR addresses are aligned to 4 bytes:
         toggle:
-        - r_addr: [0-1]
-        - w_addr: [0-1]
-        - addr: [0-1]
+          - r_addr: [0-1]
+          - w_addr: [0-1]
+          - addr: [0-1]
 
       High address bits not used in target only configs:
         toggle:
           - addr: [11]
           - r_addr: [11]
-          - ww_addr: [11]
+          - w_addr: [11]
 
       Data width is only 32-bit:
         toggle:
-        - r_size: [2]
-        - w_size: [2]
-        - size: [2]
+          - r_size: [2]
+          - w_size: [2]
+          - size: [2]
 
 
   i3c_axi_sub_wr:

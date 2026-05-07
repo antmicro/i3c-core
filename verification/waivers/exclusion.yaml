@@ -4914,6 +4914,15 @@ exclusions:
           - 9: [1 "011", 2 "101"]  # if ((bcnt != '0) & source_valid_o & source_ready_i) sreg <= Width'(sreg >> 8);
 
 
+  i3c_phy:
+    source_path: src/phy/i3c_phy.sv
+    all:
+      Unused yet, for controller support:
+        toggle:
+          - scl_o
+          - ctrl_scl_i
+
+
   i3c_test_wrapper:
     source_path: verification/cocotb/top/lib_i3c_top/i3c_test_wrapper.sv
     source_sha: 47c7218fc1646b2ec5e9108ac8691aaca0157a89e39199cf1776b8d406a44795

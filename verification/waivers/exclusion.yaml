@@ -4861,6 +4861,20 @@ exclusions:
           - 9: [1 "011", 2 "101"]  # if ((bcnt == s_bytes) & source_valid_o & source_ready_i) sreg <= '0;
 
 
+  width_converter_Nto8:
+    source_path: src/ctrl/width_converter_Nto8.sv
+    all:
+      Sink ready is assigned as `bcnt == '0` so these can never be different:
+        cond:
+          - 3: [1 "0111", 3 "1101"]  # if ((bcnt == '0) & sink_valid_i & sink_ready_o & ~source_flush_i) bcnt <= Bytes;
+          - 7: [1 "011", 3 "110"]  # if ((bcnt == '0) & sink_valid_i & sink_ready_o) sreg <= sink_data_i;
+
+      Source valid is assigned as `bcnt != '0` so these can never be different:
+        cond:
+          - 5: [1 "011", 2 "101"]  # if ((bcnt != '0) & source_valid_o & source_ready_i) bcnt <= bcnt - 1;
+          - 9: [1 "011", 2 "101"]  # if ((bcnt != '0) & source_valid_o & source_ready_i) sreg <= Width'(sreg >> 8);
+
+
   i3c_test_wrapper:
     source_path: verification/cocotb/top/lib_i3c_top/i3c_test_wrapper.sv
     source_sha: 47c7218fc1646b2ec5e9108ac8691aaca0157a89e39199cf1776b8d406a44795

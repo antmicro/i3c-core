@@ -4490,6 +4490,25 @@ exclusions:
           - hdr_timeout_cnt: [8-19]
 
 
+  bus_monitor:
+    source_path: src/ctrl/bus_monitor.sv
+    all:
+      Bus state detectors are disabled if bus monitor is disabled:
+        cond:
+          - 15: [1 "01111"]  # assign start_det_trigger = enable & scl_stable_high & sda_negedge & !scl_negedge & !simultaneous_negedge;
+          - 18: [1 "01"]  # assign start_det = enable & start_det_pending;
+          - 17: [1 "01111"]  # assign stop_det_trigger = enable & scl_stable_high & sda_posedge & !scl_negedge & !simultaneous_posedge;
+          - 16: [1 "01"]  # assign start_det = enable & start_det_pending;
+
+      Simultaneous neggedge will never be detected if SCL and SDA negedge is detected:
+        cond:
+          - 15: [5 "11110"]  # assign start_det_trigger = enable & scl_stable_high & sda_negedge & !scl_negedge & !simultaneous_negedge;
+
+      SCL negedge will never occur if SCL is stable high:
+        cond:
+          - 15: [4 "11101"]  # assign start_det_trigger = enable & scl_stable_high & sda_negedge & !scl_negedge & !simultaneous_negedge;
+
+
   controller_standby_i3c:
     source_path: src/ctrl/controller_standby_i3c.sv
     source_sha: a2322ce4b9412df79cedd73edd662055907aafe4931c9c81cd98034261b381c9

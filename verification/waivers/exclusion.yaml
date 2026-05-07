@@ -4249,6 +4249,11 @@ exclusions:
         - state_q: [3-7]
 
       IBI queue cannot be flushed in WriteMdb state:
+        line:
+          - 103  # if (data_words == 0) begin
+          - 105  # state_d = Idle;
+          - 108  # ibi_queue_rready_o = 1'b1;
+          - 110  # state_d = (data_words == 8'd1) ? Idle : Flush;
         cond:
           - 2  # WriteMdb: if (data_words == 0)
           - 3  # WriteMdb: state_d = (data_words == 8'd1) ? Idle : Flush;
@@ -4264,8 +4269,10 @@ exclusions:
           - 8: [1 "0"]  # WriteData: if (data_cnt_q[7:2] != '1)
           - 12: [1 "0"]  # Flush: if (data_cnt_q[7:2] != '1)
         line:
-          - 132  # data_cnt_d = '0;
-          - 133  # state_d = Idle;
+          - 132  # WriteData: data_cnt_d = '0;
+          - 133  # WriteData: state_d = Idle;
+          - 157  # Flush: data_cnt_d = '0;
+          - 158  # Flush: state_d = Idle;
         branch:
           - 0:  # case (state_q)
             - 12  # WriteData: data_cnt_d = '0;

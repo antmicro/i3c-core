@@ -4393,7 +4393,12 @@ exclusions:
             - 2  # CCC_BCAST_RSTACT: if (def_byte_tbit_valid)
             - 9  # CCC_DIRECT_RSTACT: if (target_addr_ack_done && addr_ack && ~target_rnw)
 
-      Not needed default statements in CCC registers FSM:
+      Unreachable default statements in CCC registers FSM:
+        line:
+          - 1508 # CCC_DIRECT_SETMWL: case (rx_byte_num)
+          - 1522 # CCC_DIRECT_SETMRL: case (rx_byte_num)
+          - 1549 # CCC_BCAST_SETMWL: case (rx_byte_num)
+          - 1563 # CCC_BCAST_SETMRL: case (rx_byte_num)
         branch:
           - 19:
             - 6  # CCC_DIRECT_SETMWL: case (rx_byte_num)
@@ -4409,6 +4414,10 @@ exclusions:
         cond:
           - 125: [1 "01"]  # assign set_peripheral_reset = target_reset_detect_i && ((rstact_armed_q && (rst_action_q == 8'h01)) || (~rstact_armed_q && ~escalate_rst_arm_q));
           - 130: [1 "01"]  # assign set_escalate_reset = target_reset_detect_i && ((rstact_armed_q && (rst_action_q == 8'h02)) || (~rstact_armed_q && escalate_rst_arm_q));
+
+      Target reset pattern ends with SR which clears rstact_armed_q and enables escalate:
+        cond:
+          - 132: [1 "01"]  # assign set_escalate_reset = target_reset_detect_i && ((rstact_armed_q && (rst_action_q == 8'h02)) || (~rstact_armed_q && escalate_rst_arm_q));
 
       Reserved:
         toggle:

@@ -4419,6 +4419,10 @@ exclusions:
         cond:
           - 132: [1 "01"]  # assign set_escalate_reset = target_reset_detect_i && ((rstact_armed_q && (rst_action_q == 8'h02)) || (~rstact_armed_q && escalate_rst_arm_q));
 
+      Bus idle occurs after longer time than bus available:
+        cond:
+          - 4: [3 "010"]  # assign bus_busy_o = ~(bus_free_o | bus_idle_o | bus_available_o);
+
       Reserved:
         toggle:
           - rst_action_o: [2-7]

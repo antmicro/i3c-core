@@ -3814,10 +3814,24 @@ exclusions:
     source_path: src/ctrl/bus_tx_flow.sv
     source_sha: 8d70986f69299dc033017e291a1f6b3f5afbb72f33582a44aea358af1fa29b2b
     all:
-      'Tied to 0, TODO: connect to bus_tx module error output signal':
+      Tied to 0:
         toggle:
-        - bus_error_o
-        - bus_error
+          - tx_rsp_o.error
+
+      Bit counter can never exceed 7:
+        toggle:
+          - bit_counter_d: [3]
+          - bit_counter_q: [3]
+
+      Did not reach default state:
+        line:
+          - 129  # default: begin end
+        branch:
+          - 3: [7]  # case (bus_tx_req.req_type) default
+
+      Negedge is detected on stable high to stable low transition so it can never occur on its own:
+        cond:
+          - 4: [3 "10"]  # if (bus_i.scl.neg_edge || bus_i.scl.stable_low) begin
 
 
   controller:

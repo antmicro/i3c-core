@@ -4850,6 +4850,16 @@ exclusions:
         toggle:
           - s_bytes
 
+      Sink ready is assigned as `bcnt != s_bytes` so these can never be different:
+        cond:
+          - 3: [1 "011", 3 "110"]  # if ((bcnt != s_bytes) & sink_valid_i & sink_ready_o) bcnt <= bcnt + 1;
+          - 7: [1 "011", 3 "110"]  # if ((bcnt != s_bytes) & sink_valid_i & sink_ready_o) sreg[(BytesW)'(bcnt)*8+:8] <= sink_data_i;
+
+      Source valid is assigned as `bcnt == s_bytes` so these can never be different:
+        cond:
+          - 5: [1 "011", 2 "101"]  # if ((bcnt == s_bytes) & source_valid_o & source_ready_i) bcnt <= '0;
+          - 9: [1 "011", 2 "101"]  # if ((bcnt == s_bytes) & source_valid_o & source_ready_i) sreg <= '0;
+
 
   i3c_test_wrapper:
     source_path: verification/cocotb/top/lib_i3c_top/i3c_test_wrapper.sv

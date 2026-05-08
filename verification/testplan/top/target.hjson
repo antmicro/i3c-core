@@ -329,16 +329,6 @@
       tags: ["top"]
     }
     {
-      name: descriptor_queues_stress
-      desc:
-        '''
-        Perform read and write tests with various descriptor FIFO depth configs.
-        Stress the FIFOs by filling them by writes from the SW and I3C sides.
-        '''
-      tests: [""]
-      tags: ["top"]
-    }
-    {
       name: descriptor_queues_flush_stress
       desc:
         '''

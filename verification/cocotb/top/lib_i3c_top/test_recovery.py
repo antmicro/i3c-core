@@ -1209,6 +1209,63 @@ async def test_ri_error_injection_stress(dut):
     await run_scenario("Scenario 15: Rapid-fire aborts (5x)", rapid_fire_scenario)
 
     # =========================================================================
+    # Scenario 16: T-bit (parity) error on Length MSB byte (detection disabled)
+    # Scenario 17: T-bit (parity) error on Length MSB byte (detection enabled)
+    # =========================================================================
+    async def lenh_pec_err_scenario(pec_det_en=True):
+        # Set PEC detection (bit 7)
+        err_ctrl = dword2int(
+            await tb.read_csr(tb.reg_map.I3C_EC.TTI.TARGET_ERR_CTRL.base_addr, 4)
+        )
+        pec_det_en_value = (err_ctrl | (1 << 7)) if pec_det_en else (err_ctrl & ~(1 << 7))
+
+        await tb.write_csr(
+            tb.reg_map.I3C_EC.TTI.TARGET_ERR_CTRL.base_addr,
+            int2dword(pec_det_en_value), 4
+        )
+
+        tb.te_error_monitor.expect_error(2)
+        await recovery.command_write_tbit_error(
+            VIRT_DYNAMIC_ADDR,
+            I3cRecoveryInterface.Command.RECOVERY_CTRL,
+            [0xAA, 0xBB, 0xCC],
+            2,  # Length MSB byte
+            end_with_rstart=True
+        )
+        tb.te_error_monitor.clear_expectations()
+
+        # Bring back previous PEC detection
+        await tb.write_csr(
+            tb.reg_map.I3C_EC.TTI.TARGET_ERR_CTRL.base_addr,
+            int2dword(err_ctrl), 4
+        )
+
+        status = dword2int(
+            await tb.read_csr(
+                tb.reg_map.I3C_EC.SECFWRECOVERYIF.DEVICE_STATUS_0.base_addr, 4
+            )
+        )
+        protocol_status = (status >> 8) & 0xFF
+
+        # Ensure CRC error (0x4) is reported if detection enabled
+        if pec_det_en:
+            assert protocol_status == 0x4
+        else:
+            assert protocol_status == 0x0
+
+    await run_scenario(
+        "Scenario 16: T-bit error on Length MSB (error detection disabled)",
+        lenh_pec_err_scenario,
+        False
+    )
+
+    await run_scenario(
+        "Scenario 17: T-bit error on Length MSB (error detection enabled)",
+        lenh_pec_err_scenario,
+        True
+    )
+
+    # =========================================================================
     # Final Verification: Do a complete valid write and read cycle
     # =========================================================================
     dut._log.info("\n[Final] Complete valid write/read cycle")

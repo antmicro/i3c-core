@@ -7463,7 +7463,6 @@ async def test_recovery_indirect_fifo_overflow(dut):
         I3cRecoveryInterface.Command.INDIRECT_FIFO_DATA,
         overflow_data,
     )
-    await ClockCycles(tb.clk, 50)
 
     prot_err = await get_prot_error()
     dut._log.info(f"  PROT_ERROR=0x{prot_err:02X} after overflow with det_en=1")
@@ -7486,7 +7485,6 @@ async def test_recovery_indirect_fifo_overflow(dut):
         tb.reg_map.I3C_EC.SECFWRECOVERYIF.INDIRECT_FIFO_CTRL_0.RESET,
         0x1,
     )
-    await ClockCycles(tb.clk, 10)
     await clear_device_status()
 
     # Clear error status (W1C)
@@ -7503,7 +7501,6 @@ async def test_recovery_indirect_fifo_overflow(dut):
         I3cRecoveryInterface.Command.INDIRECT_FIFO_DATA,
         overflow_data,
     )
-    await ClockCycles(tb.clk, 50)
 
     prot_err2 = await get_prot_error()
     dut._log.info(f"  PROT_ERROR=0x{prot_err2:02X} after overflow with det_en=0")
@@ -7525,7 +7522,6 @@ async def test_recovery_indirect_fifo_overflow(dut):
         tb.reg_map.I3C_EC.SECFWRECOVERYIF.INDIRECT_FIFO_CTRL_0.RESET,
         0x1,
     )
-    await ClockCycles(tb.clk, 10)
     await clear_device_status()
 
     # Clear error status (W1C)
@@ -7542,7 +7538,6 @@ async def test_recovery_indirect_fifo_overflow(dut):
         I3cRecoveryInterface.Command.INDIRECT_FIFO_DATA,
         overflow_data,
     )
-    await ClockCycles(tb.clk, 50)
 
     prot_err3 = await get_prot_error()
     dut._log.info(f"  PROT_ERROR=0x{prot_err3:02X} after overflow with det_en=0")
@@ -7565,7 +7560,6 @@ async def test_recovery_indirect_fifo_overflow(dut):
         tb.reg_map.I3C_EC.SECFWRECOVERYIF.INDIRECT_FIFO_CTRL_0.RESET,
         0x1,
     )
-    await ClockCycles(tb.clk, 10)
     await clear_device_status()
 
     # Clear error status (W1C)
@@ -7582,7 +7576,6 @@ async def test_recovery_indirect_fifo_overflow(dut):
         I3cRecoveryInterface.Command.INDIRECT_FIFO_DATA,
         overflow_data,
     )
-    await ClockCycles(tb.clk, 50)
 
     prot_err4 = await get_prot_error()
     dut._log.info(f"  PROT_ERROR=0x{prot_err4:02X} after overflow with det_en=1")
@@ -7607,7 +7600,6 @@ async def test_recovery_indirect_fifo_overflow(dut):
         tb.reg_map.I3C_EC.SECFWRECOVERYIF.INDIRECT_FIFO_CTRL_0.RESET,
         0x1,
     )
-    await ClockCycles(tb.clk, 10)
     await clear_device_status()
 
     data, pec_ok = await recovery.command_read(

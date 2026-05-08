@@ -307,7 +307,7 @@ class I3cRecoveryInterfaceFixed(I3cRecoveryInterface):
         await self.controller.send_stop()
         self.controller.give_bus_control()
 
-    async def command_write_tbit_error(self, address, command, data=None, error_byte_index=0):
+    async def command_write_tbit_error(self, address, command, data=None, error_byte_index=0, end_with_rstart=False):
         """
         Issues a write command with an intentional T-bit (parity) error on a specific byte.
 
@@ -342,7 +342,10 @@ class I3cRecoveryInterfaceFixed(I3cRecoveryInterface):
                 inject_error = (i == error_byte_index)
                 await self.controller.send_byte_tbit(byte, inject_tbit_err=inject_error)
 
-        await self.controller.send_stop()
+        if not end_with_rstart:
+            await self.controller.send_stop()
+        else:
+            await self.controller.send_start()
         self.controller.give_bus_control()
 
     async def command_read_tbit_error(self, address, command, error_byte_index=0):

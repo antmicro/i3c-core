@@ -3671,6 +3671,11 @@ exclusions:
         cond:
           - 7: [1 "01"]  # length_underrun_err  = (payload_byte_cnt < cmd_len) && length_err_det_en_i;
 
+      Upper bits of a counter:
+        toggle:
+          - payload_byte_cnt: [9-15]
+          - payload_byte_cnt_next: [9-15]
+
 
   bus_timers:
     source_path: src/ctrl/bus_timers.sv

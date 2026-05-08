@@ -6681,11 +6681,13 @@ async def test_recovery_read_abort_at_len(dut):
 async def test_recovery_premature_sr_in_header(dut):
     """
     Coverage target: Conditional 7.4 (lines 619/637: premature stop in
-    RxCmd/RxLenL via bus_rstart_i)
+    RxCmd/RxLenL/RxLenH via bus_rstart_i)
 
     Sends partial recovery command headers with Sr at unexpected points:
-    Part 1: S + 0x7E + Sr + Addr+W + CMD + Sr + STOP (Sr in RxCmd->RxLenL)
-    Part 2: S + 0x7E + Sr + Addr+W + CMD + LEN_L + Sr + STOP (Sr in RxLenL)
+    Part 1: S + 0x7E + Sr + Addr+W + CMD + Sr + STOP (Sr in RxLenL)
+    Part 2: S + 0x7E + Sr + Addr+W + CMD + LEN_L + Sr + STOP (Sr in RxLenH)
+    Part 3: S + 0x7E + Sr + Addr+W + CMD + LEN_L + LENH + Sr + STOP (P in RxLenL)
+    Part 4: S + 0x7E + Sr + Addr+W + CMD without tbit + Sr + STOP (Sr in RxCmd)
     """
     i3c_controller, i3c_target, tb, recovery = await initialize(dut, timeout=500)
 
@@ -6806,6 +6808,47 @@ async def test_recovery_premature_sr_in_header(dut):
     assert data is not None, "PROT_CAP read failed after premature STOP in RxLenL"
     assert pec_ok, "PROT_CAP PEC check failed"
     dut._log.info(f"Part 3 PASS: Device recovered ({len(data)} bytes)")
+
+    # =========================================================================
+    # Part 4: Sr at last bit of CMD byte
+    # This sends: S + 0x7E + Sr + VirtAddr+W + CMD without tbit + Sr + P
+    # The recovery FSM should be in RxCmd when Sr arrives -> Error
+    # =========================================================================
+    dut._log.info("Part 4: Sr at last bit of CMD byte (premature restart in RxCmd)")
+    await clear_device_status()
+
+    tb.te_error_monitor.expect_error(2)
+    await controller.take_bus_control()
+    await controller.send_start()
+    await controller.write_addr_header(0x7E)
+    await controller.send_start()
+    ack = await controller.write_addr_header(VIRT_DYNAMIC_ADDR)
+    assert ack, "Target should ACK virtual address"
+
+    # Send CMD byte (PROT_CAP = 34)
+    cocotb.start_soon(controller.send_byte(34))
+
+    # Sr must come immediately with last bit of data to hit in RxCmd
+    for _ in range(8):
+        await RisingEdge(dut.scl_sim_ctrl_i)
+
+    # Send Sr (repeated start) -- premature
+    await controller.send_start()
+
+    # Complete with STOP
+    await controller.send_stop()
+    controller.give_bus_control()
+
+    await ClockCycles(tb.clk, 50)
+    tb.te_error_monitor.clear_expectations()
+
+    # Verify device recovers
+    data, pec_ok = await recovery.command_read(
+        VIRT_DYNAMIC_ADDR, I3cRecoveryInterface.Command.PROT_CAP
+    )
+    assert data is not None, "PROT_CAP read failed after premature Sr in RxCmd"
+    assert pec_ok, "PROT_CAP PEC check failed after premature Sr"
+    dut._log.info(f"Part 4 PASS: Device recovered ({len(data)} bytes)")
 
     await tb.teardown()
 

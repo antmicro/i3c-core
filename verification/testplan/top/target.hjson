@@ -329,16 +329,6 @@
       tags: ["top"]
     }
     {
-      name: push_pull_open_drain_check
-      desc:
-        '''
-        Perform a random I3C transactions to the target device. Monitor the `sel_od_pp_o` optput and ensure
-        the core drives the bus in the correct mode.
-        '''
-      tests: [""]
-      tags: ["top"]
-    }
-    {
       name: bus_idle
       desc:
         '''

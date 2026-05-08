@@ -7442,7 +7442,7 @@ async def test_recovery_indirect_fifo_overflow(dut):
     Writes more data to INDIRECT_FIFO_DATA than the FIFO can hold to
     trigger overflow, with det_en toggled.
     """
-    i3c_controller, i3c_target, tb, recovery = await initialize(dut, timeout=500)
+    i3c_controller, i3c_target, tb, recovery = await initialize(dut, timeout=1000)
 
     await i3c_controller.i3c_ccc_write(
         ccc=CCC.DIRECT.SETDASA,
@@ -7556,6 +7556,90 @@ async def test_recovery_indirect_fifo_overflow(dut):
     )
     indirect_overflow_stat2 = (err_stat2 >> 13) & 1
     dut._log.info(f"  RI_INDIRECT_FIFO_OVERFLOW_ERR_STAT = {indirect_overflow_stat2}")
+
+    # =========================================================================
+    # Part 3: Enable rx_fifo_overflow det_en (bit 11), trigger overflow
+    # =========================================================================
+    dut._log.info("Part 3: rx_fifo_overflow_err_det_en=1, trigger overflow")
+
+    # Clear FIFO first
+    await tb.write_csr_field(
+        tb.reg_map.I3C_EC.SECFWRECOVERYIF.INDIRECT_FIFO_CTRL_0.base_addr,
+        tb.reg_map.I3C_EC.SECFWRECOVERYIF.INDIRECT_FIFO_CTRL_0.RESET,
+        0x1,
+    )
+    await ClockCycles(tb.clk, 10)
+    await clear_device_status()
+
+    # Clear error status (W1C)
+    await tb.write_csr(
+        tb.reg_map.I3C_EC.TTI.TARGET_ERR_INTR_STATUS.base_addr,
+        int2dword(0xFFFFFFFF), 4
+    )
+
+    # Enable RX FIFO overflow detection
+    await set_err_ctrl(baseline_ctrl | (1 << 11))
+
+    await recovery.command_write(
+        VIRT_DYNAMIC_ADDR,
+        I3cRecoveryInterface.Command.INDIRECT_FIFO_DATA,
+        overflow_data,
+    )
+    await ClockCycles(tb.clk, 50)
+
+    prot_err3 = await get_prot_error()
+    dut._log.info(f"  PROT_ERROR=0x{prot_err3:02X} after overflow with det_en=0")
+
+    # Check TARGET_ERR_INTR_STATUS for rx_fifo_overflow (bit 12)
+    err_stat3 = dword2int(
+        await tb.read_csr(tb.reg_map.I3C_EC.TTI.TARGET_ERR_INTR_STATUS.base_addr, 4)
+    )
+    rx_overflow_stat1 = (err_stat3 >> 12) & 1
+    dut._log.info(f"  RI_RX_FIFO_OVERFLOW_ERR_STAT = {rx_overflow_stat1}")
+
+    # =========================================================================
+    # Part 4: Disable rx_fifo_overflow det_en (bit 11), trigger overflow
+    # =========================================================================
+    dut._log.info("Part 4: rx_fifo_overflow_err_det_en=0, trigger overflow")
+
+    # Clear FIFO first
+    await tb.write_csr_field(
+        tb.reg_map.I3C_EC.SECFWRECOVERYIF.INDIRECT_FIFO_CTRL_0.base_addr,
+        tb.reg_map.I3C_EC.SECFWRECOVERYIF.INDIRECT_FIFO_CTRL_0.RESET,
+        0x1,
+    )
+    await ClockCycles(tb.clk, 10)
+    await clear_device_status()
+
+    # Clear error status (W1C)
+    await tb.write_csr(
+        tb.reg_map.I3C_EC.TTI.TARGET_ERR_INTR_STATUS.base_addr,
+        int2dword(0xFFFFFFFF), 4
+    )
+
+    # Enable RX FIFO overflow detection
+    await set_err_ctrl(baseline_ctrl & ~(1 << 11))
+
+    await recovery.command_write(
+        VIRT_DYNAMIC_ADDR,
+        I3cRecoveryInterface.Command.INDIRECT_FIFO_DATA,
+        overflow_data,
+    )
+    await ClockCycles(tb.clk, 50)
+
+    prot_err4 = await get_prot_error()
+    dut._log.info(f"  PROT_ERROR=0x{prot_err4:02X} after overflow with det_en=1")
+
+    # Check TARGET_ERR_INTR_STATUS for rx_fifo_overflow (bit 12)
+    err_stat4 = dword2int(
+        await tb.read_csr(tb.reg_map.I3C_EC.TTI.TARGET_ERR_INTR_STATUS.base_addr, 4)
+    )
+    rx_overflow_stat2 = (err_stat4 >> 12) & 1
+    dut._log.info(f"  RI_RX_FIFO_OVERFLOW_ERR_STAT = {rx_overflow_stat2}")
+
+    # =========================================================================
+    # Final checks
+    # =========================================================================
 
     # Restore baseline
     await set_err_ctrl(baseline_ctrl)

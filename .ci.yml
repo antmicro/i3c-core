@@ -13,7 +13,7 @@ variables:
   SKIP_VERILATOR: 0
   # Default Verilator version to build (Branch name, commit SHA, or tag)
   # This can be overridden in GitLab Pipeline Schedules for nightly runs.
-  VERILATOR_VERSION: "feature/four-state-i3c"
+  VERILATOR_VERSION: "24b2ac2"
 
 .build_docs_templ:
   stage: build-docs

@@ -329,15 +329,6 @@
       tags: ["top"]
     }
     {
-      name: descriptor_queues_flush_stress
-      desc:
-        '''
-        Force descriptor queues flushing by randomly cancelling transactions and injecting errors.
-        '''
-      tests: [""]
-      tags: ["top"]
-    }
-    {
       name: push_pull_open_drain_check
       desc:
         '''

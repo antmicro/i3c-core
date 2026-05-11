@@ -622,17 +622,95 @@ async def test_ccc_setaasa_ignore(dut):
     dynamic_address_valid = await tb.read_csr_field(
         dynamic_address_reg_addr, dynamic_address_reg_valid
     )
-    assert dynamic_address == DYNAMIC_ADDR, "Unexpected DYNAMIC ADDRESS read from the CSR"
-    assert dynamic_address_valid == 1, "New DYNAMIC ADDRESS is not set as valid"
-
     virt_dynamic_address = await tb.read_csr_field(
         virtual_dynamic_address_reg_addr, virtual_dynamic_address_reg_value
     )
     virt_dynamic_address_valid = await tb.read_csr_field(
         virtual_dynamic_address_reg_addr, virtual_dynamic_address_reg_valid
     )
+    
+    assert dynamic_address == DYNAMIC_ADDR, "Unexpected DYNAMIC ADDRESS read from the CSR"
+    assert dynamic_address_valid == 1, "New DYNAMIC ADDRESS is not set as valid"
+
     assert virt_dynamic_address == VIRT_DYNAMIC_ADDR, "Unexpected VIRT DYNAMIC ADDRESS read from the CSR"
     assert virt_dynamic_address_valid == 1, "New VIRT DYNAMIC ADDRESS is not set as valid"
+
+@cocotb.test()
+async def test_ccc_setaasa_single(dut):
+    """
+    Randomly pre-configure the dynamic address of either the regular or the virtual
+    device via CSR (with valid=1), then send SETAASA.
+    The pre-configured device must keep its CSR-set address; the other device must
+    receive its static address as the new dynamic address.
+    """
+    (STATIC_ADDR, VIRT_STATIC_ADDR, DYNAMIC_ADDR, VIRT_DYNAMIC_ADDR) = random.sample(VALID_I3C_ADDRESSES, 4)
+    I3C_BCAST_SETAASA = 0x29
+
+    # Randomly choose which device gets a pre-configured dynamic address
+    pre_configure_regular = random.choice([True, False])
+    cocotb.log.info(
+        f"Pre-configuring {'regular' if pre_configure_regular else 'virtual'} device via CSR"
+    )
+
+    i3c_controller, i3c_target, tb = await test_setup(dut, STATIC_ADDR, VIRT_STATIC_ADDR)
+
+    dynamic_address_reg_addr = tb.reg_map.I3C_EC.STDBYCTRLMODE.STBY_CR_DEVICE_ADDR.base_addr
+    dynamic_address_reg_value = tb.reg_map.I3C_EC.STDBYCTRLMODE.STBY_CR_DEVICE_ADDR.DYNAMIC_ADDR
+    dynamic_address_reg_valid = (
+        tb.reg_map.I3C_EC.STDBYCTRLMODE.STBY_CR_DEVICE_ADDR.DYNAMIC_ADDR_VALID
+    )
+    virtual_dynamic_address_reg_addr = (
+        tb.reg_map.I3C_EC.STDBYCTRLMODE.STBY_CR_VIRT_DEVICE_ADDR.base_addr
+    )
+    virtual_dynamic_address_reg_value = (
+        tb.reg_map.I3C_EC.STDBYCTRLMODE.STBY_CR_VIRT_DEVICE_ADDR.VIRT_DYNAMIC_ADDR
+    )
+    virtual_dynamic_address_reg_valid = (
+        tb.reg_map.I3C_EC.STDBYCTRLMODE.STBY_CR_VIRT_DEVICE_ADDR.VIRT_DYNAMIC_ADDR_VALID
+    )
+
+    if pre_configure_regular:
+        await tb.write_csr_field(dynamic_address_reg_addr, dynamic_address_reg_value, DYNAMIC_ADDR)
+        await tb.write_csr_field(dynamic_address_reg_addr, dynamic_address_reg_valid, 1)
+    else:
+        await tb.write_csr_field(virtual_dynamic_address_reg_addr, virtual_dynamic_address_reg_value, VIRT_DYNAMIC_ADDR)
+        await tb.write_csr_field(virtual_dynamic_address_reg_addr, virtual_dynamic_address_reg_valid, 1)
+
+    await i3c_controller.i3c_ccc_write(ccc=I3C_BCAST_SETAASA)
+
+    dynamic_address = await tb.read_csr_field(dynamic_address_reg_addr, dynamic_address_reg_value)
+    dynamic_address_valid = await tb.read_csr_field(
+        dynamic_address_reg_addr, dynamic_address_reg_valid
+    )
+    virt_dynamic_address = await tb.read_csr_field(
+        virtual_dynamic_address_reg_addr, virtual_dynamic_address_reg_value
+    )
+    virt_dynamic_address_valid = await tb.read_csr_field(
+        virtual_dynamic_address_reg_addr, virtual_dynamic_address_reg_valid
+    )
+
+    if pre_configure_regular:
+        # Regular device had CSR pre-set - must keep its address
+        assert dynamic_address == DYNAMIC_ADDR, (
+            f"Regular device CSR address changed: expected 0x{DYNAMIC_ADDR:02X}, got 0x{dynamic_address:02X}"
+        )
+        assert dynamic_address_valid == 1, "Regular device DYNAMIC_ADDR_VALID cleared unexpectedly"
+        # Virtual device had no pre-set - SETAASA must assign its static address
+        assert virt_dynamic_address == VIRT_STATIC_ADDR, (
+            f"Virtual device SETAASA address mismatch: expected 0x{VIRT_STATIC_ADDR:02X}, got 0x{virt_dynamic_address:02X}"
+        )
+        assert virt_dynamic_address_valid == 1, "Virtual device VIRT_DYNAMIC_ADDR_VALID not set after SETAASA"
+    else:
+        # Virtual device had CSR pre-set - must keep its address
+        assert virt_dynamic_address == VIRT_DYNAMIC_ADDR, (
+            f"Virtual device CSR address changed: expected 0x{VIRT_DYNAMIC_ADDR:02X}, got 0x{virt_dynamic_address:02X}"
+        )
+        assert virt_dynamic_address_valid == 1, "Virtual device VIRT_DYNAMIC_ADDR_VALID cleared unexpectedly"
+        # Regular device had no pre-set - SETAASA must assign its static address
+        assert dynamic_address == STATIC_ADDR, (
+            f"Regular device SETAASA address mismatch: expected 0x{STATIC_ADDR:02X}, got 0x{dynamic_address:02X}"
+        )
+        assert dynamic_address_valid == 1, "Regular device DYNAMIC_ADDR_VALID not set after SETAASA"
 
     await tb.teardown()
 

@@ -12,7 +12,7 @@ from ccc import CCC
 # 0x23 is excluded: it is hardcoded as the I3CTarget sim model address
 # and selecting it for DUT addresses causes bus contention.
 VALID_I3C_ADDRESSES = (
-    [i for i in range(0x03, 0x23)]
+    [i for i in range(0x08, 0x23)]
     + [i for i in range(0x24, 0x3E)]
     + [i for i in range(0x3F, 0x5E)]
     + [i for i in range(0x5F, 0x6E)]

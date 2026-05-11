@@ -635,10 +635,9 @@ async def test_ccc_setaasa_ignore(dut):
     assert virt_dynamic_address == VIRT_DYNAMIC_ADDR, "Unexpected VIRT DYNAMIC ADDRESS read from the CSR"
     assert virt_dynamic_address_valid == 1, "New VIRT DYNAMIC ADDRESS is not set as valid"
 
-@cocotb.test()
-async def test_ccc_setaasa_single(dut):
+async def test_ccc_setaasa_single(dut, pre_configure_regular):
     """
-    Randomly pre-configure the dynamic address of either the regular or the virtual
+    Pre-configure the dynamic address of either the regular or the virtual
     device via CSR (with valid=1), then send SETAASA.
     The pre-configured device must keep its CSR-set address; the other device must
     receive its static address as the new dynamic address.
@@ -646,8 +645,6 @@ async def test_ccc_setaasa_single(dut):
     (STATIC_ADDR, VIRT_STATIC_ADDR, DYNAMIC_ADDR, VIRT_DYNAMIC_ADDR) = random.sample(VALID_I3C_ADDRESSES, 4)
     I3C_BCAST_SETAASA = 0x29
 
-    # Randomly choose which device gets a pre-configured dynamic address
-    pre_configure_regular = random.choice([True, False])
     cocotb.log.info(
         f"Pre-configuring {'regular' if pre_configure_regular else 'virtual'} device via CSR"
     )
@@ -713,6 +710,11 @@ async def test_ccc_setaasa_single(dut):
         assert dynamic_address_valid == 1, "Regular device DYNAMIC_ADDR_VALID not set after SETAASA"
 
     await tb.teardown()
+
+
+_tf_setaasa_single = TestFactory(test_function=test_ccc_setaasa_single)
+_tf_setaasa_single.add_option("pre_configure_regular", [True, False])
+_tf_setaasa_single.generate_tests()
 
 
 @cocotb.test()

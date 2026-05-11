@@ -20,7 +20,9 @@ import random
 
 from boot import boot_init
 from bus2csr import dword2int, int2dword
+from ccc import CCC
 from i3c_controller_fixed import I3cControllerFixed as I3cController
+from i3c_recovery_interface_fixed import I3cRecoveryInterfaceFixed as I3cRecoveryInterface
 from cocotbext_i3c.i3c_target import I3CTarget
 from interface import I3CTopTestInterface
 
@@ -362,6 +364,27 @@ async def test_te0_errors(dut):
     await tb.write_csr_field(ctrl_addr, det_en_field, 1)
     await verify_target_responsive(i3c_controller, DYNAMIC_ADDR)
 
+    # --- PHASE 4: Counter saturation ---
+    log.info("=== PHASE 4: TE0 counter saturation ===")
+    cnt_reg = _get_reg(tb, "TARGET_ERR_CNT_TE0")
+    await tb.write_csr(cnt_reg.base_addr, int2dword(0xFE), 4)
+    await ClockCycles(tb.clk, 2)
+
+    await inject_te0_error(i3c_controller, dut, TE0_RSVD_ADDR_R)
+    await recover_from_hdr_error(i3c_controller, i3c_target, tb, 'hdr_exit')
+    await ClockCycles(tb.clk, 10)
+    cnt = await read_te_counter(tb, 0)
+    assert cnt == 0xFF, f"TE0 counter should reach 0xFF at saturation, got {cnt}"
+
+    await inject_te0_error(i3c_controller, dut, TE0_RSVD_ADDR_R)
+    await recover_from_hdr_error(i3c_controller, i3c_target, tb, 'hdr_exit')
+    await ClockCycles(tb.clk, 10)
+    cnt = await read_te_counter(tb, 0)
+    assert cnt == 0xFF, f"TE0 counter should remain 0xFF after saturation, got {cnt}"
+
+    await clear_all_te_status(tb)
+    await verify_target_responsive(i3c_controller, DYNAMIC_ADDR)
+
     log.info("test_te0_errors PASSED")
     tb.te_error_monitor.check()
 
@@ -475,6 +498,34 @@ async def test_te1_errors(dut):
         f"TE1 counter should not increment with DET_EN=0: before={cnt_before}, after={cnt_after}"
 
     await tb.write_csr_field(ctrl_addr, det_en_field, 1)
+    await verify_target_responsive(i3c_controller, DYNAMIC_ADDR)
+
+    # --- PHASE 4: Counter saturation ---
+    log.info("=== PHASE 4: TE1 counter saturation ===")
+    cnt_reg = _get_reg(tb, "TARGET_ERR_CNT_TE1")
+    await tb.write_csr(cnt_reg.base_addr, int2dword(0xFE), 4)
+    await ClockCycles(tb.clk, 2)
+
+    ccc = random.choice(BROADCAST_CCCS)
+    await pause_cocotb_target(i3c_target)
+    await i3c_controller.send_te1_error(ccc=ccc)
+    await ClockCycles(tb.clk, 10)
+    await recover_from_hdr_error(i3c_controller, i3c_target, tb, 'hdr_exit')
+    await ClockCycles(tb.clk, 10)
+    i3c_target.monitor_enable.set()
+    cnt = await read_te_counter(tb, 1)
+    assert cnt == 0xFF, f"TE1 counter should reach 0xFF at saturation, got {cnt}"
+
+    ccc = random.choice(BROADCAST_CCCS)
+    await i3c_controller.send_te1_error(ccc=ccc)
+    await ClockCycles(tb.clk, 10)
+    await recover_from_hdr_error(i3c_controller, i3c_target, tb, 'hdr_exit')
+    await ClockCycles(tb.clk, 10)
+    i3c_target.monitor_enable.set()
+    cnt = await read_te_counter(tb, 1)
+    assert cnt == 0xFF, f"TE1 counter should remain 0xFF after saturation, got {cnt}"
+
+    await clear_all_te_status(tb)
     await verify_target_responsive(i3c_controller, DYNAMIC_ADDR)
 
     log.info("test_te1_errors PASSED")
@@ -627,6 +678,37 @@ async def test_te2_private_write_parity(dut):
         tb.reg_map.I3C_EC.TTI.RESET_CONTROL.base_addr,
         tb.reg_map.I3C_EC.TTI.RESET_CONTROL.RX_DATA_RST, 0)
 
+    # --- PHASE 3: Counter saturation ---
+    log.info("=== PHASE 3: TE2 counter saturation ===")
+    cnt_reg = _get_reg(tb, "TARGET_ERR_CNT_TE2")
+    await tb.write_csr(cnt_reg.base_addr, int2dword(0xFE), 4)
+    await ClockCycles(tb.clk, 2)
+
+    await i3c_controller.i3c_write(DYNAMIC_ADDR, [0xAA], inject_tbit_err=True)
+    await ClockCycles(tb.clk, 10)
+    cnt = await read_te_counter(tb, 2)
+    assert cnt == 0xFF, f"TE2 counter should reach 0xFF at saturation, got {cnt}"
+
+    await tb.write_csr_field(
+        tb.reg_map.I3C_EC.TTI.RESET_CONTROL.base_addr,
+        tb.reg_map.I3C_EC.TTI.RESET_CONTROL.RX_DATA_RST, 1)
+    await tb.write_csr_field(
+        tb.reg_map.I3C_EC.TTI.RESET_CONTROL.base_addr,
+        tb.reg_map.I3C_EC.TTI.RESET_CONTROL.RX_DATA_RST, 0)
+
+    await i3c_controller.i3c_write(DYNAMIC_ADDR, [0xBB], inject_tbit_err=True)
+    await ClockCycles(tb.clk, 10)
+    cnt = await read_te_counter(tb, 2)
+    assert cnt == 0xFF, f"TE2 counter should remain 0xFF after saturation, got {cnt}"
+
+    await tb.write_csr_field(
+        tb.reg_map.I3C_EC.TTI.RESET_CONTROL.base_addr,
+        tb.reg_map.I3C_EC.TTI.RESET_CONTROL.RX_DATA_RST, 1)
+    await tb.write_csr_field(
+        tb.reg_map.I3C_EC.TTI.RESET_CONTROL.base_addr,
+        tb.reg_map.I3C_EC.TTI.RESET_CONTROL.RX_DATA_RST, 0)
+    await i3c_controller.i3c_ccc_read(ccc=GETSTATUS, addr=DYNAMIC_ADDR, count=2)
+
     await verify_target_responsive(i3c_controller, DYNAMIC_ADDR)
     log.info("test_te2_private_write_parity PASSED")
     tb.te_error_monitor.check()
@@ -709,8 +791,8 @@ async def test_te_error_registers_sweep(dut):
         await tb.write_csr_field(enable_addr, en_field, 1)
         log.info(f"  {en_name}: ENABLE gating OK")
 
-    # --- PHASE 3: Counter clear ---
-    log.info("=== PHASE 3: Counter clear ===")
+    # --- PHASE 3: Counter write, clear, and max value ---
+    log.info("=== PHASE 3: Counter write/clear/max ===")
     for n in range(7):
         _, _, _, _, cnt_name = TE_ERROR_TYPES[n]
         cnt_reg = _get_reg(tb, cnt_name)
@@ -721,13 +803,19 @@ async def test_te_error_registers_sweep(dut):
         cnt = dword2int(await tb.read_csr(cnt_reg.base_addr, 4)) & 0xFF
         assert cnt == 42, f"PHASE3: {cnt_name} should be 42, got {cnt}"
 
+        # Write max value
+        await tb.write_csr(cnt_reg.base_addr, int2dword(0xFF), 4)
+        await ClockCycles(tb.clk, 5)
+        cnt = dword2int(await tb.read_csr(cnt_reg.base_addr, 4)) & 0xFF
+        assert cnt == 0xFF, f"PHASE3: {cnt_name} should be 0xFF at max, got {cnt}"
+
         # Clear
         await tb.write_csr(cnt_reg.base_addr, int2dword(0), 4)
         await ClockCycles(tb.clk, 5)
         cnt = dword2int(await tb.read_csr(cnt_reg.base_addr, 4)) & 0xFF
         assert cnt == 0, f"PHASE3: {cnt_name} should be 0 after clear, got {cnt}"
 
-        log.info(f"  {cnt_name}: write/clear OK")
+        log.info(f"  {cnt_name}: write/max/clear OK")
 
     # --- PHASE 4: Random multi-bit FORCE ---
     log.info("=== PHASE 4: Multi-bit FORCE ===")
@@ -1303,5 +1391,441 @@ async def test_ri_interrupt_force_all(dut):
         log.info(f"  Part C: W1C clears status and irq_o=0: OK")
 
     log.info("test_ri_interrupt_force_all PASSED")
+
+    await tb.teardown()
+
+
+# =============================================================================
+# Counter Saturation: TE5, FRAMING, RI_PEC
+# =============================================================================
+
+@cocotb.test()
+async def test_te5_counter_saturation(dut):
+    """TE5 counter saturates at 0xFF: wrong R/W direction for direct CCC."""
+    log = logging.getLogger("test_te5_counter_saturation")
+
+    (STATIC_ADDR, VIRT_STATIC_ADDR, DYNAMIC_ADDR, VIRT_DYNAMIC_ADDR) = \
+        random.sample(VALID_I3C_ADDRESSES, 4)
+    i3c_controller, _, tb = await test_setup(
+        dut, STATIC_ADDR, VIRT_STATIC_ADDR, DYNAMIC_ADDR, VIRT_DYNAMIC_ADDR)
+    tb.te_error_monitor.expect_error(5)
+
+    await enable_all_te_interrupts(tb)
+    await clear_all_te_status(tb)
+    await clear_all_te_counters(tb)
+    await ClockCycles(tb.clk, 5)
+
+    cnt_reg = _get_reg(tb, "TARGET_ERR_CNT_TE5")
+    await tb.write_csr(cnt_reg.base_addr, int2dword(0xFE), 4)
+    await ClockCycles(tb.clk, 2)
+
+    # Inject TE5: GET CCC sent with Write direction -> NACK + TE5
+    await i3c_controller.i3c_ccc_write(
+        ccc=CCC.DIRECT.GETBCR, directed_data=[(DYNAMIC_ADDR, [0x00])])
+    await ClockCycles(tb.clk, 10)
+    cnt = await read_te_counter(tb, 5)
+    assert cnt == 0xFF, f"TE5 counter should reach 0xFF at saturation, got {cnt}"
+
+    await i3c_controller.i3c_ccc_write(
+        ccc=CCC.DIRECT.GETBCR, directed_data=[(DYNAMIC_ADDR, [0x00])])
+    await ClockCycles(tb.clk, 10)
+    cnt = await read_te_counter(tb, 5)
+    assert cnt == 0xFF, f"TE5 counter should remain 0xFF after saturation, got {cnt}"
+
+    await clear_all_te_status(tb)
+    await verify_target_responsive(i3c_controller, DYNAMIC_ADDR)
+    log.info("test_te5_counter_saturation PASSED")
+    tb.te_error_monitor.check()
+
+    await tb.teardown()
+
+
+@cocotb.test()
+async def test_framing_counter_saturation(dut):
+    """FRAMING counter saturates at 0xFF: SETDASA with bad padding bit."""
+    log = logging.getLogger("test_framing_counter_saturation")
+
+    (STATIC_ADDR, VIRT_STATIC_ADDR, DYNAMIC_ADDR, VIRT_DYNAMIC_ADDR) = \
+        random.sample(VALID_I3C_ADDRESSES, 4)
+    # No dynamic addr: device only has static address so SETDASA can assign one.
+    i3c_controller, _, tb = await test_setup(dut, STATIC_ADDR, VIRT_STATIC_ADDR)
+    tb.te_error_monitor.expect_error(6)
+
+    await enable_all_te_interrupts(tb)
+    await clear_all_te_status(tb)
+    await clear_all_te_counters(tb)
+    await ClockCycles(tb.clk, 5)
+
+    cnt_reg = _get_reg(tb, "TARGET_ERR_CNT_FRAMING")
+    await tb.write_csr(cnt_reg.base_addr, int2dword(0xFE), 4)
+    await ClockCycles(tb.clk, 2)
+
+    # Inject framing error: SETDASA with bit[0]=1 (bad padding) -> error, no address applied
+    bad_byte = (DYNAMIC_ADDR << 1) | 1
+    await i3c_controller.i3c_ccc_write(
+        ccc=CCC.DIRECT.SETDASA, directed_data=[(STATIC_ADDR, [bad_byte])])
+    await ClockCycles(tb.clk, 20)
+    cnt = await read_te_counter(tb, 6)
+    assert cnt == 0xFF, f"FRAMING counter should reach 0xFF at saturation, got {cnt}"
+
+    await i3c_controller.i3c_ccc_write(
+        ccc=CCC.DIRECT.SETDASA, directed_data=[(STATIC_ADDR, [bad_byte])])
+    await ClockCycles(tb.clk, 20)
+    cnt = await read_te_counter(tb, 6)
+    assert cnt == 0xFF, f"FRAMING counter should remain 0xFF after saturation, got {cnt}"
+
+    # Apply a valid dynamic address so responsiveness can be verified
+    good_byte = DYNAMIC_ADDR << 1
+    await i3c_controller.i3c_ccc_write(
+        ccc=CCC.DIRECT.SETDASA, directed_data=[(STATIC_ADDR, [good_byte])])
+    await ClockCycles(tb.clk, 20)
+    await clear_all_te_status(tb)
+    await verify_target_responsive(i3c_controller, DYNAMIC_ADDR)
+    log.info("test_framing_counter_saturation PASSED")
+    tb.te_error_monitor.check()
+
+    await tb.teardown()
+
+
+@cocotb.test()
+async def test_ri_pec_counter_saturation(dut):
+    """TARGET_ERR_CNT_RI_PEC saturates at 0xFF: recovery command with bad PEC."""
+    log = logging.getLogger("test_ri_pec_counter_saturation")
+
+    (STATIC_ADDR, VIRT_STATIC_ADDR, DYNAMIC_ADDR, VIRT_DYNAMIC_ADDR) = \
+        random.sample(VALID_I3C_ADDRESSES, 4)
+    i3c_controller, _, tb = await test_setup(
+        dut, STATIC_ADDR, VIRT_STATIC_ADDR, DYNAMIC_ADDR, VIRT_DYNAMIC_ADDR)
+
+    # Recovery interface requires the device to be in reset (not post-boot)
+    dut.peripheral_reset_done_i.value = 0
+    recovery = I3cRecoveryInterface(i3c_controller)
+
+    # DEVICE_STATUS_0 = 0x3 (Awaiting Image) activates the recovery mode
+    await tb.write_csr(
+        tb.reg_map.I3C_EC.SECFWRECOVERYIF.DEVICE_STATUS_0.base_addr,
+        int2dword(0x3), 4)
+    
+    # Enable RI_PEC_ERR interrupt (bit 8) and clear any stale status
+    ri_pec_en_mask = 1 << 8
+    current_en = dword2int(await tb.read_csr(
+        tb.reg_map.I3C_EC.TTI.TARGET_ERR_INTR_ENABLE.base_addr, 4))
+    await tb.write_csr(
+        tb.reg_map.I3C_EC.TTI.TARGET_ERR_INTR_ENABLE.base_addr,
+        int2dword(current_en | ri_pec_en_mask), 4)
+    await tb.write_csr(
+        tb.reg_map.I3C_EC.TTI.TARGET_ERR_INTR_STATUS.base_addr,
+        int2dword(0xFFFFFFFF), 4)
+
+    ri_pec_reg = tb.reg_map.I3C_EC.TTI.TARGET_ERR_CNT_RI_PEC
+    await tb.write_csr(ri_pec_reg.base_addr, int2dword(0), 4)
+    
+    # Pre-load counter to 0xFE
+    await tb.write_csr(ri_pec_reg.base_addr, int2dword(0xFE), 4)
+    
+    # Inject RI PEC error: recovery command_write with deliberately bad PEC
+    await recovery.command_write(
+        VIRT_DYNAMIC_ADDR,
+        I3cRecoveryInterface.Command.DEVICE_RESET,
+        [0xAA, 0xBB, 0xCC],
+        force_pec_error=True)
+    await ClockCycles(tb.clk, 20)
+    cnt = dword2int(await tb.read_csr(ri_pec_reg.base_addr, 4)) & 0xFF
+    assert cnt == 0xFF, f"RI_PEC counter should reach 0xFF at saturation, got {cnt}"
+
+    await recovery.command_write(
+        VIRT_DYNAMIC_ADDR,
+        I3cRecoveryInterface.Command.DEVICE_RESET,
+        [0xAA, 0xBB, 0xCC],
+        force_pec_error=True)
+    await ClockCycles(tb.clk, 20)
+    cnt = dword2int(await tb.read_csr(ri_pec_reg.base_addr, 4)) & 0xFF
+    assert cnt == 0xFF, f"RI_PEC counter should remain 0xFF after saturation, got {cnt}"
+
+    await verify_target_responsive(i3c_controller, DYNAMIC_ADDR)
+    log.info("test_ri_pec_counter_saturation PASSED")
+
+    await tb.teardown()
+
+
+# =============================================================================
+# Helper: RI recovery mode setup (shared by the RI counter saturation tests)
+# =============================================================================
+
+async def _setup_ri_recovery(dut, tb, i3c_controller):
+    """Activate recovery mode and return the recovery interface object."""
+    dut.peripheral_reset_done_i.value = 0
+    recovery = I3cRecoveryInterface(i3c_controller)
+    await tb.write_csr(
+        tb.reg_map.I3C_EC.SECFWRECOVERYIF.DEVICE_STATUS_0.base_addr,
+        int2dword(0x3), 4)
+    await tb.write_csr(
+        tb.reg_map.I3C_EC.TTI.TARGET_ERR_INTR_STATUS.base_addr,
+        int2dword(0xFFFFFFFF), 4)
+    return recovery
+
+
+async def _clear_ri_error_state(tb):
+    """Clear device-status protocol error and interrupt status between RI injections."""
+    await tb.write_csr(
+        tb.reg_map.I3C_EC.SECFWRECOVERYIF.DEVICE_STATUS_0.base_addr,
+        int2dword(0x3), 4)
+    await tb.write_csr(
+        tb.reg_map.I3C_EC.TTI.TARGET_ERR_INTR_STATUS.base_addr,
+        int2dword(0xFFFFFFFF), 4)
+    await ClockCycles(tb.clk, 5)
+
+
+async def _reset_indirect_fifo(tb):
+    """Reset the INDIRECT_FIFO and clear error state."""
+    await tb.write_csr_field(
+        tb.reg_map.I3C_EC.SECFWRECOVERYIF.INDIRECT_FIFO_CTRL_0.base_addr,
+        tb.reg_map.I3C_EC.SECFWRECOVERYIF.INDIRECT_FIFO_CTRL_0.RESET,
+        0x1)
+    await _clear_ri_error_state(tb)
+
+
+# =============================================================================
+# Counter Saturation: RI_LENGTH, RI_READONLY, RI_UNSUPPORTED,
+#                     RI_RX_FIFO_OVERFLOW, RI_INDIRECT_FIFO_OVERFLOW
+# =============================================================================
+
+@cocotb.test()
+async def test_ri_length_counter_saturation(dut):
+    """TARGET_ERR_CNT_RI_LENGTH saturates at 0xFF: recovery command with wrong length."""
+    log = logging.getLogger("test_ri_length_counter_saturation")
+
+    (STATIC_ADDR, VIRT_STATIC_ADDR, DYNAMIC_ADDR, VIRT_DYNAMIC_ADDR) = \
+        random.sample(VALID_I3C_ADDRESSES, 4)
+    i3c_controller, _, tb = await test_setup(
+        dut, STATIC_ADDR, VIRT_STATIC_ADDR, DYNAMIC_ADDR, VIRT_DYNAMIC_ADDR)
+    recovery = await _setup_ri_recovery(dut, tb, i3c_controller)
+
+    ri_length_reg = tb.reg_map.I3C_EC.TTI.TARGET_ERR_CNT_RI_LENGTH
+    await tb.write_csr(ri_length_reg.base_addr, int2dword(0xFE), 4)
+
+    # Inject LENGTH error: claim 100 bytes but send only 1
+    await recovery.command_write_wrong_length(
+        VIRT_DYNAMIC_ADDR,
+        I3cRecoveryInterface.Command.DEVICE_RESET,
+        data=[0xAA],
+        claimed_length=100)
+    cnt = dword2int(await tb.read_csr(ri_length_reg.base_addr, 4)) & 0xFF
+    assert cnt == 0xFF, f"RI_LENGTH counter should reach 0xFF at saturation, got {cnt}"
+
+    await _clear_ri_error_state(tb)
+
+    await recovery.command_write_wrong_length(
+        VIRT_DYNAMIC_ADDR,
+        I3cRecoveryInterface.Command.DEVICE_RESET,
+        data=[0xAA],
+        claimed_length=100)
+    cnt = dword2int(await tb.read_csr(ri_length_reg.base_addr, 4)) & 0xFF
+    assert cnt == 0xFF, f"RI_LENGTH counter should remain 0xFF after saturation, got {cnt}"
+
+    await verify_target_responsive(i3c_controller, DYNAMIC_ADDR)
+    log.info("test_ri_length_counter_saturation PASSED")
+
+    await tb.teardown()
+
+
+@cocotb.test()
+async def test_ri_readonly_counter_saturation(dut):
+    """TARGET_ERR_CNT_RI_READONLY saturates at 0xFF: write to read-only register."""
+    log = logging.getLogger("test_ri_readonly_counter_saturation")
+
+    (STATIC_ADDR, VIRT_STATIC_ADDR, DYNAMIC_ADDR, VIRT_DYNAMIC_ADDR) = \
+        random.sample(VALID_I3C_ADDRESSES, 4)
+    i3c_controller, _, tb = await test_setup(
+        dut, STATIC_ADDR, VIRT_STATIC_ADDR, DYNAMIC_ADDR, VIRT_DYNAMIC_ADDR)
+    recovery = await _setup_ri_recovery(dut, tb, i3c_controller)
+
+    # Disable LENGTH detection to isolate READONLY error (length errors have
+    # higher priority in the PROT_ERROR encoding and would mask it)
+    err_ctrl = dword2int(await tb.read_csr(
+        tb.reg_map.I3C_EC.TTI.TARGET_ERR_CTRL.base_addr, 4))
+    await tb.write_csr(
+        tb.reg_map.I3C_EC.TTI.TARGET_ERR_CTRL.base_addr,
+        int2dword(err_ctrl & ~(1 << 8)), 4)
+
+    ri_readonly_reg = tb.reg_map.I3C_EC.TTI.TARGET_ERR_CNT_RI_READONLY
+    await tb.write_csr(ri_readonly_reg.base_addr, int2dword(0xFE), 4)
+
+    # Inject READONLY error: write 4 bytes to HW_STATUS (read-only register)
+    await recovery.command_write(
+        VIRT_DYNAMIC_ADDR,
+        I3cRecoveryInterface.Command.HW_STATUS,
+        [0x01, 0x02, 0x03, 0x04])
+    cnt = dword2int(await tb.read_csr(ri_readonly_reg.base_addr, 4)) & 0xFF
+    assert cnt == 0xFF, f"RI_READONLY counter should reach 0xFF at saturation, got {cnt}"
+
+    await _clear_ri_error_state(tb)
+
+    await recovery.command_write(
+        VIRT_DYNAMIC_ADDR,
+        I3cRecoveryInterface.Command.HW_STATUS,
+        [0x01, 0x02, 0x03, 0x04])
+    cnt = dword2int(await tb.read_csr(ri_readonly_reg.base_addr, 4)) & 0xFF
+    assert cnt == 0xFF, f"RI_READONLY counter should remain 0xFF after saturation, got {cnt}"
+
+    await tb.write_csr(
+        tb.reg_map.I3C_EC.TTI.TARGET_ERR_CTRL.base_addr, int2dword(err_ctrl), 4)
+    await verify_target_responsive(i3c_controller, DYNAMIC_ADDR)
+    log.info("test_ri_readonly_counter_saturation PASSED")
+
+    await tb.teardown()
+
+
+@cocotb.test()
+async def test_ri_unsupported_counter_saturation(dut):
+    """TARGET_ERR_CNT_RI_UNSUPPORTED saturates at 0xFF: invalid recovery command code."""
+    log = logging.getLogger("test_ri_unsupported_counter_saturation")
+
+    (STATIC_ADDR, VIRT_STATIC_ADDR, DYNAMIC_ADDR, VIRT_DYNAMIC_ADDR) = \
+        random.sample(VALID_I3C_ADDRESSES, 4)
+    i3c_controller, _, tb = await test_setup(
+        dut, STATIC_ADDR, VIRT_STATIC_ADDR, DYNAMIC_ADDR, VIRT_DYNAMIC_ADDR)
+    recovery = await _setup_ri_recovery(dut, tb, i3c_controller)
+
+    # Disable LENGTH detection to isolate UNSUPPORTED error
+    err_ctrl = dword2int(await tb.read_csr(
+        tb.reg_map.I3C_EC.TTI.TARGET_ERR_CTRL.base_addr, 4))
+    await tb.write_csr(
+        tb.reg_map.I3C_EC.TTI.TARGET_ERR_CTRL.base_addr,
+        int2dword(err_ctrl & ~(1 << 8)), 4)
+
+    ri_unsupported_reg = tb.reg_map.I3C_EC.TTI.TARGET_ERR_CNT_RI_UNSUPPORTED
+    await tb.write_csr(ri_unsupported_reg.base_addr, int2dword(0xFE), 4)
+
+    # Inject UNSUPPORTED error: command code 0xFF is not in the supported set
+    await recovery.command_write_invalid_command(
+        VIRT_DYNAMIC_ADDR, 0xFF, [0x12, 0x34])
+    cnt = dword2int(await tb.read_csr(ri_unsupported_reg.base_addr, 4)) & 0xFF
+    assert cnt == 0xFF, f"RI_UNSUPPORTED counter should reach 0xFF at saturation, got {cnt}"
+
+    await _clear_ri_error_state(tb)
+
+    await recovery.command_write_invalid_command(
+        VIRT_DYNAMIC_ADDR, 0xFF, [0x12, 0x34])
+    cnt = dword2int(await tb.read_csr(ri_unsupported_reg.base_addr, 4)) & 0xFF
+    assert cnt == 0xFF, f"RI_UNSUPPORTED counter should remain 0xFF after saturation, got {cnt}"
+
+    await tb.write_csr(
+        tb.reg_map.I3C_EC.TTI.TARGET_ERR_CTRL.base_addr, int2dword(err_ctrl), 4)
+    await verify_target_responsive(i3c_controller, DYNAMIC_ADDR)
+    log.info("test_ri_unsupported_counter_saturation PASSED")
+
+    await tb.teardown()
+
+
+@cocotb.test()
+async def test_ri_rx_fifo_overflow_counter_saturation(dut):
+    """TARGET_ERR_CNT_RI_RX_FIFO_OVERFLOW saturates at 0xFF: large INDIRECT_FIFO_DATA write."""
+    log = logging.getLogger("test_ri_rx_fifo_overflow_counter_saturation")
+
+    (STATIC_ADDR, VIRT_STATIC_ADDR, DYNAMIC_ADDR, VIRT_DYNAMIC_ADDR) = \
+        random.sample(VALID_I3C_ADDRESSES, 4)
+    i3c_controller, _, tb = await test_setup(
+        dut, STATIC_ADDR, VIRT_STATIC_ADDR, DYNAMIC_ADDR, VIRT_DYNAMIC_ADDR)
+    recovery = await _setup_ri_recovery(dut, tb, i3c_controller)
+
+    # Small FIFO so overflow is easy to trigger (matches test_recovery initialize)
+    await tb.write_csr(
+        tb.reg_map.I3C_EC.SECFWRECOVERYIF.INDIRECT_FIFO_STATUS_3.base_addr,
+        int2dword(8), 4)  # 8 dwords = 32 bytes
+    await tb.write_csr(
+        tb.reg_map.I3C_EC.SECFWRECOVERYIF.INDIRECT_FIFO_STATUS_4.base_addr,
+        int2dword(8), 4)
+    await _reset_indirect_fifo(tb)
+
+    ri_rx_fifo_reg = tb.reg_map.I3C_EC.TTI.TARGET_ERR_CNT_RI_RX_FIFO_OVERFLOW
+    await tb.write_csr(ri_rx_fifo_reg.base_addr, int2dword(0xFE), 4)
+
+    # 300 bytes >> 32-byte FIFO: overflows both INDIRECT FIFO and the I3C RX FIFO
+    overflow_data = [i & 0xFF for i in range(300)]
+    try:
+        await recovery.command_write(
+            VIRT_DYNAMIC_ADDR,
+            I3cRecoveryInterface.Command.INDIRECT_FIFO_DATA,
+            overflow_data)
+    except Exception:
+        pass
+    await ClockCycles(tb.clk, 50)
+    cnt = dword2int(await tb.read_csr(ri_rx_fifo_reg.base_addr, 4)) & 0xFF
+    assert cnt == 0xFF, f"RI_RX_FIFO_OVERFLOW counter should reach 0xFF at saturation, got {cnt}"
+
+    await _reset_indirect_fifo(tb)
+
+    try:
+        await recovery.command_write(
+            VIRT_DYNAMIC_ADDR,
+            I3cRecoveryInterface.Command.INDIRECT_FIFO_DATA,
+            overflow_data)
+    except Exception:
+        pass
+    await ClockCycles(tb.clk, 50)
+    cnt = dword2int(await tb.read_csr(ri_rx_fifo_reg.base_addr, 4)) & 0xFF
+    assert cnt == 0xFF, f"RI_RX_FIFO_OVERFLOW counter should remain 0xFF after saturation, got {cnt}"
+
+    await verify_target_responsive(i3c_controller, DYNAMIC_ADDR)
+    log.info("test_ri_rx_fifo_overflow_counter_saturation PASSED")
+
+    await tb.teardown()
+
+
+@cocotb.test()
+async def test_ri_indirect_fifo_overflow_counter_saturation(dut):
+    """TARGET_ERR_CNT_RI_INDIRECT_FIFO_OVERFLOW saturates at 0xFF: INDIRECT_FIFO write exceeds capacity."""
+    log = logging.getLogger("test_ri_indirect_fifo_overflow_counter_saturation")
+
+    (STATIC_ADDR, VIRT_STATIC_ADDR, DYNAMIC_ADDR, VIRT_DYNAMIC_ADDR) = \
+        random.sample(VALID_I3C_ADDRESSES, 4)
+    i3c_controller, _, tb = await test_setup(
+        dut, STATIC_ADDR, VIRT_STATIC_ADDR, DYNAMIC_ADDR, VIRT_DYNAMIC_ADDR)
+    recovery = await _setup_ri_recovery(dut, tb, i3c_controller)
+
+    fifo_size = dword2int(await tb.read_csr(
+        tb.reg_map.I3C_EC.SECFWRECOVERYIF.INDIRECT_FIFO_STATUS_3.base_addr, 4))
+    overflow_data = [i & 0xFF for i in range((fifo_size//2 + 1) * 4)]
+
+    ri_indirect_reg = tb.reg_map.I3C_EC.TTI.TARGET_ERR_CNT_RI_INDIRECT_FIFO_OVERFLOW
+    await tb.write_csr(ri_indirect_reg.base_addr, int2dword(0xFE), 4)
+    
+    # Write half + 1 FIFO capacity
+    await recovery.command_write(
+        VIRT_DYNAMIC_ADDR,
+        I3cRecoveryInterface.Command.INDIRECT_FIFO_DATA,
+        overflow_data)
+    await ClockCycles(tb.clk, 100)
+    # Write second half + 1 FIFO capacity to trigger INDIRECT_FIFO_OVERFLOW
+    await recovery.command_write(
+        VIRT_DYNAMIC_ADDR,
+        I3cRecoveryInterface.Command.INDIRECT_FIFO_DATA,
+        overflow_data)
+    # Wait some time to move data from TTI to Indirect FIFO
+    await ClockCycles(tb.clk, 100)
+    cnt = dword2int(await tb.read_csr(ri_indirect_reg.base_addr, 4)) & 0xFF
+    assert cnt == 0xFF, f"RI_INDIRECT_FIFO_OVERFLOW counter should reach 0xFF at saturation, got {cnt}"
+
+    await _reset_indirect_fifo(tb)
+
+    # Write half + 1 FIFO capacity
+    await recovery.command_write(
+        VIRT_DYNAMIC_ADDR,
+        I3cRecoveryInterface.Command.INDIRECT_FIFO_DATA,
+        overflow_data)
+    await ClockCycles(tb.clk, 100)
+    # Write second half + 1 FIFO capacity to trigger INDIRECT_FIFO_OVERFLOW
+    await recovery.command_write(
+        VIRT_DYNAMIC_ADDR,
+        I3cRecoveryInterface.Command.INDIRECT_FIFO_DATA,
+        overflow_data)
+    # Wait some time to move data from TTI to Indirect FIFO
+    await ClockCycles(tb.clk, 100)
+    cnt = dword2int(await tb.read_csr(ri_indirect_reg.base_addr, 4)) & 0xFF
+    assert cnt == 0xFF, f"RI_INDIRECT_FIFO_OVERFLOW counter should remain 0xFF after saturation, got {cnt}"
+
+    await verify_target_responsive(i3c_controller, DYNAMIC_ADDR)
+    log.info("test_ri_indirect_fifo_overflow_counter_saturation PASSED")
 
     await tb.teardown()

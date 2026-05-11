@@ -122,6 +122,18 @@
       tags: ["top"]
     }
     {
+      name: ccc_setaasa_single
+      desc:
+        '''
+        Pre-configures the dynamic address of either the regular or the virtual
+        device via CSR (with valid=1), then sends SETAASA. Verifies that the
+        pre-configured device retains its CSR-set address while the other
+        device receives its static address as the new dynamic address.
+        '''
+      tests: ["ccc_setaasa_single"]
+      tags: ["top"]
+    }
+    {
       name: ccc_getpid
       desc:
         '''

@@ -2255,6 +2255,104 @@ async def test_ccc_setdasa_padding_err(dut):
 
 
 @cocotb.test()
+async def test_ccc_setdasa_padding_err_det_disabled(dut):
+    """
+    Verify that SETDASA/SETNEWDA with padding bit[0]=1 and FRAMING_ERR_DET_EN=0
+    applies the address normally (rx_data_valid fires) and does NOT set the framing
+    error status or increment the framing error counter. Per ccc.sv:1119-1127.
+    """
+    log = logging.getLogger("test_ccc_setdasa_padding_err_det_disabled")
+
+    (STATIC_ADDR, VIRT_STATIC_ADDR, DYNAMIC_ADDR, VIRT_DYNAMIC_ADDR) = random.sample(VALID_I3C_ADDRESSES, 4)
+    i3c_controller, i3c_target, tb = await test_setup(dut, STATIC_ADDR, VIRT_STATIC_ADDR)
+
+    err_intr_addr = tb.reg_map.I3C_EC.TTI.TARGET_ERR_INTR_STATUS.base_addr
+    framing_stat_field = tb.reg_map.I3C_EC.TTI.TARGET_ERR_INTR_STATUS.FRAMING_ERR_STAT
+    framing_cnt_addr = tb.reg_map.I3C_EC.TTI.TARGET_ERR_CNT_FRAMING.base_addr
+    framing_cnt_field = tb.reg_map.I3C_EC.TTI.TARGET_ERR_CNT_FRAMING.CNT
+
+    da_reg_addr = tb.reg_map.I3C_EC.STDBYCTRLMODE.STBY_CR_DEVICE_ADDR.base_addr
+    da_valid_field = tb.reg_map.I3C_EC.STDBYCTRLMODE.STBY_CR_DEVICE_ADDR.DYNAMIC_ADDR_VALID
+    da_field = tb.reg_map.I3C_EC.STDBYCTRLMODE.STBY_CR_DEVICE_ADDR.DYNAMIC_ADDR
+
+    err_ctrl_addr = tb.reg_map.I3C_EC.TTI.TARGET_ERR_CTRL.base_addr
+    framing_det_field = tb.reg_map.I3C_EC.TTI.TARGET_ERR_CTRL.FRAMING_ERR_DET_EN
+
+    # Enable framing error interrupt so any spurious error would be captured
+    err_en_addr = tb.reg_map.I3C_EC.TTI.TARGET_ERR_INTR_ENABLE.base_addr
+    framing_en_field = tb.reg_map.I3C_EC.TTI.TARGET_ERR_INTR_ENABLE.FRAMING_ERR_EN
+    await tb.write_csr_field(err_en_addr, framing_en_field, 1)
+
+    # Clear any stale framing error status (W1C)
+    await tb.write_csr_field(err_intr_addr, framing_stat_field, 1)
+
+    log.info("Disabling FRAMING_ERR_DET_EN")
+    await tb.write_csr_field(err_ctrl_addr, framing_det_field, 0)
+
+    # ---- Test 1: SETDASA with bad padding and det_en=0 -> address IS applied ----
+    cnt_before = await tb.read_csr_field(framing_cnt_addr, framing_cnt_field)
+
+    log.info(f"SETDASA with bad padding (det_en=0): addr={STATIC_ADDR:#x} -> DA={DYNAMIC_ADDR:#x} | 1")
+    bad_data_byte = (DYNAMIC_ADDR << 1) | 1
+    await i3c_controller.i3c_ccc_write(
+        ccc=CCC.DIRECT.SETDASA, directed_data=[(STATIC_ADDR, [bad_data_byte])])
+
+    # Detection disabled: bad padding is ignored, address IS applied
+    da_valid = await tb.read_csr_field(da_reg_addr, da_valid_field)
+    assert da_valid == 1, f"DA_VALID should be 1 with framing det disabled, got {da_valid}"
+    da_val = await tb.read_csr_field(da_reg_addr, da_field)
+    assert da_val == DYNAMIC_ADDR, f"DA should be {DYNAMIC_ADDR:#x} with det disabled, got {da_val:#x}"
+
+    framing_stat = await tb.read_csr_field(err_intr_addr, framing_stat_field)
+    assert framing_stat == 0, f"FRAMING_ERR_STAT should be 0 with det disabled (SETDASA), got {framing_stat}"
+
+    cnt_after = await tb.read_csr_field(framing_cnt_addr, framing_cnt_field)
+    assert cnt_after == cnt_before, (
+        f"Framing counter must not increment with det_en=0 (SETDASA): "
+        f"before={cnt_before}, after={cnt_after}"
+    )
+
+    # Assign virtual target address for later GETBCR verification
+    await i3c_controller.i3c_ccc_write(
+        ccc=CCC.DIRECT.SETDASA, directed_data=[(VIRT_STATIC_ADDR, [VIRT_DYNAMIC_ADDR << 1])])
+
+    # ---- Test 2: SETNEWDA with bad padding and det_en=0 -> address IS changed ----
+    NEW_ADDR = random.choice([a for a in VALID_I3C_ADDRESSES
+                              if a not in (STATIC_ADDR, VIRT_STATIC_ADDR, DYNAMIC_ADDR, VIRT_DYNAMIC_ADDR)])
+    await tb.write_csr_field(err_intr_addr, framing_stat_field, 1)
+    cnt_before = cnt_after
+
+    log.info(f"SETNEWDA with bad padding (det_en=0): DA={DYNAMIC_ADDR:#x} -> {NEW_ADDR:#x} | 1")
+    bad_data_byte = (NEW_ADDR << 1) | 1
+    await i3c_controller.i3c_ccc_write(
+        ccc=CCC.DIRECT.SETNEWDA, directed_data=[(DYNAMIC_ADDR, [bad_data_byte])])
+
+    # Detection disabled: bad padding is ignored, address IS changed to NEW_ADDR
+    da_val = await tb.read_csr_field(da_reg_addr, da_field)
+    assert da_val == NEW_ADDR, f"DA should be {NEW_ADDR:#x} with det disabled, got {da_val:#x}"
+
+    framing_stat = await tb.read_csr_field(err_intr_addr, framing_stat_field)
+    assert framing_stat == 0, f"FRAMING_ERR_STAT should be 0 with det disabled (SETNEWDA), got {framing_stat}"
+
+    cnt_after = await tb.read_csr_field(framing_cnt_addr, framing_cnt_field)
+    assert cnt_after == cnt_before, (
+        f"Framing counter must not increment with det_en=0 (SETNEWDA): "
+        f"before={cnt_before}, after={cnt_after}"
+    )
+
+    # Re-enable framing error detection
+    await tb.write_csr_field(err_ctrl_addr, framing_det_field, 1)
+
+    # Target should still respond at updated address
+    responses = await i3c_controller.i3c_ccc_read(
+        ccc=CCC.DIRECT.GETBCR, addr=NEW_ADDR, count=1)
+    assert responses[0][0] == True, "Target should ACK at new DA with detection re-enabled"
+
+    tb.te_error_monitor.check()
+
+    await tb.teardown()
+
+
 async def test_ccc_te2_parity(dut):
     """
     Verify TE2 error detection: bad T-bit parity on CCC defining byte causes

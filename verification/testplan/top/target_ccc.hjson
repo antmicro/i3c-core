@@ -325,7 +325,7 @@
         Verifies that SETDASA/SETNEWDA with padding bit[0]=1 triggers a framing
         error and does NOT apply the address.
         '''
-      tests: ["ccc_setdasa_padding_err"]
+      tests: ["ccc_setdasa_padding_err", "ccc_setdasa_padding_err_det_disabled"]
       tags: ["top"]
     }
     {

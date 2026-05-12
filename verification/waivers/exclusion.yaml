@@ -4142,6 +4142,18 @@ exclusions:
         - data_len: [9-15]
         - data_len_words: [7-31]
 
+      tx_abort flush cannot be valid when tx_start_i is valid:
+        cond:
+        - 8: [4 "1110"] # assign tti_tx_desc_queue_rready_o = tti_tx_desc_queue_rvalid_i && !descriptor_valid && tx_start_i && !(flush || tx_abort_i)
+      Abort would have to happen on the last transfered byte (so effectively abort would mean regular end of transfer):
+        cond:
+        - 2: [1 "01"] # if ((byte_counter != 16'h0) && tx_abort_i ) begin
+      If byte_count is 1 or 0 during flushing, rvalid has to be 1:
+        cond:
+        - 4: [4 "100"] # if (((byte_counter inside {16'd1, 16'd0}) && tti_tx_queue_rvalid_i) || (!tti_tx_queue_rvalid_i && tti_tx_queue_empty_i) || (tx_queue_flush_o)) begin
+      Overflow is catched by other logic:
+        cond:
+        - 11: [3 "110"] # assign tx_start = !tx_pending && descriptor_valid && (TtiTxDescDataWidth'(tti_tx_queue_depth_i + 1) >= data_len_words);
 
   controller_standby:
     source_path: src/ctrl/controller_standby.sv

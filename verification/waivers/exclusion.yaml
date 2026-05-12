@@ -3671,6 +3671,11 @@ exclusions:
         cond:
           - 7: [1 "01"]  # length_underrun_err  = (payload_byte_cnt < cmd_len) && length_err_det_en_i;
 
+      TX descriptor queue will always be ready before virtual target is selected:
+        cond:
+          - 36: [2 "001"]  # TxDesc: if (bus_stop_i || other_target_start_i || (virtual_target_start_i && !bus_addr_i[0])) begin
+          - 37: [2 "10", 3 "11"]  # TxDesc: if (bus_stop_i || other_target_start_i || (virtual_target_start_i && !bus_addr_i[0])) begin
+
       Upper bits of a counter:
         toggle:
           - payload_byte_cnt: [9-15]

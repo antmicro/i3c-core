@@ -13,6 +13,7 @@ from cocotbext_i3c.i3c_target import I3CTarget
 from interface import I3CTopTestInterface
 
 import cocotb
+from cocotb.regression import TestFactory
 from cocotb.triggers import ClockCycles, Combine, Event, RisingEdge, Timer
 
 STATIC_ADDR = 0x5A
@@ -408,14 +409,16 @@ async def test_virtual_overwrite(dut):
     await tb.teardown()
 
 
-@cocotb.test()
-async def test_virtual_write(dut):
+async def test_virtual_write(dut, use_static_addr=False):
     """
-    Tests CSR write(s) using the recovery protocol using the virtual address
+    Tests CSR write(s) using the recovery protocol using the virtual address.
+    Parameterized over static vs. dynamic virtual device address.
     """
 
     # Initialize
     i3c_controller, i3c_target, tb, recovery = await initialize(dut)
+
+    virt_addr = VIRT_STATIC_ADDR if use_static_addr else VIRT_DYNAMIC_ADDR
 
     # exit recovery mode
     status = 0x2
@@ -428,14 +431,15 @@ async def test_virtual_write(dut):
     await i3c_controller.i3c_ccc_write(
         ccc=CCC.DIRECT.SETDASA, directed_data=[(STATIC_ADDR, [DYNAMIC_ADDR << 1])]
     )
-    # set virtual device dynamic address
-    await i3c_controller.i3c_ccc_write(
-        ccc=CCC.DIRECT.SETDASA, directed_data=[(VIRT_STATIC_ADDR, [VIRT_DYNAMIC_ADDR << 1])]
-    )
+    if not use_static_addr:
+        # set virtual device dynamic address
+        await i3c_controller.i3c_ccc_write(
+            ccc=CCC.DIRECT.SETDASA, directed_data=[(VIRT_STATIC_ADDR, [VIRT_DYNAMIC_ADDR << 1])]
+        )
 
     # Write to the RESET CSR (one word)
     await recovery.command_write(
-        VIRT_DYNAMIC_ADDR, I3cRecoveryInterface.Command.DEVICE_RESET, [0xAA, 0xBB, 0xCC]
+        virt_addr, I3cRecoveryInterface.Command.DEVICE_RESET, [0xAA, 0xBB, 0xCC]
     )
 
     # Wait & read the CSR from the AHB/AXI side
@@ -449,7 +453,7 @@ async def test_virtual_write(dut):
 
     # read back device reset
     i3c_data, pec_ok = await recovery.command_read(
-        VIRT_DYNAMIC_ADDR, I3cRecoveryInterface.Command.DEVICE_RESET
+        virt_addr, I3cRecoveryInterface.Command.DEVICE_RESET
     )
 
     # Check
@@ -489,7 +493,7 @@ async def test_virtual_write(dut):
     # Write to the FIFO_CTRL CSR (two words)
     # This write should not pass because the device is not set to recovery mode
     await recovery.command_write(
-        VIRT_DYNAMIC_ADDR,
+        virt_addr,
         I3cRecoveryInterface.Command.INDIRECT_FIFO_CTRL,
         [0xAA, 0xBB, 0xCC, 0xDD, 0x11, 0x22],
     )
@@ -517,6 +521,11 @@ async def test_virtual_write(dut):
     assert data1 == 0x0, f"INDIRECT_FIFO_CTRL_1 should remain at reset value 0x0 (not in recovery mode), got 0x{data1:08X}"
 
     await tb.teardown()
+
+
+_tf_virtual_write = TestFactory(test_function=test_virtual_write)
+_tf_virtual_write.add_option("use_static_addr", [False, True])
+_tf_virtual_write.generate_tests()
 
 
 @cocotb.test()

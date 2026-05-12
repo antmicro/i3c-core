@@ -892,6 +892,7 @@ class I3cControllerFixed(I3cController):
         await self.send_byte_tbit(ccc, inject_tbit_err=True)
 
     async def send_te2_error(self, ccc: int, defining_byte: int = None,
+                            target_addr: int = None,
                             corrupt_defining_byte: bool = True) -> None:
         """
         Trigger a TE2 error by sending a CCC with bad T-bit parity on the
@@ -915,6 +916,8 @@ class I3cControllerFixed(I3cController):
         await self.send_start()
         await self.write_addr_header(I3C_RSVD_BYTE)
         await self.send_byte_tbit(ccc, inject_tbit_err=False)
+        if target_addr is not None:
+            await self.write_addr_header(target_addr)
         if defining_byte is not None:
             await self.send_byte_tbit(defining_byte,
                                       inject_tbit_err=corrupt_defining_byte)

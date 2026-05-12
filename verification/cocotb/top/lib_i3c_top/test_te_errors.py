@@ -1487,67 +1487,6 @@ async def test_framing_counter_saturation(dut):
     await tb.teardown()
 
 
-@cocotb.test()
-async def test_ri_pec_counter_saturation(dut):
-    """TARGET_ERR_CNT_RI_PEC saturates at 0xFF: recovery command with bad PEC."""
-    log = logging.getLogger("test_ri_pec_counter_saturation")
-
-    (STATIC_ADDR, VIRT_STATIC_ADDR, DYNAMIC_ADDR, VIRT_DYNAMIC_ADDR) = \
-        random.sample(VALID_I3C_ADDRESSES, 4)
-    i3c_controller, _, tb = await test_setup(
-        dut, STATIC_ADDR, VIRT_STATIC_ADDR, DYNAMIC_ADDR, VIRT_DYNAMIC_ADDR)
-
-    # Recovery interface requires the device to be in reset (not post-boot)
-    dut.peripheral_reset_done_i.value = 0
-    recovery = I3cRecoveryInterface(i3c_controller)
-
-    # DEVICE_STATUS_0 = 0x3 (Awaiting Image) activates the recovery mode
-    await tb.write_csr(
-        tb.reg_map.I3C_EC.SECFWRECOVERYIF.DEVICE_STATUS_0.base_addr,
-        int2dword(0x3), 4)
-    
-    # Enable RI_PEC_ERR interrupt (bit 8) and clear any stale status
-    ri_pec_en_mask = 1 << 8
-    current_en = dword2int(await tb.read_csr(
-        tb.reg_map.I3C_EC.TTI.TARGET_ERR_INTR_ENABLE.base_addr, 4))
-    await tb.write_csr(
-        tb.reg_map.I3C_EC.TTI.TARGET_ERR_INTR_ENABLE.base_addr,
-        int2dword(current_en | ri_pec_en_mask), 4)
-    await tb.write_csr(
-        tb.reg_map.I3C_EC.TTI.TARGET_ERR_INTR_STATUS.base_addr,
-        int2dword(0xFFFFFFFF), 4)
-
-    ri_pec_reg = tb.reg_map.I3C_EC.TTI.TARGET_ERR_CNT_RI_PEC
-    await tb.write_csr(ri_pec_reg.base_addr, int2dword(0), 4)
-    
-    # Pre-load counter to 0xFE
-    await tb.write_csr(ri_pec_reg.base_addr, int2dword(0xFE), 4)
-    
-    # Inject RI PEC error: recovery command_write with deliberately bad PEC
-    await recovery.command_write(
-        VIRT_DYNAMIC_ADDR,
-        I3cRecoveryInterface.Command.DEVICE_RESET,
-        [0xAA, 0xBB, 0xCC],
-        force_pec_error=True)
-    await ClockCycles(tb.clk, 20)
-    cnt = dword2int(await tb.read_csr(ri_pec_reg.base_addr, 4)) & 0xFF
-    assert cnt == 0xFF, f"RI_PEC counter should reach 0xFF at saturation, got {cnt}"
-
-    await recovery.command_write(
-        VIRT_DYNAMIC_ADDR,
-        I3cRecoveryInterface.Command.DEVICE_RESET,
-        [0xAA, 0xBB, 0xCC],
-        force_pec_error=True)
-    await ClockCycles(tb.clk, 20)
-    cnt = dword2int(await tb.read_csr(ri_pec_reg.base_addr, 4)) & 0xFF
-    assert cnt == 0xFF, f"RI_PEC counter should remain 0xFF after saturation, got {cnt}"
-
-    await verify_target_responsive(i3c_controller, DYNAMIC_ADDR)
-    log.info("test_ri_pec_counter_saturation PASSED")
-
-    await tb.teardown()
-
-
 # =============================================================================
 # Helper: RI recovery mode setup (shared by the RI counter saturation tests)
 # =============================================================================
@@ -1583,6 +1522,61 @@ async def _reset_indirect_fifo(tb):
         tb.reg_map.I3C_EC.SECFWRECOVERYIF.INDIRECT_FIFO_CTRL_0.RESET,
         0x1)
     await _clear_ri_error_state(tb)
+
+
+@cocotb.test()
+async def test_ri_pec_counter_saturation(dut):
+    """TARGET_ERR_CNT_RI_PEC saturates at 0xFF: recovery command with bad PEC."""
+    log = logging.getLogger("test_ri_pec_counter_saturation")
+
+    (STATIC_ADDR, VIRT_STATIC_ADDR, DYNAMIC_ADDR, VIRT_DYNAMIC_ADDR) = \
+        random.sample(VALID_I3C_ADDRESSES, 4)
+    i3c_controller, _, tb = await test_setup(
+        dut, STATIC_ADDR, VIRT_STATIC_ADDR, DYNAMIC_ADDR, VIRT_DYNAMIC_ADDR)
+
+    # Recovery interface requires the device to be in reset (not post-boot)
+    dut.peripheral_reset_done_i.value = 0
+    recovery = I3cRecoveryInterface(i3c_controller)
+
+    _setup_ri_recovery(dut, tb, i3c_controller)
+    
+    # Enable RI_PEC_ERR interrupt (bit 8) and clear any stale status
+    ri_pec_en_mask = 1 << 8
+    current_en = dword2int(await tb.read_csr(
+        tb.reg_map.I3C_EC.TTI.TARGET_ERR_INTR_ENABLE.base_addr, 4))
+    await tb.write_csr(
+        tb.reg_map.I3C_EC.TTI.TARGET_ERR_INTR_ENABLE.base_addr,
+        int2dword(current_en | ri_pec_en_mask), 4)
+
+    ri_pec_reg = tb.reg_map.I3C_EC.TTI.TARGET_ERR_CNT_RI_PEC
+    await tb.write_csr(ri_pec_reg.base_addr, int2dword(0), 4)
+    
+    # Pre-load counter to 0xFE
+    await tb.write_csr(ri_pec_reg.base_addr, int2dword(0xFE), 4)
+    
+    # Inject RI PEC error: recovery command_write with deliberately bad PEC
+    await recovery.command_write(
+        VIRT_DYNAMIC_ADDR,
+        I3cRecoveryInterface.Command.DEVICE_RESET,
+        [0xAA, 0xBB, 0xCC],
+        force_pec_error=True)
+    await ClockCycles(tb.clk, 20)
+    cnt = dword2int(await tb.read_csr(ri_pec_reg.base_addr, 4)) & 0xFF
+    assert cnt == 0xFF, f"RI_PEC counter should reach 0xFF at saturation, got {cnt}"
+
+    await recovery.command_write(
+        VIRT_DYNAMIC_ADDR,
+        I3cRecoveryInterface.Command.DEVICE_RESET,
+        [0xAA, 0xBB, 0xCC],
+        force_pec_error=True)
+    await ClockCycles(tb.clk, 20)
+    cnt = dword2int(await tb.read_csr(ri_pec_reg.base_addr, 4)) & 0xFF
+    assert cnt == 0xFF, f"RI_PEC counter should remain 0xFF after saturation, got {cnt}"
+
+    await verify_target_responsive(i3c_controller, DYNAMIC_ADDR)
+    log.info("test_ri_pec_counter_saturation PASSED")
+
+    await tb.teardown()
 
 
 # =============================================================================

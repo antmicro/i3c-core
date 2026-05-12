@@ -2637,6 +2637,22 @@ async def test_ccc_entdaa_te3_te4(dut):
         f"TE4 count should be exactly 1 after one event, got {te4_cnt}"
     )
 
+    # ---- TE4: Counter saturation ----
+    log.info("Testing TE4: counter saturation at 0xFF")
+    await tb.write_csr(te4_cnt_addr, int2dword(0xFE), 4)
+
+    await i3c_controller.i3c_entdaa(
+        addrs_to_assign=[DYNAMIC_ADDR],
+        inject_te4_invalid_rsvd=True)
+    te4_cnt = await tb.read_csr_field(te4_cnt_addr, te4_cnt_field)
+    assert te4_cnt == 0xFF, f"TE4 counter should reach 0xFF at saturation, got {te4_cnt}"
+
+    await i3c_controller.i3c_entdaa(
+        addrs_to_assign=[DYNAMIC_ADDR],
+        inject_te4_invalid_rsvd=True)
+    te4_cnt = await tb.read_csr_field(te4_cnt_addr, te4_cnt_field)
+    assert te4_cnt == 0xFF, f"TE4 counter should remain 0xFF after saturation, got {te4_cnt}"
+
     # ---- TE3: Bad parity on address byte during ENTDAA ----
     # Per I3C spec Sec.5.1.10.1.4: if parity is wrong on the assigned address,
     # the target shall NACK and wait for the next Sr+7E/R to retry.
@@ -2668,6 +2684,22 @@ async def test_ccc_entdaa_te3_te4(dut):
     assert te3_cnt == 1, (
         f"TE3 count should be exactly 1 after one event, got {te3_cnt}"
     )
+
+    # ---- TE3: Counter saturation ----
+    log.info("Testing TE3: counter saturation at 0xFF")
+    await tb.write_csr(te3_cnt_addr, int2dword(0xFE), 4)
+
+    await i3c_controller.i3c_entdaa(
+        addrs_to_assign=[DYNAMIC_ADDR],
+        inject_te3_parity=True)
+    te3_cnt = await tb.read_csr_field(te3_cnt_addr, te3_cnt_field)
+    assert te3_cnt == 0xFF, f"TE3 counter should reach 0xFF at saturation, got {te3_cnt}"
+
+    await i3c_controller.i3c_entdaa(
+        addrs_to_assign=[DYNAMIC_ADDR],
+        inject_te3_parity=True)
+    te3_cnt = await tb.read_csr_field(te3_cnt_addr, te3_cnt_field)
+    assert te3_cnt == 0xFF, f"TE3 counter should remain 0xFF after saturation, got {te3_cnt}"
 
     await tb.teardown()
 

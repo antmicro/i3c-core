@@ -3638,6 +3638,9 @@ exclusions:
         line:
           - 710  # RxPec: pec_err = 1'b1;
           - 711  # RxPec: state_d = Error;
+        branch:
+          - 3:  # unique case (state_q)
+            - 24  # RxPec: if (rx_data_last_i && |rx_desc_wdata_i[31:28] && pec_err_det_en_i) begin
         cond:
           - 13: [1 "01", 2 "10"]  # length_underrun_err = ((payload_byte_cnt < cmd_len) || pec_rx_byte_cnt == '0) && length_err_det_en_i;
           - 14  # length_underrun_err = ((payload_byte_cnt < cmd_len) || pec_rx_byte_cnt == '0) && length_err_det_en_i;
@@ -3675,6 +3678,18 @@ exclusions:
         cond:
           - 36: [2 "001"]  # TxDesc: if (bus_stop_i || other_target_start_i || (virtual_target_start_i && !bus_addr_i[0])) begin
           - 37: [2 "10", 3 "11"]  # TxDesc: if (bus_stop_i || other_target_start_i || (virtual_target_start_i && !bus_addr_i[0])) begin
+
+      This would require controller to send Sr while target is in PP mode which is illegal:
+        line:
+          - 810  # TxDesc: state_d = Done;  // Controller aborted read via Sr
+        branch:
+          - 3:  # unique case (state_q)
+            - 41  # TxDesc: if (bus_rstart_i) begin
+
+      Not needed else:
+        branch:
+          - 3:  # unique case (state_q)
+            - 52  # TxData: if (tx_data_valid_o) begin
 
       Upper bits of a counter:
         toggle:

@@ -5178,6 +5178,7 @@ async def test_ri_read_interrupted_by_ccc(dut):
     # Now instead of Sr + Addr+R, send a CCC to the main target
     # The controller still has bus control from the write above
     # We need to use low-level functions to send: Sr + 0x7E + CCC + Sr + Addr+R
+    await i3c_controller.take_bus_control()
 
     # Send repeated start
     await i3c_controller.send_start()
@@ -5282,12 +5283,14 @@ async def test_ri_read_interrupted_by_ccc(dut):
         4
     )
 
+    await i3c_controller.take_bus_control()
+
     # Start RI write phase: S + Addr+W
     await i3c_controller.send_start()
     await i3c_controller.write_addr_header(VIRT_DYNAMIC_ADDR, read=False)
 
-    # Send CMD byte (e.g., 0x40 = PROT_CAP)
-    cmd_byte = 0x40
+    # Send CMD byte
+    cmd_byte = I3cRecoveryInterface.Command.PROT_CAP
     await i3c_controller.send_byte_tbit(cmd_byte)
 
     # Send PEC (CRC-8 over address+W + CMD)
@@ -5302,6 +5305,8 @@ async def test_ri_read_interrupted_by_ccc(dut):
 
     await i3c_controller.send_stop()  # Stop immediately after Sr
     dut._log.info("Sent Stop (P) - protocol violation")
+
+    i3c_controller.give_bus_control()
 
     # Wait for device to process
     await ClockCycles(tb.clk, 50)
@@ -5370,12 +5375,19 @@ async def test_ri_read_interrupted_by_ccc(dut):
         4
     )
 
+    # FIXME: Uncomment this when RTL is fixed, right now without calling this function
+    # the controller sends Stop immediately after virtual target address. If this is
+    # uncommented, the controller sends actual S + Addr+W + CMD + PEC + Sr, in that case
+    # the recovery_receiver enters Error state and keeps RX Queue in soft reset state
+    # which blocks it from receiving data sent to main target on I3C bus.
+    # await i3c_controller.take_bus_control()
+
     # Start RI write phase: S + Addr+W (to virtual target)
     await i3c_controller.send_start()
     await i3c_controller.write_addr_header(VIRT_DYNAMIC_ADDR, read=False)
 
     # Send CMD byte and PEC
-    cmd_byte_3 = 0x40  # PROT_CAP
+    cmd_byte_3 = I3cRecoveryInterface.Command.PROT_CAP
     await i3c_controller.send_byte_tbit(cmd_byte_3)
     pec_3 = int(recovery.pec_calc.checksum(bytes([VIRT_DYNAMIC_ADDR << 1 | 0x00, cmd_byte_3])))
     await i3c_controller.send_byte_tbit(pec_3)
@@ -5468,12 +5480,14 @@ async def test_ri_read_interrupted_by_ccc(dut):
         4
     )
 
+    await i3c_controller.take_bus_control()
+
     # Start RI write phase: S + Addr+W (to virtual target)
     await i3c_controller.send_start()
     await i3c_controller.write_addr_header(VIRT_DYNAMIC_ADDR, read=False)
 
-    # Send CMD byte (PROT_CAP) and PEC
-    cmd_byte_4 = 0x40  # PROT_CAP
+    # Send CMD byte and PEC
+    cmd_byte_4 = I3cRecoveryInterface.Command.PROT_CAP
     await i3c_controller.send_byte_tbit(cmd_byte_4)
     pec_4 = int(recovery.pec_calc.checksum(bytes([VIRT_DYNAMIC_ADDR << 1 | 0x00, cmd_byte_4])))
     await i3c_controller.send_byte_tbit(pec_4)
@@ -5556,12 +5570,14 @@ async def test_ri_read_interrupted_by_ccc(dut):
         4
     )
 
+    i3c_controller.take_bus_control()
+
     # Start RI write phase: S + Addr+W (to virtual target)
     await i3c_controller.send_start()
     await i3c_controller.write_addr_header(VIRT_DYNAMIC_ADDR, read=False)
 
     # Send CMD byte and PEC
-    cmd_byte_5 = 0x40  # PROT_CAP
+    cmd_byte_5 = I3cRecoveryInterface.Command.PROT_CAP
     await i3c_controller.send_byte_tbit(cmd_byte_5)
     pec_5 = int(recovery.pec_calc.checksum(bytes([VIRT_DYNAMIC_ADDR << 1 | 0x00, cmd_byte_5])))
     await i3c_controller.send_byte_tbit(pec_5)

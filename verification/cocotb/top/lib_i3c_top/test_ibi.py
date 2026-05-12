@@ -1979,3 +1979,34 @@ async def test_ibi_arb_lost_in_drive_addr(dut):
 
     await tb.teardown()
 
+
+@cocotb.test
+async def test_ibi_not_attempted_without_addr(dut):
+    """
+    DUT is initialized with neither a static nor a dynamic address.
+    An IBI is then pushed to the IBI queue and the test ensures
+    that no action of sending the IBI is attempted by the DUT until
+    it has a valid address assigned.
+    """
+
+    i3c_controller, _, tb = await test_setup(dut, static_addr=None)
+    await init_ibi(i3c_controller, tb, retry_num=0)
+    i3c_controller.enable_ibi(True)
+
+    mdb = 0xDD
+    data = [0xAA]
+    await send_ibi(tb, mdb, data)
+
+    try:
+        result = await i3c_controller.wait_for_ibi_event(timeout=10)
+    except SimTimeoutError:
+        """Nothing has happened and the wait has timed out as expected"""
+    else:
+        assert False, f"There was an unexpected IBI event. {result}"
+
+    # Assign address to the target, so that it can finally request the IBI
+    await i3c_controller.i3c_entdaa([TARGET_ADDRESS], stop_after_n_targets=1)
+
+    # Capture and verify the IBI
+    result = await i3c_controller.wait_for_ibi_event(timeout=10)
+    assert result and result["ack"] and result["addr"] == TARGET_ADDRESS and result["data"] == bytes([mdb, *data])

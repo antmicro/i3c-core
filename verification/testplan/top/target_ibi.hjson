@@ -339,6 +339,19 @@
       tags: ["top"]
     }
     {
+      name: ibi_not_attempted_without_addr
+      desc:
+        '''
+        Coverage: i3c_target_fsm.sv ibi_pending (cond).
+        DUT is initialized with neither a static nor a dynamic address.
+        An IBI is then pushed to the IBI queue and the test ensures
+        that no action of sending the IBI is attempted by the DUT until
+        it has a valid address assigned.
+        '''
+      tests: ["ibi_not_attempted_without_addr"]
+      tags: ["top"]
+    }
+    {
       name: ibi_retry_count_limit
       desc:
         '''

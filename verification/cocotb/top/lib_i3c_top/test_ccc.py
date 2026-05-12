@@ -2287,7 +2287,7 @@ async def test_ccc_te2_parity(dut):
     # ---- Test 1: Bad T-bit on RSTACT defining byte ----
     # RSTACT (0x9A) has a defining byte. Corrupt the defining byte T-bit.
     log.info("Sending RSTACT with bad defining byte T-bit parity (TE2)")
-    await i3c_controller.send_te2_error(ccc=0x9A, defining_byte=0x01,
+    await i3c_controller.send_te2_error(ccc=CCC.DIRECT.RSTACT, defining_byte=0x01,
                                          corrupt_defining_byte=True)
     await i3c_controller.send_stop()
     i3c_controller.give_bus_control()
@@ -2316,13 +2316,11 @@ async def test_ccc_te2_parity(dut):
     # ---- Test 3: Bad T-bit on GETCAPS defining byte ----
     log.info("Sending GETCAPS with bad defining byte T-bit parity (TE2)")
     await tb.write_csr_field(err_intr_addr, te2_stat_field, 1)
-    await ClockCycles(tb.clk, 5)
 
-    await i3c_controller.send_te2_error(ccc=0x95, defining_byte=0x00,
+    await i3c_controller.send_te2_error(ccc=CCC.DIRECT.GETCAPS, defining_byte=0x00,
                                          corrupt_defining_byte=True)
     await i3c_controller.send_stop()
     i3c_controller.give_bus_control()
-    await ClockCycles(tb.clk, 20)
 
     te2_stat = await tb.read_csr_field(err_intr_addr, te2_stat_field)
     assert te2_stat == 1, f"TE2_ERR_STAT should be 1 after GETCAPS bad def byte, got {te2_stat}"
@@ -2331,6 +2329,55 @@ async def test_ccc_te2_parity(dut):
     responses = await i3c_controller.i3c_ccc_read(
         ccc=CCC.DIRECT.GETBCR, addr=DYNAMIC_ADDR, count=1)
     assert responses[0][0] == True, "Target should ACK after second TE2 recovery"
+
+    # ---- Test 4: TE2 with detection disabled — status and counter must not change ----
+    log.info("Disabling TE2 error detection (TE2_ERR_DET_EN=0)")
+    err_ctrl_addr = tb.reg_map.I3C_EC.TTI.TARGET_ERR_CTRL.base_addr
+    te2_det_field = tb.reg_map.I3C_EC.TTI.TARGET_ERR_CTRL.TE2_ERR_DET_EN
+    await tb.write_csr_field(err_ctrl_addr, te2_det_field, 0)
+    await tb.write_csr_field(err_intr_addr, te2_stat_field, 1)
+
+    cnt_before = await tb.read_csr_field(te2_cnt_addr, te2_cnt_field)
+
+    log.info("Sending RSTACT with bad defining byte T-bit (TE2_ERR_DET_EN=0)")
+    await i3c_controller.send_te2_error(ccc=0x9A, defining_byte=0x01,
+                                         corrupt_defining_byte=True)
+    await i3c_controller.send_stop()
+    i3c_controller.give_bus_control()
+
+    te2_stat = await tb.read_csr_field(err_intr_addr, te2_stat_field)
+    assert te2_stat == 0, \
+        f"TE2_ERR_STAT should be 0 with detection disabled (RSTACT), got {te2_stat}"
+
+    cnt_after = await tb.read_csr_field(te2_cnt_addr, te2_cnt_field)
+    assert cnt_after == cnt_before, \
+        f"TE2 counter must not increment with det_en=0: before={cnt_before}, after={cnt_after}"
+
+    log.info("Sending GETCAPS with bad defining byte T-bit (TE2_ERR_DET_EN=0)")
+    await tb.write_csr_field(err_intr_addr, te2_stat_field, 1)
+    cnt_before = cnt_after
+
+    await i3c_controller.send_te2_error(ccc=0x95, target_addr=DYNAMIC_ADDR, defining_byte=0x00,
+                                         corrupt_defining_byte=True)
+    await i3c_controller.send_stop()
+    i3c_controller.give_bus_control()
+
+    te2_stat = await tb.read_csr_field(err_intr_addr, te2_stat_field)
+    assert te2_stat == 0, \
+        f"TE2_ERR_STAT should be 0 with detection disabled (GETCAPS), got {te2_stat}"
+
+    cnt_after = await tb.read_csr_field(te2_cnt_addr, te2_cnt_field)
+    assert cnt_after == cnt_before, \
+        f"TE2 counter must not increment with det_en=0: before={cnt_before}, after={cnt_after}"
+
+    # Target should still respond normally while detection is disabled
+    responses = await i3c_controller.i3c_ccc_read(
+        ccc=CCC.DIRECT.GETBCR, addr=DYNAMIC_ADDR, count=1)
+    assert responses[0][0] == True, "Target should ACK with TE2 detection disabled"
+
+    # Re-enable TE2 detection
+    await tb.write_csr_field(err_ctrl_addr, te2_det_field, 1)
+
     tb.te_error_monitor.check()
 
     await tb.teardown()

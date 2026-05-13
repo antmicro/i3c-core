@@ -338,5 +338,16 @@
       tests: ["bus_idle"]
       tags: ["top"]
     }
+    {
+      name: exotic_idle_timings
+      desc:
+        '''
+        The bus conditions in the bus_timers module operate independently from each other
+        with each one configured by its own CSR. This introduces the unlikely possibility
+        of T_AVAL < T_FREE and T_IDLE < T_AVAL. This test exists to cover these conditions.
+        '''
+      tests: ["exotic_idle_timings"]
+      tags: ["top"]
+    }
   ]
 }

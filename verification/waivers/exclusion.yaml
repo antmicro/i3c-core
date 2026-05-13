@@ -4535,6 +4535,11 @@ exclusions:
         toggle:
           - hdr_timeout_cnt: [8-19]
 
+      We only test the target config, thus the target is always enabled:
+        cond:
+          - 1: [4 "100"] # !enable_i || !is_in_hdr_mode_i || bus_i.scl.stable_high
+          - 2: [6 "10000"] # !enable_i || !is_in_hdr_err_mode_i || !hdr_timeout_en_i || !bus_i.scl.stable_high || !bus_i.sda.stable_high
+
 
   bus_monitor:
     source_path: src/ctrl/bus_monitor.sv

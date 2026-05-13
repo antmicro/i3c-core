@@ -5,7 +5,9 @@ from cocotb_helpers import reset_n
 import cocotb
 from cocotb.clock import Clock
 from cocotb.handle import SimHandleBase
-from cocotb.triggers import ClockCycles, RisingEdge
+from cocotb.triggers import ClockCycles, Edge, RisingEdge
+from cocotb.triggers import with_timeout
+from cocotb.result import SimTimeoutError
 
 
 async def setup(dut):
@@ -189,3 +191,31 @@ async def test_trigger_no_delay(dut: SimHandleBase):
 
     # Check cycle count
     assert cycles == DELAY
+
+
+@cocotb.test()
+async def test_falling_before_delay(dut: SimHandleBase):
+
+    clk, _ = await setup(dut)
+
+    DELAY = 10
+
+    # Set delay
+    await RisingEdge(clk)
+    dut.delay_count.value = DELAY
+
+    # Assert trigger and line simultaneously
+    dut.trigger.value = dut.line.value = 1
+    await RisingEdge(clk)
+    dut.trigger.value = 0
+
+    # Line falling before the delay
+    await ClockCycles(clk, DELAY // 2)
+    dut.line.value = 0
+
+    try:
+        await with_timeout(Edge(dut.detect), 100, 'ns')
+    except SimTimeoutError:
+        "Success! No edge detected"
+    else:
+        assert False, "An edge was detected, but shouldn't be"

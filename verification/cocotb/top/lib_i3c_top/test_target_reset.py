@@ -308,6 +308,37 @@ async def test_scl_glitch_during_pattern(dut):
 
 
 @cocotb.test()
+async def test_scl_glitch_during_pattern_final_edge(dut):
+    """
+    CP3: SCL goes high briefly during SDA transitions.
+
+    Same as above, but with the glitch occuring at the same edge as the final SDA transition.
+    With this, the reset pattern detector FSM should already change to the AwaitSCL state, but
+    with scl.stable_high being true, meaning the SCL rising edge occurred too early.
+    This should reset the FSM back to the default state and prevent the target reset.
+    """
+    i3c_controller, tb = await test_setup(dut, disable_monitor=True)
+
+    dut._log.info("Testing SCL glitch during SDA pattern's final edge")
+
+    await i3c_controller.set_bus_idle()
+    await ClockCycles(tb.clk, 10)
+
+    await i3c_controller.send_target_reset_pattern_with_scl_glitch(
+        glitch_at_transition=13,
+        tdig_h_ns=T_DIG_H_MIN_NS,
+        glitch_on_sda_edge=True
+    )
+
+    no_reset = await check_no_reset_detection(dut, tb)
+    assert no_reset, "Reset should NOT be detected when SCL glitches during pattern"
+
+    dut._log.info("PASS: SCL glitch correctly prevented reset detection")
+
+    await tb.teardown()
+
+
+@cocotb.test()
 async def test_sda_stable_low_during_await_scl(dut):
     """
     CP4: SDA goes stable low while waiting for SCL rise.

@@ -59,6 +59,19 @@
       tags: ["top"]
     }
     {
+      name: scl_glitch_during_pattern_final_edge
+      desc:
+        '''
+        SCL goes high together with the 14th SDA transition. This way, the
+        reset detector FSM should already move to the AwaitSCL state, but then
+        immediately detect SCL being stable high due to the posedge occuring
+        too early, which should reset it to the default state and pattern
+        recognition should fail.
+        '''
+      tests: ["scl_glitch_during_pattern_final_edge"]
+      tags: ["top"]
+    }
+    {
       name: sda_stable_low_during_await_scl
       desc:
         '''

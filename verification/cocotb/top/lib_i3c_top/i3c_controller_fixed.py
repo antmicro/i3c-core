@@ -638,6 +638,7 @@ class I3cControllerFixed(I3cController):
         self,
         glitch_at_transition: int = 7,
         tdig_h_ns: Optional[float] = None,
+        glitch_on_sda_edge: bool = False
     ) -> None:
         """
         Send target reset pattern with SCL glitch during SDA transitions.
@@ -668,14 +669,17 @@ class I3cControllerFixed(I3cController):
         for i in range(14):
             sda = 0 if sda else 1
             self.sda = sda
-            await wait_time
 
             # Inject SCL glitch
             if i == glitch_at_transition:
+                if not glitch_on_sda_edge:
+                    await wait_time
                 self.scl = 1
                 await half_wait
                 self.scl = 0
                 await half_wait
+            else:
+                await wait_time
 
         # Complete pattern normally
         await wait_time

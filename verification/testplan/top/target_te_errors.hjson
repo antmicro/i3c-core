@@ -9,6 +9,7 @@
         TE0 error: reserved broadcast address triggers HDR error mode and
         recovery. Tests all 8 reserved address patterns, both recovery methods
         (HDR exit and timeout).
+        Ensures that CSR with error counter does not overflow.
         '''
       tests: ["te0_errors"]
       tags: ["top"]
@@ -20,6 +21,7 @@
         TE1 error: CCC parity error triggers HDR error mode and recovery.
         Tests various broadcast CCCs with bad T-bit parity, both recovery
         methods, and ENTHDR0-specific behavior.
+        Ensures that CSR with error counter does not overflow.
         '''
       tests: ["te1_errors"]
       tags: ["top"]
@@ -31,6 +33,7 @@
         TE2 error: bad T-bit parity on private write data causes data to be
         discarded. Verifies RX FIFO is empty after parity error, error
         registers update, and target recovers for subsequent transfers.
+        Ensures that CSR with error counter does not overflow.
         '''
       tests: ["te2_private_write_parity"]
       tags: ["top"]
@@ -134,6 +137,34 @@
         when both DET_EN and INTR_EN are enabled.
         '''
       tests: ["ri_indirect_fifo_overflow_irq"]
+      tags: ["top"]
+    }
+    {
+      name: error_counters_saturation
+      desc:
+        '''
+        Writes 0xFE to error counter, triggers errors and ensures that
+        the counter increments without overflowing.
+        The tests cover counters for:
+        - TE5
+        - FRAMING
+        - RI_PEC
+        - RI_LENGTH
+        - RI_READONLY
+        - RI_UNSUPPORTED
+        - RI_RX_FIFO_OVERFLOW
+        - RI_INDIRECT_FIFO_OVERFLOW
+        '''
+      tests: [
+        "te5_counter_saturation",
+        "framing_counter_saturation",
+        "ri_pec_counter_saturation",
+        "ri_length_counter_saturation",
+        "ri_readonly_counter_saturation",
+        "ri_unsupported_counter_saturation",
+        "ri_rx_fifo_overflow_counter_saturation",
+        "ri_indirect_fifo_overflow_counter_saturation"
+      ]
       tags: ["top"]
     }
   ]

@@ -283,6 +283,8 @@
         TE3: Parity error on assigned address causes target to NACK, retries
         on next ENTDAA round.
         TE4: Controller assigns same address to two targets, causes error.
+
+        Ensures that CSR with error counter does not overflow.
         '''
       tests: ["ccc_entdaa_te3_te4"]
       tags: ["top"]

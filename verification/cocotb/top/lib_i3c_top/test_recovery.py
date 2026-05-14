@@ -7655,8 +7655,8 @@ async def test_recovery_indirect_fifo_overflow(dut):
         int2dword(0xFFFFFFFF), 4
     )
 
-    # Enable RX FIFO overflow detection
-    await set_err_ctrl(baseline_ctrl | (1 << 11))
+    # Enable RX FIFO overflow detection and disable length underrun error detection
+    await set_err_ctrl((baseline_ctrl | (1 << 11)) & ~(1 << 8))
 
     await recovery.command_write(
         VIRT_DYNAMIC_ADDR,

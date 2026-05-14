@@ -4885,6 +4885,8 @@ exclusions:
           - 6: [3 "10"]  # txn_err <= txn_err || err;
 
       Usupported AXI lock feature:
+        branch:
+          - 3  # rp_resp  = txn_allow && (txn_err || err) ? AXI_RESP_SLVERR : txn_allow && txn_ctx.lock ? AXI_RESP_EXOKAY : AXI_RESP_OKAY;
         cond:
           - 15: [1 "1"]  # rp_resp  = txn_allow && (txn_err || err) ? AXI_RESP_SLVERR : txn_allow && txn_ctx.lock ? AXI_RESP_EXOKAY : AXI_RESP_OKAY;
           - 16: [1 "01", 3 "11"]  # rp_resp  = txn_allow && (txn_err || err) ? AXI_RESP_SLVERR : txn_allow && txn_ctx.lock ? AXI_RESP_EXOKAY : AXI_RESP_OKAY;

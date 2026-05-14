@@ -2673,6 +2673,71 @@ async def test_ccc_entdaa_te3_te4(dut):
 
 
 @cocotb.test()
+async def test_ccc_entdaa_te4_det_en_disabled(dut):
+    """
+    Verify TE4 behaviour during ENTDAA when TE4_ERR_DET_EN=0.
+
+    With detection disabled the target should ACK the invalid reserved byte
+    (7E/W instead of 7E/R) and continue the ENTDAA handshake normally.
+    No error status should be set and the TE4 counter must not increment.
+    """
+    log = logging.getLogger("test_ccc_entdaa_te4_det_en_disabled")
+
+    (STATIC_ADDR, VIRT_STATIC_ADDR, DYNAMIC_ADDR, VIRT_DYNAMIC_ADDR) = random.sample(VALID_I3C_ADDRESSES, 4)
+    i3c_controller, i3c_target, tb = await test_setup(dut, STATIC_ADDR, VIRT_STATIC_ADDR)
+
+    err_ctrl_addr = tb.reg_map.I3C_EC.TTI.TARGET_ERR_CTRL.base_addr
+    te4_det_field = tb.reg_map.I3C_EC.TTI.TARGET_ERR_CTRL.TE4_ERR_DET_EN
+
+    err_intr_addr = tb.reg_map.I3C_EC.TTI.TARGET_ERR_INTR_STATUS.base_addr
+    te4_stat_field = tb.reg_map.I3C_EC.TTI.TARGET_ERR_INTR_STATUS.TE4_ERR_STAT
+
+    te4_cnt_addr = tb.reg_map.I3C_EC.TTI.TARGET_ERR_CNT_TE4.base_addr
+    te4_cnt_field = tb.reg_map.I3C_EC.TTI.TARGET_ERR_CNT_TE4.CNT
+
+    err_en_addr = tb.reg_map.I3C_EC.TTI.TARGET_ERR_INTR_ENABLE.base_addr
+    te4_en_field = tb.reg_map.I3C_EC.TTI.TARGET_ERR_INTR_ENABLE.TE4_ERR_EN
+
+    # Enable interrupt so any spurious error would be captured
+    await tb.write_csr_field(err_en_addr, te4_en_field, 1)
+
+    log.info("Disabling TE4_ERR_DET_EN")
+    await tb.write_csr_field(err_ctrl_addr, te4_det_field, 0)
+
+    # Clear stale status
+    await tb.write_csr_field(err_intr_addr, te4_stat_field, 1)
+
+    cnt_before = await tb.read_csr_field(te4_cnt_addr, te4_cnt_field)
+
+    log.info("Testing TE4 with det_en=0: invalid reserved byte during ENTDAA")
+    if tb.bus_monitor:
+        # We need to disable WRITE_ACK_HANDOFF and PHASE_BUS_MODE checks
+        # Bus monitor detects 7E/W as regular write and applies regular
+        # CCC checks. The core, however, proceeds with ENTDAA flow (due
+        # to disabled TE4 error checking)
+        tb.bus_monitor.suppress_check("WRITE_ACK_HANDOFF")
+        tb.bus_monitor.suppress_check("PHASE_BUS_MODE")
+    results = await i3c_controller.i3c_entdaa(
+        addrs_to_assign=[DYNAMIC_ADDR],
+        inject_te4_invalid_rsvd=True)
+    if tb.bus_monitor:
+        tb.bus_monitor.unsuppress_check("WRITE_ACK_HANDOFF")
+        tb.bus_monitor.unsuppress_check("PHASE_BUS_MODE")
+
+    te4_stat = await tb.read_csr_field(err_intr_addr, te4_stat_field)
+    log.info(f"TE4 det_en=0: stat={te4_stat}, ack={results[0]['ack']}")
+    assert te4_stat == 0, f"TE4_ERR_STAT should be 0 with det_en=0, got {te4_stat}"
+
+    cnt_after = await tb.read_csr_field(te4_cnt_addr, te4_cnt_field)
+    assert cnt_after == cnt_before, (
+        f"TE4 counter must not increment with det_en=0: "
+        f"before={cnt_before}, after={cnt_after}"
+    )
+
+    await tb.teardown()
+
+
+@cocotb.test()
 async def test_ccc_entdaa_arb_lost(dut):
     """
     Verify ENTDAA arbitration-lost path: when arbitration_lost_i is asserted

@@ -75,7 +75,8 @@
       tests: [
         "write_stall",
         "read_stall",
-        "write_b_channel_skid_full"
+        "write_b_channel_skid_full",
+        "read_r_channel_skid_full"
       ]
       tags: ["top"]
     }

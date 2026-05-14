@@ -3663,7 +3663,7 @@ exclusions:
         branch:
           - 17: [7]  # unique case (state_q)
         line:
-          - 1143  # unique case (state_q)
+          - 1149  # unique case (state_q)
 
       Read only interface:
         cond:
@@ -3681,17 +3681,17 @@ exclusions:
 
       This would require controller to send Sr while target is in PP mode which is illegal:
         line:
-          - 810  # TxDesc: state_d = Done;  // Controller aborted read via Sr
+          - 816  # TxDesc: state_d = Done;  // Controller aborted read via Sr
         branch:
           - 3:  # unique case (state_q)
-            - 41  # TxDesc: if (bus_rstart_i) begin
+            - 42  # TxDesc: if (bus_rstart_i) begin
         cond:
           - 40: [2 "01"]  # if ((tx_data_ready_i && tx_data_valid_o) || bus_rstart_i) begin
 
       Not needed else:
         branch:
           - 3:  # unique case (state_q)
-            - 52  # TxData: if (tx_data_valid_o) begin
+            - 53  # TxData: if (tx_data_valid_o) begin
 
       Upper bits of a counter:
         toggle:

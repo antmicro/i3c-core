@@ -676,6 +676,18 @@
       tags: ["top"]
     }
     {
+      name: ccc_entdaa_te4_det_en_disabled
+      desc:
+        '''
+        Coverage: TE4_ERR_DET_EN=0 path in ccc_entdaa.
+        Inject TE4 (7E/W instead of 7E/R) with te4_err_det_en=0.
+        Target should ACK the invalid reserved byte, TE4_ERR_STAT must remain 0,
+        and the TE4 error counter must not increment.
+        '''
+      tests: ["ccc_entdaa_te4_det_en_disabled"]
+      tags: ["top"]
+    }
+    {
       name: ccc_stop_mid_transfer
       desc:
         '''

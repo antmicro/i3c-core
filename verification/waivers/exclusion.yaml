@@ -4956,6 +4956,16 @@ exclusions:
         cond:
           - 1: [2 "10", 3 "11"]  # start_thld_trig_o = |start_thld_i && (fifo_depth >= FifoDepthWidth'(start_thld_i));
 
+    i3c_test_wrapper.xi3c_wrapper.i3c.xhci.hci_queues.tx_fifo:
+      We don't use queue in configuration with `LimitReadyThld==1` and `ThldIsPow==0` and `ThldWidth==3` simultaneously:
+        cond:
+          - 5  # ready_thld_o <= (ready_thld_i >= ThldWidth'(Depth)) ? ThldWidth'(Depth) - 1 : ready_thld_i;
+
+    i3c_test_wrapper.xi3c_wrapper.i3c.xrecovery_handler.tti_queues.tx_fifo:
+      We don't use queue in configuration with `LimitReadyThld==1` and `ThldIsPow==0` and `ThldWidth==3` simultaneously:
+        cond:
+          - 5  # ready_thld_o <= (ready_thld_i >= ThldWidth'(Depth)) ? ThldWidth'(Depth) - 1 : ready_thld_i;
+
 
   read_queue:
     source_path: src/hci/queues/read_queue.sv
@@ -4986,6 +4996,22 @@ exclusions:
       TX Desc start threshold is tied to 0 when `ThldIsPow == 0`:
         cond:
           - 1: [2 "10", 3 "11"]  # start_thld_trig_o = |start_thld_i && (empty_entries >= FifoDepthWidth'(start_thld_i));
+
+    i3c_test_wrapper.xi3c_wrapper.i3c.xhci.hci_queues.rx_fifo:
+      We don't use queue in configuration with `LimitReadyThld==1` and `ThldIsPow==0` and `ThldWidth==3` simultaneously:
+        cond:
+          - 3  # ready_thld_o <= (ready_thld_i >= ThldWidth'(Depth)) ? ThldWidth'(Depth) - 1 : ready_thld_i;
+
+    i3c_test_wrapper.xi3c_wrapper.i3c.xrecovery_handler.tti_queues.rx_fifo:
+      We don't use queue in configuration with `LimitReadyThld==1` and `ThldIsPow==0` and `ThldWidth==3` simultaneously:
+        cond:
+          - 3  # ready_thld_o <= (ready_thld_i >= ThldWidth'(Depth)) ? ThldWidth'(Depth) - 1 : ready_thld_i;
+
+    i3c_test_wrapper.xi3c_wrapper.i3c.xrecovery_handler.xindirect_rx_fifo:
+      We don't use queue in configuration with `LimitReadyThld==1` and `ThldIsPow==0` and `ThldWidth==3` simultaneously:
+        cond:
+          - 3  # ready_thld_o <= (ready_thld_i >= ThldWidth'(Depth)) ? ThldWidth'(Depth) - 1 : ready_thld_i;
+
 
 
   width_converter_8toN:

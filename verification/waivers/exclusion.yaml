@@ -4798,6 +4798,10 @@ exclusions:
           - w_size: [2]
           - size: [2]
 
+      Unreachable condition (one signal depends on another):
+        cond:
+          - 4: [2 "10"]  # else if (r_dv &&  r_win)
+
 
   i3c_axi_sub:
     source_path: src/libs/axi_sub/i3c_axi_sub.sv

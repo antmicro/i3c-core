@@ -727,3 +727,43 @@ async def test_write_b_channel_skid_full(dut):
         )
 
     await tb.teardown()
+
+
+@cocotb.test()
+async def test_read_r_channel_skid_full(dut):
+    """
+    Verify that when the R-channel is stalled and two read responses are pending,
+    then AXI Read module deasserts ARREADY and waits for release of R-channel.
+    """
+    tb = await initialize(dut)
+
+    if cocotb.plusargs.get("FrontendBusInterface") != "AXI":
+        dut._log.warning("Skipping: not using AXI frontend")
+        await tb.teardown()
+        return
+
+    r_channel = tb.busIf.axi_m.read_if.r_channel
+
+    # HCI_VERSION is read-only with a fixed reset value — safe to read repeatedly
+    addr = tb.reg_map.I3CBASE.HCI_VERSION.base_addr
+    expected = 0x120
+
+    r_channel.pause = True
+    read_task_0 = cocotb.start_soon(tb.read_csr(addr, 4))
+    read_task_1 = cocotb.start_soon(tb.read_csr(addr, 4))
+
+    got_r_stall = False
+    for i in range(30):
+        await RisingEdge(dut.aclk)
+        if not dut.rready.value and dut.rvalid.value:
+            got_r_stall = True
+            break
+
+    r_channel.pause = False
+
+    assert got_r_stall, "RVALID was not asserted when R-channel was stalled"
+    await Combine(read_task_0, read_task_1)
+    assert bytes2int(read_task_0.result()) == expected, "Response to read 1/2 is not correct after R-channel stall"
+    assert bytes2int(read_task_1.result()) == expected, "Response to read 2/2 is not correct after R-channel stall"
+
+    await tb.teardown()

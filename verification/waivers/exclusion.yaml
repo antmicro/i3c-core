@@ -4142,6 +4142,9 @@ exclusions:
         - rx_descriptor: [9-15]
         - byte_counter: [9-15]
         - byte_counter_q: [9-15]
+      Ready drops only after writing 4 bytes or when FIFO is full. Valid cannot be high in none of those cases - in the first one we just consumed a received byte so valid drops, in the second one valid is gated with overflow_err signal in target_fsm:
+        cond:
+        - 1: [1 "01"] # else if (rx_byte_ready_o && rx_byte_valid_i) begin
 
 
   descriptor_tx:

@@ -2353,6 +2353,7 @@ async def test_ccc_setdasa_padding_err_det_disabled(dut):
     await tb.teardown()
 
 
+@cocotb.test()
 async def test_ccc_te2_parity(dut):
     """
     Verify TE2 error detection: bad T-bit parity on CCC defining byte causes

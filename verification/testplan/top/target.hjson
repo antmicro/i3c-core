@@ -349,5 +349,17 @@
       tests: ["exotic_idle_timings"]
       tags: ["top"]
     }
+    {
+      name: bus_edge_detectors
+      desc:
+        '''
+        Sets up different values of T_R and T_F timings and for each detector (SDA posedge,
+        SDA negedge, SCL posedge, SCL negedge) verifies both whether the edge is correctly
+        detected when held for appropriate duration and whether it doesn't get detected when
+        deasserted before the timing duration.
+        '''
+      tests: ["bus_edge_detectors"]
+      tags: ["top"]
+    }
   ]
 }

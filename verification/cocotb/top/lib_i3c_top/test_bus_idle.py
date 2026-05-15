@@ -1,8 +1,9 @@
 # SPDX-License-Identifier: Apache-2.0
 
 import logging
+import random
 import cocotb
-from cocotb.triggers import ClockCycles, FallingEdge, Timer
+from cocotb.triggers import ClockCycles, FallingEdge, ReadOnly, RisingEdge, Timer
 from boot import boot_init
 from i3c_controller_fixed import I3cControllerFixed as I3cController
 from interface import I3CTopTestInterface
@@ -101,5 +102,60 @@ async def test_exotic_idle_timings(dut):
     await i3c_controller.send_stop()
     await FallingEdge(SIG_BUSY)
     assert ~SIG_FREE.value and SIG_IDLE.value and ~SIG_AVAL.value
+
+    await tb.teardown()
+
+
+@cocotb.test
+async def test_bus_edge_detectors(dut):
+    """Setup different bus timing values and check if edge detectors react for changes as expected"""
+
+    i3c_controller, tb = await test_setup(dut)
+
+    SIG_STATE = dut.xi3c_wrapper.i3c.xcontroller.xbus_monitor
+    await i3c_controller.take_bus_control()
+
+    async def check_edge_occurred(edge, timing):
+        # Always +2 from input FFs and if timing > 0, the logic adds
+        # another 2 cycle delay. When timing == 0 it passthroughs instead
+        for _ in range(timing + (4 if timing > 0 else 2)):
+            assert ~edge.value
+            await RisingEdge(dut.clk_i)
+        await ReadOnly()
+        assert edge.value
+        await RisingEdge(dut.clk_i)
+        assert ~edge.value
+
+    async def check_edge_did_not_occur(edge, timing):
+        for _ in range(timing+10):
+            assert ~edge.value
+            await RisingEdge(dut.clk_i)
+
+    for timing in (0, 1, *random.sample(range(10, 500), k=5)):
+        # Redo boot_init with different timings
+        timings = {
+            "T_R": timing,
+            "T_F": timing,
+            "T_HD_DAT": timing,
+            "T_SU_DAT": timing,
+        }
+        await boot_init(tb, timings)
+
+        for line, edge, pos in [
+            (i3c_controller.scl_o, SIG_STATE.scl_negedge, False),
+            (i3c_controller.scl_o, SIG_STATE.scl_posedge, True),
+            (i3c_controller.sda_o, SIG_STATE.sda_negedge, False),
+            (i3c_controller.sda_o, SIG_STATE.sda_posedge, True),
+        ]:
+            for test in (check_edge_occurred, check_edge_did_not_occur):
+                # Setup line
+                line.value = not pos
+                await ClockCycles(dut.clk_i, timing + 10) # make sure this setup edge is not the one detected
+
+                coro = await cocotb.start(test(edge, timing))
+                line.value = pos
+                await ClockCycles(dut.clk_i, timing+1 if test is check_edge_occurred else timing)
+                line.value = not pos
+                await coro
 
     await tb.teardown()

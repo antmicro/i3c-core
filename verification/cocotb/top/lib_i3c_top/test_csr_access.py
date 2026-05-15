@@ -118,29 +118,23 @@ async def run_basic_csr_access(tb, reg_if, exceptions=[]):
             await reset_n(tb.clk, tb.rst_n, cycles=2)
 
 
-@cocotb.test()
+@cocotb.test(
+    skip=(
+        "FrontendBusInterface" not in cocotb.plusargs
+        or cocotb.plusargs["FrontendBusInterface"] != "AXI"
+    )
+)
 async def test_basic_burst_read(dut):
     UPPER_START_ADDR_BOUNDARY = 0x200
     MAX_BURST_SIZE = (1 << 7) * 4  # Max INCR len multiplied by max ARSIZE
 
     tb = await initialize(dut, timeout=500)
 
-    # Registers that hang the bus due to additional requirements when accessing them
-    exceptions = [
-        tb.reg_map.PIOCONTROL.RESPONSE_PORT.base_addr,
-        tb.reg_map.PIOCONTROL.TX_DATA_PORT.base_addr,
-        tb.reg_map.PIOCONTROL.IBI_PORT.base_addr,
-    ]
-
     # Dump the entire register space
     mem_dump = {}
     legal_addr = list(range(0, UPPER_START_ADDR_BOUNDARY, 4))
-    for addr in exceptions:
-        legal_addr.remove(addr)
 
     for addr in range(0, MAX_BURST_SIZE + UPPER_START_ADDR_BOUNDARY, 4):
-        if addr in exceptions:
-            continue
         data = await tb.read_csr(addr, 4)
         mem_dump[addr] = list(data)
 
@@ -156,25 +150,11 @@ async def test_basic_burst_read(dut):
         for arlen, arsize, arlock, aruser in product(
             arlens, (0, 1, 2), AxiLockType, (0, 0xAAAAAAAA, 0x55555555)
         ):
-            start = None
-            # Try to randomize start address 100 times, if didn't succeed then
-            # it's probably impossible to randomize such burst on a given reg
-            # map with given exceptions
-            for _ in range(0, 100):
-                start_addr = random.choice(legal_addr)
-                end_addr = start_addr + ((arlen + 1) * (2 ** arsize))
-                fail = False
-                for addr in exceptions:
-                    if addr >= start_addr and addr <= end_addr:
-                        fail = True
-                if not fail:
-                    start = start_addr
-                    break
-
-            assert start is not None, "Failed to randomize start address for ARBURST: {}, ARLEN: {}, ARSIZE: {}, ARUSER: {}".format(arburst, arlen, arsize, aruser)
+            start_addr = random.choice(legal_addr)
+            end_addr = start_addr + ((arlen + 1) * (2 ** arsize))
 
             bursted = await tb.busIf.axi_m.read(
-                start,
+                start_addr,
                 size=arsize,
                 length=arlen+1,
                 lock=arlock,
@@ -188,12 +168,17 @@ async def test_basic_burst_read(dut):
                 else:
                     mem_idx = (i // 4) * 4
                 byte_idx = i % 4
-                assert byte == mem_dump[start + mem_idx][byte_idx]
+                assert byte == mem_dump[start_addr + mem_idx][byte_idx]
 
     await tb.teardown()
 
 
-@cocotb.test()
+@cocotb.test(
+    skip=(
+        "FrontendBusInterface" not in cocotb.plusargs
+        or cocotb.plusargs["FrontendBusInterface"] != "AXI"
+    )
+)
 async def test_basic_burst_write(dut):
     MAX_END_ADDR = 1024
 
@@ -245,9 +230,6 @@ async def test_basic_burst_write(dut):
 
     # Registers that hang the bus due to additional requirements when accessing them
     access_exceptions = sorted([
-        tb.reg_map.PIOCONTROL.RESPONSE_PORT.base_addr,
-        tb.reg_map.PIOCONTROL.TX_DATA_PORT.base_addr,
-        tb.reg_map.PIOCONTROL.IBI_PORT.base_addr,
         tb.reg_map.I3C_EC.TTI.TX_DATA_PORT.base_addr,
         tb.reg_map.I3C_EC.TTI.RX_DATA_PORT.base_addr,
         tb.reg_map.I3C_EC.SECFWRECOVERYIF.INDIRECT_FIFO_DATA.base_addr,
@@ -333,15 +315,14 @@ async def test_basic_burst_write(dut):
     await tb.teardown()
 
 
-@cocotb.test()
+@cocotb.test(skip=("ControllerSupport" not in cocotb.plusargs))
 async def test_dat_csr_access(dut):
     tb = await initialize(dut)
     await run_basic_csr_access(tb, tb.reg_map.DAT)
 
     await tb.teardown()
 
-
-@cocotb.test()
+@cocotb.test(skip=("ControllerSupport" not in cocotb.plusargs))
 async def test_dct_csr_access(dut):
     exceptions = [
         "DCT_MEMORY",  # Out-of-use
@@ -351,8 +332,7 @@ async def test_dct_csr_access(dut):
 
     await tb.teardown()
 
-
-@cocotb.test()
+@cocotb.test(skip=("ControllerSupport" not in cocotb.plusargs))
 async def test_base_csr_access(dut):
     exceptions = [
         "RESET_CONTROL",
@@ -374,8 +354,7 @@ async def test_base_csr_access(dut):
 
     await tb.teardown()
 
-
-@cocotb.test()
+@cocotb.test(skip=("ControllerSupport" not in cocotb.plusargs))
 async def test_pio_csr_access(dut):
     exceptions = [
         "RESPONSE_PORT",

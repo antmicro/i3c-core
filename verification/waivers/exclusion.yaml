@@ -4961,7 +4961,27 @@ exclusions:
         cond:
           - 5  # ready_thld_o <= (ready_thld_i >= ThldWidth'(Depth)) ? ThldWidth'(Depth) - 1 : ready_thld_i;
 
+    ai3c_top.i3c.i3c.xhci.hci_queues.tx_fifo:
+      We don't use queue in configuration with `LimitReadyThld==1` and `ThldIsPow==0` and `ThldWidth==3` simultaneously:
+        cond:
+          - 5  # ready_thld_o <= (ready_thld_i >= ThldWidth'(Depth)) ? ThldWidth'(Depth) - 1 : ready_thld_i;
+
+    hci_queues_wrapper.hci.hci_queues.tx_fifo:
+      We don't use queue in configuration with `LimitReadyThld==1` and `ThldIsPow==0` and `ThldWidth==3` simultaneously:
+        cond:
+          - 5  # ready_thld_o <= (ready_thld_i >= ThldWidth'(Depth)) ? ThldWidth'(Depth) - 1 : ready_thld_i;
+
     i3c_test_wrapper.xi3c_wrapper.i3c.xrecovery_handler.tti_queues.tx_fifo:
+      We don't use queue in configuration with `LimitReadyThld==1` and `ThldIsPow==0` and `ThldWidth==3` simultaneously:
+        cond:
+          - 5  # ready_thld_o <= (ready_thld_i >= ThldWidth'(Depth)) ? ThldWidth'(Depth) - 1 : ready_thld_i;
+
+    ai3c_top.i3c.i3c.xrecovery_handler.tti_queues.tx_fifo:
+      We don't use queue in configuration with `LimitReadyThld==1` and `ThldIsPow==0` and `ThldWidth==3` simultaneously:
+        cond:
+          - 5  # ready_thld_o <= (ready_thld_i >= ThldWidth'(Depth)) ? ThldWidth'(Depth) - 1 : ready_thld_i;
+
+    hci_queues_wrapper.xrecovery_handler.tti_queues.tx_fifo:
       We don't use queue in configuration with `LimitReadyThld==1` and `ThldIsPow==0` and `ThldWidth==3` simultaneously:
         cond:
           - 5  # ready_thld_o <= (ready_thld_i >= ThldWidth'(Depth)) ? ThldWidth'(Depth) - 1 : ready_thld_i;
@@ -5002,16 +5022,46 @@ exclusions:
         cond:
           - 3  # ready_thld_o <= (ready_thld_i >= ThldWidth'(Depth)) ? ThldWidth'(Depth) - 1 : ready_thld_i;
 
+    ai3c_top.i3c.i3c.xhci.hci_queues.rx_fifo:
+      We don't use queue in configuration with `LimitReadyThld==1` and `ThldIsPow==0` and `ThldWidth==3` simultaneously:
+        cond:
+          - 3  # ready_thld_o <= (ready_thld_i >= ThldWidth'(Depth)) ? ThldWidth'(Depth) - 1 : ready_thld_i;
+
+    hci_queues_wrapper.hci.hci_queues.rx_fifo:
+      We don't use queue in configuration with `LimitReadyThld==1` and `ThldIsPow==0` and `ThldWidth==3` simultaneously:
+        cond:
+          - 3  # ready_thld_o <= (ready_thld_i >= ThldWidth'(Depth)) ? ThldWidth'(Depth) - 1 : ready_thld_i;
+
     i3c_test_wrapper.xi3c_wrapper.i3c.xrecovery_handler.tti_queues.rx_fifo:
       We don't use queue in configuration with `LimitReadyThld==1` and `ThldIsPow==0` and `ThldWidth==3` simultaneously:
         cond:
           - 3  # ready_thld_o <= (ready_thld_i >= ThldWidth'(Depth)) ? ThldWidth'(Depth) - 1 : ready_thld_i;
+
+    ai3c_top.i3c.i3c.xrecovery_handler.tti_queues.rx_fifo:
+      We don't use queue in configuration with `LimitReadyThld==1` and `ThldIsPow==0` and `ThldWidth==3` simultaneously:
+        cond:
+          - 3  # ready_thld_o <= (ready_thld_i >= ThldWidth'(Depth)) ? ThldWidth'(Depth) - 1 : ready_thld_i;
+
+    hci_queues_wrapper.xrecovery_handler.tti_queues.rx_fifo:
+      We don't use queue in configuration with `LimitReadyThld==1` and `ThldIsPow==0` and `ThldWidth==3` simultaneously:
+        cond:
+          - 3  # ready_thld_o <= (ready_thld_i >= ThldWidth'(Depth)) ? ThldWidth'(Depth) - 1 : ready_thld_i;
+
 
     i3c_test_wrapper.xi3c_wrapper.i3c.xrecovery_handler.xindirect_rx_fifo:
       We don't use queue in configuration with `LimitReadyThld==1` and `ThldIsPow==0` and `ThldWidth==3` simultaneously:
         cond:
           - 3  # ready_thld_o <= (ready_thld_i >= ThldWidth'(Depth)) ? ThldWidth'(Depth) - 1 : ready_thld_i;
 
+    ai3c_top.i3c.i3c.xrecovery_handler.xindirect_rx_fifo:
+      We don't use queue in configuration with `LimitReadyThld==1` and `ThldIsPow==0` and `ThldWidth==3` simultaneously:
+        cond:
+          - 3  # ready_thld_o <= (ready_thld_i >= ThldWidth'(Depth)) ? ThldWidth'(Depth) - 1 : ready_thld_i;
+
+    hci_queues_wrapper.xrecovery_handler.xindirect_rx_fifo:
+      We don't use queue in configuration with `LimitReadyThld==1` and `ThldIsPow==0` and `ThldWidth==3` simultaneously:
+        cond:
+          - 3  # ready_thld_o <= (ready_thld_i >= ThldWidth'(Depth)) ? ThldWidth'(Depth) - 1 : ready_thld_i;
 
 
   width_converter_8toN:

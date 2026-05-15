@@ -1238,6 +1238,10 @@ exclusions:
         cond:
           - 16: [2 "10"]  # i3c_wr_err = ((wr_req & !wlegal) | s_cpuif_wr_err) & !rd_hld;
 
+      Unused:
+        toggle:
+          - cpuif_req_stall
+
 
   I3CCSR:
     source_path: src/csr/I3CCSR.sv

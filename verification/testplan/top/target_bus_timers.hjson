@@ -37,5 +37,38 @@
       tests: ["bus_timers_reset_on_hdr_entry"]
       tags: ["top"]
     }
+    {
+      name: bus_idle
+      desc:
+        '''
+        Generate STOP condition, wait for over 200us and ensure the target entered idle state. Then
+        generate START condition and ensure target left idle state.
+        '''
+      tests: ["bus_idle"]
+      tags: ["top"]
+    }
+    {
+      name: exotic_idle_timings
+      desc:
+        '''
+        The bus conditions in the bus_timers module operate independently from each other
+        with each one configured by its own CSR. This introduces the unlikely possibility
+        of T_AVAL < T_FREE and T_IDLE < T_AVAL. This test exists to cover these conditions.
+        '''
+      tests: ["exotic_idle_timings"]
+      tags: ["top"]
+    }
+    {
+      name: bus_edge_detectors
+      desc:
+        '''
+        Sets up different values of T_R and T_F timings and for each detector (SDA posedge,
+        SDA negedge, SCL posedge, SCL negedge) verifies both whether the edge is correctly
+        detected when held for appropriate duration and whether it doesn't get detected when
+        deasserted before the timing duration.
+        '''
+      tests: ["bus_edge_detectors"]
+      tags: ["top"]
+    }
   ]
 }

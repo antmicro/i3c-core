@@ -59,8 +59,7 @@ testplans:
     testpoints:
     - name: "^(.*)$"
       source: ".*verification/cocotb/top/lib_i3c_top/test_i3c_target.py"
-      # test_bus_idle here is for bus_idle_coverage
-      cocotb_xml: ".*verification/cocotb/top/i3c_axi/test_(i3c_target|bus_idle)(_[0-9]+)?.xml"
+      cocotb_xml: ".*verification/cocotb/top/i3c_axi/test_i3c_target(_[0-9]+)?.xml"
   - name: 'Recovery mode tests'
     testpoints:
     - name: "^(.*)$"

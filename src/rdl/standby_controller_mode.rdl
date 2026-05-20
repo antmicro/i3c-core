@@ -1,6 +1,5 @@
 // I3C controller register map based on MIPI HCI 1.2
 
-
 regfile StandbyControllerModeRegisters#(
     bit pid_hi_reset,
     bit pid_lo_reset,
@@ -12,6 +11,12 @@ regfile StandbyControllerModeRegisters#(
 ){
     name = "Standby Controller Mode";
     default regwidth = 32;
+
+    signal {
+        name = "Lock Identity CSRs";
+        desc = "Hardware signal that locks identity CSRs (making them Read-Only) when STBY_CR_ENABLE_INIT is non-zero";
+    } lock_id_csrs_hw_sig;
+
     reg {
         regwidth = 32;
         field {
@@ -293,10 +298,14 @@ regfile StandbyControllerModeRegisters#(
             desc = "Bus Characteristics, Fixed Part.
 
             Reset value is set to 3'b001, because this device is an I3C Target,
-            which supports extended capabilities
+            which supports extended capabilities.
+
+            This field is Read-Only while the STBY_CR_ENABLE_INIT field in register
+            STBY_CR_CONTROL is not zero.
             ";
             hw   = r;
             sw   = rw;
+            swwel = lock_id_csrs_hw_sig;
             reset = 3'b001;
         } BCR_FIXED[31:29];
         field {
@@ -315,23 +324,37 @@ regfile StandbyControllerModeRegisters#(
             - [bit1] is not capable of IBI requests
 
             - [bit0] has no speed limitation
+
+            This field is Read-Only while the STBY_CR_ENABLE_INIT field in register
+            STBY_CR_CONTROL is not zero.
             ";
             hw   = r;
             sw   = rw;
+            swwel = lock_id_csrs_hw_sig;
             reset = 5'b10000;
         } BCR_VAR[28:24];
         field {
             name = "DCR";
-            desc = "Device Characteristics Register. Value represents an OCP Recovery Device.";
+            desc = "Device Characteristics Register. Value represents an OCP Recovery Device.
+            
+            This field is Read-Only while the STBY_CR_ENABLE_INIT field in register
+            STBY_CR_CONTROL is not zero.
+            ";
             hw   = r;
             sw   = rw;
+            swwel = lock_id_csrs_hw_sig;
             reset = 8'hBD;
         } DCR[23:16];
         field {
             name = "PID_HI";
-            desc = "High part of the 48-bit Target Device Provisioned ID.";
+            desc = "High part of the 48-bit Target Device Provisioned ID.
+            
+            This field is Read-Only while the STBY_CR_ENABLE_INIT field in register
+            STBY_CR_CONTROL is not zero.
+            ";
             hw   = r;
             sw   = rw;
+            swwel = lock_id_csrs_hw_sig;
             reset = 16'h7FFF; // FUTUREFIX: was `virtual_pid_hi_reset`
         } PID_HI[15:1];
     } STBY_CR_VIRTUAL_DEVICE_CHAR;
@@ -369,9 +392,13 @@ regfile StandbyControllerModeRegisters#(
 
             Reset value is set to 3'b001, because this device is an I3C Target,
             which supports extended capabilities
+
+            This field is Read-Only while the STBY_CR_ENABLE_INIT field in register
+            STBY_CR_CONTROL is not zero.
             ";
             hw   = r;
             sw   = rw;
+            swwel = lock_id_csrs_hw_sig;
             reset = 3'b001;
         } BCR_FIXED[31:29];
         field {
@@ -390,23 +417,37 @@ regfile StandbyControllerModeRegisters#(
             - [bit1] is capable of IBI requests
 
             - [bit0] has no speed limitation
+
+            This field is Read-Only while the STBY_CR_ENABLE_INIT field in register
+            STBY_CR_CONTROL is not zero.
             ";
             hw   = r;
             sw   = rw;
+            swwel = lock_id_csrs_hw_sig;
             reset = 5'b10110;
         } BCR_VAR[28:24];
         field {
             name = "DCR";
-            desc = "Device Characteristics Register. Value represents an OCP Recovery Device.";
+            desc = "Device Characteristics Register. Value represents an OCP Recovery Device.
+
+            This field is Read-Only while the STBY_CR_ENABLE_INIT field in register
+            STBY_CR_CONTROL is not zero.
+            ";
             hw   = r;
             sw   = rw;
+            swwel = lock_id_csrs_hw_sig;
             reset = 8'hBD;
         } DCR[23:16];
         field {
             name = "PID_HI";
-            desc = "High part of the 48-bit Target Device Provisioned ID.";
+            desc = "High part of the 48-bit Target Device Provisioned ID. 
+            
+            This field is Read-Only while the STBY_CR_ENABLE_INIT field in register
+            STBY_CR_CONTROL is not zero.
+            ";
             hw   = r;
             sw   = rw;
+            swwel = lock_id_csrs_hw_sig;
             reset = 16'h7FFF; // FUTUREFIX: was `pid_hi_reset`
         } PID_HI[15:1];
     } STBY_CR_DEVICE_CHAR;
@@ -415,9 +456,14 @@ regfile StandbyControllerModeRegisters#(
         desc = "";
         field {
             name = "PID_LO";
-            desc = "Low part of the 48-bit Target Device Provisioned ID.";
+            desc = "Low part of the 48-bit Target Device Provisioned ID.
+            
+            This field is Read-Only while the STBY_CR_ENABLE_INIT field in register
+            STBY_CR_CONTROL is not zero.
+            ";
             hw   = r;
             sw   = rw;
+            swwel = lock_id_csrs_hw_sig;
             reset = 32'h005A00A5; // FUTUREFIX: was `pid_lo_reset`
         } PID_LO[31:0];
     } STBY_CR_DEVICE_PID_LO;
@@ -524,9 +570,14 @@ regfile StandbyControllerModeRegisters#(
         desc = "";
         field {
             name = "PID_LO";
-            desc = "Low part of the 48-bit Target Virtual Device Provisioned ID.";
+            desc = "Low part of the 48-bit Target Virtual Device Provisioned ID.
+            
+            This field is Read-Only while the STBY_CR_ENABLE_INIT field in register
+            STBY_CR_CONTROL is not zero.
+            ";
             hw   = r;
             sw   = rw;
+            swwel = lock_id_csrs_hw_sig;
             reset = 32'h005A10A5; // FUTUREFIX: was `virtual_pid_lo_reset`
         } PID_LO[31:0];
     } STBY_CR_VIRTUAL_DEVICE_PID_LO;

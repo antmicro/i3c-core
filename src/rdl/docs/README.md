@@ -1120,10 +1120,14 @@ to receive its Dynamic Address before operating in Standby Controller mode.</p>
 #### PID_HI field
 
 <p>High part of the 48-bit Target Device Provisioned ID.</p>
+<p>This field is Read-Only while the STBY_CR_ENABLE_INIT field in register
+STBY_CR_CONTROL is not zero.</p>
 
 #### DCR field
 
 <p>Device Characteristics Register. Value represents an OCP Recovery Device.</p>
+<p>This field is Read-Only while the STBY_CR_ENABLE_INIT field in register
+STBY_CR_CONTROL is not zero.</p>
 
 #### BCR_VAR field
 
@@ -1146,12 +1150,16 @@ to receive its Dynamic Address before operating in Standby Controller mode.</p>
 <p>[bit0] has no speed limitation</p>
 </li>
 </ul>
+<p>This field is Read-Only while the STBY_CR_ENABLE_INIT field in register
+STBY_CR_CONTROL is not zero.</p>
 
 #### BCR_FIXED field
 
 <p>Bus Characteristics, Fixed Part.</p>
 <p>Reset value is set to 3'b001, because this device is an I3C Target,
-which supports extended capabilities</p>
+which supports extended capabilities.</p>
+<p>This field is Read-Only while the STBY_CR_ENABLE_INIT field in register
+STBY_CR_CONTROL is not zero.</p>
 
 ### STBY_CR_STATUS register
 
@@ -1196,11 +1204,15 @@ which supports extended capabilities</p>
 
 #### PID_HI field
 
-<p>High part of the 48-bit Target Device Provisioned ID.</p>
+<p>High part of the 48-bit Target Device Provisioned ID. </p>
+<p>This field is Read-Only while the STBY_CR_ENABLE_INIT field in register
+STBY_CR_CONTROL is not zero.</p>
 
 #### DCR field
 
 <p>Device Characteristics Register. Value represents an OCP Recovery Device.</p>
+<p>This field is Read-Only while the STBY_CR_ENABLE_INIT field in register
+STBY_CR_CONTROL is not zero.</p>
 
 #### BCR_VAR field
 
@@ -1223,12 +1235,16 @@ which supports extended capabilities</p>
 <p>[bit0] has no speed limitation</p>
 </li>
 </ul>
+<p>This field is Read-Only while the STBY_CR_ENABLE_INIT field in register
+STBY_CR_CONTROL is not zero.</p>
 
 #### BCR_FIXED field
 
 <p>Bus Characteristics, Fixed Part.</p>
 <p>Reset value is set to 3'b001, because this device is an I3C Target,
 which supports extended capabilities</p>
+<p>This field is Read-Only while the STBY_CR_ENABLE_INIT field in register
+STBY_CR_CONTROL is not zero.</p>
 
 ### STBY_CR_DEVICE_PID_LO register
 
@@ -1245,6 +1261,8 @@ which supports extended capabilities</p>
 #### PID_LO field
 
 <p>Low part of the 48-bit Target Device Provisioned ID.</p>
+<p>This field is Read-Only while the STBY_CR_ENABLE_INIT field in register
+STBY_CR_CONTROL is not zero.</p>
 
 ### STBY_CR_INTR_STATUS register
 
@@ -1339,6 +1357,8 @@ by the Target Reset Pattern.</p>
 #### PID_LO field
 
 <p>Low part of the 48-bit Target Virtual Device Provisioned ID.</p>
+<p>This field is Read-Only while the STBY_CR_ENABLE_INIT field in register
+STBY_CR_CONTROL is not zero.</p>
 
 ### STBY_CR_INTR_SIGNAL_ENABLE register
 

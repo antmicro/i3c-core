@@ -4495,7 +4495,7 @@ module I3CCSR (
         automatic logic load_next_c;
         next_c = field_storage.I3C_EC.StdbyCtrlMode.STBY_CR_VIRTUAL_DEVICE_CHAR.PID_HI.value;
         load_next_c = '0;
-        if(decoded_reg_strb.I3C_EC.StdbyCtrlMode.STBY_CR_VIRTUAL_DEVICE_CHAR && decoded_req_is_wr) begin // SW write
+        if(decoded_reg_strb.I3C_EC.StdbyCtrlMode.STBY_CR_VIRTUAL_DEVICE_CHAR && decoded_req_is_wr && !(hwif_in.I3C_EC.StdbyCtrlMode.lock_id_csrs_hw_sig)) begin // SW write
             next_c = (field_storage.I3C_EC.StdbyCtrlMode.STBY_CR_VIRTUAL_DEVICE_CHAR.PID_HI.value & ~decoded_wr_biten[15:1]) | (decoded_wr_data[15:1] & decoded_wr_biten[15:1]);
             load_next_c = '1;
         end
@@ -4518,7 +4518,7 @@ module I3CCSR (
         automatic logic load_next_c;
         next_c = field_storage.I3C_EC.StdbyCtrlMode.STBY_CR_VIRTUAL_DEVICE_CHAR.DCR.value;
         load_next_c = '0;
-        if(decoded_reg_strb.I3C_EC.StdbyCtrlMode.STBY_CR_VIRTUAL_DEVICE_CHAR && decoded_req_is_wr) begin // SW write
+        if(decoded_reg_strb.I3C_EC.StdbyCtrlMode.STBY_CR_VIRTUAL_DEVICE_CHAR && decoded_req_is_wr && !(hwif_in.I3C_EC.StdbyCtrlMode.lock_id_csrs_hw_sig)) begin // SW write
             next_c = (field_storage.I3C_EC.StdbyCtrlMode.STBY_CR_VIRTUAL_DEVICE_CHAR.DCR.value & ~decoded_wr_biten[23:16]) | (decoded_wr_data[23:16] & decoded_wr_biten[23:16]);
             load_next_c = '1;
         end
@@ -4541,7 +4541,7 @@ module I3CCSR (
         automatic logic load_next_c;
         next_c = field_storage.I3C_EC.StdbyCtrlMode.STBY_CR_VIRTUAL_DEVICE_CHAR.BCR_VAR.value;
         load_next_c = '0;
-        if(decoded_reg_strb.I3C_EC.StdbyCtrlMode.STBY_CR_VIRTUAL_DEVICE_CHAR && decoded_req_is_wr) begin // SW write
+        if(decoded_reg_strb.I3C_EC.StdbyCtrlMode.STBY_CR_VIRTUAL_DEVICE_CHAR && decoded_req_is_wr && !(hwif_in.I3C_EC.StdbyCtrlMode.lock_id_csrs_hw_sig)) begin // SW write
             next_c = (field_storage.I3C_EC.StdbyCtrlMode.STBY_CR_VIRTUAL_DEVICE_CHAR.BCR_VAR.value & ~decoded_wr_biten[28:24]) | (decoded_wr_data[28:24] & decoded_wr_biten[28:24]);
             load_next_c = '1;
         end
@@ -4564,7 +4564,7 @@ module I3CCSR (
         automatic logic load_next_c;
         next_c = field_storage.I3C_EC.StdbyCtrlMode.STBY_CR_VIRTUAL_DEVICE_CHAR.BCR_FIXED.value;
         load_next_c = '0;
-        if(decoded_reg_strb.I3C_EC.StdbyCtrlMode.STBY_CR_VIRTUAL_DEVICE_CHAR && decoded_req_is_wr) begin // SW write
+        if(decoded_reg_strb.I3C_EC.StdbyCtrlMode.STBY_CR_VIRTUAL_DEVICE_CHAR && decoded_req_is_wr && !(hwif_in.I3C_EC.StdbyCtrlMode.lock_id_csrs_hw_sig)) begin // SW write
             next_c = (field_storage.I3C_EC.StdbyCtrlMode.STBY_CR_VIRTUAL_DEVICE_CHAR.BCR_FIXED.value & ~decoded_wr_biten[31:29]) | (decoded_wr_data[31:29] & decoded_wr_biten[31:29]);
             load_next_c = '1;
         end
@@ -4665,7 +4665,7 @@ module I3CCSR (
         automatic logic load_next_c;
         next_c = field_storage.I3C_EC.StdbyCtrlMode.STBY_CR_DEVICE_CHAR.PID_HI.value;
         load_next_c = '0;
-        if(decoded_reg_strb.I3C_EC.StdbyCtrlMode.STBY_CR_DEVICE_CHAR && decoded_req_is_wr) begin // SW write
+        if(decoded_reg_strb.I3C_EC.StdbyCtrlMode.STBY_CR_DEVICE_CHAR && decoded_req_is_wr && !(hwif_in.I3C_EC.StdbyCtrlMode.lock_id_csrs_hw_sig)) begin // SW write
             next_c = (field_storage.I3C_EC.StdbyCtrlMode.STBY_CR_DEVICE_CHAR.PID_HI.value & ~decoded_wr_biten[15:1]) | (decoded_wr_data[15:1] & decoded_wr_biten[15:1]);
             load_next_c = '1;
         end
@@ -4688,7 +4688,7 @@ module I3CCSR (
         automatic logic load_next_c;
         next_c = field_storage.I3C_EC.StdbyCtrlMode.STBY_CR_DEVICE_CHAR.DCR.value;
         load_next_c = '0;
-        if(decoded_reg_strb.I3C_EC.StdbyCtrlMode.STBY_CR_DEVICE_CHAR && decoded_req_is_wr) begin // SW write
+        if(decoded_reg_strb.I3C_EC.StdbyCtrlMode.STBY_CR_DEVICE_CHAR && decoded_req_is_wr && !(hwif_in.I3C_EC.StdbyCtrlMode.lock_id_csrs_hw_sig)) begin // SW write
             next_c = (field_storage.I3C_EC.StdbyCtrlMode.STBY_CR_DEVICE_CHAR.DCR.value & ~decoded_wr_biten[23:16]) | (decoded_wr_data[23:16] & decoded_wr_biten[23:16]);
             load_next_c = '1;
         end
@@ -4711,7 +4711,7 @@ module I3CCSR (
         automatic logic load_next_c;
         next_c = field_storage.I3C_EC.StdbyCtrlMode.STBY_CR_DEVICE_CHAR.BCR_VAR.value;
         load_next_c = '0;
-        if(decoded_reg_strb.I3C_EC.StdbyCtrlMode.STBY_CR_DEVICE_CHAR && decoded_req_is_wr) begin // SW write
+        if(decoded_reg_strb.I3C_EC.StdbyCtrlMode.STBY_CR_DEVICE_CHAR && decoded_req_is_wr && !(hwif_in.I3C_EC.StdbyCtrlMode.lock_id_csrs_hw_sig)) begin // SW write
             next_c = (field_storage.I3C_EC.StdbyCtrlMode.STBY_CR_DEVICE_CHAR.BCR_VAR.value & ~decoded_wr_biten[28:24]) | (decoded_wr_data[28:24] & decoded_wr_biten[28:24]);
             load_next_c = '1;
         end
@@ -4734,7 +4734,7 @@ module I3CCSR (
         automatic logic load_next_c;
         next_c = field_storage.I3C_EC.StdbyCtrlMode.STBY_CR_DEVICE_CHAR.BCR_FIXED.value;
         load_next_c = '0;
-        if(decoded_reg_strb.I3C_EC.StdbyCtrlMode.STBY_CR_DEVICE_CHAR && decoded_req_is_wr) begin // SW write
+        if(decoded_reg_strb.I3C_EC.StdbyCtrlMode.STBY_CR_DEVICE_CHAR && decoded_req_is_wr && !(hwif_in.I3C_EC.StdbyCtrlMode.lock_id_csrs_hw_sig)) begin // SW write
             next_c = (field_storage.I3C_EC.StdbyCtrlMode.STBY_CR_DEVICE_CHAR.BCR_FIXED.value & ~decoded_wr_biten[31:29]) | (decoded_wr_data[31:29] & decoded_wr_biten[31:29]);
             load_next_c = '1;
         end
@@ -4757,7 +4757,7 @@ module I3CCSR (
         automatic logic load_next_c;
         next_c = field_storage.I3C_EC.StdbyCtrlMode.STBY_CR_DEVICE_PID_LO.PID_LO.value;
         load_next_c = '0;
-        if(decoded_reg_strb.I3C_EC.StdbyCtrlMode.STBY_CR_DEVICE_PID_LO && decoded_req_is_wr) begin // SW write
+        if(decoded_reg_strb.I3C_EC.StdbyCtrlMode.STBY_CR_DEVICE_PID_LO && decoded_req_is_wr && !(hwif_in.I3C_EC.StdbyCtrlMode.lock_id_csrs_hw_sig)) begin // SW write
             next_c = (field_storage.I3C_EC.StdbyCtrlMode.STBY_CR_DEVICE_PID_LO.PID_LO.value & ~decoded_wr_biten[31:0]) | (decoded_wr_data[31:0] & decoded_wr_biten[31:0]);
             load_next_c = '1;
         end
@@ -5118,7 +5118,7 @@ module I3CCSR (
         automatic logic load_next_c;
         next_c = field_storage.I3C_EC.StdbyCtrlMode.STBY_CR_VIRTUAL_DEVICE_PID_LO.PID_LO.value;
         load_next_c = '0;
-        if(decoded_reg_strb.I3C_EC.StdbyCtrlMode.STBY_CR_VIRTUAL_DEVICE_PID_LO && decoded_req_is_wr) begin // SW write
+        if(decoded_reg_strb.I3C_EC.StdbyCtrlMode.STBY_CR_VIRTUAL_DEVICE_PID_LO && decoded_req_is_wr && !(hwif_in.I3C_EC.StdbyCtrlMode.lock_id_csrs_hw_sig)) begin // SW write
             next_c = (field_storage.I3C_EC.StdbyCtrlMode.STBY_CR_VIRTUAL_DEVICE_PID_LO.PID_LO.value & ~decoded_wr_biten[31:0]) | (decoded_wr_data[31:0] & decoded_wr_biten[31:0]);
             load_next_c = '1;
         end

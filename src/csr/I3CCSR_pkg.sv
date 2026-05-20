@@ -746,6 +746,7 @@ package I3CCSR_pkg;
     } I3CCSR__I3C_EC__StdbyCtrlMode__STBY_CR_MRL__in_t;
 
     typedef struct packed{
+        logic lock_id_csrs_hw_sig;
         I3CCSR__I3C_EC__StdbyCtrlMode__STBY_CR_CONTROL__in_t STBY_CR_CONTROL;
         I3CCSR__I3C_EC__StdbyCtrlMode__STBY_CR_DEVICE_ADDR__in_t STBY_CR_DEVICE_ADDR;
         I3CCSR__I3C_EC__StdbyCtrlMode__STBY_CR_STATUS__in_t STBY_CR_STATUS;

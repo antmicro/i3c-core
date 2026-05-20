@@ -113,6 +113,12 @@ module csri
     hwif_in.I3C_EC.StdbyCtrlMode.STBY_CR_CCC_CONFIG_RSTACT_PARAMS.RST_ACTION.next = rst_action_valid_i ? rst_action_i : 9'h1;
   end
 
+  // This signal acts as a SW write enable to emulate the R/cW behavior for
+  // the Device characteristics detailed in Table 123 I3C HCI Spec
+  always_comb begin : wire_write_enable_signal
+    hwif_in.I3C_EC.StdbyCtrlMode.lock_id_csrs_hw_sig = (hwif_out_o.I3C_EC.StdbyCtrlMode.STBY_CR_CONTROL.STBY_CR_ENABLE_INIT != 2'h0);
+  end
+
   // Update Standby Controller mode based on the controller configuration status
   always_comb begin : wire_address_setting
     // Target address

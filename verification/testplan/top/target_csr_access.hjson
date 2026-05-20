@@ -80,5 +80,30 @@
       ]
       tags: ["top"]
     }
+    {
+      name: Standby Controller CSR Hardware Lock
+      desc:
+        '''
+        Testbench:
+        I3C Core (RTL)
+
+        Intent:
+        Verify R/cW behavior of Standby Controller Device Characteristics as detailed in Table 123 & 124 I3C HCI Spec.
+        The CSR fields should be Read-Only while the STBY_CR_ENABLE_INIT field in register STBY_CR_CONTROL is not zero.
+
+        Stimulus:
+        1. Disable Core, by writing zero to STBY_CR_CONTROL.STBY_CR_ENABLE_INIT
+        2. Core Disabled: Write random values to the identity CSRs.
+        3. Core Enabled: Issues writes to the same CSRs with new random values.
+        4. Core Disabled: Re-disables the core and again write new random values to the CSRs.
+
+        Check:
+        * The CSRs should contain the value that was written in step 2.
+        * The CSRs should retain the same value that was written in step 2. after the write in step 3.
+        * The CSRs should contain the values written in step 4.
+        '''
+      tests: ["ec_stdby_csr_hw_lock"]
+      tags: ["top"]
+    }
   ]
 }

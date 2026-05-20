@@ -772,3 +772,70 @@ async def test_read_r_channel_skid_full(dut):
     assert bytes2int(read_task_1.result()) == expected, "Response to read 2/2 is not correct after R-channel stall"
 
     await tb.teardown()
+
+@cocotb.test()
+async def test_ec_stdby_csr_hw_lock(dut):
+    """
+    Verify that identity CSRs (BCR, DCR, PID) are locked (Read-Only)
+    when the Standby Controller is active (STBY_CR_ENABLE_INIT != 0), 
+    and become writable again when disabled.
+    """
+    tb = await initialize(dut)
+    sm = tb.reg_map.I3C_EC.STDBYCTRLMODE
+
+    # The registers that should be protected by the HW lock
+    target_regs = [
+        sm.STBY_CR_DEVICE_CHAR,
+        sm.STBY_CR_DEVICE_PID_LO,
+        sm.STBY_CR_VIRTUAL_DEVICE_CHAR,
+        sm.STBY_CR_VIRTUAL_DEVICE_PID_LO,
+    ]
+
+    # Phase 1: Controller Disabled (Unlocked)
+    # Ensure STBY_CR_ENABLE_INIT is 0 (Disabled)
+    await tb.write_csr(sm.STBY_CR_CONTROL.base_addr, int2dword(0), 4)
+
+    initial_vals = {}
+    for reg in target_regs:
+        # Generate random data and calculate expected readback
+        val, exp_rd = rand_reg_val(reg)
+        await tb.write_csr(reg.base_addr, int2dword(val), 4)
+        initial_vals[reg.base_addr] = exp_rd
+
+    # Verify writes succeeded
+    for reg in target_regs:
+        rd_data = await tb.read_csr(reg.base_addr, 4)
+        compare_values(int2dword(initial_vals[reg.base_addr]), rd_data, reg.base_addr)
+
+    # Phase 2: Controller Enabled (Locked)
+    # Enable the controller by writing 2'b10 (SCM_RUNNING) to STBY_CR_ENABLE_INIT
+    ctrl_val = 2 << sm.STBY_CR_CONTROL.STBY_CR_ENABLE_INIT.low
+    await tb.write_csr(sm.STBY_CR_CONTROL.base_addr, int2dword(ctrl_val), 4)
+
+    # Attempt to overwrite the protected registers with NEW random values
+    for reg in target_regs:
+        new_val, _ = rand_reg_val(reg)
+        await tb.write_csr(reg.base_addr, int2dword(new_val), 4)
+
+    # Read them back: They should STILL hold the initial values, proving the
+    # hardware correctly ignored the writes.
+    for reg in target_regs:
+        rd_data = await tb.read_csr(reg.base_addr, 4)
+        compare_values(int2dword(initial_vals[reg.base_addr]), rd_data, reg.base_addr)
+
+    # Phase 3: Controller Disabled Again (Unlocked)
+    # Disable the controller again
+    await tb.write_csr(sm.STBY_CR_CONTROL.base_addr, int2dword(0), 4)
+
+    final_vals = {}
+    for reg in target_regs:
+        val, exp_rd = rand_reg_val(reg)
+        await tb.write_csr(reg.base_addr, int2dword(val), 4)
+        final_vals[reg.base_addr] = exp_rd
+
+    # Verify writes succeeded again
+    for reg in target_regs:
+        rd_data = await tb.read_csr(reg.base_addr, 4)
+        compare_values(int2dword(final_vals[reg.base_addr]), rd_data, reg.base_addr)
+
+    await tb.teardown()

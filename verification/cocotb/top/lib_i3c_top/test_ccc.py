@@ -424,6 +424,9 @@ async def test_ccc_getbcr(dut):
     i3c_controller, _, tb = await test_setup(dut, STATIC_ADDR, VIRT_STATIC_ADDR,
         dynamic_addr=ADDRs[0] if ADDRs[0] == DYNAMIC_ADDR else None,
         virtual_dynamic_addr=ADDRs[1] if ADDRs[1] == VIRT_DYNAMIC_ADDR else None)
+
+    await tb.write_csr(tb.reg_map.I3C_EC.STDBYCTRLMODE.STBY_CR_CONTROL.base_addr, int2dword(0), 4)
+
     await tb.write_csr_field(
         tb.reg_map.I3C_EC.STDBYCTRLMODE.STBY_CR_DEVICE_CHAR.base_addr,
         tb.reg_map.I3C_EC.STDBYCTRLMODE.STBY_CR_DEVICE_CHAR.BCR_VAR,
@@ -434,6 +437,9 @@ async def test_ccc_getbcr(dut):
         tb.reg_map.I3C_EC.STDBYCTRLMODE.STBY_CR_VIRTUAL_DEVICE_CHAR.BCR_VAR,
         _BCR_VARs[1],
     )
+    ctrl_val = 2 << tb.reg_map.I3C_EC.STDBYCTRLMODE.STBY_CR_CONTROL.STBY_CR_ENABLE_INIT.low
+    await tb.write_csr(tb.reg_map.I3C_EC.STDBYCTRLMODE.STBY_CR_CONTROL.base_addr, int2dword(ctrl_val), 4)
+
     await ClockCycles(tb.clk, 50)
 
     for _tgt_adr, _bcr_var in zip(ADDRs, _BCR_VARs):
@@ -458,6 +464,9 @@ async def test_ccc_getdcr(dut):
     i3c_controller, _, tb = await test_setup(dut, STATIC_ADDR, VIRT_STATIC_ADDR,
         dynamic_addr=ADDRs[0] if ADDRs[0] == DYNAMIC_ADDR else None,
         virtual_dynamic_addr=ADDRs[1] if ADDRs[1] == VIRT_DYNAMIC_ADDR else None)
+
+    await tb.write_csr(tb.reg_map.I3C_EC.STDBYCTRLMODE.STBY_CR_CONTROL.base_addr, int2dword(0), 4)
+
     await tb.write_csr_field(
         tb.reg_map.I3C_EC.STDBYCTRLMODE.STBY_CR_DEVICE_CHAR.base_addr,
         tb.reg_map.I3C_EC.STDBYCTRLMODE.STBY_CR_DEVICE_CHAR.DCR,
@@ -468,6 +477,10 @@ async def test_ccc_getdcr(dut):
         tb.reg_map.I3C_EC.STDBYCTRLMODE.STBY_CR_VIRTUAL_DEVICE_CHAR.DCR,
         _DCR_VARs[1],
     )
+
+    ctrl_val = 2 << tb.reg_map.I3C_EC.STDBYCTRLMODE.STBY_CR_CONTROL.STBY_CR_ENABLE_INIT.low
+    await tb.write_csr(tb.reg_map.I3C_EC.STDBYCTRLMODE.STBY_CR_CONTROL.base_addr, int2dword(ctrl_val), 4)
+
     await ClockCycles(tb.clk, 50)
 
     for _tgt_adr, _dcr_value in zip(ADDRs, _DCR_VARs):
@@ -730,6 +743,9 @@ async def test_ccc_getpid(dut):
     i3c_controller, _, tb = await test_setup(dut, STATIC_ADDR, VIRT_STATIC_ADDR,
         dynamic_addr=ADDRs[0] if ADDRs[0] == DYNAMIC_ADDR else None,
         virtual_dynamic_addr=ADDRs[1] if ADDRs[1] == VIRT_DYNAMIC_ADDR else None)
+
+    await tb.write_csr(tb.reg_map.I3C_EC.STDBYCTRLMODE.STBY_CR_CONTROL.base_addr, int2dword(0), 4)
+
     await tb.write_csr_field(
         tb.reg_map.I3C_EC.STDBYCTRLMODE.STBY_CR_DEVICE_CHAR.base_addr,
         tb.reg_map.I3C_EC.STDBYCTRLMODE.STBY_CR_DEVICE_CHAR.PID_HI,
@@ -750,6 +766,10 @@ async def test_ccc_getpid(dut):
         tb.reg_map.I3C_EC.STDBYCTRLMODE.STBY_CR_VIRTUAL_DEVICE_PID_LO.PID_LO,
         _PID_LOs[1],
     )
+
+    ctrl_val = 2 << tb.reg_map.I3C_EC.STDBYCTRLMODE.STBY_CR_CONTROL.STBY_CR_ENABLE_INIT.low
+    await tb.write_csr(tb.reg_map.I3C_EC.STDBYCTRLMODE.STBY_CR_CONTROL.base_addr, int2dword(ctrl_val), 4)
+
     await ClockCycles(tb.clk, 50)
 
     for _tgt_adr, _pid_lo, _pid_hi in zip(ADDRs, _PID_LOs, _PID_HIs):

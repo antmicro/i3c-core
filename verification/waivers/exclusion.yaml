@@ -2086,7 +2086,7 @@ exclusions:
           - 136;0-7 # (decoded_reg_strb.I3C_EC.TERMINATION_EXTCAP_HEADER && !decoded_req_is_wr) ? 8'h0 : '0; // R1
           - 136;9-23 # (decoded_reg_strb.I3C_EC.TERMINATION_EXTCAP_HEADER && !decoded_req_is_wr) ? 16'h1 : '0; // R2
           - 136;24-31 # Completely tied-off
-          - 138 # hwif_in.DCT.rd_ack ? hwif_in.DCT.rd_data : '0;
+          - 138;31-0 # hwif_in.DCT.rd_ack ? hwif_in.DCT.rd_data : '0;
 
       RDL code doesn't generate access errors:
         toggle:

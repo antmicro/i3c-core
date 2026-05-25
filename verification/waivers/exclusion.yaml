@@ -4940,6 +4940,24 @@ exclusions:
           - txn_ctx.burst: [1]
 
 
+  # NOTE: The space at the end is necessary.
+  "write_queue ( parameter CsrDataWidth=32,Depth=64,DataWidth=32,ThldWidth=8,ThldIsPow=0,LimitReadyThld,FifoDepthWidth=7 ) ":
+    source_path: src/hci/queues/write_queue.sv
+    source_sha: d705df1107f6b5e1f9e61410d449287b2e350b8c6323c2aa6eb572dd77a3eb67
+    all:
+      Tied to 0 in instances with ThldWidth=8:
+        toggle:
+        - start_thld_i
+
+  # NOTE: The space at the end is necessary.
+  "write_queue ( parameter CsrDataWidth=32,Depth=64,DataWidth=64,ThldWidth=8,ThldIsPow=0,LimitReadyThld=1,FifoDepthWidth=7 ) ":
+    source_path: src/hci/queues/write_queue.sv
+    source_sha: d705df1107f6b5e1f9e61410d449287b2e350b8c6323c2aa6eb572dd77a3eb67
+    all:
+      Tied to 0 in instances with ThldWidth=8:
+        toggle:
+        - start_thld_i
+
   write_queue:
     source_path: src/hci/queues/write_queue.sv
     source_sha: d705df1107f6b5e1f9e61410d449287b2e350b8c6323c2aa6eb572dd77a3eb67
@@ -4951,10 +4969,6 @@ exclusions:
       Unused:
         toggle:
         - unused_err
-
-      Tied to 0 when ThldWidth = 8 and is only 3-bits when not tied to 0:
-        toggle:
-        - start_thld_i: [3-7]
 
       We don't use queue in configuration with `LimitReadyThld` and `ThldIsPow==1` simultaneously:
         line:
@@ -5000,6 +5014,14 @@ exclusions:
         cond:
           - 5  # ready_thld_o <= (ready_thld_i >= ThldWidth'(Depth)) ? ThldWidth'(Depth) - 1 : ready_thld_i;
 
+  # NOTE: The space at the end is necessary.
+  "read_queue ( parameter Depth=64,DataWidth=32,ThldWidth=8,ThldIsPow=0,LimitReadyThld,FifoDepthWidth=7 ) ":
+    source_path: src/hci/queues/read_queue.sv
+    source_sha: 83d6399a8a78221208bad1e5be9ad6ed9890989f5c32e7f1456b82c63c6ea276
+    all:
+      Tied to 0 in instances with ThldWidth=8:
+        toggle:
+        - start_thld_i
 
   read_queue:
     source_path: src/hci/queues/read_queue.sv
@@ -5012,10 +5034,6 @@ exclusions:
       Unused:
         toggle:
         - unused_err
-
-      Tied to 0 when ThldWidth = 8 and is only 3-bits when not tied to 0:
-        toggle:
-        - start_thld_i: [3-7]
 
       We don't use queue in configuration with `LimitReadyThld` and `ThldIsPow==1` simultaneously:
         line:

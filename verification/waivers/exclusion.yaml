@@ -448,6 +448,7 @@ exclusions:
 
       Handshake where valid is asserted only if ready is asserted:
         cond:
+          - 1: [2 "10"]  # tti_rx_desc_wvalid & tti_rx_desc_wready
           - 2: [2 "10"]  # tti xtti (.rx_data_queue_write_i(tti_rx_wvalid & tti_rx_wready),)
 
       Recovery module does not generate interrupts:

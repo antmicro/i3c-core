@@ -140,7 +140,7 @@ module i3c_controller_error_test_wrapper #(
       .sda_i(sda),
       .sda_oe_i(2'b11),
       .scl_i(scl),
-      .scl_oe_i(2'b01),  // only ctrl drives scl
+      .scl_oe_i(2'b10),  // only ctrl drives scl
       .sda_o(sda_o),
       .scl_o(scl_o)
   );

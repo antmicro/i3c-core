@@ -37,10 +37,14 @@
 
 """
 
+import functools
 import os
 import random
 import time
 import shutil
+
+from dataclasses import dataclass, field
+from typing import List
 
 import nox
 from nox_utils import VerificationTest, isCocotbSimFailure, nox_config, sim_repeater_path
@@ -63,12 +67,61 @@ else:
 
 i3c_root = os.getenv("I3C_ROOT_DIR")
 
+# Specifying `TARGET_SUPPORT` or `CONTROLLER_SUPPORT` will cause
+# only those tests to execute, that are tagged with `target` or `controller` respectively
+# This is used to provide an intersection of `axi`/`ahb` and `target`/`controller` tag
+# combination
+# Default nox behavior when for `nox --tags axi target` will run the joint set of
+# AXI & Target tests
+target_support = (os.getenv("TARGET_SUPPORT", "1") == "1")
+controller_support = (os.getenv("CONTROLLER_SUPPORT", "0") == "1")
+
+@dataclass
+class TestParams:
+    tags: List[str]
+    test_group: List[str]
+    test_name: List[str]
+    coverage: None | List[str] = field(
+        default_factory=lambda: coverage_types.copy() if coverage_types else None
+    )
+    simulator: List[str] = field(default_factory=lambda: simulators.copy())
+
+
+def test(params: TestParams):
+    def wrapper(func):
+        # Skip tests that don't have required support
+        if all(
+            [
+                target_support,
+                controller_support,
+                "target" not in params.tags,
+                "controller" not in params.tags,
+            ]
+        ):
+            return
+        elif target_support and "target" not in params.tags:
+            return
+        elif controller_support and "controller" not in params.tags:
+            return
+
+        # Apply parametrize decorators
+        for k, v in reversed(params.__dict__.items()):
+            if k != "tags":
+                func = nox.parametrize(k, v)(func)
+
+        session_decorator = nox.session(tags=params.tags) if params.tags else nox.session()
+
+        @functools.wraps(func)
+        def wrapped(*args, **kwargs):
+            return func(*args, **kwargs)
+
+        return session_decorator(wrapped)
+
+    return wrapper
 
 def _verify(session, test_group, test_type, test_name, coverage=None, simulator=None):
     # session.install("-r", pip_requirements_path)
     test_iterations = int(os.getenv("TEST_ITERATIONS", 1))
-    target_support = (os.getenv("TARGET_SUPPORT", "1") == "1")
-    controller_support = (os.getenv("CONTROLLER_SUPPORT", "0") == "1")
 
 
     for i in range(test_iterations):
@@ -381,20 +434,6 @@ def i3c_ahb_verify(session, test_group, test_name, coverage, simulator):
 def i3c_axi_verify(session, test_group, test_name, coverage, simulator):
     verify_top(session, test_group, test_name, coverage, simulator)
 
-
-@nox.session(tags=["tests", "ahb", "axi", "axi_block"])
-@nox.parametrize("test_group", ["ccc"])
-@nox.parametrize(
-    "test_name",
-    [
-        "test_ccc",
-    ],
-)
-@nox.parametrize("coverage", coverage_types)
-@nox.parametrize("simulator", simulators)
-def ccc_verify(session, test_group, test_name, coverage, simulator):
-    verify_block(session, test_group, test_name, coverage, simulator)
-
 @test(
     TestParams(
         ["tests", "axi", "target"],
@@ -523,7 +562,6 @@ def controller_error_verify(session, test_group, test_name, coverage, simulator)
         ["ccc"],
         ["test_ccc"],
     )
->>>>>>> a0815f5c2 (WIP: Add I2C private write and read)
 )
 @nox.parametrize("coverage", coverage_types)
 @nox.parametrize("simulator", simulators)

@@ -123,6 +123,16 @@ def _verify(session, test_group, test_type, test_name, coverage=None, simulator=
     # session.install("-r", pip_requirements_path)
     test_iterations = int(os.getenv("TEST_ITERATIONS", 1))
 
+    session_tags = getattr(session._runner, "tags", [])
+
+    is_target = target_support
+    is_controller = controller_support
+    
+    if "axi-controller" in session_tags or "controller" in session_tags:
+        is_controller = True
+        is_target = True  # Controller tests usually require the combined i3c.f core
+    elif "target" in session_tags:
+        is_target = True
 
     for i in range(test_iterations):
         pfx = "" if test_iterations == 1 else f"_{i}"
@@ -136,28 +146,27 @@ def _verify(session, test_group, test_type, test_name, coverage=None, simulator=
 
         with open(test.paths["log_default"], "w") as test_log:
             # Remove simulation build artifacts
-            # When collecting coverage and renaming `vdb` database
-            # the following simulations will fail due to non-existent database
             if simulator == "vcs" and i > 0:
                 shutil.rmtree(os.path.join(test.testPath, test.sim_build))
 
             filelist = None
 
-            if target_support:
+            # --- USE THE NEW DYNAMIC BOOLEANS HERE ---
+            if is_target:
                 plusargs.extend(["+TargetSupport"])
                 filelist = f"{i3c_root}/src/i3c_target.f"
 
-            if controller_support:
+            if is_controller:
                 plusargs.extend(["+ControllerSupport"])
                 filelist = f"{i3c_root}/src/i3c_controller.f"
 
-            if controller_support and target_support:
+            if is_controller and is_target:
                 filelist = f"{i3c_root}/src/i3c.f"
 
             if filelist is None:
                 raise ValueError(
                     "Invalid Configuration: Both TARGET_SUPPORT and CONTROLLER_SUPPORT are disabled. "
-                    "At least one must be set to '1'."
+                    "At least one must be set to '1' via env vars or session tags."
                 )
 
             args = [

@@ -8,6 +8,7 @@
 module flow_active
   import controller_pkg::*;
   import i3c_pkg::*;
+  import prim_ram_2p_pkg::*;
 #(
     parameter int unsigned HciRespDataWidth = 32,
     parameter int unsigned HciCmdDataWidth  = 64,
@@ -396,6 +397,8 @@ module flow_active
   // dynamic address -> DAT index reverse lookup table
   assign rlt_wreq = dat_mem_sink_i.req && dat_mem_sink_i.write && (&dat_mem_sink_i.wmask[22:16]);
   // read request is valid 1 cycle after the request has been issued
+  logic [$clog2(`DAT_DEPTH)-1:0] unused_a_rdata;
+  ram_2p_cfg_rsp_t unused_cfg_rsp;
   always_ff @(posedge clk_i or negedge rst_ni) begin
     if (~rst_ni) begin
       rlt_valid <= 1'b0;
@@ -417,7 +420,7 @@ module flow_active
       .a_addr_i(dat_mem_sink_i.wdata[22:16]), // dynamic address field of DAT entry without parity bit
       .a_wdata_i(dat_mem_sink_i.addr),  // DAT index
       .a_wmask_i('1),
-      .a_rdata_o(unused_a_rdata_o),
+      .a_rdata_o(unused_a_rdata),
 
       // Read Port
       .b_req_i  (rlt_req),
@@ -428,7 +431,7 @@ module flow_active
       .b_rdata_o(rlt_dat_index),
 
       .cfg_i('0),
-      .cfg_rsp_o(unused_cfg_rsp_o)
+      .cfg_rsp_o(unused_cfg_rsp)
   );
 
   // Capture command FIFO control signals

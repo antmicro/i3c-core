@@ -261,7 +261,7 @@ module flow_active
   logic ccc_has_payload;
   logic ccc_ce0_first_retry_d, ccc_ce0_first_retry_q;
   ccc_cmd_e cmd_ccc, prev_ccc_d, prev_ccc_q;
-  assign cmd_ccc = cmd_desc[14:7];
+  assign cmd_ccc = ccc_cmd_e'(cmd_desc[14:7]);
   assign ccc_has_payload = has_payload(cmd_ccc);
 
   // Dynamic Address Assignment signals
@@ -586,7 +586,7 @@ module flow_active
   // Store previous CCC for direct CCC frame (Table 31 I3C Basic Spec)
   always_ff @(posedge clk_i or negedge rst_ni) begin
     if (~rst_ni) begin
-      prev_ccc_q <= 8'hFF;  // 0xFF is not used as a CCC, that's why it's a reset state
+      prev_ccc_q <= ccc_cmd_e'(8'hFF);  // 0xFF is not used as a CCC, that's why it's a reset state
     end else begin
       prev_ccc_q <= prev_ccc_d;
     end

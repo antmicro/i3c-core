@@ -657,7 +657,6 @@ module i3c_controller_fsm
       .clk_i,
       .rst_ni,
       .enable_i         (1'b1),
-      .reset_counter_ni (ctrl_bus_i.scl.value & ctrl_bus_i.sda.value),
       .t_bus_free_i     (t_buf_i),
       .t_bus_idle_i     (t_bus_idle_i),
       .t_bus_available_i(t_bus_available_i),

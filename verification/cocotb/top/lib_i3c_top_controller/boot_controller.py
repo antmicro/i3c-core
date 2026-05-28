@@ -22,9 +22,6 @@ from tools.timing.timings import validate_timings, log_timing_configuration
 # Device Bus Indices
 ACT_CONTROLLER_IDX = 1
 
-# Device Bus Indices
-ACT_CONTROLLER_IDX = 1
-
 # Helper to define the Initialization Modes (Table 5 I3C Basic Spec)
 MODE_TARGET = 2     # Standby Controller / Target
 MODE_CONTROLLER = 3 # Active Controller

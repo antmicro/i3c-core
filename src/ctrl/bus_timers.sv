@@ -47,7 +47,7 @@ module bus_timers
   // Track if we've seen STOP (and should be counting)
   always_ff @(posedge clk_i or negedge rst_ni) begin : proc_count_enable
     if (!rst_ni) begin
-      count_enable <= '0;
+      count_enable <= 1'b1;
     end else begin
       // Stop counting when bus_idle since this is always the largest counter
       // We need to stop to avoid counter overflow issues.

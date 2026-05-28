@@ -4,7 +4,6 @@
 [submodule "third_party/cocotbext-i3c"]
 	path = third_party/cocotbext-i3c
 	url = https://github.com/antmicro/cocotbext-i3c.git
-	branch = i3c-host-mode-support
 [submodule "third_party/axi-vip"]
 	path = third_party/axi-vip
 	url = https://github.com/antmicro/axi-vip.git

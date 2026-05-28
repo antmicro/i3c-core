@@ -518,6 +518,16 @@ module i3c_controller_fsm
 
 
   // Read Bus
+  bus_rx_req_t bus_rx_req;
+  bus_rx_rsp_t bus_rx_rsp;
+
+  assign bus_rx_req.req_byte = bus_rx_req_byte;
+  assign bus_rx_req.req_bit = bus_rx_req_bit;
+
+  assign bus_rx_idle = bus_rx_rsp.idle;
+  assign bus_rx_done = bus_rx_rsp.done;
+  assign bus_rx_data = bus_rx_rsp.data;
+
 
   bus_rx_flow i_bus_rx_flow (
       .clk_i,
@@ -527,35 +537,72 @@ module i3c_controller_fsm
       .scl_stable_high_i(ctrl_bus_i.scl.stable_high),
       .sda_i(ctrl_sda_i),
 
-      .rx_req_bit_i(bus_rx_req_bit),
-      .rx_req_byte_i(bus_rx_req_byte),
-      .rx_data_o(bus_rx_data),
-      .rx_done_o(bus_rx_done),
-      .rx_idle_o(bus_rx_idle)
+      .rx_req_i(bus_rx_req),
+      .rx_rsp_o(bus_rx_rsp)
   );
 
   // SDA driver
-  logic unassigned_bus_sel_od_pp;
+  logic unassigned_bus_sel_od_pp, unassigned_bus_sda_oe;
+
+  bus_state_t  bus_tx_bus;
+  bus_tx_req_t bus_tx_req;
+  bus_tx_rsp_t bus_tx_rsp;
+  signal_state_t bus_tx_sda, bus_tx_scl;
+
+  // these signals are unused
+  assign bus_tx_sda = '{
+          value : 1'b1,
+          pos_edge : 1'b0,
+          neg_edge : 1'b0,
+          stable_high : 1'b1,
+          stable_low : 1'b0
+      };
+
+  assign bus_tx_scl = '{
+          value : scl_flow_scl,
+          pos_edge : scl_posedge,
+          neg_edge : scl_negedge,
+          stable_high : scl_stable_high,
+          stable_low : scl_stable_low
+      };
+
+  assign bus_tx_bus = '{
+          sda : bus_tx_sda,
+          scl : bus_tx_scl,
+          start_det : 1'b0,
+          rstart_det : 1'b0,
+          stop_det : 1'b0
+      };
+
+
+  // bus_tx_req assignment
+  i3c_tx_req_e bus_tx_req_type;
+  assign bus_tx_req_type = bus_tx_req_byte ? RawByte : RawBit;
+  assign bus_tx_req = '{
+          req_valid : (bus_tx_req_byte | bus_tx_req_bit),
+          req_type : bus_tx_req_type,
+          drive_type : i3c_drive_e'(1'b0),
+          data : i3c_byte_t'(bus_tx_req_value)
+      };
+
+  // bus_tx_rsp assignment
+
+  assign bus_error = bus_tx_rsp.error;
+  assign bus_tx_idle = bus_tx_rsp.idle;
+  assign bus_tx_done = bus_tx_rsp.done;
+
   assign bus_tx_sel_od_pp = 1'b0;  // UNUSED
   bus_tx_flow i_bus_tx_flow (
       .clk_i,
       .rst_ni,
-      .t_r_i,
-      .t_su_dat_i      (tsu_dat_i),
-      .t_hd_dat_i      (thd_dat_i),
-      .scl_negedge_i   (scl_negedge),
-      .scl_posedge_i   (scl_posedge),
-      .scl_stable_low_i(scl_stable_low),
-      .req_byte_i      (bus_tx_req_byte),
-      .req_bit_i       (bus_tx_req_bit),
-      .req_value_i     (bus_tx_req_value),
-      .bus_tx_done_o   (bus_tx_done),
-      .bus_tx_idle_o   (bus_tx_idle),
-      .req_error_o     (bus_tx_req_err),
-      .bus_error_o     (bus_error),
-      .sel_od_pp_i     (bus_tx_sel_od_pp),
-      .sel_od_pp_o     (unassigned_bus_sel_od_pp),
-      .sda_o           (tx_flow_sda)
+
+      .bus_i(bus_tx_bus),
+      .tx_req_i(bus_tx_req),
+      .tx_rsp_o(bus_tx_rsp),
+
+      .sel_od_pp_o(unassigned_bus_sel_od_pp),
+      .sda_oe_o   (unassigned_bus_sda_oe),
+      .sda_o      (tx_flow_sda)
   );
 
   // SCL driver

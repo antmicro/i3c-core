@@ -77,7 +77,13 @@ module i3c_controller_fsm
   // Declare internal signals
   state_e state_d, state_q;
 
-  logic tx_bit_q, tx_bit_d, rx_done_bit_q, rx_done_bit_d;
+  logic
+      tx_bit_q,
+      tx_bit_d,
+      rx_done_bit_q,
+      rx_done_bit_d,
+      wait_for_scl_negedge_d,
+      wait_for_scl_negedge_q;
 
   // Bus SCL flow internal signals
   logic scl_negedge, scl_posedge, scl_stable_low, scl_stable_high;
@@ -199,7 +205,7 @@ module i3c_controller_fsm
         end
       end
       Address: begin
-        if (bus_rx_done & tx_bit_q) begin
+        if (wait_for_scl_negedge_q & scl_negedge) begin
           if (fmt_receive_nack_o) begin  // wait for SCL to finish cycle before switching state
             state_d = fmt_flag_hdr_exit_i ? HDRExit : (fmt_flag_restart_after_i ? ReStart : Stop);
           end else begin
@@ -286,6 +292,7 @@ module i3c_controller_fsm
     timer_d = timer_q;
     stop_next_d = fmt_flag_stop_after_i;
     t_bit_done = 1'b0;
+    wait_for_scl_negedge_d = wait_for_scl_negedge_q;
     unique case (state_q)
       Idle: begin
         fmt_fifo_rready_o = 1'b1;
@@ -314,13 +321,21 @@ module i3c_controller_fsm
 
           if (bus_rx_done) begin
             tx_bit_d = 1'b0;
-            fmt_fifo_rdone_o = 1'b1;
+            wait_for_scl_negedge_d = 1'b1;
+            ctrl_sda_o = 1'b0;
           end
-        end else begin
+        end else if (~wait_for_scl_negedge_q) begin
           bus_tx_req_byte  = 1'b1;
           bus_tx_req_value = fmt_byte_i;
           if (bus_tx_done) begin
             tx_bit_d = 1'b1;
+          end
+        end
+        if (wait_for_scl_negedge_q) begin
+          ctrl_sda_o = 1'b0;  // Handoff as per Section 5.1.2.3.1
+          if (scl_negedge) begin
+            fmt_fifo_rdone_o = 1'b1;
+            wait_for_scl_negedge_d = 1'b0;
           end
         end
         bus_rx_req_byte = ~phy_sel_od_pp_o & ~bus_rx_req_bit;  // In OD mode read the addr just in case an IBI happens
@@ -471,6 +486,7 @@ module i3c_controller_fsm
     if (~rst_ni) begin
       state_q <= Idle;
       tx_bit_q <= 1'b0;
+      wait_for_scl_negedge_q <= 1'b0;
       rx_done_bit_q <= 1'b0;
       received_nack_q <= 1'b0;
       bus_rx_req_bit_q <= 1'b0;
@@ -481,6 +497,7 @@ module i3c_controller_fsm
     end else begin
       state_q <= state_d;
       tx_bit_q <= tx_bit_d;
+      wait_for_scl_negedge_q <= wait_for_scl_negedge_d;
       rx_done_bit_q <= rx_done_bit_d;
       received_nack_q <= received_nack_d;
       bus_rx_req_bit_q <= bus_rx_req_bit_d;
@@ -518,18 +535,8 @@ module i3c_controller_fsm
 
 
   // Read Bus
-  bus_rx_req_t bus_rx_req;
-  bus_rx_rsp_t bus_rx_rsp;
 
-  assign bus_rx_req.req_byte = bus_rx_req_byte;
-  assign bus_rx_req.req_bit = bus_rx_req_bit;
-
-  assign bus_rx_idle = bus_rx_rsp.idle;
-  assign bus_rx_done = bus_rx_rsp.done;
-  assign bus_rx_data = bus_rx_rsp.data;
-
-
-  bus_rx_flow i_bus_rx_flow (
+  ctrl_bus_rx_flow i_bus_rx_flow (
       .clk_i,
       .rst_ni,
 
@@ -537,72 +544,35 @@ module i3c_controller_fsm
       .scl_stable_high_i(ctrl_bus_i.scl.stable_high),
       .sda_i(ctrl_sda_i),
 
-      .rx_req_i(bus_rx_req),
-      .rx_rsp_o(bus_rx_rsp)
+      .rx_req_bit_i(bus_rx_req_bit),
+      .rx_req_byte_i(bus_rx_req_byte),
+      .rx_data_o(bus_rx_data),
+      .rx_done_o(bus_rx_done),
+      .rx_idle_o(bus_rx_idle)
   );
 
   // SDA driver
-  logic unassigned_bus_sel_od_pp, unassigned_bus_sda_oe;
-
-  bus_state_t  bus_tx_bus;
-  bus_tx_req_t bus_tx_req;
-  bus_tx_rsp_t bus_tx_rsp;
-  signal_state_t bus_tx_sda, bus_tx_scl;
-
-  // these signals are unused
-  assign bus_tx_sda = '{
-          value : 1'b1,
-          pos_edge : 1'b0,
-          neg_edge : 1'b0,
-          stable_high : 1'b1,
-          stable_low : 1'b0
-      };
-
-  assign bus_tx_scl = '{
-          value : scl_flow_scl,
-          pos_edge : scl_posedge,
-          neg_edge : scl_negedge,
-          stable_high : scl_stable_high,
-          stable_low : scl_stable_low
-      };
-
-  assign bus_tx_bus = '{
-          sda : bus_tx_sda,
-          scl : bus_tx_scl,
-          start_det : 1'b0,
-          rstart_det : 1'b0,
-          stop_det : 1'b0
-      };
-
-
-  // bus_tx_req assignment
-  i3c_tx_req_e bus_tx_req_type;
-  assign bus_tx_req_type = bus_tx_req_byte ? RawByte : RawBit;
-  assign bus_tx_req = '{
-          req_valid : (bus_tx_req_byte | bus_tx_req_bit),
-          req_type : bus_tx_req_type,
-          drive_type : i3c_drive_e'(1'b0),
-          data : i3c_byte_t'(bus_tx_req_value)
-      };
-
-  // bus_tx_rsp assignment
-
-  assign bus_error = bus_tx_rsp.error;
-  assign bus_tx_idle = bus_tx_rsp.idle;
-  assign bus_tx_done = bus_tx_rsp.done;
-
+  logic unassigned_bus_sel_od_pp;
   assign bus_tx_sel_od_pp = 1'b0;  // UNUSED
-  bus_tx_flow i_bus_tx_flow (
+  ctrl_bus_tx_flow i_bus_tx_flow (
       .clk_i,
       .rst_ni,
-
-      .bus_i(bus_tx_bus),
-      .tx_req_i(bus_tx_req),
-      .tx_rsp_o(bus_tx_rsp),
-
-      .sel_od_pp_o(unassigned_bus_sel_od_pp),
-      .sda_oe_o   (unassigned_bus_sda_oe),
-      .sda_o      (tx_flow_sda)
+      .t_r_i,
+      .t_su_dat_i      (tsu_dat_i),
+      .t_hd_dat_i      (thd_dat_i),
+      .scl_negedge_i   (scl_negedge),
+      .scl_posedge_i   (scl_posedge),
+      .scl_stable_low_i(scl_stable_low),
+      .req_byte_i      (bus_tx_req_byte),
+      .req_bit_i       (bus_tx_req_bit),
+      .req_value_i     (bus_tx_req_value),
+      .bus_tx_done_o   (bus_tx_done),
+      .bus_tx_idle_o   (bus_tx_idle),
+      .req_error_o     (bus_tx_req_err),
+      .bus_error_o     (bus_error),
+      .sel_od_pp_i     (bus_tx_sel_od_pp),
+      .sel_od_pp_o     (unassigned_bus_sel_od_pp),
+      .sda_o           (tx_flow_sda)
   );
 
   // SCL driver
@@ -653,10 +623,11 @@ module i3c_controller_fsm
       .active_o(start_stop_active)
   );
 
-  bus_timers xbus_timers (
+  ctrl_bus_timers xbus_timers (
       .clk_i,
       .rst_ni,
       .enable_i         (1'b1),
+      .reset_counter_ni (ctrl_bus_i.scl.value & ctrl_bus_i.sda.value),
       .t_bus_free_i     (t_buf_i),
       .t_bus_idle_i     (t_bus_idle_i),
       .t_bus_available_i(t_bus_available_i),

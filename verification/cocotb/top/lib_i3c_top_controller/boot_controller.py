@@ -215,6 +215,14 @@ async def umbrella_stby_init(
         1,
         bus_idx=bus_idx
     )
+
+    # We can enable it with this reg because we're always in controller config for the controller tests
+    await tb.write_csr_field(
+        tb.reg_map.I3CBASE.HC_CONTROL.base_addr,
+        tb.reg_map.I3CBASE.HC_CONTROL.BUS_ENABLE,
+        1, bus_idx=bus_idx
+    )
+
     # 7. Verify Configuration
     if verify:
         await ClockCycles(tb.clk, 100)

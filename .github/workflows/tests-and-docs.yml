@@ -29,7 +29,7 @@ permissions:
 
 env:
   DEBIAN_FRONTEND: "noninteractive"
-  VERILATOR_VERSION: "v5.024"
+  VERILATOR_VERSION: "v5.046"
   WAVES: "0"
 
 jobs:

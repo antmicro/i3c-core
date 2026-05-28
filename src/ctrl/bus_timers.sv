@@ -25,8 +25,10 @@ module bus_timers
 (
     input  logic                            clk_i,
     input  logic                            rst_ni,
-    input  logic                            enable_i,
-    input  logic                            reset_counter_ni,
+    input  logic                            enable_i,           // Module enable (i3c_standby_en)
+    input  logic                            bus_start_i,        // Bus START/RSTART detected
+    input  logic                            bus_stop_i,         // Bus STOP detected
+    input  logic                            in_hdr_mode_i,      // Currently in HDR mode
     input  logic [i3c_pkg::TimingWidth-1:0] t_bus_free_i,       // CSR: Time to free
     input  logic [i3c_pkg::TimingWidth-1:0] t_bus_idle_i,       // CSR: Time to idle
     input  logic [i3c_pkg::TimingWidth-1:0] t_bus_available_i,  // CSR: Time to available
@@ -73,6 +75,6 @@ module bus_timers
   assign bus_idle_o      = bus_state_counter > {12'b0, (t_bus_idle_i - 1'b1)};
   assign bus_available_o = bus_state_counter > {12'b0, (t_bus_available_i - 1'b1)};
   // Asserted only if all of the above are low
-  assign bus_busy_o = ~(bus_free_o | bus_idle_o | bus_available_o);
+  assign bus_busy_o      = ~(bus_free_o | bus_idle_o | bus_available_o);
 
 endmodule

@@ -205,19 +205,6 @@ module controller
     output logic                            tti_ibi_queue_rready_o,
     input  logic [     TtiIbiDataWidth-1:0] tti_ibi_queue_rdata_i,
 `endif  // TARGET_SUPPORT
-`ifdef CONTROLLER_SUPPORT
-    // DAT <-> Controller interface
-    output logic                            dat_read_valid_hw_o,
-    output logic [               DatAw-1:0] dat_index_hw_o,
-    input  logic [                    63:0] dat_rdata_hw_i,
-
-    // DCT <-> Controller interface
-    output logic             dct_write_valid_hw_o,
-    output logic             dct_read_valid_hw_o,
-    output logic [DctAw-1:0] dct_index_hw_o,
-    output logic [    127:0] dct_wdata_hw_o,
-    input  logic [    127:0] dct_rdata_hw_i,
-`endif  // CONTROLLER_SUPPORT
 
     // I2C/I3C Bus condition detection
     output logic bus_start_o,
@@ -487,6 +474,8 @@ module controller
       .t_bus_free_i2c_o               (t_bus_free_i2c),
       .t_bus_idle_o                   (t_bus_idle),
       .t_bus_available_o              (t_bus_available),
+      .hdr_timeout_en_o               (hdr_timeout_en),
+      .t_hdr_timeout_o                (t_hdr_timeout),
       .get_mwl_o                      (get_mwl),
       .get_mrl_o                      (get_mrl),
       .get_ibil_o                     (get_ibil),
@@ -509,6 +498,7 @@ module controller
       .target_ibi_addr_valid_o        (target_ibi_addr_valid),
       .ibi_enable_o                   (ibi_enable),
       .ibi_retry_num_o                (ibi_retry_num),
+      .ibi_retry_ctr_rst_o            (ibi_retry_ctr_rst),
       .set_mwl_i                      (set_mwl),
       .set_mrl_i                      (set_mrl),
       .set_ibil_i                     (set_ibil),

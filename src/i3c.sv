@@ -543,7 +543,7 @@ module i3c
   logic               ri_unsupported_err;
   logic               ri_rx_fifo_overflow_err;
   logic               ri_indirect_fifo_overflow_err;
-  i3c_err_t           controller_error;
+  logic               target_error;
   logic transfer_abort, hc_err_cmd_seq_timeout_stat, hc_seq_cancel_stat;
 
 
@@ -805,6 +805,8 @@ module i3c
       .peripheral_reset_o,
       .peripheral_reset_done_i,
       .escalated_reset_o,
+
+      .err_o(target_error),
 
       .te0_err_o(te0_err),
       .te1_err_o(te1_err),
@@ -1090,7 +1092,7 @@ module i3c
       .disec_crr_i(disec_crr),
       .disec_hj_i (disec_hj),
 
-      .err_i(controller_error),
+      .err_i(target_error),
 
       // TE error inputs for interrupt reporting
       .te0_err_i(te0_err),

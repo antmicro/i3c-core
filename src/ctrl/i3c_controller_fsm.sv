@@ -205,7 +205,7 @@ module i3c_controller_fsm
         end
       end
       Address: begin
-        if (wait_for_scl_negedge_q & scl_negedge) begin
+        if ((wait_for_scl_negedge_q & scl_negedge) | fmt_receive_nack_o) begin
           if (fmt_receive_nack_o) begin  // wait for SCL to finish cycle before switching state
             state_d = fmt_flag_hdr_exit_i ? HDRExit : (fmt_flag_restart_after_i ? ReStart : Stop);
           end else begin
@@ -321,8 +321,12 @@ module i3c_controller_fsm
 
           if (bus_rx_done) begin
             tx_bit_d = 1'b0;
-            wait_for_scl_negedge_d = 1'b1;
+            wait_for_scl_negedge_d = received_nack_d ? 1'b0 : 1'b1;
             ctrl_sda_o = 1'b0;
+            if (received_nack_d) begin
+              fmt_fifo_rdone_o = 1'b1;
+              ctrl_sda_o = 1'b1;
+            end
           end
         end else if (~wait_for_scl_negedge_q) begin
           bus_tx_req_byte  = 1'b1;

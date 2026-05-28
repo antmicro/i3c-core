@@ -65,7 +65,7 @@ axi_hc:
   ControllerSupport: True
   TargetSupport: False
   
-axi_ctrl_and_target:
+axi-controller:
   CmdFifoDepth: 64
   RxFifoDepth: 64
   TxFifoDepth: 64

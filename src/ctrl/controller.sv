@@ -12,7 +12,7 @@ module controller
     parameter int unsigned DatAw = i3c_pkg::DatAw,
     parameter int unsigned DctAw = i3c_pkg::DctAw,
 
-`ifdef CONTROLLER_SUPPORT,
+`ifdef CONTROLLER_SUPPORT
     parameter int unsigned HciRespFifoDepth = 64,
     parameter int unsigned HciCmdFifoDepth  = 64,
     parameter int unsigned HciRxFifoDepth   = 64,
@@ -416,26 +416,25 @@ module controller
   assign ctrl_sda_oe_o[0] = 1'b0;
   assign ctrl_sda_oe_o[1] = 1'b0;
 
-  // NOTE: For now, the I3C standby (target) device is hard-wired onto the bus for risk mitigation
-  assign scl_o = ctrl_scl_o[3];
-  assign sda_o = ctrl_sda_o[3];
-  assign sda_oe_o    = ctrl_sda_oe_o[3];
-  assign sel_od_pp_o = ctrl_sel_od_pp_i[3];
+  always_comb begin : mux_4_to_1
+    scl_o = ctrl_scl_o[phy_mux_select];
+    sda_o = ctrl_sda_o[phy_mux_select];
+    sel_od_pp_o = ctrl_sel_od_pp_i[phy_mux_select];
+    sda_oe_o = ctrl_sda_oe_o[phy_mux_select];  // NOTE: this is only used for target mode
 
-
-  // Tieoff of all other devices
-  always_comb begin : mux_tieoff
     // Default
-    for (int i = 0; i < 3; i++) begin
+    for (int i = 0; i < 4; i++) begin
       ctrl_bus_i[i] = '0;
-      ctrl_bus_i[i].sda.value = 1'b1;
-      ctrl_bus_i[i].scl.value = 1'b1;
-      ctrl_bus_i[i].sda.stable_high = 1'b1;
-      ctrl_bus_i[i].scl.stable_high = 1'b1;
+      ctrl_bus_i[i].sda.value = '1;
+      ctrl_bus_i[i].scl.value = '1;
+      ctrl_bus_i[i].sda.stable_high = '1;
+      ctrl_bus_i[i].scl.stable_high = '1;
     end
 
-    ctrl_bus_i[3] = bus;
+    // Muxed
+    ctrl_bus_i[phy_mux_select] = bus;
   end
+
 
   logic is_i2c_transfer;
 

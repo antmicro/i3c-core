@@ -356,6 +356,10 @@ jobs:
         id: run-test
         env:
           TEST_SESSION: ${{ matrix.test }}
+          CONTROLLER_SUPPORT: "1"
+          TARGET_SUPPORT: "1"
+          CFG_NAME: "axi-controller"
+          I3C_ROOT_DIR: ${{ github.workspace }}
         run: |
           source activate.sh
           make config CFG_NAME=axi-controller

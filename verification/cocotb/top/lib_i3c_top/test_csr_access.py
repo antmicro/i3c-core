@@ -131,16 +131,17 @@ async def test_basic_burst_read(dut):
 
     # Registers that hang the bus due to additional requirements when accessing them
     exceptions = [
-        tb.reg_map.PIOCONTROL.RESPONSE_PORT.base_addr,
-        tb.reg_map.PIOCONTROL.TX_DATA_PORT.base_addr,
-        tb.reg_map.PIOCONTROL.IBI_PORT.base_addr,
     ]
 
     # Dump the entire register space
     mem_dump = {}
     legal_addr = list(range(0, UPPER_START_ADDR_BOUNDARY, 4))
+    for addr in exceptions:
+        legal_addr.remove(addr)
 
     for addr in range(0, MAX_BURST_SIZE + UPPER_START_ADDR_BOUNDARY, 4):
+        if addr in exceptions:
+            continue
         data = await tb.read_csr(addr, 4)
         mem_dump[addr] = list(data)
 
@@ -156,11 +157,25 @@ async def test_basic_burst_read(dut):
         for arlen, arsize, arlock, aruser in product(
             arlens, (0, 1, 2), AxiLockType, (0, 0xAAAAAAAA, 0x55555555)
         ):
-            start_addr = random.choice(legal_addr)
-            end_addr = start_addr + ((arlen + 1) * (2 ** arsize))
+            start = None
+            # Try to randomize start address 100 times, if didn't succeed then
+            # it's probably impossible to randomize such burst on a given reg
+            # map with given exceptions
+            for _ in range(0, 100):
+                start_addr = random.choice(legal_addr)
+                end_addr = start_addr + ((arlen + 1) * (2 ** arsize))
+                fail = False
+                for addr in exceptions:
+                    if addr >= start_addr and addr <= end_addr:
+                        fail = True
+                if not fail:
+                    start = start_addr
+                    break
+
+            assert start is not None, "Failed to randomize start address for ARBURST: {}, ARLEN: {}, ARSIZE: {}, ARUSER: {}".format(arburst, arlen, arsize, aruser)
 
             bursted = await tb.busIf.axi_m.read(
-                start_addr,
+                start,
                 size=arsize,
                 length=arlen+1,
                 lock=arlock,
@@ -174,9 +189,10 @@ async def test_basic_burst_read(dut):
                 else:
                     mem_idx = (i // 4) * 4
                 byte_idx = i % 4
-                assert byte == mem_dump[start_addr + mem_idx][byte_idx]
+                assert byte == mem_dump[start + mem_idx][byte_idx]
 
     await tb.teardown()
+
 
 @cocotb.test(
     skip=(
@@ -233,14 +249,14 @@ async def test_basic_burst_write(dut):
 
         return write_map, expect_map
 
-    # Registers that hang the bus due to additional requirements when accessing them
+    # FIFOs/Ports that hang the bus or trigger side-effects 
     access_exceptions = sorted([
-        tb.reg_map.PIOCONTROL.RESPONSE_PORT.base_addr,
-        tb.reg_map.PIOCONTROL.TX_DATA_PORT.base_addr,
-        tb.reg_map.PIOCONTROL.IBI_PORT.base_addr,
-        tb.reg_map.I3C_EC.TTI.TX_DATA_PORT.base_addr,
-        tb.reg_map.I3C_EC.TTI.RX_DATA_PORT.base_addr,
         tb.reg_map.I3C_EC.SECFWRECOVERYIF.INDIRECT_FIFO_DATA.base_addr,
+        tb.reg_map.I3C_EC.TTI.RX_DESC_QUEUE_PORT.base_addr,
+        tb.reg_map.I3C_EC.TTI.RX_DATA_PORT.base_addr,
+        tb.reg_map.I3C_EC.TTI.TX_DESC_QUEUE_PORT.base_addr,
+        tb.reg_map.I3C_EC.TTI.TX_DATA_PORT.base_addr,
+        tb.reg_map.I3C_EC.TTI.IBI_PORT.base_addr,
     ])
     max_access_size = max(a - b for a, b in zip(access_exceptions, [0, *access_exceptions]))
 

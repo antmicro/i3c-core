@@ -124,8 +124,8 @@ build-verilator:
 # Testplanning
 #
 
-BLOCKS_VERIFICATION_PLANS = $(shell find $(TESTPLAN_DIR) -type f -name "*.hjson" ! -name "target*.hjson" | sort)
-CORE_VERIFICATION_PLANS = $(shell find $(TESTPLAN_DIR) -type f -name "*target*.hjson" | sort)
+BLOCKS_VERIFICATION_PLANS = $(shell find $(TESTPLAN_DIR) -type f -path "*/block/*.hjson" | sort)
+CORE_VERIFICATION_PLANS   = $(shell find $(TESTPLAN_DIR) -type f -path "*/top/*.hjson" | sort)
 verification-docs:
 	testplanner $(BLOCKS_VERIFICATION_PLANS) -ot $(TESTPLAN_DIR)/generated/testplans_blocks.md --project-root $(I3C_ROOT_DIR) --testplan-file-map $(TESTPLAN_DIR)/source-maps.yml --source-url-prefix $(REPO_URL)
 	testplanner $(CORE_VERIFICATION_PLANS) -ot $(TESTPLAN_DIR)/generated/testplans_core.md --project-root $(I3C_ROOT_DIR) --testplan-file-map $(TESTPLAN_DIR)/source-maps.yml --source-url-prefix $(REPO_URL)
@@ -134,8 +134,8 @@ cocotbxml-to-hjson-sim-results:
 	cocotbxml-to-hjson -i $(TESTS_RESULTS_DIR) -t $(BLOCKS_VERIFICATION_PLANS) -o $(TESTS_RESULTS_DIR) --xml-root-dir $(TESTS_XML_BASE_PATH) --tests-ignore-dirs venv .venv .pyenv --test-tracking-summary-dir ./blocks --testplan-file-map $(TESTPLAN_DIR)/source-maps.yml
 	cocotbxml-to-hjson -i $(TESTS_RESULTS_DIR) -t $(CORE_VERIFICATION_PLANS) -o $(TESTS_RESULTS_DIR) --xml-root-dir $(TESTS_XML_BASE_PATH) --tests-ignore-dirs venv .venv .pyenv --test-tracking-summary-dir ./core --testplan-file-map $(TESTPLAN_DIR)/source-maps.yml
 
-BLOCKS_VERIFICATION_SIM_RESULTS = $(shell find $(TESTS_RESULTS_DIR) -type f -name "*.hjson" ! -name "target*.hjson" | sort)
-CORE_VERIFICATION_SIM_RESULTS = $(shell find $(TESTS_RESULTS_DIR) -type f -name "*target*.hjson" | sort)
+BLOCKS_VERIFICATION_SIM_RESULTS = $(shell find $(TESTS_RESULTS_DIR) -type f -path "*/block/*.hjson" | sort)
+CORE_VERIFICATION_SIM_RESULTS   = $(shell find $(TESTS_RESULTS_DIR) -type f -path "*/top/*.hjson" | sort)
 verification-docs-with-sim: cocotbxml-to-hjson-sim-results
 	testplanner $(BLOCKS_VERIFICATION_PLANS) -s $(BLOCKS_VERIFICATION_SIM_RESULTS) -ot $(TESTPLAN_DIR)/generated/testplans_blocks.md -os $(TESTPLAN_DIR)/generated/sim-results --output-summary-title "Tests for individual blocks" --output-summary $(TESTPLAN_DIR)/generated/sim-results/index-blocks.html --project-root $(I3C_ROOT_DIR) --testplan-file-map $(TESTPLAN_DIR)/source-maps.yml --source-url-prefix $(REPO_URL)
 	testplanner $(CORE_VERIFICATION_PLANS) -s $(CORE_VERIFICATION_SIM_RESULTS) -ot $(TESTPLAN_DIR)/generated/testplans_core.md -os $(TESTPLAN_DIR)/generated/sim-results --output-summary-title "Tests for the core" --output-summary $(TESTPLAN_DIR)/generated/sim-results/index-top.html --project-root $(I3C_ROOT_DIR) --testplan-file-map $(TESTPLAN_DIR)/source-maps.yml --source-url-prefix $(REPO_URL)

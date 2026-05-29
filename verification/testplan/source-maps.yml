@@ -17,27 +17,33 @@ testplans:
     testpoints:
     - name: "^(.*)$"
       source: "verification/cocotb/top/i3c_axi_controller/test_controller_ccc.py"
+      cocotb_xml: ".*verification/cocotb/top/i3c_axi_controller/test_controller_ccc(_[0-9]+)?.xml"
   - name: 'Controller IBI Handling'
     testpoints:
     - name: "^(.*)$"
       source: "verification/cocotb/top/i3c_axi_controller/test_controller_ibi.py"
+      cocotb_xml: ".*verification/cocotb/top/i3c_axi_controller/test_controller_ibi(_[0-9]+)?.xml"
   - name: 'Controller Generate HDR Exit Pattern'
     testpoints:
     - name: "^(.*)$"
       source: "verification/cocotb/top/i3c_axi_controller/test_controller_hdr_exit.py"
+      cocotb_xml: ".*verification/cocotb/top/i3c_axi_controller/test_controller_hdr_exit(_[0-9]+)?.xml"
   - name: 'Controller error generation'
     testpoints:
     - name: "^(.*)$"
       source: "verification/cocotb/top/i3c_axi_controller_err/test_controller_error.py"
+      cocotb_xml: ".*verification/cocotb/top/i3c_axi_controller_err/test_controller_error(_[0-9]+)?.xml"
 
   - name: '(Controller-specific)? ?CSR access check'
     testpoints:
     - name: "^(.*)$"
       tests:
-      - name: "^(.*)$"
+      - name: ".*csr_access.*"
         source: "verification/cocotb/top/lib_i3c_top/test_csr_access.py"
-      - name: "^(.*)$"
+        cocotb_xml: ".*verification/cocotb/top/i3c_axi/test_csr_access(_[0-9]+)?.xml"
+      - name: ".*(configure|stdby).*"
         source: "verification/cocotb/top/i3c_axi_controller/test_configure_i3c_cores.py"
+        cocotb_xml: ".*verification/cocotb/top/i3c_axi_controller/test_configure_i3c_cores(_[0-9]+)?.xml"
   - name: 'Enter and exit HDR mode'
     testpoints:
     - name: "^(.*)$"
@@ -120,24 +126,34 @@ testplans:
     testpoints:
     - name: "^(.*)$"
       tests:
+      - name: ".*write_repeated_start.*"
+        source: "verification/cocotb/top/i3c_axi_controller/test_i3c_controller_repeated_start.py"
+        cocotb_xml: ".*verification/cocotb/top/i3c_axi_controller/test_i3c_controller_repeated_start(_[0-9]+)?.xml"
       - name: "^(.*)$"
         source: "verification/cocotb/top/i3c_axi_controller/test_i3c_controller_write_target_read.py"
-      - name: "*write*"
-        source: "verification/cocotb/top/i3c_axi_controller/test_i3c_controller_repeated_start.py"
+        cocotb_xml: ".*verification/cocotb/top/i3c_axi_controller/test_i3c_controller_write_target_read(_[0-9]+)?.xml"
   - name: 'Controller Private Read'
     testpoints:
     - name: "^(.*)$"
       tests:
+      - name: ".*read_repeated_start.*"
+        source: "verification/cocotb/top/i3c_axi_controller/test_i3c_controller_repeated_start.py"
+        cocotb_xml: ".*verification/cocotb/top/i3c_axi_controller/test_i3c_controller_repeated_start(_[0-9]+)?.xml"
       - name: "^(.*)$"
         source: "verification/cocotb/top/i3c_axi_controller/test_i3c_controller_read_target_write.py"
-      - name: "*read*"
-        source: "verification/cocotb/top/i3c_axi_controller/test_i3c_controller_repeated_start.py"
-  - name: 'Controller I2C Mode'
+        cocotb_xml: ".*verification/cocotb/top/i3c_axi_controller/test_i3c_controller_read_target_write(_[0-9]+)?.xml"
+  - name: 'Controller I2C Transaction'
     testpoints:
     - name: "^(.*)$"
       tests:
       - name: "^(.*)$"
         source: "verification/cocotb/top/i2c_axi_controller/test_i2c_controller.py"
+        cocotb_xml: ".*verification/cocotb/top/i2c_axi_controller/test_i2c_controller(_[0-9]+)?.xml"
+  - name: 'Controller I3C flow'
+    testpoints:
+    - name: "^(.*)$"
+      source: "verification/cocotb/top/i3c_axi_controller/test_i3c_controller.py"
+      cocotb_xml: ".*verification/cocotb/top/i3c_axi_controller/test_i3c_controller(_[0-9]+)?.xml"
   - name: '^(controller|target)_axi_filtering$'
     testpoints:
     - name: "^(.*)$"

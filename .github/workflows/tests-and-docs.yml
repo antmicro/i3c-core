@@ -216,7 +216,7 @@ jobs:
         with:
           name: test-results-ahb-${{ steps.sanitize.outputs.name }}
           path: |
-            verification/cocotb/**/results*.xml
+            verification/cocotb/**/*.xml
             verification/cocotb/**/*.log
 
   # ===========================================================================
@@ -299,7 +299,7 @@ jobs:
         with:
           name: test-results-axi-${{ steps.sanitize.outputs.name }}
           path: |
-            verification/cocotb/**/results*.xml
+            verification/cocotb/**/*.xml
             verification/cocotb/**/*.log
 
   # ===========================================================================
@@ -386,7 +386,7 @@ jobs:
         with:
           name: test-results-axi-controller-${{ steps.sanitize.outputs.name }}
           path: |
-            verification/cocotb/**/results*.xml
+            verification/cocotb/**/*.xml
             verification/cocotb/**/*.log
 
   # ===========================================================================

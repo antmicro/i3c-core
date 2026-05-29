@@ -49,6 +49,9 @@ module dxt
   logic [DatAw-1:0] dat_index_sw;
   logic dat_word_index_sw;
 
+  logic dat_rd_req;
+  logic dat_wr_req;
+
   logic dat_rd_ack;
   logic dat_wr_ack;
 
@@ -99,13 +102,18 @@ module dxt
     if (~rst_ni) begin
       csr_dat_hwif_o.rd_data <= '0;
     end else begin
-      case (dat_word_index_sw)
-        1'd0: csr_dat_hwif_o.rd_data <= dat_mem_src_i.rdata[31:0];
-        1'd1: csr_dat_hwif_o.rd_data <= dat_mem_src_i.rdata[63:32];
-        default: csr_dat_hwif_o.rd_data <= '0;
-      endcase
+      if (dat_mem_src_i.rvalid)
+        case (dat_word_index_sw)
+          1'd0: csr_dat_hwif_o.rd_data <= dat_mem_src_i.rdata[31:0];
+          1'd1: csr_dat_hwif_o.rd_data <= dat_mem_src_i.rdata[63:32];
+          default: csr_dat_hwif_o.rd_data <= '0;
+        endcase
+      else csr_dat_hwif_o.rd_data <= '0;
     end
   end
+
+  assign dat_rd_req = csr_dat_hwif_i.req & ~csr_dat_hwif_i.req_is_wr & ~dat_read_valid_hw_i;
+  assign dat_wr_req = csr_dat_hwif_i.req & csr_dat_hwif_i.req_is_wr;
 
   always_ff @(posedge clk_i or negedge rst_ni) begin
     if (~rst_ni) begin
@@ -114,10 +122,10 @@ module dxt
       csr_dat_hwif_o.rd_ack <= 1'b0;
       csr_dat_hwif_o.wr_ack <= 1'b0;
     end else begin
-      dat_rd_ack <= csr_dat_hwif_i.req & ~csr_dat_hwif_i.req_is_wr & ~dat_read_valid_hw_i;
+      dat_rd_ack <= dat_rd_req;
       csr_dat_hwif_o.rd_ack <= dat_rd_ack;
 
-      dat_wr_ack <= csr_dat_hwif_i.req & csr_dat_hwif_i.req_is_wr;
+      dat_wr_ack <= dat_wr_req;
       csr_dat_hwif_o.wr_ack <= dat_wr_ack;
     end
   end
@@ -130,6 +138,9 @@ module dxt
   logic [127:0] dct_wmask;
   logic [DctAw-1:0] dct_index_sw;
   logic [1:0] dct_word_index_sw;
+
+  logic dct_rd_req;
+  logic dct_wr_req;
 
   logic dct_rd_ack;
   logic dct_wr_ack;
@@ -165,15 +176,20 @@ module dxt
     if (~rst_ni) begin
       csr_dct_hwif_o.rd_data <= '0;
     end else begin
-      case (dct_word_index_sw)
-        2'd0: csr_dct_hwif_o.rd_data <= dct_mem_src_i.rdata[31:0];
-        2'd1: csr_dct_hwif_o.rd_data <= dct_mem_src_i.rdata[63:32];
-        2'd2: csr_dct_hwif_o.rd_data <= dct_mem_src_i.rdata[95:64];
-        2'd3: csr_dct_hwif_o.rd_data <= dct_mem_src_i.rdata[127:96];
-        default: csr_dct_hwif_o.rd_data <= '0;
-      endcase
+      if (dct_mem_src_i.rvalid)
+        case (dct_word_index_sw)
+          2'd0: csr_dct_hwif_o.rd_data <= dct_mem_src_i.rdata[31:0];
+          2'd1: csr_dct_hwif_o.rd_data <= dct_mem_src_i.rdata[63:32];
+          2'd2: csr_dct_hwif_o.rd_data <= dct_mem_src_i.rdata[95:64];
+          2'd3: csr_dct_hwif_o.rd_data <= dct_mem_src_i.rdata[127:96];
+          default: csr_dct_hwif_o.rd_data <= '0;
+        endcase
+      else csr_dct_hwif_o.rd_data <= '0;
     end
   end
+
+  assign dct_rd_req = csr_dct_hwif_i.req & ~csr_dct_hwif_i.req_is_wr & ~dct_read_valid_hw_i;
+  assign dct_wr_req = csr_dct_hwif_i.req & csr_dct_hwif_i.req_is_wr;
 
   always_ff @(posedge clk_i or negedge rst_ni) begin
     if (~rst_ni) begin
@@ -182,10 +198,10 @@ module dxt
       csr_dct_hwif_o.rd_ack <= 1'b0;
       csr_dct_hwif_o.wr_ack <= 1'b0;
     end else begin
-      dct_rd_ack <= csr_dct_hwif_i.req & ~csr_dct_hwif_i.req_is_wr & ~dct_read_valid_hw_i;
+      dct_rd_ack <= dct_rd_req;
       csr_dct_hwif_o.rd_ack <= dct_rd_ack;
       // ACK write requests to remove CPU stall, even though they're illegal to DCT
-      dct_wr_ack <= csr_dct_hwif_i.req & csr_dct_hwif_i.req_is_wr;
+      dct_wr_ack <= dct_wr_req;
       csr_dct_hwif_o.wr_ack <= dct_wr_ack;
     end
   end

@@ -786,13 +786,19 @@ module recovery_receiver
         TxDesc: begin
           tx_pec_soft_rst_n_o = 1'b1; 
 
-          if (bus_stop_i || other_target_start_i || (virtual_target_start_i && !bus_addr_i[0])) begin
+          if (bus_stop_i || (virtual_target_start_i && !bus_addr_i[0])) begin
             // Protocol errors:
             // - STOP instead of Sr (incomplete read transaction)
-            // - Sr + Addr to different target (abandoned our transaction)
             // - Sr + Addr+W (expected read but got write)
             unsupported_err = unsupported_err_det_en_i;
             state_d         = Error;
+          end else if (other_target_start_i) begin
+            unsupported_err = unsupported_err_det_en_i;
+            // - Sr + Addr to different target (abandoned our transaction)
+            // We can switch to our regular target, so we're not jumping to the Error state
+            // Error state keeps the width converter in soft reset, preventing any
+            // data to enter RX FIFO. To prevent loosing this data we jump to Done.
+            state_d         = Done;
           end else if (tx_desc_ready_i) begin
             state_d = TxLenL;
             tx_pec_enable_o     = 1'b1;

@@ -5389,7 +5389,7 @@ async def test_ri_read_interrupted_by_ccc(dut):
     # uncommented, the controller sends actual S + Addr+W + CMD + PEC + Sr, in that case
     # the recovery_receiver enters Error state and keeps RX Queue in soft reset state
     # which blocks it from receiving data sent to main target on I3C bus.
-    # await i3c_controller.take_bus_control()
+    await i3c_controller.take_bus_control()
 
     # Start RI write phase: S + Addr+W (to virtual target)
     await i3c_controller.send_start()

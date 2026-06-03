@@ -16,6 +16,7 @@ export PYTHONPATH := $(PYTHONPATH):$(CURDIR)/common
 
 # Add empty file to common sources to enforce configuration build before running the tests
 COMMON_SOURCES += $(TEST_DIR)/sim_build/i3c_config.vh
+COMMON_SOURCES += $(SRC_DIR)/i3c_defines.svh
 
 $(info VERILOG_SOURCES = $(VERILOG_SOURCES))
 VERILOG_SOURCES := $(COMMON_SOURCES) $(VERILOG_SOURCES)

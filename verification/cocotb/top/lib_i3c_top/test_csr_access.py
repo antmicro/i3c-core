@@ -117,8 +117,12 @@ async def run_basic_csr_access(tb, reg_if, exceptions=[]):
             # TODO: Take into account read values from the CSRs and drop this reset
             await reset_n(tb.clk, tb.rst_n, cycles=2)
 
-
-@cocotb.test()
+@cocotb.test(
+    skip=(
+        "FrontendBusInterface" not in cocotb.plusargs
+        or cocotb.plusargs["FrontendBusInterface"] != "AXI"
+    )
+)
 async def test_basic_burst_read(dut):
     UPPER_START_ADDR_BOUNDARY = 0x200
     MAX_BURST_SIZE = (1 << 7) * 4  # Max INCR len multiplied by max ARSIZE
@@ -192,8 +196,12 @@ async def test_basic_burst_read(dut):
 
     await tb.teardown()
 
-
-@cocotb.test()
+@cocotb.test(
+    skip=(
+        "FrontendBusInterface" not in cocotb.plusargs
+        or cocotb.plusargs["FrontendBusInterface"] != "AXI"
+    )
+)
 async def test_basic_burst_write(dut):
     MAX_END_ADDR = 1024
 
@@ -331,7 +339,6 @@ async def test_basic_burst_write(dut):
                     )
 
     await tb.teardown()
-
 
 @cocotb.test()
 async def test_dat_csr_access(dut):

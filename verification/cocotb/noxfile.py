@@ -585,7 +585,7 @@ def ccc_verify(session, test_group, test_name, coverage, simulator):
 @nox.parametrize(
     "test_name",
     [
-        "test_bus_timers",
+        "test_ctrl_bus_timers",
     ],
 )
 @nox.parametrize("coverage", coverage_types)

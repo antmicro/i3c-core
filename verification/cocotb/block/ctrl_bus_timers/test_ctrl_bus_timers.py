@@ -25,7 +25,7 @@ async def setup(dut):
 
 
 @cocotb.test()
-async def test_bus_timers(dut: SimHandleBase):
+async def test_ctrl_bus_timers(dut: SimHandleBase):
     """
     Test bus timers
     """

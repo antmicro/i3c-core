@@ -1,5 +1,5 @@
 {
-  name: Bus timers top-level
+  name: Bus timers block-level
   testpoints:
   [
     {
@@ -11,8 +11,8 @@
         the signals corresponding to bus states get asserted after the
         required time period.
         '''
-      tests: ["bus_timers"]
-      tags: ["bus_timers"]
+      tests: ["ctrl_bus_timers"]
+      tags: ["ctrl_bus_timers"]
     }
   ]
 }

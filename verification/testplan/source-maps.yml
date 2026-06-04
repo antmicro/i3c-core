@@ -12,67 +12,38 @@ testplans:
   - name: 'CCC handling'
     testpoints:
     - name: "^(.*)$"
-      source: "verification/cocotb/top/lib_i3c_top/test_ccc.py"
+      source: ".*verification/cocotb/top/lib_i3c_top/test_ccc.py"
+      cocotb_xml: ".*verification/cocotb/top/i3c_axi/test_ccc(_[0-9]+)?.xml"
   - name: 'Controller CCC generation'
     testpoints:
     - name: "^(.*)$"
-      source: "verification/cocotb/top/i3c_axi_controller/test_controller_ccc.py"
+      source: ".*verification/cocotb/top/i3c_axi_controller/test_controller_ccc.py"
       cocotb_xml: ".*verification/cocotb/top/i3c_axi_controller/test_controller_ccc(_[0-9]+)?.xml"
   - name: 'Controller IBI Handling'
     testpoints:
     - name: "^(.*)$"
-      source: "verification/cocotb/top/i3c_axi_controller/test_controller_ibi.py"
+      source: ".*verification/cocotb/top/i3c_axi_controller/test_controller_ibi.py"
       cocotb_xml: ".*verification/cocotb/top/i3c_axi_controller/test_controller_ibi(_[0-9]+)?.xml"
   - name: 'Controller Generate HDR Exit Pattern'
     testpoints:
     - name: "^(.*)$"
-      source: "verification/cocotb/top/i3c_axi_controller/test_controller_hdr_exit.py"
+      source: ".*verification/cocotb/top/i3c_axi_controller/test_controller_hdr_exit.py"
       cocotb_xml: ".*verification/cocotb/top/i3c_axi_controller/test_controller_hdr_exit(_[0-9]+)?.xml"
   - name: 'Controller error generation'
     testpoints:
     - name: "^(.*)$"
-      source: "verification/cocotb/top/i3c_axi_controller_err/test_controller_error.py"
+      source: ".*verification/cocotb/top/i3c_axi_controller_err/test_controller_error.py"
       cocotb_xml: ".*verification/cocotb/top/i3c_axi_controller_err/test_controller_error(_[0-9]+)?.xml"
-
   - name: '(Controller-specific)? ?CSR access check'
     testpoints:
     - name: "^(.*)$"
       tests:
       - name: ".*csr_access.*"
-        source: "verification/cocotb/top/lib_i3c_top/test_csr_access.py"
+        source: ".*verification/cocotb/top/lib_i3c_top/test_csr_access.py"
         cocotb_xml: ".*verification/cocotb/top/i3c_axi/test_csr_access(_[0-9]+)?.xml"
       - name: ".*(configure|stdby).*"
-        source: "verification/cocotb/top/i3c_axi_controller/test_configure_i3c_cores.py"
+        source: ".*verification/cocotb/top/i3c_axi_controller/test_configure_i3c_cores.py"
         cocotb_xml: ".*verification/cocotb/top/i3c_axi_controller/test_configure_i3c_cores(_[0-9]+)?.xml"
-  - name: 'Enter and exit HDR mode'
-    testpoints:
-    - name: "^(.*)$"
-      source: "verification/cocotb/top/lib_i3c_top/test_enter_exit_hdr_mode.py"
-  - name: 'Target'
-    testpoints:
-    - name: "^(.*)$"
-      source: "verification/cocotb/top/lib_i3c_top/test_i3c_target.py"
-  - name: 'Target interrupts'
-    testpoints:
-    - name: "^(.*)$"
-      source: ".*verification/cocotb/top/i3c_axi/test_interrupts.py"
-      cocotb_xml: ".*verification/cocotb/top/i3c_axi/test_interrupts(_[0-9]+)?.xml"
-  - name: 'Target error detection'
-    testpoints:
-    - name: "^(.*)$"
-      source: ".*verification/cocotb/top/i3c_axi/test_te_errors.py"
-      # test_recovery here is for ri_rx_fifo_overflow_irq and ri_indirect_fifo_overflow_irq
-      cocotb_xml: ".*verification/cocotb/top/i3c_axi/test_(te_errors|recovery)(_[0-9]+)?.xml"
-  - name: 'CCC handling'
-    testpoints:
-    - name: "^(.*)$"
-      source: ".*verification/cocotb/top/lib_i3c_top/test_ccc.py"
-      cocotb_xml: ".*verification/cocotb/top/i3c_axi/test_ccc(_[0-9]+)?.xml"
-  - name: 'CSR access check'
-    testpoints:
-    - name: "^(.*)$"
-      source: ".*verification/cocotb/top/lib_i3c_top/test_csr_access.py"
-      cocotb_xml: ".*verification/cocotb/top/i3c_axi/test_csr_access(_[0-9]+)?.xml"
   - name: 'Enter and exit HDR mode'
     testpoints:
     - name: "^(.*)$"
@@ -83,6 +54,16 @@ testplans:
     - name: "^(.*)$"
       source: ".*verification/cocotb/top/lib_i3c_top/test_i3c_target.py"
       cocotb_xml: ".*verification/cocotb/top/i3c_axi/test_i3c_target(_[0-9]+)?.xml"
+  - name: 'Target interrupts'
+    testpoints:
+    - name: "^(.*)$"
+      source: ".*verification/cocotb/top/lib_i3c_top/test_interrupts.py"
+      cocotb_xml: ".*verification/cocotb/top/i3c_axi/test_interrupts(_[0-9]+)?.xml"
+  - name: 'Target error detection'
+    testpoints:
+    - name: "^(.*)$"
+      source: ".*verification/cocotb/top/lib_i3c_top/test_te_errors.py"
+      cocotb_xml: ".*verification/cocotb/top/i3c_axi/test_(te_errors|recovery)(_[0-9]+)?.xml"
   - name: 'Recovery mode tests'
     testpoints:
     - name: "^(.*)$"
@@ -121,38 +102,38 @@ testplans:
   - name: 'width_converter_[N8]to[N8]'
     testpoints:
     - name: "^(.*)$"
-      source: "verification/cocotb/block/{{testplan}}/test_converter.py"
+      source: ".*verification/cocotb/block/{{testplan_file.stem}}/test_converter.py"
   - name: 'Controller Private Write'
     testpoints:
     - name: "^(.*)$"
       tests:
       - name: ".*write_repeated_start.*"
-        source: "verification/cocotb/top/i3c_axi_controller/test_i3c_controller_repeated_start.py"
+        source: ".*verification/cocotb/top/i3c_axi_controller/test_i3c_controller_repeated_start.py"
         cocotb_xml: ".*verification/cocotb/top/i3c_axi_controller/test_i3c_controller_repeated_start(_[0-9]+)?.xml"
       - name: "^(.*)$"
-        source: "verification/cocotb/top/i3c_axi_controller/test_i3c_controller_write_target_read.py"
+        source: ".*verification/cocotb/top/i3c_axi_controller/test_i3c_controller_write_target_read.py"
         cocotb_xml: ".*verification/cocotb/top/i3c_axi_controller/test_i3c_controller_write_target_read(_[0-9]+)?.xml"
   - name: 'Controller Private Read'
     testpoints:
     - name: "^(.*)$"
       tests:
       - name: ".*read_repeated_start.*"
-        source: "verification/cocotb/top/i3c_axi_controller/test_i3c_controller_repeated_start.py"
+        source: ".*verification/cocotb/top/i3c_axi_controller/test_i3c_controller_repeated_start.py"
         cocotb_xml: ".*verification/cocotb/top/i3c_axi_controller/test_i3c_controller_repeated_start(_[0-9]+)?.xml"
       - name: "^(.*)$"
-        source: "verification/cocotb/top/i3c_axi_controller/test_i3c_controller_read_target_write.py"
+        source: ".*verification/cocotb/top/i3c_axi_controller/test_i3c_controller_read_target_write.py"
         cocotb_xml: ".*verification/cocotb/top/i3c_axi_controller/test_i3c_controller_read_target_write(_[0-9]+)?.xml"
   - name: 'Controller I2C Transaction'
     testpoints:
     - name: "^(.*)$"
       tests:
       - name: "^(.*)$"
-        source: "verification/cocotb/top/i2c_axi_controller/test_i2c_controller.py"
+        source: ".*verification/cocotb/top/i2c_axi_controller/test_i2c_controller.py"
         cocotb_xml: ".*verification/cocotb/top/i2c_axi_controller/test_i2c_controller(_[0-9]+)?.xml"
   - name: 'Controller I3C flow'
     testpoints:
     - name: "^(.*)$"
-      source: "verification/cocotb/top/i3c_axi_controller/test_i3c_controller.py"
+      source: ".*verification/cocotb/top/i3c_axi_controller/test_i3c_controller.py"
       cocotb_xml: ".*verification/cocotb/top/i3c_axi_controller/test_i3c_controller(_[0-9]+)?.xml"
   - name: '^(controller|target)_axi_filtering$'
     testpoints:
@@ -172,28 +153,36 @@ testplans:
     - name: "^(.*)$"
       tests:
       - name: "^tti_.*_capacity_status$"
-        source: ".*verification/cocotb/block/lib_hci_queues/test_empty_tti.py"
+        source: ".*verification/cocotb/block/.*/test_empty_tti.py"
       - name: "^tti_.*_(setup_threshold|should_raise_thld_trig)$"
-        source: ".*verification/cocotb/block/lib_hci_queues/test_threshold_tti.py"
+        source: ".*verification/cocotb/block/.*/test_threshold_tti.py"
   - name: 'hci_queues'
     testpoints:
     - name: "^(.*)$"
       tests:
       - name: "^clear_on_nonempty_.*_queue$"
-        source: ".*verification/cocotb/block/lib_hci_queues/test_clear_hci.py"
+        source: ".*verification/cocotb/block/.*/test_clear_hci.py"
       - name: "^.*_capacity_status$"
-        source: ".*verification/cocotb/block/lib_hci_queues/test_empty_hci.py"
+        source: ".*verification/cocotb/block/.*/test_empty_hci.py"
       - name: "^.*_(setup_threshold|should_raise_thld_trig)$"
-        source: ".*verification/cocotb/block/lib_hci_queues/test_threshold_hci.py"
+        source: ".*verification/cocotb/block/.*/test_threshold_hci.py"
+  - name: "^(bus_monitor)$"
+    source: ".*verification/cocotb/block/ctrl_bus_monitor/test_bus_monitor.py"
+    cocotb_xml: ".*verification/cocotb/block/ctrl_bus_monitor/test_bus_monitor(_[0-9]+)?.xml"
+  - name: "^(i3c_bus_monitor)$"
+    source: ".*verification/cocotb/block/.*/test_i3c_bus_monitor.py"
+    cocotb_xml: ".*verification/cocotb/block/.*/test_i3c_bus_monitor(_[0-9]+)?.xml"
+
+  # Catch-alls
+  - name: 'Bus timers top-level'
+    source: ".*verification/cocotb/top/lib_i3c_top/test_bus_timers.py"
+    cocotb_xml: ".*verification/cocotb/top/lib_i3c_top/test_bus_timers(_[0-9]+)?.xml"
+  - name: "^csr_sw_access$"
+    source: ".*verification/cocotb/block/lib_adapter/test_{{testplan_file.stem}}.py"
+    cocotb_xml: ".*verification/cocotb/block/lib_adapter/test_{{testplan_file.stem}}(_[0-9]+)?.xml"
   - name: "^(bus_.x.*|ccc)$"
     source: ".*verification/cocotb/block/{{testplan_file.stem}}/test_{{testplan_file.stem}}.py"
     cocotb_xml: ".*verification/cocotb/block/{{testplan_file.stem}}/test_{{testplan_file.stem}}(_[0-9]+)?.xml"
   - name: "^(bus_.*)$"
     source: ".*verification/cocotb/block/ctrl_{{testplan_file.stem}}/test_{{testplan_file.stem}}.py"
     cocotb_xml: ".*verification/cocotb/block/ctrl_{{testplan_file.stem}}/test_{{testplan_file.stem}}(_[0-9]+)?.xml"
-  - name: 'Bus timers top-level'
-    source: ".*verification/cocotb/block/ctrl_{{testplan_file.stem}}/test_{{testplan_file.stem}}.py"
-    cocotb_xml: ".*verification/cocotb/block/ctrl_{{testplan_file.stem}}/test_{{testplan_file.stem}}(_[0-9]+)?.xml"
-  - name: "^csr_sw_access$"
-    source: ".*verification/cocotb/block/lib_adapter/test_{{testplan_file.stem}}.py"
-    cocotb_xml: ".*verification/cocotb/block/lib_adapter/test_{{testplan_file.stem}}(_[0-9]+)?.xml"

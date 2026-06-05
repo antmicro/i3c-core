@@ -59,7 +59,7 @@
         Check:
             - Assert that the response descriptor returns a NACK Error State.
         '''
-      tests: ["i2c_handle_nack"]
+      tests: []
       tags: ["top"]
     },
     

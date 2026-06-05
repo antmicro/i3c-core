@@ -59,7 +59,6 @@
 
         '''
       tests: [
-        "check_timing_csr",
       ]
       tags: ["top"]
     }

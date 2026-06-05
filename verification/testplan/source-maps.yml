@@ -55,15 +55,11 @@ testplans:
       source: ".*verification/cocotb/top/lib_i3c_top/test_i3c_target.py"
       cocotb_xml: ".*verification/cocotb/top/i3c_axi/test_i3c_target(_[0-9]+)?.xml"
   - name: 'Target interrupts'
-    testpoints:
-    - name: "^(.*)$"
-      source: ".*verification/cocotb/top/lib_i3c_top/test_interrupts.py"
-      cocotb_xml: ".*verification/cocotb/top/i3c_axi/test_interrupts(_[0-9]+)?.xml"
+    source: ".*verification/cocotb/top/lib_i3c_top/test_interrupts.py"
+    cocotb_xml: ".*verification/cocotb/top/i3c_axi/test_(interrupts|i3c_target)(_[0-9]+)?.xml"
   - name: 'Target error detection'
-    testpoints:
-    - name: "^(.*)$"
-      source: ".*verification/cocotb/top/lib_i3c_top/test_te_errors.py"
-      cocotb_xml: ".*verification/cocotb/top/i3c_axi/test_(te_errors|recovery)(_[0-9]+)?.xml"
+    source: ".*verification/cocotb/top/lib_i3c_top/test_te_errors.py"
+    cocotb_xml: ".*verification/cocotb/top/i3c_axi/test_(te_errors|recovery|i3c_target)(_[0-9]+)?.xml"
   - name: 'Recovery mode tests'
     testpoints:
     - name: "^(.*)$"
@@ -176,10 +172,10 @@ testplans:
   # Catch-alls
   - name: 'Bus timers top-level'
     source: ".*verification/cocotb/top/lib_i3c_top/test_bus_timers.py"
-    cocotb_xml: ".*verification/cocotb/top/lib_i3c_top/test_bus_timers(_[0-9]+)?.xml"
+    cocotb_xml: ".*verification/cocotb/top/i3c_axi/test_bus_timers(_[0-9]+)?.xml"
   - name: "^csr_sw_access$"
     source: ".*verification/cocotb/block/lib_adapter/test_{{testplan_file.stem}}.py"
-    cocotb_xml: ".*verification/cocotb/block/lib_adapter/test_{{testplan_file.stem}}(_[0-9]+)?.xml"
+    cocotb_xml: ".*verification/cocotb/block/axi_adapter/test_{{testplan_file.stem}}(_[0-9]+)?.xml"
   - name: "^(bus_.x.*|ccc)$"
     source: ".*verification/cocotb/block/{{testplan_file.stem}}/test_{{testplan_file.stem}}.py"
     cocotb_xml: ".*verification/cocotb/block/{{testplan_file.stem}}/test_{{testplan_file.stem}}(_[0-9]+)?.xml"

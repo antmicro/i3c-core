@@ -78,5 +78,32 @@
               "collision_with_read_mixed_priv"]
       tags: ["axi_filtering"]
     }
+    {
+      name: bus_stress
+      desc:
+        '''
+        TODO: add proper description
+        '''
+      tests: ["collision_with_read",
+              "collision_with_write",
+              "write_read_burst",
+              "read_burst_collision_with_write",
+              "write_burst_collision_with_read"]
+      tags: ["axi_filtering"]
+    }
+    {
+      name: priv_id
+      desc:
+        '''
+        TODO: add proper description
+        '''
+      tests: ["priv_id_variation",
+              "randomized_id_configuration_swap",
+              "swap_priv_ids_mid_read",
+              "swap_priv_ids_mid_write",
+              "toggle_filtering_mid_read",
+              "toggle_filtering_mid_write"]
+      tags: ["axi_filtering"]
+    }
   ]
 }

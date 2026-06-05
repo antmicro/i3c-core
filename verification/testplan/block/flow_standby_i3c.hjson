@@ -14,5 +14,28 @@
       tests: ["rx"]
       tags: ["flow_standby_i3c"]
     }
+    {
+      name: flow_standby_i2c
+      desc:
+        '''
+        Tests basic operation of the flow_standby_i2c module.
+        '''
+      tests: ["detect_data",
+              "reset",
+              "detect_nack",
+              "detect_restart",
+              "detect_start",
+              "detect_stop"]
+      tags: ["flow_standby_i2c"]
+    }
+    {
+      name: i3c_target_fsm
+      desc:
+        '''
+        Tests basic operation of the i3c_target_fsm module.
+        '''
+      tests: ["i3c_target_fsm"]
+      tags: ["flow_standby_i3c"]
+    }
   ]
 }

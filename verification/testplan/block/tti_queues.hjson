@@ -169,6 +169,28 @@
       tags: ["tti_queues"]
     }
     {
+      name: tti_rx_should_raise_thld_trig
+      desc:
+        '''
+        Sets up a ready and start threshold of the write queue and checks
+        whether the trigger is properly asserted at different levels of
+        the queue fill.
+        '''
+      tests: ["tti_rx_should_raise_thld_trig"]
+      tags: ["tti_queues"]
+    }
+    {
+      name: tti_tx_should_raise_thld_trig
+      desc:
+        '''
+        Sets up a ready and start threshold of the write queue and checks
+        whether the trigger is properly asserted at different levels of
+        the queue fill.
+        '''
+      tests: ["tti_tx_should_raise_thld_trig"]
+      tags: ["tti_queues"]
+    }
+    {
       name: tti_ibi_capacity_status
       desc:
         '''

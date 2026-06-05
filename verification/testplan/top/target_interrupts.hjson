@@ -82,5 +82,16 @@
       tests: ["rx_desc_overflow"]
       tags: ["top"]
     }
+    {
+      name: interrupt_toggles
+      desc:
+        '''
+        TODO: add description
+        '''
+      tests: ["bulk_interrupt_toggle",
+              "interrupt_traffic_scenarios",
+              "specific_interrupt_force"]
+      tags: ["top"]
+    }
   ]
 }

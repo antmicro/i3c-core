@@ -1,0 +1,42 @@
+{
+  name: i2c
+  testpoints:
+  [
+    {
+      name: mem_r
+      desc:
+        '''
+        TODO: add description
+        '''
+      tests: ["mem_r"]
+      tags: ["i2c"]
+    }
+    {
+      name: mem_rw
+      desc:
+        '''
+        TODO: add description
+        '''
+      tests: ["mem_rw"]
+      tags: ["i2c"]
+    }
+    {
+      name: mem_w
+      desc:
+        '''
+        TODO: add description
+        '''
+      tests: ["mem_w"]
+      tags: ["i2c"]
+    }
+    {
+      name: wr_restart_rd
+      desc:
+        '''
+        TODO: add description
+        '''
+      tests: ["wr_restart_rd"]
+      tags: ["i2c"]
+    }
+  ]
+}

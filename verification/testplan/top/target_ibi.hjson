@@ -352,6 +352,57 @@
       tags: ["top"]
     }
     {
+      name: descriptor_ibi_flush_max_word
+      desc:
+        '''
+        Coverage: "This was a very big IBI and we happened to be at the last word already"
+        Queues an IBI, fast-forwards data_cnt_q to simulate reaching the maximum word index
+        (>= 252), and injects a flush while in WriteData to hit the overflow protection branch.
+        '''
+      tests: ["descriptor_ibi_flush_max_word"]
+      tags: ["top"]
+    }
+    {
+      name: descriptor_ibi_flush_no_data
+      desc:
+        '''
+        Coverage: No data after MDB, flushing is a NOP.
+        Queues an IBI with 0 bytes of data (data_words == 0) and injects a flush
+        while in WriteMdb, verifying it transitions directly to Idle.
+        '''
+      tests: ["descriptor_ibi_flush_no_data"]
+      tags: ["top"]
+    }
+    {
+      name: descriptor_ibi_flush_one_word
+      desc:
+        '''
+        Coverage: At least one word in queue after descriptor, flush it out.
+        Queues an IBI with 1-4 bytes of data (data_words == 1) and injects a flush
+        while in WriteMdb, verifying it transitions directly to Idle.
+        '''
+      tests: ["descriptor_ibi_flush_one_word"]
+      tags: ["top"]
+    }
+    {
+      name: ibi_multi_queue_flush_large_payload
+      desc:
+        '''
+        CP25/CP4/CP10: Force multiple consecutive IBI failures to exhaust the
+        retry counter. retry_num=2 allows 3 attempts total (cnt 0,1,2);
+        3 NACKs should exhaust retries -> IbiFailureRetry(3).
+
+        HW does NOT auto-flush the IBI FIFO on retry exhaustion.  FW must
+        explicitly clear the IBI queue (IBI_QUEUE_RST) and reset the retry
+        counter (IBI_RETRY_CTR_RST) before queuing a fresh IBI.
+
+        Uses NACK-based approach since bus-level arbitration timing makes
+        it impractical to guarantee VIP wins on every attempt.
+        '''
+      tests: ["ibi_multi_queue_flush_large_payload"]
+      tags: ["top"]
+    }
+    {
       name: ibi_retry_count_limit
       desc:
         '''

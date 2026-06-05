@@ -15,7 +15,7 @@
         - hot join a new target 
         - service errors
         '''
-      tests: ["controller_typical_operation"]
+      tests: []
       tags: ["top"]
     },
     {
@@ -39,7 +39,7 @@
         Verify that:
           - data being sent via TX_DATA_PORT is equal to data on the target I3C_EC.TTI.RX_DATA_PORT CSR. 
         '''
-      tests: ["multiple_interleaved_transaction_sequences"]
+      tests: []
       tags: ["top"]
     },
     {

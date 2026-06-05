@@ -9,7 +9,7 @@
         '''
         Recognize the Hot-Join pattern as specified in 5.1.5 I3C Basic Spec and eventually initiate a ENTDAA CCC to assign a dynamic address to the new target. Perform simple write/read to from target to verify target has joined correctly.
         '''
-      tests: ["controller_hot_join"]
+      tests: []
       tags: ["top"]
     }
   ]

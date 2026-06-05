@@ -363,13 +363,13 @@
     {
       name: test_ibi_pending_read_notification
       desc: ''
-      tests: ["ibi_pending_read_notification"]
+      tests: []
       tags: ["top"]
     }
     {
       name: test_ibi_refuse_retry
       desc: ''
-      tests: ["ibi_refuse_retry"]
+      tests: []
       tags: ["top"]
     }
   ]

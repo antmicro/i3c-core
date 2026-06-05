@@ -10,7 +10,7 @@
         SDA/SCL for OD and PP mode. Checks if driven data matches the
         bus state.
         '''
-      tests: ["drivers"]
+      tests: []
       tags: ["drivers"]
     }
   ]

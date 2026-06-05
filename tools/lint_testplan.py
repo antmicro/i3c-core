@@ -6,7 +6,7 @@ from pathlib import Path
 import ast
 
 def get_python_tests(cocotb_dir):
-    """Finds all functions decorated with @cocotb.test and returns their suffix."""
+    """Finds all functions decorated with @cocotb.test OR passed to TestFactory."""
     test_funcs = set()
     
     for root, _, files in os.walk(cocotb_dir):
@@ -14,38 +14,46 @@ def get_python_tests(cocotb_dir):
             if file.startswith('test_') and file.endswith('.py'):
                 path = Path(root) / file
                 
-                # Skip symlinks to avoid crashes on broken links and double-counting
                 if path.is_symlink():
                     continue
                 
                 with open(path, 'r', encoding='utf-8') as f:
                     try:
-                        # Parse the file into an Abstract Syntax Tree
                         tree = ast.parse(f.read(), filename=str(path))
                     except SyntaxError:
-                        continue # Skip files with invalid Python syntax
+                        continue 
                     
-                    # Walk through every defined function in the file
                     for node in ast.walk(tree):
+                        # 1. Look for standard @cocotb.test decorators
                         if isinstance(node, (ast.FunctionDef, ast.AsyncFunctionDef)):
-                            # Check if the function starts with 'test_'
                             if node.name.startswith('test_'):
                                 is_test_decorated = False
-                                
-                                # Check the decorators directly attached to the function
                                 for dec in node.decorator_list:
-                                    # Handle @cocotb.test() [ast.Call] or @cocotb.test [ast.Attribute]
                                     dec_node = dec.func if isinstance(dec, ast.Call) else dec
-                                    
                                     if isinstance(dec_node, ast.Name) and dec_node.id == 'test':
                                         is_test_decorated = True
                                     elif isinstance(dec_node, ast.Attribute) and dec_node.attr == 'test':
                                         is_test_decorated = True
                                         
                                 if is_test_decorated:
-                                    # Add the function name, safely stripping the 'test_' prefix (first 5 chars)
                                     test_funcs.add(node.name[5:])
                                     
+                        # 2. NEW: Look for TestFactory(...) calls
+                        elif isinstance(node, ast.Call):
+                            if isinstance(node.func, ast.Name) and node.func.id == 'TestFactory':
+                                # Check for keyword argument: test_function=test_name
+                                for kw in node.keywords:
+                                    if kw.arg == 'test_function' and isinstance(kw.value, ast.Name):
+                                        func_name = kw.value.id
+                                        if func_name.startswith('test_'):
+                                            test_funcs.add(func_name[5:])
+                                            
+                                # Check for positional argument: TestFactory(test_name)
+                                if node.args and isinstance(node.args[0], ast.Name):
+                                    func_name = node.args[0].id
+                                    if func_name.startswith('test_'):
+                                        test_funcs.add(func_name[5:])
+                                        
     return test_funcs
 
 def get_hjson_tests(testplan_dir):

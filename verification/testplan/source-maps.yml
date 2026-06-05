@@ -186,3 +186,7 @@ testplans:
   - name: "^(bus_.*)$"
     source: ".*verification/cocotb/block/ctrl_{{testplan_file.stem}}/test_{{testplan_file.stem}}.py"
     cocotb_xml: ".*verification/cocotb/block/ctrl_{{testplan_file.stem}}/test_{{testplan_file.stem}}(_[0-9]+)?.xml"
+# Master catch-all: Scan all block and top-level AXI files for test coverage
+  - name: '^(.*)$'
+    source: '.*verification/cocotb/(block|top/lib_i3c_top)/.*\.py$'
+    cocotb_xml: '.*verification/cocotb/(block|top/i3c_axi)/.*\.xml$'

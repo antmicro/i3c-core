@@ -136,12 +136,29 @@ jobs:
               f.write(f"axi_controller_matrix={json.dumps(axi_controller_tests)}\n")
           EOF
 
+  lint-testplans:
+    name: Lint Testplan Documentation
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: Run Testplan Linter
+        run: |
+          export I3C_ROOT_DIR=$GITHUB_WORKSPACE
+          python tools/lint_testplan.py
+
   # ===========================================================================
   # Job: Run AHB Tests (Parallel)
   # ===========================================================================
   tests-ahb:
     name: "AHB: ${{ matrix.test }}"
-    needs: [generate-matrix]
+    needs: [generate-matrix, lint-testplans]
     runs-on: ubuntu-latest
     strategy:
       fail-fast: false
@@ -224,7 +241,7 @@ jobs:
   # ===========================================================================
   tests-axi:
     name: "AXI: ${{ matrix.test }}"
-    needs: [generate-matrix]
+    needs: [generate-matrix, lint-testplans]
     runs-on: ubuntu-latest
     strategy:
       fail-fast: false
@@ -307,7 +324,7 @@ jobs:
   # ===========================================================================
   tests-axi-controller:
     name: "AXI-Ctrl: ${{ matrix.test }}"
-    needs: [generate-matrix]
+    needs: [generate-matrix, lint-testplans]
     runs-on: ubuntu-latest
     strategy:
       fail-fast: false

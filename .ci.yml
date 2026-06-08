@@ -1,4 +1,245 @@
-include:
-  - project: chipsalliance-ci-scripts
-    file: i3c-core.yaml
-    ref: main
+# .gitlab-ci.yml
+
+variables:
+  DEBIAN_FRONTEND: "noninteractive"
+  VERILATOR_VERSION: "v5.046"
+  WAVES: "0"
+  GIT_SUBMODULE_STRATEGY: recursive
+
+stages:
+  - prepare
+  - lint
+  - test
+  - aggregate
+  - docs
+  - deploy
+
+# ===========================================================================
+# Job: Generate Timing CSR Docs
+# ===========================================================================
+generate-timing-docs:
+  stage: prepare
+  image: python:3.11
+  variables:
+    I3C_ROOT_DIR: $CI_PROJECT_DIR
+  before_script:
+    - apt-get -qqy update && apt-get -qqy --no-install-recommends install wget curl help2man libfl-dev make g++ git bison flex gperf libreadline-dev libbz2-dev autoconf
+    - pip install uv && uv sync
+  script:
+    - mkdir -p doc/source
+    - echo "" >> doc/source/timing_csr.md
+    - python tools/timing/timings.py --freq=200e6 --target_name="FPGA" --md >> doc/source/timing_csr.md
+    - echo "" >> doc/source/timing_csr.md
+    - python tools/timing/timings.py --freq=500e6 --target_name="ASIC" --md >> doc/source/timing_csr.md
+  artifacts:
+    paths:
+      - doc/source/timing_csr.md
+
+# ===========================================================================
+# Job: Lint Testplans
+# ===========================================================================
+lint-testplans:
+  stage: lint
+  image: python:3.12
+  script:
+    - export I3C_ROOT_DIR=$CI_PROJECT_DIR
+    - python tools/lint_testplan.py
+
+# ===========================================================================
+# BASE TEMPLATE FOR PARALLEL TESTS
+# ===========================================================================
+.test-job-base:
+  stage: test
+  image: debian:bookworm
+  parallel: 5
+  variables:
+    SCALENODE_CPU: 2
+    SCALENODE_RAM: 8192
+    SCALENODE_DISK: 10
+
+  before_script:
+    - apt-get -qqy update && apt-get -qqy --no-install-recommends install help2man libfl-dev make g++ git bison flex gperf libreadline-dev libbz2-dev autoconf python3 python3-pip python3-venv python3-dev curl
+    - |
+      if [ ! -d "$HOME/verilator-install/bin" ]; then
+        git clone https://github.com/verilator/verilator -b $VERILATOR_VERSION
+        cd verilator
+        autoconf && ./configure --prefix=$HOME/verilator-install
+        make -j$(nproc) && make install
+        cd ..
+      fi
+    - export PATH="$HOME/verilator-install/bin:$PATH"
+    - export VERILATOR_ROOT="$HOME/verilator-install/share/verilator"
+    - ./install.sh
+  script:
+    - export I3C_ROOT_DIR="`pwd`"
+    - export CALIPTRA_ROOT="${I3C_ROOT_DIR}/third_party/caliptra-rtl"
+    - apt-get -qqy update && apt-get -qqy --no-install-recommends install python3 python3-pip python3-venv git
+    - python3 -m venv .venv
+    - source .venv/bin/activate
+    - python3 -m pip install uv
+    - uv sync
+    - export PATH="$HOME/verilator-install/bin:$PATH"
+    - export VERILATOR_ROOT="$HOME/verilator-install/share/verilator"
+    - make config CFG_NAME=$CFG_NAME
+    - cd verification/cocotb
+    - |
+      python3 - << 'EOF'
+      import json, subprocess, os, sys
+
+      # 1. Fetch all tests
+      result = subprocess.run(
+          ["nox", "-l", "--json", "-f", "noxfile.py"], 
+          capture_output=True, text=True, 
+          env={**os.environ, "PYTHONDONTWRITEBYTECODE": "1"}
+      )
+      if result.returncode != 0:
+          print(f"nox failed: {result.stderr}", file=sys.stderr)
+          sys.exit(1)
+
+      sessions = json.loads(result.stdout)
+      split_tests = {"i3c_ahb_verify", "i3c_axi_verify"}
+      target_tags = os.environ.get("BUS_TAG").split(",")
+      
+      test_list = []
+      for s in sessions:
+          tags = s.get("tags", [])
+          if "tests" in tags and any(t in tags for t in target_tags):
+              name = s["name"]
+              session_id = s["session"] if name in split_tests else name
+              test_list.append(session_id)
+      
+      test_list = sorted(list(set(test_list)))
+
+      # 2. Chunk tests based on CI_NODE_TOTAL and CI_NODE_INDEX
+      total_nodes = int(os.environ.get("CI_NODE_TOTAL", 1))
+      node_index = int(os.environ.get("CI_NODE_INDEX", 1)) - 1
+
+      def chunk_list(lst, n):
+          k, m = divmod(len(lst), n)
+          return [lst[i*k+min(i, m):(i+1)*k+min(i+1, m)] for i in range(n)]
+
+      my_tests = chunk_list(test_list, total_nodes)[node_index]
+      print(f"Node {node_index+1}/{total_nodes} assigned {len(my_tests)} tests: {my_tests}")
+
+      # 3. Execute assigned tests
+      failed_tests = []
+      for test in my_tests:
+          print(f"\n{'='*40}\n=== Running: {test} ===\n{'='*40}")
+          run_res = subprocess.run(["python3", "-m", "nox", "-R", "-s", test, "--no-venv", "--forcecolor"])
+          if run_res.returncode != 0:
+              failed_tests.append(test)
+
+      if failed_tests:
+          print(f"\n❌ Failed tests on this node: {failed_tests}", file=sys.stderr)
+          sys.exit(1)
+      print("\n✅ All assigned tests passed!")
+      EOF
+  after_script:
+    - |
+      if [ "$CI_JOB_STATUS" == "failed" ]; then
+        echo "=== Test failed - displaying log files ==="
+        find verification/cocotb -name "*.log" -type f -exec sh -c 'echo ""; echo "========================================"; echo "=== {} ==="; echo "========================================"; cat "{}"' \;
+      fi
+  artifacts:
+    when: always
+    paths:
+      - verification/cocotb/block/
+      - verification/cocotb/top/
+  cache:
+    key: verilator-install-$VERILATOR_VERSION
+    paths:
+      - $HOME/verilator-install/
+
+# ===========================================================================
+# INJECT VARIABLES TO SPECIFIC TEST GROUPS
+# ===========================================================================
+tests-ahb:
+  extends: .test-job-base
+  variables:
+    CFG_NAME: "ahb"
+    BUS_TAG: "ahb"
+
+tests-axi:
+  extends: .test-job-base
+  variables:
+    CFG_NAME: "axi"
+    BUS_TAG: "axi"
+
+tests-axi-controller:
+  extends: .test-job-base
+  variables:
+    CFG_NAME: "axi-controller"
+    CONTROLLER_SUPPORT: "1"
+    TARGET_SUPPORT: "1"
+    BUS_TAG: "axi-controller,axi_controller" 
+
+# ===========================================================================
+# Job: Aggregate Results
+# ===========================================================================
+test-results:
+  stage: aggregate
+  image: debian:bookworm
+  # Pull artifacts strictly from the test jobs
+  dependencies:
+    - tests-ahb
+    - tests-axi
+    - tests-axi-controller
+  script:
+    - echo "Artifacts from the parallel matrix have been merged automatically by GitLab."
+    - find verification/cocotb -name "*.xml" -type f 2>/dev/null | head -20 || echo "No XML files"
+  artifacts:
+    paths:
+      - verification/cocotb/
+    when: always
+
+# ===========================================================================
+# Job: Build Docs
+# ===========================================================================
+docs-build:
+  stage: docs
+  image: debian:bookworm
+  # Pull only the exact artifacts we need to build docs
+  dependencies:
+    - generate-timing-docs
+    - test-results
+  before_script:
+    - apt-get -qqy update && apt-get -qqy --no-install-recommends install wget curl help2man libfl-dev make g++ git bison flex gperf libreadline-dev libbz2-dev autoconf python3 python3-pip python3-venv
+    - python3 -m venv .venv
+    - source .venv/bin/activate
+    - python3 -m pip install uv
+    - uv sync
+    - uv pip install -r doc/requirements.txt
+  script:
+    - source .venv/bin/activate
+    - XML_COUNT=$(find verification/cocotb -name "*.xml" -type f | wc -l)
+    - |
+      if [ "$XML_COUNT" -gt 0 ]; then
+        echo "Found $XML_COUNT XML files, generating verification docs..."
+        REPO_URL="$CI_PROJECT_URL/-/tree/$CI_COMMIT_REF_NAME/" make verification-docs-with-sim
+      else
+        echo "WARNING: No XML files found. Running verification-docs without sim results..."
+        REPO_URL="$CI_PROJECT_URL/-/tree/$CI_COMMIT_REF_NAME/" make verification-docs || true
+      fi
+    - cd doc
+    - TZ=UTC make html
+    - cd ..
+    - tar cf $CI_DOCS_ARCHIVE -C doc/build/html/ .
+    - mv doc/build .
+
+  artifacts:
+    paths:
+      - build
+      - $CI_DOCS_ARCHIVE
+    when: always
+
+deploy:
+  image: $CI_DOCS_DOCKER_IMAGE
+  dependencies: [docs-build]
+  stage: deploy
+  tags: [docs]
+  variables:
+    GIT_STRATEGY: none
+  script: echo 'Deploying docs'
+  artifacts:
+    paths:
+      - $CI_DOCS_ARCHIVE

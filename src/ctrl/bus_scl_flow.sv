@@ -69,7 +69,7 @@ module bus_scl_flow (
           if (timer_q < scl_low_time) begin
             timer_d = timer_q + 1;
             scl_o   = 1'b0;
-            if (timer_q > t_f_i) begin
+            if (i3c_pkg::TimingWidth'(timer_q) > t_f_i) begin
               scl_stable_low_o = 1'b1;
             end
           end else begin
@@ -84,7 +84,7 @@ module bus_scl_flow (
         if (timer_q < scl_high_time) begin
           timer_d = timer_q + 1;
           scl_o   = 1'b1;
-          if (timer_q > t_r_i) begin
+          if (i3c_pkg::TimingWidth'(timer_q) > t_r_i) begin
             scl_stable_high_o = 1'b1;
           end
         end else begin

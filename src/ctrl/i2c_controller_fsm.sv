@@ -357,8 +357,8 @@ module i2c_controller_fsm
   // changing sda_o to 1 and sampling sda_i as 1.
   // This value is a combination of the bus rise time and the
   // input sychronization delay
-  logic [16:0] sda_rise_latency;
-  assign sda_rise_latency = t_r_i + 16'h2;
+  logic [19:0] sda_rise_latency;
+  assign sda_rise_latency = t_r_i + 18'h2;
 
   // When detection is enabled, count through the rise time.
   // Once rise time count is reached, hold in place until disabled.

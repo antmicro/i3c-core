@@ -207,7 +207,7 @@ module flow_active
   logic cmd_is_broadcast_ccc;
   i3c_cmd_attr_e cmd_attr;
   logic [4:0] dev_index;
-  logic [2:0] cmd_tid;
+  logic [3:0] cmd_tid;
   logic [15:0] data_length;
   logic imm_use_def_byte;
   logic is_direct_transfer;
@@ -297,15 +297,15 @@ module flow_active
   logic rlt_req, rlt_wreq, rlt_valid;
   logic [$clog2(`DAT_DEPTH)-1:0] rlt_dat_index;
 
-  assign ibi_dword_select = (transfer_cnt_q - 1) >> 2;
-  assign ibi_byte_select  = (transfer_cnt_q - 1) & 2'b11;
+  assign ibi_dword_select = $clog2(IBIBufferDepthDwords)'((transfer_cnt_q - 1) >> 2);
+  assign ibi_byte_select  = $clog2((HciIbiDataWidth >> 3))'((transfer_cnt_q - 1) & 2'b11);
 
   always_ff @(posedge clk_i or negedge rst_ni) begin
     if (~rst_ni) begin
       assigned_addr_cnt_q <= '0;
       dct_raw_data_q <= '0;
       first_nack_q <= 1'b1;
-      dat_index_q <= dev_index;
+      dat_index_q <= '0;
       dct_index_q <= '0; // TODO: #95749 base index should be the one in I3CBASE.DCT_SECTION_OFFSET.TABLE_INDEX
     end else begin
       assigned_addr_cnt_q <= assigned_addr_cnt_d;
@@ -705,7 +705,7 @@ module flow_active
         fmt_fifo_rvalid_o = 1'b1;
         fmt_flag_start_before_o = 1'b0;
         fmt_flag_stop_after_o = 1'b0;
-        resp_data_length_d = transfer_cnt_q;
+        resp_data_length_d = 16'(transfer_cnt_q);
         unique case (transfer_cnt_q)
           // TODO: #95752 Add support for broadcast address control before private transfers. This can
           // be realized via HC_CONTROL.I2C_DEV_PRESENT and HC_CONTROL.IBA_INCLUDE register fields.
@@ -781,7 +781,7 @@ module flow_active
         fmt_fifo_rvalid_o = 1'b1;
         fmt_flag_start_before_o = 1'b0;
         fmt_flag_stop_after_o = 1'b0;
-        resp_data_length_d = transfer_cnt_q;
+        resp_data_length_d = 16'(transfer_cnt_q);
         fmt_bit_o = 1'b1;
         unique case (transfer_cnt_q)
           // TODO: #95752 Add support for broadcast address control before private transfers. This can
@@ -789,7 +789,7 @@ module flow_active
           // 32'd0: fmt_byte_o = {7'h7e, 1'b0};
           // Target address
           32'd0: begin
-            fmt_byte_o = is_direct_transfer ? {immediate_direct_cmd_desc.dev_address, 1'b0} : {dat_rdata.dynamic_address, 1'b0};
+            fmt_byte_o = is_direct_transfer ? {immediate_direct_cmd_desc.dev_address, 1'b0} : {dat_rdata.dynamic_address[6:0], 1'b0};
 
           end
           // Byte 1
@@ -860,12 +860,12 @@ module flow_active
         fmt_fifo_rvalid_o = 1'b1;
         fmt_flag_start_before_o = 1'b0;
         fmt_flag_stop_after_o = 1'b0;
-        resp_data_length_d = transfer_cnt_q;
+        resp_data_length_d = 16'(transfer_cnt_q);
         fmt_bit_o = 1'b1;
         tx_queue_rready_o = ((transfer_cnt_q % (HciTxDataWidth >> 3)) == 0) & transfer_cnt_en;
 
         if (transfer_cnt_q == 32'd0) begin : addr_assignment
-          fmt_byte_o = is_direct_transfer ? {regular_direct_cmd_desc.dev_address, 1'b0} : {dat_rdata.dynamic_address, 1'b0};
+          fmt_byte_o = is_direct_transfer ? {regular_direct_cmd_desc.dev_address, 1'b0} : {dat_rdata.dynamic_address[6:0], 1'b0};
           fmt_flag_start_before_o = 1'b1;
         end else begin
           fmt_byte_o = tx_dword_array[byte_select];
@@ -873,7 +873,7 @@ module flow_active
         end
 
         // Send stop signal
-        if (transfer_cnt_q >= data_length) begin
+        if (16'(transfer_cnt_q) >= data_length) begin
           fmt_flag_stop_after_o = is_direct_transfer ? regular_direct_cmd_desc.toc : regular_dat_cmd_desc.toc;
           fmt_flag_restart_after_o = is_direct_transfer ? ~regular_direct_cmd_desc.toc : ~regular_dat_cmd_desc.toc;
           prev_cmd_toc_d = ~fmt_flag_restart_after_o;
@@ -907,7 +907,7 @@ module flow_active
         fmt_fifo_rvalid_o = 1'b1;
         fmt_flag_start_before_o = 1'b0;
         fmt_flag_stop_after_o = 1'b0;
-        resp_data_length_d = transfer_cnt_q;
+        resp_data_length_d = 16'(transfer_cnt_q);
         fmt_bit_o = 1'b1;
         tx_queue_rready_o = ((transfer_cnt_q % (HciTxDataWidth >> 3)) == 0) & transfer_cnt_en;
 
@@ -920,7 +920,7 @@ module flow_active
         end
 
         // Send stop signal
-        if (transfer_cnt_q >= data_length) begin
+        if (16'(transfer_cnt_q) >= data_length) begin
           fmt_flag_stop_after_o = is_direct_transfer ? regular_direct_cmd_desc.toc : regular_dat_cmd_desc.toc;
           fmt_flag_restart_after_o = is_direct_transfer ? ~regular_direct_cmd_desc.toc : ~regular_dat_cmd_desc.toc;
           tx_queue_rready_o = 1'b0;  // when we're done we don't want to pop new data from the queue
@@ -943,11 +943,11 @@ module flow_active
       I3CRead: begin
         transfer_cnt_clr = 1'b0;
         transfer_cnt_en = fmt_fifo_rdone_i | fmt_flag_read_valid_i;
-        resp_data_length_d = (transfer_cnt_q == 0) ? '0 : transfer_cnt_q;
+        resp_data_length_d = (transfer_cnt_q == 0) ? '0 : 16'(transfer_cnt_q);
         fmt_flag_read_bytes_o = 1'b1;
         fmt_flag_stop_after_o = 1'b0;
         if (transfer_cnt_q == 32'd0) begin
-          fmt_byte_o = is_direct_transfer ? {regular_direct_cmd_desc.dev_address, 1'b1} : {dat_rdata.dynamic_address, 1'b1};
+          fmt_byte_o = is_direct_transfer ? {regular_direct_cmd_desc.dev_address, 1'b1} : {dat_rdata.dynamic_address[6:0], 1'b1};
           fmt_flag_start_before_o = 1'b1;
           fmt_fifo_rvalid_o = 1'b1;
         end else begin
@@ -965,14 +965,14 @@ module flow_active
           end
         end
 
-        if (transfer_cnt_q <= data_length & (~fmt_bit_i & fmt_flag_read_valid_i) & ~fmt_flag_stop_after_o) begin  // receive RX T bit
+        if (16'(transfer_cnt_q) <= data_length & (~fmt_bit_i & fmt_flag_read_valid_i) & ~fmt_flag_stop_after_o) begin  // receive RX T bit
           fmt_flag_stop_after_o = 1'b1;
           resp_err_status_d = I3cShortReadErr;
           rx_dword_array[byte_select] = fmt_byte_i;
           rx_queue_wvalid_o = 1'b1; // send the uncompleted word to the RX queue when transaction is finished early
         end
 
-        if (transfer_cnt_q >= data_length & fmt_flag_read_valid_i) begin
+        if (16'(transfer_cnt_q) >= data_length & fmt_flag_read_valid_i) begin
           fmt_flag_stop_after_o = is_direct_transfer ? regular_direct_cmd_desc.toc : regular_dat_cmd_desc.toc;
           fmt_flag_restart_after_o = is_direct_transfer ? ~regular_direct_cmd_desc.toc : ~regular_dat_cmd_desc.toc;
           prev_cmd_toc_d = ~fmt_flag_restart_after_o;
@@ -1000,9 +1000,9 @@ module flow_active
       I2CRead: begin
         transfer_cnt_clr = 1'b0;
         transfer_cnt_en = fmt_fifo_rdone_i | rx_fifo_wvalid_i;
-        resp_data_length_d = (transfer_cnt_q == 0) ? '0 : transfer_cnt_q - 1;
+        resp_data_length_d = (transfer_cnt_q == 0) ? '0 : 16'(transfer_cnt_q - 1);
         fmt_flag_read_bytes_o = 1'b1;
-        fmt_byte_o = data_length < 15'd256 ? data_length : '0; // fmt_byte_o contains the number of bytes to read, if it's 0 we read 256 bytes
+        fmt_byte_o = data_length < 15'd256 ? 8'(data_length) : '0; // fmt_byte_o contains the number of bytes to read, if it's 0 we read 256 bytes
         if (transfer_cnt_q == 32'd0) begin
           // I2C uses Static Address from the DAT
           fmt_byte_o = is_direct_transfer ? {regular_direct_cmd_desc.dev_address, 1'b1} : {dat_rdata.static_address, 1'b1};
@@ -1025,7 +1025,7 @@ module flow_active
           end
         end
 
-        if (transfer_cnt_q >= data_length) begin
+        if (16'(transfer_cnt_q) >= data_length) begin
           fmt_flag_read_continuous_o = 1'b0;
           fmt_flag_stop_after_o = is_direct_transfer ? regular_direct_cmd_desc.toc : regular_dat_cmd_desc.toc;
           fmt_flag_restart_after_o = is_direct_transfer ? ~regular_direct_cmd_desc.toc : ~regular_dat_cmd_desc.toc;
@@ -1058,7 +1058,7 @@ module flow_active
         ccc_last_trans = 1'b0;
         fmt_flag_start_before_o = 1'b0;
         fmt_flag_stop_after_o = 1'b0;
-        resp_data_length_d = (transfer_cnt_q == 0) ? '0 : transfer_cnt_q - 1;
+        resp_data_length_d = (transfer_cnt_q == 0) ? '0 : 16'(transfer_cnt_q - 1);
         ccc_done = 1'b0;
         fmt_bit_o = 1'b1;
         tx_queue_rready_o = 1'b0;
@@ -1081,7 +1081,7 @@ module flow_active
           32'd2: begin  // Transmit Target Addr
             fmt_byte_o = is_direct_transfer ? (is_regular_transfer ? {regular_direct_cmd_desc.dev_address, cmd_dir == Read} 
                                              : {immediate_direct_cmd_desc.dev_address, cmd_dir == Read}) 
-                                             : ((cmd_ccc == CCC_DIRECT_SETDASA) ? {dat_rdata.static_address, cmd_dir == Read} : {dat_rdata.dynamic_address, cmd_dir == Read});
+                                             : ((cmd_ccc == CCC_DIRECT_SETDASA) ? {dat_rdata.static_address, cmd_dir == Read} : {dat_rdata.dynamic_address[6:0], cmd_dir == Read});
             // SETDASA is the only CCC using the static address instead of the dynamic address
             tx_queue_rready_o = is_regular_transfer & fmt_fifo_rdone_i & (prev_ccc_q == cmd_ccc); // Pop payload byte for next cycle if we skipped sending 7'h7E and CCC bytes
             fmt_flag_read_bytes_o = fmt_fifo_rdone_i & (cmd_dir == Read);
@@ -1132,7 +1132,7 @@ module flow_active
                 resp_err_status_d = (cmd_ccc == CCC_DIRECT_SETDASA) ? NotSupported : Success;  // SETDASA is only supported with address assignment cmd desc
               end
             end else begin
-              fmt_byte_o = (cmd_ccc == CCC_DIRECT_SETDASA) ? {dat_rdata.dynamic_address, 1'b0} : (is_direct_transfer ? immediate_direct_cmd_desc.def_or_data_byte1 : immediate_dat_cmd_desc.def_or_data_byte1);
+              fmt_byte_o = (cmd_ccc == CCC_DIRECT_SETDASA) ? {dat_rdata.dynamic_address[6:0], 1'b0} : (is_direct_transfer ? immediate_direct_cmd_desc.def_or_data_byte1 : immediate_dat_cmd_desc.def_or_data_byte1);
               fmt_bit_o = ^{fmt_byte_o, 1'b1};
               if (ccc_last_trans) begin
                 fmt_flag_stop_after_o = (cmd_ccc == CCC_DIRECT_SETDASA) ? addr_cmd_desc.toc : (is_direct_transfer ? immediate_direct_cmd_desc.toc : immediate_dat_cmd_desc.toc);
@@ -1150,7 +1150,7 @@ module flow_active
           end
           [32'd4 : 32'd8]: begin
             if (is_regular_transfer) begin
-              ccc_last_trans = is_direct_transfer ? (transfer_cnt_q == (regular_dat_cmd_desc.data_length + 2)) : (transfer_cnt_q == (regular_direct_cmd_desc.data_length + 2));
+              ccc_last_trans = is_direct_transfer ? (16'(transfer_cnt_q) == (regular_dat_cmd_desc.data_length + 2)) : (16'(transfer_cnt_q) == (regular_direct_cmd_desc.data_length + 2));
               ccc_done = ccc_last_trans & transfer_cnt_en;
               if (cmd_dir == Read) begin  // GET CCC
                 fmt_flag_read_bytes_o = 1'b1;
@@ -1216,7 +1216,7 @@ module flow_active
         fmt_fifo_rvalid_o = 1'b1;
         fmt_flag_start_before_o = 1'b0;
         fmt_flag_stop_after_o = 1'b0;
-        resp_data_length_d = (transfer_cnt_q == 0) ? '0 : transfer_cnt_q - 1;
+        resp_data_length_d = (transfer_cnt_q == 0) ? '0 : 16'(transfer_cnt_q - 1);
         ccc_done = 1'b0;
         fmt_bit_o = 1'b1;
         tx_queue_rready_o = 1'b0;
@@ -1302,7 +1302,7 @@ module flow_active
         fmt_flag_start_before_o = 1'b0;
         fmt_flag_stop_after_o = 1'b0;
         fmt_flag_restart_after_o = 1'b0;
-        resp_data_length_d = (transfer_cnt_q == 0) ? '0 : transfer_cnt_q - 1;
+        resp_data_length_d = (transfer_cnt_q == 0) ? '0 : 16'(transfer_cnt_q - 1);
         ccc_done = 1'b0;
         fmt_bit_o = 1'b1;
         assigned_addr_cnt_d = assigned_addr_cnt_q;
@@ -1341,7 +1341,7 @@ module flow_active
                 resp_data_length_d = '0;  // no remaining target devices
               end else begin
                 resp_err_status_d = Success;
-                resp_data_length_d = addr_cmd_desc.dev_count - assigned_addr_cnt_q;  // still some target devices without a dynamic address
+                resp_data_length_d = 16'(addr_cmd_desc.dev_count - assigned_addr_cnt_q);  // still some target devices without a dynamic address
               end
             end else if (fmt_fifo_rdone_i && (assigned_addr_cnt_q >= addr_cmd_desc.dev_count)) begin // there are more devices still on the bus
               ccc_done = 1'b1;
@@ -1351,10 +1351,10 @@ module flow_active
           end
           [32'd3 : 32'd10]: begin  // Read device characteristics
             fmt_flag_read_continuous_o = (transfer_cnt_q == 32'd10) && fmt_flag_read_valid_i ? 1'b0 : 1'b1;
-            dct_raw_data_d[(transfer_cnt_q-3)] = fmt_flag_read_valid_i ? fmt_byte_i : dct_raw_data_q[(transfer_cnt_q-3)];
+            dct_raw_data_d[3'(transfer_cnt_q-3)] = fmt_flag_read_valid_i ? fmt_byte_i : dct_raw_data_q[3'(transfer_cnt_q-3)];
           end
           32'd11: begin  // Send dynamic address and parity bit
-            fmt_byte_o = {dat_rdata.dynamic_address, ^{dat_rdata.dynamic_address, 1'b1}};
+            fmt_byte_o = {dat_rdata.dynamic_address[6:0], ^{dat_rdata.dynamic_address[6:0], 1'b1}}; // the parity bit is also at dat_rdata.dynamic_address[7] but we chose to compute it in HW
             fmt_flag_restart_after_o = 1'b1;
             if (fmt_fifo_rdone_i) begin
               daa_iteration_done = 1'b1;
@@ -1382,7 +1382,7 @@ module flow_active
                 dct_data.bcr = dct_raw_data_q[6];
                 dct_data.dcr = dct_raw_data_q[7];
                 dct_data.dynamic_address = {
-                  dat_rdata.dynamic_address, ^{dat_rdata.dynamic_address, 1'b1}
+                  dat_rdata.dynamic_address[6:0], ^{dat_rdata.dynamic_address[6:0], 1'b1}
                 };
                 dct_wdata_hw_o = dct_data;
                 dct_write_valid_hw_o = 1'b1;
@@ -1519,11 +1519,11 @@ module flow_active
             if (ibi_wb_cnt_q == '0) begin  // First entry is the IBI Status Descriptor
               ibi_queue_wdata_o  = ibi_status_q;
               ibi_queue_wvalid_o = 1'b1;
-            end else if (ibi_wb_cnt_q < ((ibi_status_q.data_length + 3) >> 2)) begin
-              ibi_queue_wdata_o  = ibi_data_q[ibi_wb_cnt_q-1];
+            end else if (ibi_wb_cnt_q < 6'((ibi_status_q.data_length + 3) >> 2)) begin
+              ibi_queue_wdata_o  = ibi_data_q[3'(ibi_wb_cnt_q-1)];
               ibi_queue_wvalid_o = 1'b1;
             end else begin  // Wrote back all data
-              ibi_queue_wdata_o = ibi_data_q[ibi_wb_cnt_q-1];
+              ibi_queue_wdata_o = ibi_data_q[3'(ibi_wb_cnt_q-1)];
               ibi_queue_wvalid_o = 1'b1;
               ibi_done = 1'b1;
               ibi_wb_cnt_d = '0;
@@ -1691,7 +1691,7 @@ module flow_active
       I2CWriteRegular: begin
         if (fmt_receive_nack_i) begin
           state_next = WriteResp;
-        end else if ((transfer_cnt_q >= data_length) && fmt_fifo_rdone_i) begin
+        end else if ((16'(transfer_cnt_q) >= data_length) && fmt_fifo_rdone_i) begin
           state_next = regular_direct_cmd_desc.wroc ? WriteResp : Idle;
         end
         if (tx_queue_empty_i && tx_queue_rready_o) begin
@@ -1701,7 +1701,7 @@ module flow_active
       I3CWriteRegular: begin
         if (fmt_receive_nack_i & fmt_fifo_rdone_i) begin
           state_next = WriteResp;
-        end else if ((transfer_cnt_q >= data_length) && fmt_fifo_rdone_i) begin
+        end else if ((16'(transfer_cnt_q) >= data_length) && fmt_fifo_rdone_i) begin
           state_next = regular_direct_cmd_desc.wroc ? WriteResp : Idle;
         end
         if (tx_queue_empty_i && tx_queue_rready_o) begin
@@ -1713,9 +1713,9 @@ module flow_active
           state_next = WriteResp;
         end else if (fmt_receive_nack_i & fmt_fifo_rdone_i) begin
           state_next = WriteResp;
-        end else if (transfer_cnt_q >= data_length & fmt_flag_read_valid_i) begin
+        end else if (16'(transfer_cnt_q) >= data_length & fmt_flag_read_valid_i) begin
           state_next = regular_direct_cmd_desc.wroc ? WriteResp : Idle;
-        end else if (transfer_cnt_q < data_length & (~fmt_bit_i & fmt_flag_read_valid_i)) begin  // receive RX T bit
+        end else if (16'(transfer_cnt_q) < data_length & (~fmt_bit_i & fmt_flag_read_valid_i)) begin  // receive RX T bit
           state_next = regular_direct_cmd_desc.sre ? WriteResp : Idle;
         end
       end
@@ -1724,7 +1724,7 @@ module flow_active
           state_next = WriteResp;
         end else if (fmt_receive_nack_i) begin
           state_next = WriteResp;
-        end else if (transfer_cnt_q >= data_length & fmt_fifo_rready_i) begin
+        end else if (16'(transfer_cnt_q) >= data_length & fmt_fifo_rready_i) begin
           state_next = regular_direct_cmd_desc.wroc ? WriteResp : Idle;
         end
       end

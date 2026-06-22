@@ -110,7 +110,7 @@ module bus_start_stop_gen (
           end else begin
             scl_o   = 1'b0;
             timer_d = timer_q + 1;
-            if (timer_q >= (i3c_pkg::TimingWidth + 3)'(total_repeated_start_time)) begin
+            if (timer_q >= (i3c_pkg::TimingWidth + 4)'(total_repeated_start_time)) begin
               state_d = Idle;
               timer_d = '0;
               repeated_start_done_o = 1'b1;

@@ -628,7 +628,25 @@ module controller
 `endif  // CONTROLLER_SUPPORT
 `ifdef TARGET_SUPPORT
   // Standby (Secondary) Controller
-  controller_standby xcontroller_standby (
+  controller_standby #(
+      .TtiRxDescDataWidth(TtiRxDescDataWidth),
+      .TtiTxDescDataWidth(TtiTxDescDataWidth),
+      .TtiRxDataWidth    (TtiRxDataWidth),
+      .TtiTxDataWidth    (TtiTxDataWidth),
+      .TtiIbiDataWidth   (TtiIbiDataWidth),
+
+      .TtiRxDescThldWidth(TtiRxDescThldWidth),
+      .TtiTxDescThldWidth(TtiTxDescThldWidth),
+      .TtiRxThldWidth    (TtiRxThldWidth),
+      .TtiTxThldWidth    (TtiTxThldWidth),
+      .TtiIbiThldWidth   (TtiIbiThldWidth),
+
+      .TtiRxDescFifoDepth(TtiRxDescFifoDepth),
+      .TtiTxDescFifoDepth(TtiTxDescFifoDepth),
+      .TtiRxFifoDepth    (TtiRxFifoDepth),
+      .TtiTxFifoDepth    (TtiTxFifoDepth),
+      .TtiIbiFifoDepth   (TtiIbiFifoDepth)
+  ) xcontroller_standby (
       .clk_i,
       .rst_ni,
       .ctrl_bus_i                     (ctrl_bus_i[2:3]),

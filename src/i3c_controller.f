@@ -54,7 +54,6 @@ ${I3C_ROOT_DIR}/src/ctrl/ctrl_bus_rx_flow.sv
 ${I3C_ROOT_DIR}/src/ctrl/bus_scl_flow.sv
 ${I3C_ROOT_DIR}/src/ctrl/bus_start_stop_gen.sv
 ${I3C_ROOT_DIR}/src/ctrl/bus_timers.sv
-${I3C_ROOT_DIR}/src/ctrl/ctrl_bus_timers.sv
 ${I3C_ROOT_DIR}/src/ctrl/configuration.sv
 ${I3C_ROOT_DIR}/src/ctrl/edge_detector.sv
 ${I3C_ROOT_DIR}/src/ctrl/i2c_controller_fsm.sv

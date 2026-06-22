@@ -370,7 +370,7 @@ module i2c_controller_fsm
       // Only 0 the count if the count is currently non-zero to avoid
       // unnecessary toggling.
       sda_rise_cnt <= '0;
-    end else if (en_sda_interf_det && sda_rise_cnt < sda_rise_latency) begin
+    end else if (en_sda_interf_det && sda_rise_cnt < 17'(sda_rise_latency)) begin
       sda_rise_cnt <= sda_rise_cnt + 1'b1;
     end
   end
@@ -382,7 +382,7 @@ module i2c_controller_fsm
   // When the count is reached, we are pass the rise time period.
   // Now check for any inconsistency in the sda value.
   assign event_sda_interference_o = (host_idle_o & host_enable_i & !sda_i) |
-                                    ((sda_rise_cnt == sda_rise_latency) & (sda_o & !sda_i));
+                                    ((sda_rise_cnt == 17'(sda_rise_latency)) & (sda_o & !sda_i));
 
   // Increment the NACK timeout count if the controller is halted in Idle and
   // the timeout hasn't yet occurred.

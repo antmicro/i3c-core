@@ -38,7 +38,7 @@ module bus_start_stop_gen (
 
   // Timer signals
   logic [i3c_pkg::TimingWidth+3:0] timer_d, timer_q;
-  logic [i3c_pkg::TimingWidth+3:0] total_repeated_start_time;
+  logic [i3c_pkg::TimingWidth+2:0] total_repeated_start_time;
   logic [i3c_pkg::TimingWidth+1:0] total_hold_repeated_start;
   logic [i3c_pkg::TimingWidth+1:0] total_sda_low, total_sda_stop_low;
   logic [i3c_pkg::TimingWidth:0] total_hold_start, total_setup_stop;
@@ -82,10 +82,10 @@ module bus_start_stop_gen (
       end
       Start: begin
         active_o = 1'b1;
-        if ((i3c_pkg::TimingWidth+1)'(timer_q) < total_hold_start) begin
+        if ((i3c_pkg::TimingWidth + 1)'(timer_q) < total_hold_start) begin
           timer_d = timer_q + 1;
           sda_o   = 1'b0;
-        end else if ((i3c_pkg::TimingWidth+2)'(timer_q) < total_sda_low) begin
+        end else if ((i3c_pkg::TimingWidth + 2)'(timer_q) < total_sda_low) begin
           sda_o   = 1'b0;
           scl_o   = 1'b0;
           timer_d = timer_q + 1;
@@ -105,12 +105,12 @@ module bus_start_stop_gen (
           timer_d = timer_q + 1;
         end else begin : hold_condition
           sda_o = 1'b0;
-          if ((i3c_pkg::TimingWidth+2)'(timer_q) < total_hold_repeated_start) begin
+          if ((i3c_pkg::TimingWidth + 2)'(timer_q) < total_hold_repeated_start) begin
             timer_d = timer_q + 1;
           end else begin
             scl_o   = 1'b0;
             timer_d = timer_q + 1;
-            if (timer_q >= total_repeated_start_time) begin
+            if (timer_q >= (i3c_pkg::TimingWidth + 3)'(total_repeated_start_time)) begin
               state_d = Idle;
               timer_d = '0;
               repeated_start_done_o = 1'b1;
@@ -122,7 +122,7 @@ module bus_start_stop_gen (
         sda_o = 1'b0;
         scl_o = 1'b0;
         active_o = 1'b1;
-        if ((i3c_pkg::TimingWidth+2)'(timer_q) < total_sda_stop_low) begin
+        if ((i3c_pkg::TimingWidth + 2)'(timer_q) < total_sda_stop_low) begin
           timer_d = timer_q + 1;
           if ((i3c_pkg::TimingWidth)'(timer_q) < t_scl_zero) begin
             scl_o = 1'b0;

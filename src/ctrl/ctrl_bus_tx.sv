@@ -74,7 +74,7 @@ module ctrl_bus_tx (
       unique case (tcount_sel)
         tSetupData: tcount_d = t_sd_q;
         tHoldData: begin
-          tcount_d = (t_hd_dat_i > 0) ? i3c_pkg::TimingWidth'(t_hd_dat_i) : i3c_pkg::TimingWidth'(1);
+          tcount_d = (t_hd_dat_i > 0) ? (i3c_pkg::TimingWidth + 1)'(t_hd_dat_i) : (i3c_pkg::TimingWidth + 1)'(1);
         end
         tNoDelay: tcount_d = 20'd1;
         default: tcount_d = 20'd1;

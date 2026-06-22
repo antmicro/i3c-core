@@ -608,7 +608,46 @@ module i3c
 
   controller #(
       .DatAw(DatAw),
-      .DctAw(DctAw)
+      .DctAw(DctAw),
+`ifdef CONTROLLER_SUPPORT
+      .HciRespFifoDepth (HciRespFifoDepth),
+      .HciCmdFifoDepth  (HciCmdFifoDepth),
+      .HciRxFifoDepth   (HciRxFifoDepth),
+      .HciTxFifoDepth   (HciTxFifoDepth),
+      .HciIbiFifoDepth  (HciIbiFifoDepth),
+
+      .HciRespDataWidth(HciRespDataWidth),
+      .HciCmdDataWidth (HciCmdDataWidth),
+      .HciRxDataWidth  (HciRxDataWidth),
+      .HciTxDataWidth  (HciTxDataWidth),
+      .HciIbiDataWidth (HciIbiDataWidth),
+
+      .HciRespThldWidth(HciRespThldWidth),
+      .HciCmdThldWidth (HciCmdThldWidth),
+      .HciRxThldWidth  (HciRxThldWidth),
+      .HciTxThldWidth  (HciTxThldWidth),
+      .HciIbiThldWidth (HciIbiThldWidth),
+`endif  // CONTROLLER_SUPPORT
+
+`ifdef TARGET_SUPPORT
+      .TtiRxDescFifoDepth(TtiRxDescFifoDepth),
+      .TtiTxDescFifoDepth(TtiTxDescFifoDepth),
+      .TtiRxFifoDepth    (TtiRxFifoDepth),
+      .TtiTxFifoDepth    (TtiTxFifoDepth),
+      .TtiIbiFifoDepth   (TtiIbiFifoDepth),
+
+      .TtiRxDescDataWidth(TtiRxDescDataWidth),
+      .TtiTxDescDataWidth(TtiTxDescDataWidth),
+      .TtiRxDataWidth    (TtiRxDataWidth),
+      .TtiTxDataWidth    (TtiTxDataWidth),
+      .TtiIbiDataWidth   (TtiIbiDataWidth),
+
+      .TtiRxDescThldWidth(TtiRxDescThldWidth),
+      .TtiTxDescThldWidth(TtiTxDescThldWidth),
+      .TtiRxThldWidth    (TtiRxThldWidth),
+      .TtiTxThldWidth    (TtiTxThldWidth),
+      .TtiIbiThldWidth   (TtiIbiThldWidth)
+`endif
   ) xcontroller (
       .clk_i (clk_i),
       .rst_ni(rst_ni),

@@ -186,7 +186,7 @@ module bus_tx_flow import i3c_pkg::*; (
           // transition and have to handle both in the same state.
           if (bus_i.scl.neg_edge || bus_i.scl.stable_low) begin
             state_d = start_transfer(tx_req_i, req_value_d, drive_mode_d, bit_counter_en);
-          end else begin
+          end else if (bus_i.scl.pos_edge || bus_i.scl.stable_high) begin
             state_d = WaitNegEdge;
           end
         end

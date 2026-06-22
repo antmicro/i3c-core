@@ -50,7 +50,6 @@ ${I3C_ROOT_DIR}/src/ctrl/ctrl_bus_tx.sv
 ${I3C_ROOT_DIR}/src/ctrl/ctrl_bus_tx_flow.sv
 ${I3C_ROOT_DIR}/src/ctrl/bus_tx_flow.sv
 ${I3C_ROOT_DIR}/src/ctrl/bus_rx_flow.sv
-${I3C_ROOT_DIR}/src/ctrl/ctrl_bus_rx_flow.sv
 ${I3C_ROOT_DIR}/src/ctrl/bus_scl_flow.sv
 ${I3C_ROOT_DIR}/src/ctrl/bus_start_stop_gen.sv
 ${I3C_ROOT_DIR}/src/ctrl/bus_timers.sv

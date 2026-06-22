@@ -627,17 +627,23 @@ module i3c_controller_fsm
       .active_o(start_stop_active)
   );
 
-  ctrl_bus_timers xbus_timers (
+  bus_timers xbus_timers (
       .clk_i,
       .rst_ni,
-      .enable_i         (1'b1),
-      .reset_counter_ni (ctrl_bus_i.scl.value & ctrl_bus_i.sda.value),
+
+      .enable_i(1'b1),
+
+      .bus_start_i  (ctrl_bus_i.start_det | ctrl_bus_i.rstart_det),
+      .bus_stop_i   (ctrl_bus_i.stop_det),
+      .in_hdr_mode_i(in_hdr_mode_o),
+
       .t_bus_free_i     (t_buf_i),
       .t_bus_idle_i     (t_bus_idle_i),
       .t_bus_available_i(t_bus_available_i),
-      .bus_busy_o       (bus_busy),
-      .bus_free_o       (bus_free),
-      .bus_idle_o       (bus_idle),
-      .bus_available_o  (bus_available)
+
+      .bus_busy_o     (bus_busy),
+      .bus_free_o     (bus_free),
+      .bus_idle_o     (bus_idle),
+      .bus_available_o(bus_available)
   );
 endmodule

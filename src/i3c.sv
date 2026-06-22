@@ -87,8 +87,10 @@ module i3c
 
     parameter int unsigned TtiRxDescDataWidth = 32,
     parameter int unsigned TtiTxDescDataWidth = 32,
-    parameter int unsigned TtiRxDataWidth = 32,
-    parameter int unsigned TtiTxDataWidth = 32,
+    parameter int unsigned TtiRxDataDataWidth = 32, // this is used to interface with the recovery handler module
+    parameter int unsigned TtiTxDataDataWidth = 32, // this is used to interface with the recovery handler module
+    parameter int unsigned TtiRxDataWidth = 8,  // this is used to interface to the controller
+    parameter int unsigned TtiTxDataWidth = 8,  // this is used to interface to the controller
     parameter int unsigned TtiIbiDataWidth = 32,
 
     parameter int unsigned TtiRxDescThldWidth = 8,
@@ -1003,7 +1005,7 @@ module i3c
   // TTI RX data queue
   logic                          csr_tti_rx_data_req;
   logic                          csr_tti_rx_data_ack;
-  logic [    TtiRxDataWidth-1:0] csr_tti_rx_data_data;
+  logic [TtiRxDataDataWidth-1:0] csr_tti_rx_data_data;
   logic [    TtiRxThldWidth-1:0] csr_tti_rx_data_start_thld;
   logic [    TtiRxThldWidth-1:0] csr_tti_rx_data_ready_thld_i;
   logic [    TtiRxThldWidth-1:0] csr_tti_rx_data_ready_thld_o;
@@ -1222,13 +1224,13 @@ module i3c
       .TtiRxDescDataWidth(TtiRxDescDataWidth),
       .TtiRxDescThldWidth(TtiRxDescThldWidth),
       .TtiRxDescFifoDepth(TtiRxDescFifoDepth),
-      .TtiRxDataDataWidth(TtiRxDataWidth),
+      .TtiRxDataDataWidth(TtiRxDataDataWidth),
       .TtiRxDataThldWidth(TtiRxThldWidth),
       .TtiRxDataFifoDepth(TtiRxFifoDepth),
       .TtiTxDescDataWidth(TtiTxDescDataWidth),
       .TtiTxDescThldWidth(TtiTxDescThldWidth),
       .TtiTxDescFifoDepth(TtiTxDescFifoDepth),
-      .TtiTxDataDataWidth(TtiTxDataWidth),
+      .TtiTxDataDataWidth(TtiTxDataDataWidth),
       .TtiTxDataThldWidth(TtiTxThldWidth),
       .TtiTxDataFifoDepth(TtiTxFifoDepth),
       .TtiIbiDataWidth(TtiIbiDataWidth),

@@ -540,20 +540,28 @@ module i3c_controller_fsm
 
   // Read Bus
 
-  ctrl_bus_rx_flow i_bus_rx_flow (
+  bus_rx_req_t bus_rx_req;
+  bus_rx_rsp_t bus_rx_rsp;
+  always_comb begin : rx_flow_assignment
+    bus_rx_req  = '{req_byte: bus_rx_req_byte, req_bit: bus_rx_req_bit};
+
+    bus_rx_idle = bus_rx_rsp.idle;
+    bus_rx_done = bus_rx_rsp.done;
+    bus_rx_data = 8'(bus_rx_rsp.data);
+  end
+
+  bus_rx_flow xbus_rx_flow (
       .clk_i,
       .rst_ni,
 
-      .scl_posedge_i(ctrl_bus_i.scl.pos_edge),
+      .scl_posedge_i    (ctrl_bus_i.scl.pos_edge),
       .scl_stable_high_i(ctrl_bus_i.scl.stable_high),
-      .sda_i(ctrl_sda_i),
+      .sda_i            (ctrl_sda_i),
 
-      .rx_req_bit_i(bus_rx_req_bit),
-      .rx_req_byte_i(bus_rx_req_byte),
-      .rx_data_o(bus_rx_data),
-      .rx_done_o(bus_rx_done),
-      .rx_idle_o(bus_rx_idle)
+      .rx_req_i(bus_rx_req),
+      .rx_rsp_o(bus_rx_rsp)
   );
+
 
   // SDA driver
   logic unassigned_bus_sel_od_pp;

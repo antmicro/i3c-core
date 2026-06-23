@@ -89,6 +89,7 @@ EXTRA_REG_GEN_ARGS = -P timing_width=20
 
 config-rdl: config-print
 	$(PYTHON) $(TOOL_DIR)/reg_gen/reg_gen.py --input-file=$(RDL_REGS) --output-dir=$(RDL_GEN_DIR) $(RDL_ARGS) $(EXTRA_REG_GEN_ARGS)
+	$(PYTHON) $(TOOL_DIR)/reg_gen/generate_csr_types.py $(RDL_GEN_DIR)
 
 config-print:
 	@echo ""
@@ -164,19 +165,21 @@ test-s: config
 	$(MAKE) config CFG_NAME=$(CFG_NAME)
 	$(NOX) -f $(COCOTB_NOXFILE) -s $(TEST)
 
-tests-axi-hc: ## Run all verification/cocotb/* RTL tests for AXI bus HC configuration without coverage
+# FUTUREFIX: add Controller only tests
+tests-axi_controller: ## Run all verification/cocotb/* RTL tests for the controller only configuration without coverage
 	export CONTROLLER_SUPPORT=1 && \
 	export TARGET_SUPPORT=0 && \
-	cd $(COCOTB_VERIF_DIR) && CFG_NAME=axi_hc $(PYTHON) -m nox -R -t "axi_hc" --no-venv --forcecolor
+	cd $(COCOTB_VERIF_DIR) && CFG_NAME=axi_controller $(PYTHON) -m nox -R -t "axi_controller" --no-venv --forcecolor
 
-tests-axi-controller: ## Run all verification/cocotb/* RTL tests for the controller without coverage
-	export CONTROLLER_SUPPORT=1 && \
-	export TARGET_SUPPORT=1 && \
-	cd $(COCOTB_VERIF_DIR) && CFG_NAME=axi-controller $(PYTHON) -m nox -R -t "axi-controller" --no-venv --forcecolor
+tests-axi_controller_and_target: ## Run all verification/cocotb/* RTL tests for the controller and target configuration without coverage
+	$(MAKE) config CFG_NAME=axi_large_ttirx_fifo # this configuration is used for some controller mode tests
+	export DUT_CONFIG=controller_and_target && \
+	cd $(COCOTB_VERIF_DIR) && $(PYTHON) -m nox -R -t "controller" --no-venv --forcecolor
 
 tests: tests-axi tests-ahb ## Run all verification/cocotb/* RTL tests fro AHB and AXI bus configurations without coverage
 
 tests-axi: ## Run all verification/cocotb/* RTL tests for AXI bus configuration without coverage
+	export DUT_CONFIG=target_only
 	$(MAKE) config CFG_NAME=axi
 	$(NOX) -f $(COCOTB_NOXFILE) -t "axi"
 

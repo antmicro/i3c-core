@@ -66,12 +66,14 @@ async def setup_test(dut):
 async def assert_bit_request(dut, sda_value):
     if not dut.scl_stable_low_i.value:
         await RisingEdge(dut.scl_negedge_i)
+        assert dut.sda_o.value == 1
+        await RisingEdge(dut.clk_i)
         await ReadOnly()
         assert dut.bus_tx_idle_o.value == 0
     else:
         await ReadOnly()
+        assert dut.sda_o.value == 1
     # SDA should not be driven 1 cycle after SCL negedge
-    assert dut.sda_o.value == 1
     assert dut.bus_tx_done_o.value == 0
     await ClockCycles(dut.clk_i, dut.t_su_dat_i.value + dut.t_r_i.value)
     await ReadOnly()

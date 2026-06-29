@@ -165,11 +165,10 @@ test-s: config
 	$(MAKE) config CFG_NAME=$(CFG_NAME)
 	$(NOX) -f $(COCOTB_NOXFILE) -s $(TEST)
 
-# FUTUREFIX: add Controller only tests
 tests-axi_controller: ## Run all verification/cocotb/* RTL tests for the controller only configuration without coverage
-	export CONTROLLER_SUPPORT=1 && \
-	export TARGET_SUPPORT=0 && \
-	cd $(COCOTB_VERIF_DIR) && CFG_NAME=axi_controller $(PYTHON) -m nox -R -t "axi_controller" --no-venv --forcecolor
+	$(MAKE) config CFG_NAME=axi_large_ttirx_fifo # this configuration is used for some controller mode tests
+	export DUT_CONFIG=controller_only && \
+	cd $(COCOTB_VERIF_DIR) && $(PYTHON) -m nox -R -t "controller" --no-venv --forcecolor
 
 tests-axi_controller_and_target: ## Run all verification/cocotb/* RTL tests for the controller and target configuration without coverage
 	$(MAKE) config CFG_NAME=axi_large_ttirx_fifo # this configuration is used for some controller mode tests

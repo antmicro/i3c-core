@@ -9,6 +9,8 @@
 
 
 addrmap I3CCSR #(
+    boolean ControllerEn = false,
+    boolean TargetEn = true,
     bit PIO_offset = 0x080,
     bit EC_offset = 0x100,
     bit DAT_offset = 0x400,
@@ -33,7 +35,6 @@ addrmap I3CCSR #(
     bit timing_width = 20 // Width of the registers holding timing constants for I3C
 ){
     signal {activelow; async; cpuif_reset; field_reset;} rst_ni;
-`ifdef CONTROLLER_SUPPORT
     BaseRegs #(
         .PIO_offset(PIO_offset),
         .DMA_support(false),
@@ -61,8 +62,6 @@ addrmap I3CCSR #(
         .DCT_table_size(dct_depth),
         .DCT_offset(DCT_offset)
     ) I3CBase @ 0x0;
-`endif
-`ifdef CONTROLLER_SUPPORT
     PIORegs #(
         .cmd_fifo_size(cmd_fifo_size),
         .resp_fifo_size(resp_fifo_size),
@@ -71,8 +70,9 @@ addrmap I3CCSR #(
         .tx_fifo_size(tx_fifo_size),
         .ext_ibi_size(ext_ibi_size)
     ) PIOControl @ PIO_offset;
-`endif
     ECRegisters #(
+        .ControllerEn(ControllerEn),
+        .TargetEn(TargetEn),
         .tti_rx_desc_fifo_size(tti_rx_desc_fifo_size),
         .tti_tx_desc_fifo_size(tti_tx_desc_fifo_size),
         .tti_rx_fifo_size(tti_rx_fifo_size),
@@ -84,7 +84,6 @@ addrmap I3CCSR #(
         .virtual_pid_lo_reset(virtual_pid_lo_reset),
         .timing_width(timing_width)
     ) I3C_EC @ EC_offset;
-`ifdef CONTROLLER_SUPPORT
     mem {
         name = "Device Address Table";
         mementries = 128;
@@ -99,5 +98,8 @@ addrmap I3CCSR #(
         sw = rw;
         DCT_structure DCT_MEMORY [128];
     } external DCT @ DCT_offset;
-`endif
+    I3CBase->ispresent    = ControllerEn;
+    PIOControl->ispresent = ControllerEn;
+    DAT->ispresent        = ControllerEn;
+    DCT->ispresent        = ControllerEn;
 };

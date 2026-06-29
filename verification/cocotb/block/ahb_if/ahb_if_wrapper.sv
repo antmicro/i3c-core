@@ -2,15 +2,20 @@
 // This wrapper module provides compliance to cocotb-AHB
 // AHB signal naming convention
 module ahb_if_wrapper
-  import I3CCSR_pkg::I3CCSR_DATA_WIDTH;
-  import I3CCSR_pkg::I3CCSR_MIN_ADDR_WIDTH;
-  import I3CCSR_pkg::I3CCSR__in_t;
-  import I3CCSR_pkg::I3CCSR__out_t;
+  import i3c_pkg::*;
 #(
-    localparam int unsigned CsrAddrWidth = I3CCSR_MIN_ADDR_WIDTH,
-    localparam int unsigned CsrDataWidth = I3CCSR_DATA_WIDTH,
-    parameter  int unsigned AhbDataWidth = 64,
-    parameter  int unsigned AhbAddrWidth = 32
+    parameter type csr_cfg_t = target_csr_t,
+    parameter bit ControllerEn = 0,  // enables host controller configuration
+    parameter bit TargetEn = 1,  // enables target configuration
+    parameter int unsigned CsrAddrWidth = (ControllerEn && TargetEn) ? controller_and_target_I3CCSR_pkg::controller_and_target_I3CCSR_MIN_ADDR_WIDTH :
+                               (ControllerEn)             ? controller_I3CCSR_pkg::controller_I3CCSR_MIN_ADDR_WIDTH :
+                                                            target_I3CCSR_pkg::target_I3CCSR_MIN_ADDR_WIDTH,
+    parameter int unsigned CsrDataWidth = (ControllerEn && TargetEn) ? controller_and_target_I3CCSR_pkg::controller_and_target_I3CCSR_DATA_WIDTH :
+                               (ControllerEn)             ? controller_I3CCSR_pkg::controller_I3CCSR_DATA_WIDTH :
+                                                            target_I3CCSR_pkg::target_I3CCSR_DATA_WIDTH,
+
+    parameter int unsigned AhbDataWidth = 64,
+    parameter int unsigned AhbAddrWidth = 32
 ) (
     // AHB-Lite interface
     input  logic                      hclk,
@@ -76,13 +81,14 @@ module ahb_if_wrapper
       .s_cpuif_wr_err(s_cpuif_wr_err)
   );
 
-  I3CCSR__in_t  hwif_in;
-  I3CCSR__out_t hwif_out;
+  csr_cfg_t::hwif_in_t  hwif_in;
+  csr_cfg_t::hwif_out_t hwif_out;
 
   assign hwif_in.rst_ni = hreset_n;
 
   // Connect to I3C CSRs to test SW access
-  I3CCSR i3c_csr (
+  // FUTUREFIX: #99552 add controller_csr and controller_and_target_csr
+  target_I3CCSR i3c_csr (
       .clk(hclk),
       .rst(~hreset_n),
 
@@ -104,28 +110,11 @@ module ahb_if_wrapper
   );
 
   always_comb begin : missing_csr_we_inits
-`ifdef CONTROLLER_SUPPORT
-    hwif_in.I3CBase.HC_CONTROL.RESUME.we = 0;
-    hwif_in.I3CBase.HC_CONTROL.BUS_ENABLE.we = 0;
-    hwif_in.I3CBase.CONTROLLER_DEVICE_ADDR.DYNAMIC_ADDR.we = 0;
-    hwif_in.I3CBase.CONTROLLER_DEVICE_ADDR.DYNAMIC_ADDR_VALID.we = 0;
-    hwif_in.I3CBase.RESET_CONTROL.SOFT_RST.we = 0;
-    hwif_in.I3CBase.RESET_CONTROL.CMD_QUEUE_RST.we = 0;
-    hwif_in.I3CBase.RESET_CONTROL.RESP_QUEUE_RST.we = 0;
-    hwif_in.I3CBase.RESET_CONTROL.TX_FIFO_RST.we = 0;
-    hwif_in.I3CBase.RESET_CONTROL.RX_FIFO_RST.we = 0;
-    hwif_in.I3CBase.RESET_CONTROL.IBI_QUEUE_RST.we = 0;
-    hwif_in.I3CBase.DCT_SECTION_OFFSET.TABLE_INDEX.we = 0;
-    hwif_in.I3CBase.IBI_DATA_ABORT_CTRL.IBI_DATA_ABORT_MON.we = 0;
-    hwif_in.PIOControl.QUEUE_THLD_CTRL.CMD_EMPTY_BUF_THLD.we = 0;
-    hwif_in.PIOControl.QUEUE_THLD_CTRL.RESP_BUF_THLD.we = 0;
-`endif // CONTROLLER_SUPPORT
     hwif_in.I3C_EC.StdbyCtrlMode.STBY_CR_CONTROL.HANDOFF_DEEP_SLEEP.we = 0;
     hwif_in.I3C_EC.StdbyCtrlMode.STBY_CR_CONTROL.TARGET_XACT_ENABLE.we = 0;
     hwif_in.I3C_EC.StdbyCtrlMode.STBY_CR_CONTROL.DAA_SETAASA_ENABLE.we = 0;
     hwif_in.I3C_EC.StdbyCtrlMode.STBY_CR_CONTROL.DAA_SETDASA_ENABLE.we = 0;
     hwif_in.I3C_EC.StdbyCtrlMode.STBY_CR_CONTROL.DAA_ENTDAA_ENABLE.we = 0;
-`ifdef TARGET_SUPPORT
     hwif_in.I3C_EC.TTI.RESET_CONTROL.SOFT_RST.we = 0;
     hwif_in.I3C_EC.TTI.RESET_CONTROL.TX_DESC_RST.we = 0;
     hwif_in.I3C_EC.TTI.RESET_CONTROL.RX_DESC_RST.we = 0;
@@ -135,7 +124,6 @@ module ahb_if_wrapper
     hwif_in.I3C_EC.TTI.QUEUE_THLD_CTRL.TX_DESC_THLD.we = 0;
     hwif_in.I3C_EC.TTI.QUEUE_THLD_CTRL.RX_DESC_THLD.we = 0;
     hwif_in.I3C_EC.TTI.QUEUE_THLD_CTRL.IBI_THLD.we = 0;
-`endif // TARGET_SUPPORT
     hwif_in.I3C_EC.CtrlCfg.CONTROLLER_CONFIG.OPERATION_MODE.we = 0;
   end : missing_csr_we_inits
 
@@ -143,28 +131,12 @@ module ahb_if_wrapper
     hwif_in.I3C_EC.StdbyCtrlMode.STBY_CR_CONTROL.HANDOFF_DEEP_SLEEP.hwclr = 0;
 
     // Unhandled wr/rd_ack (drivers are not included in this wrapper)
-`ifdef CONTROLLER_SUPPORT
-    hwif_in.PIOControl.COMMAND_PORT.wr_ack = 0;
-    hwif_in.PIOControl.RESPONSE_PORT.rd_ack = 0;
-    hwif_in.PIOControl.TX_DATA_PORT.wr_ack = 0;
-    hwif_in.PIOControl.RX_DATA_PORT.rd_ack = 0;
-    hwif_in.PIOControl.IBI_PORT.rd_ack = 0;
-`endif // CONTROLLER_SUPPORT
-`ifdef TARGET_SUPPORT
     hwif_in.I3C_EC.TTI.RX_DESC_QUEUE_PORT.rd_ack = 0;
     hwif_in.I3C_EC.TTI.RX_DATA_PORT.rd_ack = 0;
     hwif_in.I3C_EC.TTI.TX_DESC_QUEUE_PORT.wr_ack = 0;
     hwif_in.I3C_EC.TTI.TX_DATA_PORT.wr_ack = 0;
     hwif_in.I3C_EC.TTI.IBI_PORT.wr_ack = 0;
     hwif_in.I3C_EC.SecFwRecoveryIf.INDIRECT_FIFO_DATA.rd_ack = '0;
-`endif // TARGET_SUPPORT
 
-    // Unhandled wr/rd_ack (drivers are mising)
-`ifdef CONTROLLER_SUPPORT
-    hwif_in.DAT.rd_ack = 0;
-    hwif_in.DAT.wr_ack = 0;
-    hwif_in.DCT.rd_ack = 0;
-    hwif_in.DCT.wr_ack = 0;
-`endif // CONTROLLER_SUPPORT
   end : other_uninit_signals
 endmodule

@@ -107,7 +107,7 @@ async def rx_agent(tb, data_transfers):
     for i, tx_length in enumerate(data_transfers):
 
         # Wait for the interrupt signal to go high
-        irq = tb.dut.xi3c_wrapper.i3c.irq_o
+        irq = tb.dut.xi3c_wrapper.gen_target_config.i3c.irq_o
         if irq.value == 0:
             await RisingEdge(irq)
 
@@ -129,7 +129,7 @@ async def rx_agent(tb, data_transfers):
         assert err_stat == 0, "Unexpected error detected"
 
         # Wait for the interrupt signal to go low
-        irq = tb.dut.xi3c_wrapper.i3c.irq_o
+        irq = tb.dut.xi3c_wrapper.gen_target_config.i3c.irq_o
         if irq.value != 0:
             await FallingEdge(irq)
 

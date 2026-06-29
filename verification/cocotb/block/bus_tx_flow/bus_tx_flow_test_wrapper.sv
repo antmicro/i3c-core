@@ -1,15 +1,18 @@
 // SPDX-License-Identifier: Apache-2.0
 module bus_tx_flow_test_wrapper
   import i3c_pkg::*;
-(
+#(
+    parameter bit ControllerEn = 0,
+    parameter bit TargetEn = 1
+) (
     input logic clk_i,
     input logic rst_ni,
 
     input scl_i,  // Additional signal for SCL bus mock
 
     // I3C bus timings -- No longer used in the actual DUT, but the cocotb env must reference them
-    input logic [19:0] t_r_i,      // rise time of both SDA and SCL in clock units
-    input logic [12:0] t_f_i,      // rise time of both SDA and SCL in clock units
+    input logic [19:0] t_r_i,       // rise time of both SDA and SCL in clock units
+    input logic [12:0] t_f_i,       // rise time of both SDA and SCL in clock units
     input logic [19:0] t_su_dat_i,  // data setup time in clock units
     input logic [19:0] t_hd_dat_i,  // data hold time in clock units
 
@@ -41,31 +44,36 @@ module bus_tx_flow_test_wrapper
   bus_tx_rsp_t tx_rsp_o;
 
   assign tx_req_i = '{
-    drive_type: (sel_od_pp_i ? PushPull : OpenDrain),
-    req_type:   (req_byte_i ? RawByte : RawBit), 
-    req_valid:  (req_byte_i || req_bit_i),
-    data:       req_value_i
-  };
+          drive_type: (sel_od_pp_i ? PushPull : OpenDrain),
+          req_type: (req_byte_i ? RawByte : RawBit),
+          req_valid: (req_byte_i || req_bit_i),
+          data: req_value_i
+      };
 
   bus_state_t bus_i;
 
   assign bus_i = '{
-    sda: '{neg_edge: sda_negedge_i, value: sda_value_i, default: '0},
-    scl: '{pos_edge: scl_posedge_i, neg_edge: scl_negedge_i, stable_low: scl_stable_low_i, default: '0},
-    default: '0
-  };
+          sda: '{neg_edge: sda_negedge_i, value: sda_value_i, default: '0},
+          scl: '{
+              pos_edge: scl_posedge_i,
+              neg_edge: scl_negedge_i,
+              stable_low: scl_stable_low_i,
+              default: '0
+          },
+          default: '0
+      };
 
-  assign bus_tx_done_o  = tx_rsp_o.done;
-  assign bus_tx_idle_o  = tx_rsp_o.idle;
+  assign bus_tx_done_o = tx_rsp_o.done;
+  assign bus_tx_idle_o = tx_rsp_o.idle;
   assign bus_tx_error_o = tx_rsp_o.error;
 
   bus_tx_flow xbus_tx_flow (
-    .clk_i,
-    .rst_ni,
-    .bus_i,
-    .tx_req_i,
-    .tx_rsp_o,
-    .sel_od_pp_o,
-    .sda_o
+      .clk_i,
+      .rst_ni,
+      .bus_i,
+      .tx_req_i,
+      .tx_rsp_o,
+      .sel_od_pp_o,
+      .sda_o
   );
 endmodule

@@ -11,6 +11,8 @@
 */
 
 module i3c_controller_test_wrapper #(
+    parameter bit ControllerEn = 0,  // enables host controller configuration
+    parameter bit TargetEn = 1,  // enables target configuration
 `ifdef I3C_USE_AHB
     parameter int unsigned AhbDataWidth = `AHB_DATA_WIDTH,
     parameter int unsigned AhbAddrWidth = `AHB_ADDR_WIDTH,
@@ -20,14 +22,10 @@ module i3c_controller_test_wrapper #(
     parameter int unsigned AxiUserWidth = `AXI_USER_WIDTH,
     parameter int unsigned AxiIdWidth = `AXI_ID_WIDTH,
 `ifdef AXI_ID_FILTERING
-    parameter int unsigned NumPrivIds = `NUM_PRIV_IDS,
+    parameter int unsigned NumPrivIds = `NUM_PRIV_IDS
 `endif
 `endif
-    parameter int unsigned DatAw = i3c_pkg::DatAw,
-    parameter int unsigned DctAw = i3c_pkg::DctAw,
 
-    parameter int unsigned CsrAddrWidth = I3CCSR_pkg::I3CCSR_MIN_ADDR_WIDTH,
-    parameter int unsigned CsrDataWidth = I3CCSR_pkg::I3CCSR_DATA_WIDTH
 ) (
 `ifdef I3C_USE_AHB
     input  logic                      hclk     [3],
@@ -233,7 +231,10 @@ module i3c_controller_test_wrapper #(
   //                        Actual BUS                         //
   ///////////////////////////////////////////////////////////////
 
-  i3c_actual_bus_wrapper i_actual_bus (
+  i3c_actual_bus_wrapper #(
+      .ControllerEn(ControllerEn),
+      .TargetEn(TargetEn)
+  ) i_actual_bus (
       .aclk(aclk[1:2]),
       .areset_n(areset_n[1:2]),
       // AXI4 Interface

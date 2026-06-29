@@ -2,6 +2,8 @@
 `include "i3c_defines.svh"
 
 module i3c_controller_error_test_wrapper #(
+    parameter bit ControllerEn = 1,  // enables host controller configuration
+    parameter bit TargetEn = 1,  // enables target configuration
 `ifdef I3C_USE_AHB
     parameter int unsigned AhbDataWidth = `AHB_DATA_WIDTH,
     parameter int unsigned AhbAddrWidth = `AHB_ADDR_WIDTH,
@@ -17,8 +19,12 @@ module i3c_controller_error_test_wrapper #(
     parameter int unsigned DatAw = i3c_pkg::DatAw,
     parameter int unsigned DctAw = i3c_pkg::DctAw,
 
-    parameter int unsigned CsrAddrWidth = I3CCSR_pkg::I3CCSR_MIN_ADDR_WIDTH,
-    parameter int unsigned CsrDataWidth = I3CCSR_pkg::I3CCSR_DATA_WIDTH
+    parameter int unsigned CsrAddrWidth = (ControllerEn && TargetEn) ? controller_and_target_I3CCSR_pkg::controller_and_target_I3CCSR_MIN_ADDR_WIDTH :
+                               (ControllerEn)             ? controller_I3CCSR_pkg::controller_I3CCSR_MIN_ADDR_WIDTH :
+                                                            target_I3CCSR_pkg::target_I3CCSR_MIN_ADDR_WIDTH,
+    parameter int unsigned CsrDataWidth = (ControllerEn && TargetEn) ? controller_and_target_I3CCSR_pkg::controller_and_target_I3CCSR_DATA_WIDTH :
+                               (ControllerEn)             ? controller_I3CCSR_pkg::controller_I3CCSR_DATA_WIDTH :
+                                                            target_I3CCSR_pkg::target_I3CCSR_DATA_WIDTH
 ) (
     input clk_i,  // clock
     input rst_ni, // active low reset
@@ -145,7 +151,6 @@ module i3c_controller_error_test_wrapper #(
       .scl_o(scl_o)
   );
 
-`ifdef CONTROLLER_SUPPORT
   // DAT memory export interface
   i3c_pkg::dat_mem_src_t  dat_mem_src;
   i3c_pkg::dat_mem_sink_t dat_mem_sink;
@@ -153,117 +158,231 @@ module i3c_controller_error_test_wrapper #(
   // DCT memory export interface
   i3c_pkg::dct_mem_src_t  dct_mem_src;
   i3c_pkg::dct_mem_sink_t dct_mem_sink;
-`endif  // CONTROLLER_SUPPORT
 
-  i3c #(
+  if (ControllerEn && TargetEn) begin : gen_controller_and_target_config
+    i3c #(
+        .ControllerEn(ControllerEn),
+        .TargetEn(TargetEn),
+        .csr_cfg_t(controller_and_target_csr_t),
 `ifdef I3C_USE_AHB
-      .AhbDataWidth(AhbDataWidth),
-      .AhbAddrWidth(AhbAddrWidth),
+        .AhbDataWidth(AhbDataWidth),
+        .AhbAddrWidth(AhbAddrWidth),
 `elsif I3C_USE_AXI
-      .AxiDataWidth(AxiDataWidth),
-      .AxiAddrWidth(AxiAddrWidth),
-      .AxiUserWidth(AxiUserWidth),
-      .AxiIdWidth(AxiIdWidth),
+        .AxiDataWidth(AxiDataWidth),
+        .AxiAddrWidth(AxiAddrWidth),
+        .AxiUserWidth(AxiUserWidth),
+        .AxiIdWidth(AxiIdWidth),
 `endif
 `ifdef AXI_ID_FILTERING
-      .NumPrivIds(NumPrivIds),
+        .NumPrivIds(NumPrivIds),
 `endif
-      .CsrDataWidth(CsrDataWidth),
-      .CsrAddrWidth(CsrAddrWidth),
-      .DatAw(DatAw),
-      .DctAw(DctAw)
-  ) i3c (
-      .clk_i (aclk),
-      .rst_ni(areset_n),
+        .CsrDataWidth(CsrDataWidth),
+        .CsrAddrWidth(CsrAddrWidth),
+        .DatAw(DatAw),
+        .DctAw(DctAw)
+    ) i3c (
+        .clk_i (aclk),
+        .rst_ni(areset_n),
 
 `ifdef I3C_USE_AHB
-      .haddr_i,
-      .hburst_i,
-      .hprot_i,
-      .hsize_i,
-      .htrans_i,
-      .hwdata_i,
-      .hwstrb_i,
-      .hwrite_i,
-      .hrdata_o,
-      .hreadyout_o,
-      .hresp_o,
-      .hsel_i,
-      .hready_i,
+        .haddr_i,
+        .hburst_i,
+        .hprot_i,
+        .hsize_i,
+        .htrans_i,
+        .hwdata_i,
+        .hwstrb_i,
+        .hwrite_i,
+        .hrdata_o,
+        .hreadyout_o,
+        .hresp_o,
+        .hsel_i,
+        .hready_i,
 `elsif I3C_USE_AXI
-      // AXI Read Channels
-      .araddr_i(araddr),
-      .arburst_i(arburst),
-      .arsize_i(arsize),
-      .arlen_i(arlen),
-      .aruser_i(aruser),
-      .arid_i(arid),
-      .arlock_i(arlock),
-      .arvalid_i(arvalid),
-      .arready_o(arready),
+        // AXI Read Channels
+        .araddr_i(araddr),
+        .arburst_i(arburst),
+        .arsize_i(arsize),
+        .arlen_i(arlen),
+        .aruser_i(aruser),
+        .arid_i(arid),
+        .arlock_i(arlock),
+        .arvalid_i(arvalid),
+        .arready_o(arready),
 
-      .rdata_o(rdata),
-      .rresp_o(rresp),
-      .rid_o(rid),
-      .rlast_o(rlast),
-      .rvalid_o(rvalid),
-      .rready_i(rready),
-      .ruser_o(ruser),
+        .rdata_o(rdata),
+        .rresp_o(rresp),
+        .rid_o(rid),
+        .rlast_o(rlast),
+        .rvalid_o(rvalid),
+        .rready_i(rready),
+        .ruser_o(ruser),
 
-      // AXI Write Channels
-      .awaddr_i(awaddr),
-      .awburst_i(awburst),
-      .awsize_i(awsize),
-      .awlen_i(awlen),
-      .awuser_i(awuser),
-      .awid_i(awid),
-      .awlock_i(awlock),
-      .awvalid_i(awvalid),
-      .awready_o(awready),
+        // AXI Write Channels
+        .awaddr_i(awaddr),
+        .awburst_i(awburst),
+        .awsize_i(awsize),
+        .awlen_i(awlen),
+        .awuser_i(awuser),
+        .awid_i(awid),
+        .awlock_i(awlock),
+        .awvalid_i(awvalid),
+        .awready_o(awready),
 
-      .wdata_i (wdata),
-      .wstrb_i (wstrb),
-      .wuser_i (wuser),
-      .wlast_i (wlast),
-      .wvalid_i(wvalid),
-      .wready_o(wready),
+        .wdata_i (wdata),
+        .wstrb_i (wstrb),
+        .wuser_i (wuser),
+        .wlast_i (wlast),
+        .wvalid_i(wvalid),
+        .wready_o(wready),
 
-      .bresp_o(bresp),
-      .bid_o(bid),
-      .bvalid_o(bvalid),
-      .bready_i(bready),
-      .buser_o(buser),
+        .bresp_o(bresp),
+        .bid_o(bid),
+        .bvalid_o(bvalid),
+        .bready_i(bready),
+        .buser_o(buser),
 
 `ifdef AXI_ID_FILTERING
-      .disable_id_filtering_i(disable_id_filtering_i),
-      .priv_ids_i(priv_ids_i),
+        .disable_id_filtering_i(disable_id_filtering_i),
+        .priv_ids_i(priv_ids_i),
 `endif
 `endif
 
-      .i3c_scl_i  (scl_o),
-      .i3c_scl_o  (scl[1]),
-      .i3c_sda_i  (sda_o),
-      .i3c_sda_o  (sda[1]),
-      .sel_od_pp_o(sel_od_pp_o),
+        .i3c_scl_i   (scl_i),
+        .i3c_scl_o   (scl_o),
+        .i3c_sda_i   (sda_i),
+        .i3c_sda_o   (sda_o),
+        .i3c_sda_oe_o(sda_oe),
+        .sel_od_pp_o (sel_od_pp_o),
 
-`ifdef CONTROLLER_SUPPORT
-      .dat_mem_src_i (dat_mem_src),
-      .dat_mem_sink_o(dat_mem_sink),
+        .dat_mem_src_i (dat_mem_src),
+        .dat_mem_sink_o(dat_mem_sink),
 
-      .dct_mem_src_i (dct_mem_src),
-      .dct_mem_sink_o(dct_mem_sink),
-`endif  // CONTROLLER_SUPPORT
+        .dct_mem_src_i (dct_mem_src),
+        .dct_mem_sink_o(dct_mem_sink),
 
-      .recovery_payload_available_o(recovery_payload_available_o),
-      .recovery_image_activated_o  (recovery_image_activated_o),
+        .recovery_payload_available_o(recovery_payload_available_o),
+        .recovery_image_activated_o  (recovery_image_activated_o),
 
-      .peripheral_reset_o,
-      .peripheral_reset_done_i,
-      .escalated_reset_o,
-      .irq_o
-  );
+        .peripheral_reset_o,
+        .peripheral_reset_done_i,
+        .escalated_reset_o,
+        .irq_o
+    );
+  end else if (ControllerEn) begin : gen_controller_config
+    i3c #(
+        .ControllerEn(ControllerEn),
+        .TargetEn(TargetEn),
+        .csr_cfg_t(controller_and_target_csr_t),
+`ifdef I3C_USE_AHB
+        .AhbDataWidth(AhbDataWidth),
+        .AhbAddrWidth(AhbAddrWidth),
+`elsif I3C_USE_AXI
+        .AxiDataWidth(AxiDataWidth),
+        .AxiAddrWidth(AxiAddrWidth),
+        .AxiUserWidth(AxiUserWidth),
+        .AxiIdWidth(AxiIdWidth),
+`endif
+`ifdef AXI_ID_FILTERING
+        .NumPrivIds(NumPrivIds),
+`endif
+        .CsrDataWidth(CsrDataWidth),
+        .CsrAddrWidth(CsrAddrWidth),
+        .DatAw(DatAw),
+        .DctAw(DctAw)
+    ) i3c (
+        .clk_i,
+        .rst_ni,
 
-`ifdef CONTROLLER_SUPPORT
+`ifdef I3C_USE_AHB
+        .haddr_i,
+        .hburst_i,
+        .hprot_i,
+        .hsize_i,
+        .htrans_i,
+        .hwdata_i,
+        .hwstrb_i,
+        .hwrite_i,
+        .hrdata_o,
+        .hreadyout_o,
+        .hresp_o,
+        .hsel_i,
+        .hready_i,
+`elsif I3C_USE_AXI
+        // AXI Read Channels
+        .araddr_i(araddr),
+        .arburst_i(arburst),
+        .arsize_i(arsize),
+        .arlen_i(arlen),
+        .aruser_i(aruser),
+        .arid_i(arid),
+        .arlock_i(arlock),
+        .arvalid_i(arvalid),
+        .arready_o(arready),
+
+        .rdata_o(rdata),
+        .rresp_o(rresp),
+        .rid_o(rid),
+        .rlast_o(rlast),
+        .rvalid_o(rvalid),
+        .rready_i(rready),
+        .ruser_o(ruser),
+
+        // AXI Write Channels
+        .awaddr_i(awaddr),
+        .awburst_i(awburst),
+        .awsize_i(awsize),
+        .awlen_i(awlen),
+        .awuser_i(awuser),
+        .awid_i(awid),
+        .awlock_i(awlock),
+        .awvalid_i(awvalid),
+        .awready_o(awready),
+
+        .wdata_i (wdata),
+        .wstrb_i (wstrb),
+        .wuser_i (wuser),
+        .wlast_i (wlast),
+        .wvalid_i(wvalid),
+        .wready_o(wready),
+
+        .bresp_o(bresp),
+        .bid_o(bid),
+        .bvalid_o(bvalid),
+        .bready_i(bready),
+        .buser_o(buser),
+
+`ifdef AXI_ID_FILTERING
+        .disable_id_filtering_i(disable_id_filtering_i),
+        .priv_ids_i(priv_ids_i),
+`endif
+`endif
+
+        .i3c_scl_i   (scl_i),
+        .i3c_scl_o   (scl_o),
+        .i3c_sda_i   (sda_i),
+        .i3c_sda_o   (sda_o),
+        .i3c_sda_oe_o(sda_oe),
+        .sel_od_pp_o (sel_od_pp_o),
+
+        .dat_mem_src_i (dat_mem_src),
+        .dat_mem_sink_o(dat_mem_sink),
+
+        .dct_mem_src_i (dct_mem_src),
+        .dct_mem_sink_o(dct_mem_sink),
+
+        .recovery_payload_available_o(recovery_payload_available_o),
+        .recovery_image_activated_o  (recovery_image_activated_o),
+
+        .peripheral_reset_o,
+        .peripheral_reset_done_i,
+        .escalated_reset_o,
+        .irq_o
+    );
+  end else begin : gen_invalid_config_error
+    $fatal(1, "Invalid configuration specified!");
+  end
+
   prim_ram_1p_adv #(
       .Depth(`DAT_DEPTH),
       .Width(64),
@@ -299,7 +418,6 @@ module i3c_controller_error_test_wrapper #(
       .rerror_o(dct_mem_src.rerror),  // Unused
       .cfg_i('0)  // Unused
   );
-`endif  // CONTROLLER_SUPPORT
 
   /*
   Truth table.

@@ -34,8 +34,8 @@ class TeErrorEventMonitor:
     spurious TE error pulse will immediately fail the test.
     """
 
-    _I3C = "xi3c_wrapper.i3c"
-    _FSM = ("xi3c_wrapper.i3c.xcontroller.xcontroller_standby"
+    _I3C = "xi3c_wrapper.gen_target_config.i3c"
+    _FSM = ("xi3c_wrapper.gen_target_config.i3c.xcontroller.gen_target_controller_standby.xcontroller_standby"
             ".xcontroller_standby_i3c.xi3c_target_fsm")
 
     TE_NAMES = {0: "TE0", 1: "TE1", 2: "TE2", 3: "TE3", 4: "TE4", 5: "TE5", 6: "FRAMING"}
@@ -48,7 +48,7 @@ class TeErrorEventMonitor:
         self._expected_types = set()  # Error types the test expects to see
         self._unexpected_errors = []  # Accumulated unexpected errors for check()
 
-        i3c = getattr(dut, "xi3c_wrapper").i3c
+        i3c = getattr(dut, "xi3c_wrapper").gen_target_config.i3c
         self._te_signals = [
             i3c.te0_err,
             i3c.te1_err,
@@ -59,8 +59,8 @@ class TeErrorEventMonitor:
             i3c.framing_err,
         ]
 
-        fsm = (getattr(dut, "xi3c_wrapper").i3c
-               .xcontroller.xcontroller_standby
+        fsm = (getattr(dut, "xi3c_wrapper").gen_target_config.i3c
+               .xcontroller.gen_target_controller_standby.xcontroller_standby
                .xcontroller_standby_i3c.xi3c_target_fsm)
         self._state_d = fsm.state_d
 
@@ -151,12 +151,12 @@ class HdrRecoveryMonitor:
         self.entry_count = 0
         self.recovery_count = 0
 
-        ccc = (getattr(dut, "xi3c_wrapper").i3c
-               .xcontroller.xcontroller_standby
+        ccc = (getattr(dut, "xi3c_wrapper").gen_target_config.i3c
+               .xcontroller.gen_target_controller_standby.xcontroller_standby
                .xcontroller_standby_i3c.xccc)
         self._in_hdr_err_mode = ccc.in_hdr_err_mode_o
 
-        tti = getattr(dut, "xi3c_wrapper").i3c.xtti
+        tti = getattr(dut, "xi3c_wrapper").gen_target_config.i3c.gen_target_tti.xtti
         self._rx_data_write = tti.rx_data_queue_write_r
         self._rx_desc_write = tti.rx_desc_queue_write_r
 
@@ -247,11 +247,11 @@ class PostTe2DataIntegrityMonitor:
         self.violation_count = 0
         self._violations = []
 
-        i3c = getattr(dut, "xi3c_wrapper").i3c
+        i3c = getattr(dut, "xi3c_wrapper").gen_target_config.i3c
         self._te2_err = i3c.te2_err
-        self._rx_data_write = i3c.xtti.rx_data_queue_write_r
+        self._rx_data_write = i3c.gen_target_tti.xtti.rx_data_queue_write_r
 
-        fsm = (i3c.xcontroller.xcontroller_standby
+        fsm = (i3c.xcontroller.gen_target_controller_standby.xcontroller_standby
                .xcontroller_standby_i3c.xi3c_target_fsm)
         self._state_d = fsm.state_d
 

@@ -2,7 +2,7 @@
 
 from bus2csr import get_frontend_bus_if
 from cocotb_helpers import reset_n
-from reg_map import reg_map
+from reg_map_target_I3CCSR import reg_map
 from tti_monitor import TtiQueueMonitor
 from i3c_bus_monitor import I3cBusMonitor
 from te_error_monitor import TeErrorEventMonitor, HdrRecoveryMonitor, PostTe2DataIntegrityMonitor

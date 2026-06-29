@@ -14,6 +14,8 @@ TOPLEVEL     = i3c_bus_monitor_wrapper
 
 VERILOG_SOURCES  = \
     $(SRC_DIR)/i3c_pkg.sv \
+  	$(SRC_DIR)/csr/*_I3CCSR_pkg.sv \
+  	$(SRC_DIR)/csr/*_I3CCSR.sv \
     $(SRC_DIR)/ctrl/controller_pkg.sv \
     $(SRC_DIR)/ctrl/edge_detector.sv \
     $(SRC_DIR)/ctrl/stable_high_detector.sv \

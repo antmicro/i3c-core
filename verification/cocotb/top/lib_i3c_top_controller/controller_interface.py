@@ -3,7 +3,8 @@
 from bus2csr import get_frontend_bus_if, int2dword, dword2int
 from hci import immediate_transfer_descriptor, ResponseDescriptor, I3cIbiStatusDesc
 from cocotb_helpers import reset_n
-from reg_map import reg_map
+from reg_map_controller_and_target_I3CCSR import reg_map as controller_and_target_reg_map
+from reg_map_controller_I3CCSR import reg_map as controller_reg_map
 from utils import get_sv_define
 
 import cocotb
@@ -13,6 +14,9 @@ from cocotb.handle import SimHandleBase
 from cocotb.triggers import Event, Timer, ClockCycles, RisingEdge
 import re
 import os
+
+ACT_CONTROLLER_IDX = 1 # Port idx of actual controller
+ACT_TARGET_IDX = 2 # Port idx of actual target
 
 class I3CAddressHelper:
     # NOTE: these are the always valid addresses as specified in Table 8 I3C Target Address Restrictions (I3C Basic Spec)
@@ -124,7 +128,7 @@ async def get_interrupt_status(tb, idx):
         "IBI_DONE": None,
     }
 
-    csr = tb.reg_map.I3C_EC.TTI.INTERRUPT_STATUS
+    csr = tb.reg_maps[idx].I3C_EC.TTI.INTERRUPT_STATUS
 
     for key in intrs.keys():
         field = getattr(csr, key)
@@ -132,6 +136,14 @@ async def get_interrupt_status(tb, idx):
         intrs[key] = state
 
     return intrs
+
+class RegMapProxy:
+    """Intercepts tb.reg_map accesses and records the path for lazy evaluation."""
+    def __init__(self, path=None):
+        self._path = path or []
+
+    def __getattr__(self, name):
+        return RegMapProxy(self._path + [name])
 
 class PortProxy:
     """
@@ -175,8 +187,24 @@ class I3CTopControllerTestInterface:
     def __init__(self, dut: SimHandleBase, num_busses: int = 3) -> None:
         self.dut = dut
         self.bus_if_cls = get_frontend_bus_if()
-        self.reg_map = reg_map
         self.num_busses = num_busses
+
+        # Specifies DUT configuration, either Controller Only or Controller and Target
+        self.dut_config = os.environ.get("I3C_DUT_CONFIG", "controller_and_target")
+        
+        self.dut._log.info(f"Testbench initialized. DUT compiled as: {self.dut_config}")
+
+        self.reg_map = RegMapProxy()
+        # Build the Per-Bus Register Map
+        self.reg_maps = {}
+        for i in range(num_busses):
+            if i == ACT_CONTROLLER_IDX:
+                if self.dut_config == "controller":
+                    self.reg_maps[i] = controller_reg_map
+                else:
+                    self.reg_maps[i] = controller_and_target_reg_map
+            else:
+                self.reg_maps[i] = controller_and_target_reg_map
 
         # List to hold the interface for each port
         self.busses = []
@@ -200,20 +228,38 @@ class I3CTopControllerTestInterface:
         self.rst_n = self.default_bus.rst_n
         self.tx_queue_depth = get_sv_define("TX_FIFO_DEPTH")
 
+    def _resolve(self, obj, bus_idx):
+        """Converts the Proxy object back into real data using the correct bus map."""
+        if type(obj).__name__ != 'RegMapProxy':
+            return obj
+        
+        curr = self.reg_maps[bus_idx]
+        for part in obj._path:
+            if hasattr(curr, part):
+                curr = getattr(curr, part)
+            else:
+                curr = curr[part]
+        return curr
 
     def read_csr(self, addr, bus_idx=0):
         """Read CSR via the specified bus index."""
-        return self.busses[bus_idx].read_csr(addr, timeout=100000, units="us")
+        real_addr = self._resolve(addr, bus_idx)
+        return self.busses[bus_idx].read_csr(real_addr, timeout=100000, units="us")
 
     def write_csr(self, addr, data, bus_idx=0):
         """Write CSR via the specified bus index."""
-        return self.busses[bus_idx].write_csr(addr, data, timeout=10, units="us")
+        real_addr = self._resolve(addr, bus_idx)
+        return self.busses[bus_idx].write_csr(real_addr, data, timeout=10, units="us")
 
     def read_csr_field(self, addr, field_name, bus_idx=0):
-        return self.busses[bus_idx].read_csr_field(addr, field_name)
+        real_addr = self._resolve(addr, bus_idx)
+        real_field = self._resolve(field_name, bus_idx)
+        return self.busses[bus_idx].read_csr_field(real_addr, real_field)
 
     def write_csr_field(self, addr, field_name, data, bus_idx=0):
-        return self.busses[bus_idx].write_csr_field(addr, field_name, data)
+        real_addr = self._resolve(addr, bus_idx)
+        real_field = self._resolve(field_name, bus_idx)
+        return self.busses[bus_idx].write_csr_field(real_addr, real_field, data)
 
     # --------------------------------------------------------------------------
     # Setup
@@ -279,7 +325,7 @@ class I3CTopControllerTestInterface:
         # 4. Write to the COMMAND_PORT
         #    Note: The hardware expects the Low word first, then the High word.
         #    We use int2dword because the AXI driver likely expects bytes/bytearray.
-        cmd_port_addr = self.reg_map.PIOCONTROL.COMMAND_PORT.base_addr
+        cmd_port_addr = self.reg_maps[bus_idx].PIOCONTROL.COMMAND_PORT.base_addr
         
         await self.write_csr(cmd_port_addr, int2dword(cmd_low), bus_idx=bus_idx)
         await self.write_csr(cmd_port_addr, int2dword(cmd_high), bus_idx=bus_idx)
@@ -299,8 +345,8 @@ class I3CTopControllerTestInterface:
         TX_THLD_VAL    = tx_thld   # Number of empty slots guaranteed when interrupt fires
         
         # Register Addresses
-        tx_port_addr = self.reg_map.PIOCONTROL.TX_DATA_PORT.base_addr
-        status_addr  = self.reg_map.PIOCONTROL.PIO_INTR_STATUS.base_addr
+        tx_port_addr = self.reg_maps[bus_idx].PIOCONTROL.TX_DATA_PORT.base_addr
+        status_addr  = self.reg_maps[bus_idx].PIOCONTROL.PIO_INTR_STATUS.base_addr
         
         total_len = len(data)
         words_written = 0
@@ -360,7 +406,7 @@ class I3CTopControllerTestInterface:
         """
         rx_data_list = []
         if rx_port_addr is None:
-            rx_port_addr = self.reg_map.I3C_EC.TTI.RX_DATA_PORT.base_addr
+            rx_port_addr = self.reg_maps[bus_idx].I3C_EC.TTI.RX_DATA_PORT.base_addr
         
         for _ in range(num_words):
             # Read the CSR
@@ -379,7 +425,7 @@ class I3CTopControllerTestInterface:
         
         # Read the CSR
         resp_desc = ResponseDescriptor(0, 0, 0)
-        resp_port_addr = self.reg_map.PIOCONTROL.RESPONSE_PORT.base_addr
+        resp_port_addr = self.reg_maps[bus_idx].PIOCONTROL.RESPONSE_PORT.base_addr
         resp_desc_obj = await self.read_csr(resp_port_addr, bus_idx=bus_idx)
         resp_desc_int = dword2int(resp_desc_obj)
         resp_desc.from_int(resp_desc_int)
@@ -393,9 +439,9 @@ class I3CTopControllerTestInterface:
         num_words = len(data)
 
         for i in range(num_words):
-            await self.write_csr(self.reg_map.I3C_EC.TTI.TX_DATA_PORT.base_addr, int2dword(data[i]), bus_idx=bus_idx)
+            await self.write_csr(self.reg_maps[bus_idx].I3C_EC.TTI.TX_DATA_PORT.base_addr, int2dword(data[i]), bus_idx=bus_idx)
         # Write the TX descriptor
-        await self.write_csr(self.reg_map.I3C_EC.TTI.TX_DESC_QUEUE_PORT.base_addr, int2dword(data_length), bus_idx=bus_idx)
+        await self.write_csr(self.reg_maps[bus_idx].I3C_EC.TTI.TX_DESC_QUEUE_PORT.base_addr, int2dword(data_length), bus_idx=bus_idx)
 
     async def put_dat_entry(self, device_index, dyn_addr=0x00, static_addr=0x00, is_i2c=False, ibi_reject=False, ibi_payload=False, bus_idx=0):
         """
@@ -427,7 +473,7 @@ class I3CTopControllerTestInterface:
         
         # Calculate Base Address for this specific entry
         # Each entry is 8 bytes (two 32-bit words)
-        dat_base_addr = self.reg_map.DAT.DAT_MEMORY.base_addr
+        dat_base_addr = self.reg_maps[bus_idx].DAT.DAT_MEMORY.base_addr
         entry_addr = dat_base_addr + (device_index * 8)
         
         # Write Low Word, then High Word
@@ -443,7 +489,7 @@ class I3CTopControllerTestInterface:
         Extracts the IBI Status Descriptor to determine the payload length,
         then reads the subsequent DWORDs from the FIFO.
         """
-        ibi_port_addr = self.reg_map.PIOCONTROL.IBI_PORT.base_addr
+        ibi_port_addr = self.reg_maps[bus_idx].PIOCONTROL.IBI_PORT.base_addr
         
         desc_obj = await self.read_csr(ibi_port_addr, bus_idx=bus_idx)
         desc_int = dword2int(desc_obj)

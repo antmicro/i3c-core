@@ -247,10 +247,10 @@ module i2c_controller_test_wrapper #(
 `endif
 `endif
 
-        .i3c_scl_i   (scl_i),
-        .i3c_scl_o   (scl_o),
-        .i3c_sda_i   (sda_i),
-        .i3c_sda_o   (sda_o),
+        .i3c_scl_i   (scl_o),
+        .i3c_scl_o   (scl[1]),
+        .i3c_sda_i   (sda_o),
+        .i3c_sda_o   (sda[1]),
         .i3c_sda_oe_o(sda_oe),
         .sel_od_pp_o (sel_od_pp_o),
 
@@ -272,7 +272,7 @@ module i2c_controller_test_wrapper #(
     i3c #(
         .ControllerEn(ControllerEn),
         .TargetEn(TargetEn),
-        .csr_cfg_t(controller_and_target_csr_t),
+        .csr_cfg_t(controller_csr_t),
 `ifdef I3C_USE_AHB
         .AhbDataWidth(AhbDataWidth),
         .AhbAddrWidth(AhbAddrWidth),
@@ -357,10 +357,10 @@ module i2c_controller_test_wrapper #(
 `endif
 `endif
 
-        .i3c_scl_i   (scl_i),
-        .i3c_scl_o   (scl_o),
-        .i3c_sda_i   (sda_i),
-        .i3c_sda_o   (sda_o),
+        .i3c_scl_i   (scl_o),
+        .i3c_scl_o   (scl[1]),
+        .i3c_sda_i   (sda_o),
+        .i3c_sda_o   (sda[1]),
         .i3c_sda_oe_o(sda_oe),
         .sel_od_pp_o (sel_od_pp_o),
 

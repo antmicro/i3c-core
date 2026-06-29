@@ -148,7 +148,8 @@ module i3c_controller_error_test_wrapper #(
       .scl_i(scl),
       .scl_oe_i(2'b10),  // only ctrl drives scl
       .sda_o(sda_o),
-      .scl_o(scl_o)
+      .scl_o(scl_o),
+      .sel_od_pp_i(1'b0)
   );
 
   // DAT memory export interface
@@ -248,10 +249,10 @@ module i3c_controller_error_test_wrapper #(
 `endif
 `endif
 
-        .i3c_scl_i   (scl_i),
-        .i3c_scl_o   (scl_o),
-        .i3c_sda_i   (sda_i),
-        .i3c_sda_o   (sda_o),
+        .i3c_scl_i   (scl_o),
+        .i3c_scl_o   (scl[1]),
+        .i3c_sda_i   (sda_o),
+        .i3c_sda_o   (sda[1]),
         .i3c_sda_oe_o(sda_oe),
         .sel_od_pp_o (sel_od_pp_o),
 
@@ -273,7 +274,7 @@ module i3c_controller_error_test_wrapper #(
     i3c #(
         .ControllerEn(ControllerEn),
         .TargetEn(TargetEn),
-        .csr_cfg_t(controller_and_target_csr_t),
+        .csr_cfg_t(controller_csr_t),
 `ifdef I3C_USE_AHB
         .AhbDataWidth(AhbDataWidth),
         .AhbAddrWidth(AhbAddrWidth),
@@ -291,8 +292,8 @@ module i3c_controller_error_test_wrapper #(
         .DatAw(DatAw),
         .DctAw(DctAw)
     ) i3c (
-        .clk_i,
-        .rst_ni,
+        .clk_i (aclk),
+        .rst_ni(areset_n),
 
 `ifdef I3C_USE_AHB
         .haddr_i,
@@ -358,10 +359,10 @@ module i3c_controller_error_test_wrapper #(
 `endif
 `endif
 
-        .i3c_scl_i   (scl_i),
-        .i3c_scl_o   (scl_o),
-        .i3c_sda_i   (sda_i),
-        .i3c_sda_o   (sda_o),
+        .i3c_scl_i   (scl_o),
+        .i3c_scl_o   (scl[1]),
+        .i3c_sda_i   (sda_o),
+        .i3c_sda_o   (sda[1]),
         .i3c_sda_oe_o(sda_oe),
         .sel_od_pp_o (sel_od_pp_o),
 

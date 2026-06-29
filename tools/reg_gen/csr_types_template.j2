@@ -1,0 +1,30 @@
+// ============================================================================
+// AUTO-GENERATED I3C CSR Types Definitions
+// Generated from PeakRDL package files to abstract configuration types.
+// ============================================================================
+
+`ifndef I3C_CSR_TYPES_SVH
+`define I3C_CSR_TYPES_SVH
+
+// DUMMY TYPES:
+// The controller_only and target_only CSR configurations don't generate all possible registers along with their signals
+// However, the RTL is static and still might reference some ungenerated signal in unused parts of the code (unused for the selected configuration).
+// To prevent compilation errors, we use dummy typedefs for these signals. This has no effect on area / timing.
+// For example: target_only configuration doesn't generate PIO registers along with PIOControl__in/out_t.
+// The RTL still references csr_cfg_t::pio_in/out_t in unused parts of the code for the target configuration.
+// In such cases this would elaborate to controller_and_target_I3CCSR_pkg::controller_and_target_I3CCSR__PIOControl__in/out_t.
+
+{% for cfg in configs -%}
+// ---------------------------------------------------------
+// Class: {{ cfg.class_name }}
+// ---------------------------------------------------------
+class {{ cfg.class_name }};
+{%- if not cfg.is_empty %}
+{%- for td in cfg.typedefs %}
+  typedef {{ td.source_type.ljust(60) }} {{ td.generic_name }};{% if td.is_dummy %} // DUMMY (Borrowed from combo for parser){% endif %}
+{%- endfor %}
+{%- endif %}
+endclass
+
+{% endfor -%}
+`endif // I3C_CSR_TYPES_SVH

@@ -1,6 +1,6 @@
-import os
 import sys
 from pathlib import Path
+import jinja2
 
 # To add a new register you have to define a mapping here
 TRAITS_MAP = {
@@ -49,29 +49,33 @@ CONFIGS = [
     }
 ]
 
-def generate_csr_types(source_dir, output_file):
-    out_lines = [
-        "// ============================================================================",
-        "// AUTO-GENERATED I3C CSR Traits Definitions",
-        "// Generated from PeakRDL package files to abstract configuration types.",
-        "// ============================================================================",
-        "",
-        "`ifndef I3C_CSR_TRAITS_SVH",
-        "`define I3C_CSR_TRAITS_SVH",
-        ""
-    ]
+
+def generate_csr_types(source_dir: str, output_file: Path, template_dir: Path):
+    templateLoader = jinja2.FileSystemLoader(searchpath=template_dir)
+    templateEnv = jinja2.Environment(loader=templateLoader)
+    
+    TEMPLATE_FILE = "csr_types_template.j2"
+    try:
+        template = templateEnv.get_template(TEMPLATE_FILE)
+    except jinja2.exceptions.TemplateNotFound:
+        print(f"Error: Template file '{TEMPLATE_FILE}' not found in '{template_dir}'")
+        sys.exit(1)
+
+    template_data = []
 
     for cfg in CONFIGS:
-        out_lines.append(f"// ---------------------------------------------------------")
-        out_lines.append(f"// Class: {cfg['class_name']}")
-        out_lines.append(f"// ---------------------------------------------------------")
-        out_lines.append(f"class {cfg['class_name']};")
-
         pkg_path = Path(source_dir) / cfg["pkg_file"]
         
+        cfg_data = {
+            "class_name": cfg["class_name"],
+            "is_empty": False,
+            "typedefs": []
+        }
+
         if not pkg_path.exists():
             print(f"Warning: {cfg['pkg_file']} not found in {source_dir}. Generating empty class.")
-            out_lines.append("endclass\n")
+            cfg_data["is_empty"] = True
+            template_data.append(cfg_data)
             continue
             
         # Read the generated package to see which structs actually exist
@@ -81,18 +85,24 @@ def generate_csr_types(source_dir, output_file):
             expected_struct_name = f"{cfg['prefix']}{suffix}"
             
             # Check if this exact struct was generated in this specific package
-            # Example: looking for "controller_and_target_I3CCSR__DAT__out_t"
             if expected_struct_name in content:
-                out_lines.append(f"  typedef {cfg['pkg_name']}::{expected_struct_name:<60} {generic_name};")
+                source_type = f"{cfg['pkg_name']}::{expected_struct_name}"
+                is_dummy = False
             else:
-                combo_struct = f"controller_and_target_I3CCSR_pkg::controller_and_target_I3CCSR{suffix}"
-                out_lines.append(f"  typedef {combo_struct:<60} {generic_name}; // DUMMY (Borrowed from combo for parser)")
-        
-        out_lines.append("endclass\n")
+                source_type = f"controller_and_target_I3CCSR_pkg::controller_and_target_I3CCSR{suffix}"
+                is_dummy = True
+                
+            cfg_data["typedefs"].append({
+                "source_type": source_type,
+                "generic_name": generic_name,
+                "is_dummy": is_dummy
+            })
+            
+        template_data.append(cfg_data)
 
-    out_lines.append("`endif // I3C_CSR_TRAITS_SVH\n")
-
-    Path(output_file).write_text("\n".join(out_lines))
+    # Render the template with the prepared data
+    rendered_output = template.render(configs=template_data)
+    output_file.write_text(rendered_output)
     print(f"Successfully generated {output_file}")
 
 def main():
@@ -104,8 +114,10 @@ def main():
     
     # Save the output file in the same directory as the packages
     output_file = Path(source_dir) / "csr_types.svh"
+
+    script_dir = Path(__file__).parent.resolve()
     
-    generate_csr_types(source_dir, output_file)
+    generate_csr_types(source_dir, output_file, template_dir=script_dir)
 
 if __name__ == "__main__":
     main()

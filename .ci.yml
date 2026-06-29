@@ -2,7 +2,7 @@
 
 variables:
   DEBIAN_FRONTEND: "noninteractive"
-  VERILATOR_VERSION: "v5.046"
+  VERILATOR_VERSION: "v5.048"
   WAVES: "0"
   GIT_SUBMODULE_STRATEGY: recursive
 
@@ -165,13 +165,12 @@ tests-axi:
     CFG_NAME: "axi"
     BUS_TAG: "axi"
 
-tests-axi-controller:
+tests-axi_controller_and_target:
   extends: .test-job-base
   variables:
-    CFG_NAME: "axi-controller"
-    CONTROLLER_SUPPORT: "1"
-    TARGET_SUPPORT: "1"
-    BUS_TAG: "axi-controller,axi_controller" 
+    DUT_CONFIG: "controller_and_target"
+    CFG_NAME: "axi_large_ttirx_fifo"
+    BUS_TAG: "controller" 
 
 # ===========================================================================
 # Job: Aggregate Results
@@ -183,7 +182,7 @@ test-results:
   dependencies:
     - tests-ahb
     - tests-axi
-    - tests-axi-controller
+    - tests-axi_controller_and_target
   script:
     - echo "Artifacts from the parallel matrix have been merged automatically by GitLab."
     - find verification/cocotb -name "*.xml" -type f 2>/dev/null | head -20 || echo "No XML files"

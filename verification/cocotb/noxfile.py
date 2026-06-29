@@ -318,7 +318,7 @@ def i3c_axi_recovery_verify(session, test_group, test_name, coverage, simulator)
 
 @test(
     TestParams(
-        ["tests", "axi", "target", "controller"],
+        ["tests", "axi", "controller"],
         ["i3c_axi_controller"],
         ["test_configure_i3c_cores"],
     )
@@ -329,7 +329,7 @@ def configure_i3c_cores_verify(session, test_group, test_name, coverage, simulat
 
 @test(
     TestParams(
-        ["tests", "axi", "target", "controller"],
+        ["tests", "axi", "controller"],
         ["i3c_axi_controller"],
         ["test_i3c_controller"],
     )
@@ -340,7 +340,7 @@ def i3c_controller_verify(session, test_group, test_name, coverage, simulator):
 
 @test(
     TestParams(
-        ["tests", "axi", "target", "controller"],
+        ["tests", "axi", "controller"],
         ["i3c_axi_controller"],
         ["test_i3c_controller_write_target_read"],
     )
@@ -351,7 +351,7 @@ def i3c_controller_write_target_read_verify(session, test_group, test_name, cove
 
 @test(
     TestParams(
-        ["tests", "axi", "target", "controller"],
+        ["tests", "axi", "controller"],
         ["i3c_axi_controller"],
         ["test_i3c_controller_repeated_start"],
     )
@@ -362,7 +362,7 @@ def i3c_controller_repeated_start_verify(session, test_group, test_name, coverag
 
 @test(
     TestParams(
-        ["tests", "axi", "target", "controller"],
+        ["tests", "axi", "controller"],
         ["i3c_axi_controller"],
         ["test_i3c_controller_read_target_write"],
     )
@@ -373,7 +373,7 @@ def i3c_controller_read_target_write_verify(session, test_group, test_name, cove
 
 @test(
     TestParams(
-        ["tests", "axi", "target", "controller"],
+        ["tests", "axi", "controller"],
         ["i3c_axi_controller"],
         ["test_controller_ccc"],
     )
@@ -384,7 +384,7 @@ def controller_ccc_verify(session, test_group, test_name, coverage, simulator):
 
 @test(
     TestParams(
-        ["tests", "axi", "target", "controller"],
+        ["tests", "axi", "controller"],
         ["i3c_axi_controller"],
         ["test_controller_hdr_exit"],
     )
@@ -395,7 +395,7 @@ def controller_hdr_exit_verify(session, test_group, test_name, coverage, simulat
 
 @test(
     TestParams(
-        ["tests", "axi", "target", "controller"],
+        ["tests", "axi", "controller"],
         ["i3c_axi_controller"],
         ["test_controller_ibi"],
     )
@@ -406,7 +406,7 @@ def controller_ibi_verify(session, test_group, test_name, coverage, simulator):
 
 @test(
     TestParams(
-        ["tests", "axi", "target", "controller"],
+        ["tests", "axi", "controller"],
         ["i2c_axi_controller"],
         ["test_i2c_controller"],
     )
@@ -417,7 +417,7 @@ def i2c_controller_verify(session, test_group, test_name, coverage, simulator):
 
 @test(
     TestParams(
-        ["tests", "axi", "target", "controller"],
+        ["tests", "axi", "controller"],
         ["i3c_axi_controller_err"],
         ["test_controller_error"],
     )

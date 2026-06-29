@@ -172,6 +172,14 @@ tests-axi_controller_and_target:
     CFG_NAME: "axi_large_ttirx_fifo"
     BUS_TAG: "controller" 
 
+tests-axi_controller:
+  extends: .test-job-base
+  variables:
+    DUT_CONFIG: "controller_only"
+    CFG_NAME: "axi_large_ttirx_fifo"
+    BUS_TAG: "controller" 
+
+
 # ===========================================================================
 # Job: Aggregate Results
 # ===========================================================================
@@ -183,6 +191,7 @@ test-results:
     - tests-ahb
     - tests-axi
     - tests-axi_controller_and_target
+    - tests-axi_controller
   script:
     - echo "Artifacts from the parallel matrix have been merged automatically by GitLab."
     - find verification/cocotb -name "*.xml" -type f 2>/dev/null | head -20 || echo "No XML files"

@@ -8,6 +8,8 @@
 `include "../i3c_defines.svh"
 
 regfile ECRegisters #(
+    boolean ControllerEn = false,
+    boolean TargetEn = true,
     bit tti_rx_desc_fifo_size = 0x5, // 64 DWORDs by default
     bit tti_tx_desc_fifo_size = 0x5, // 64 DWORDs by default
     bit tti_rx_fifo_size = 0x5, // 64 DWORDs by default
@@ -20,9 +22,7 @@ regfile ECRegisters #(
     bit timing_width = 20
 ){
     name = "Extended Capabilities";
-`ifdef TARGET_SUPPORT
     SecureFirmwareRecoveryInterfaceRegisters SecFwRecoveryIf @ 0x0;
-`endif
     StandbyControllerModeRegisters #(
         .pid_hi_reset(pid_hi_reset),
         .pid_lo_reset(pid_lo_reset),
@@ -32,7 +32,6 @@ regfile ECRegisters #(
         .tx_fifo_size(tti_tx_fifo_size),
         .ibi_fifo_size(tti_ibi_fifo_size)
     ) StdbyCtrlMode;
-`ifdef TARGET_SUPPORT
     TargetTransactionInterfaceRegisters #(
         .rx_desc_fifo_size(tti_rx_desc_fifo_size),
         .tx_desc_fifo_size(tti_tx_desc_fifo_size),
@@ -40,7 +39,6 @@ regfile ECRegisters #(
         .tx_fifo_size(tti_tx_fifo_size),
         .ibi_fifo_size(tti_ibi_fifo_size)
     ) TTI;
-`endif
     SoCManagementInterfaceRegisters #(
     .T_WIDTH(timing_width)
     ) SoCMgmtIf;
@@ -66,4 +64,6 @@ regfile ECRegisters #(
             reset = 8'h00;
         } CAP_ID[7:0];
     } TERMINATION_EXTCAP_HEADER;
+    SecFwRecoveryIf->ispresent = TargetEn;
+    TTI->ispresent = TargetEn;
 };

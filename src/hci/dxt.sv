@@ -1,10 +1,12 @@
 // SPDX-License-Identifier: Apache-2.0
-`ifdef CONTROLLER_SUPPORT
 // I3C Device Address/Characteristic Tables
 module dxt
-  import I3CCSR_pkg::*;
+  import controller_I3CCSR_pkg::*;
+  import target_I3CCSR_pkg::*;
+  import controller_and_target_I3CCSR_pkg::*;
   import i3c_pkg::*;
 #(
+    parameter type csr_cfg_t = target_csr_t,
     parameter int unsigned DatAw = 7,
     parameter int unsigned DctAw = 7
 ) (
@@ -24,12 +26,12 @@ module dxt
     output logic [    127:0] dct_rdata_hw_o,
 
     // DAT CSR interface
-    input  I3CCSR__DAT__out_t csr_dat_hwif_i,
-    output I3CCSR__DAT__in_t  csr_dat_hwif_o,
+    input  csr_cfg_t::dat_out_t csr_dat_hwif_i,
+    output csr_cfg_t::dat_in_t  csr_dat_hwif_o,
 
     // DCT CSR interface
-    input  I3CCSR__DCT__out_t csr_dct_hwif_i,
-    output I3CCSR__DCT__in_t  csr_dct_hwif_o,
+    input  csr_cfg_t::dct_out_t csr_dct_hwif_i,
+    output csr_cfg_t::dct_in_t  csr_dct_hwif_o,
 
     // DAT memory export interface
     input  dat_mem_src_t  dat_mem_src_i,
@@ -191,4 +193,3 @@ module dxt
   end
 
 endmodule
-`endif  // CONTROLLER_SUPPORT

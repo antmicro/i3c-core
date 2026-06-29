@@ -2,6 +2,7 @@
 +incdir+${CALIPTRA_ROOT}/src/caliptra_prim/rtl
 +incdir+${I3C_ROOT_DIR}/src
 +incdir+${I3C_ROOT_DIR}/src/libs
++incdir+${I3C_ROOT_DIR}/src/csr
 ${CALIPTRA_ROOT}/src/caliptra_prim/rtl/caliptra_prim_pkg.sv
 ${CALIPTRA_ROOT}/src/caliptra_prim/rtl/caliptra_prim_util_pkg.sv
 ${CALIPTRA_ROOT}/src/caliptra_prim/rtl/caliptra_prim_count_pkg.sv
@@ -22,13 +23,17 @@ ${I3C_ROOT_DIR}/src/libs/mem/prim_generic_ram_1p.sv
 ${I3C_ROOT_DIR}/src/libs/mem/prim_ram_1p_adv.sv
 ${I3C_ROOT_DIR}/src/libs/mem/prim_ram_1p.sv
 ${I3C_ROOT_DIR}/src/libs/mem/prim_ram_2p.sv
-${I3C_ROOT_DIR}/src/csr/I3CCSR_pkg.sv
+${I3C_ROOT_DIR}/src/csr/controller_I3CCSR_pkg.sv
+${I3C_ROOT_DIR}/src/csr/target_I3CCSR_pkg.sv
+${I3C_ROOT_DIR}/src/csr/controller_and_target_I3CCSR_pkg.sv
 ${I3C_ROOT_DIR}/src/ctrl/controller_pkg.sv
 ${I3C_ROOT_DIR}/src/i3c_pkg.sv
 ${I3C_ROOT_DIR}/src/phy/buf_pp.sv
 ${I3C_ROOT_DIR}/src/phy/bufs.sv
 ${I3C_ROOT_DIR}/src/phy/i3c_phy.sv
-${I3C_ROOT_DIR}/src/csr/I3CCSR.sv
+${I3C_ROOT_DIR}/src/csr/controller_I3CCSR.sv
+${I3C_ROOT_DIR}/src/csr/target_I3CCSR.sv
+${I3C_ROOT_DIR}/src/csr/controller_and_target_I3CCSR.sv
 ${I3C_ROOT_DIR}/src/interrupt.sv
 ${I3C_ROOT_DIR}/src/libs/axi_sub/i3c_axi_sub_arb.sv
 ${I3C_ROOT_DIR}/src/libs/axi_sub/i3c_axi_sub_rd.sv

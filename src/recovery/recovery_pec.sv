@@ -5,7 +5,6 @@
     transferred over I3C. XOR equations were inspired by code generated using
     https://bues.ch/cms/hacking/crcgen
 */
-
 module recovery_pec (
 
     input logic clk_i,
@@ -38,8 +37,7 @@ module recovery_pec (
 
   // Output register
   always_ff @(posedge clk_i or negedge rst_ni)
-    if (!rst_ni)
-      crc_o <= 8'h00;
+    if (!rst_ni) crc_o <= 8'h00;
     else begin
       if (!soft_reset_ni) crc_o <= 8'h00;
       else if (valid_i) crc_o <= crc_x;

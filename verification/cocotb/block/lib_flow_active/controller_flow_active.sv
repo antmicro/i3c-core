@@ -8,10 +8,12 @@ module controller_flow_active
   import controller_pkg::*;
   import i3c_pkg::*;
 #(
+    parameter bit ControllerEn = 1,
+    parameter bit TargetEn = 1,
+    parameter type csr_cfg_t = controller_and_target_csr_t,
     parameter int unsigned DatAw = i3c_pkg::DatAw,
-    parameter int unsigned DctAw = i3c_pkg::DctAw
+    parameter int unsigned DctAw = i3c_pkg::DctAw,
 
-`ifdef CONTROLLER_SUPPORT,
     parameter int unsigned HciRespFifoDepth = 64,
     parameter int unsigned HciCmdFifoDepth  = 64,
     parameter int unsigned HciRxFifoDepth   = 64,
@@ -35,7 +37,6 @@ module controller_flow_active
     parameter int unsigned HciRxThldWidth   = 3,
     parameter int unsigned HciTxThldWidth   = 3,
     parameter int unsigned HciIbiThldWidth  = 8
-`endif  // CONTROLLER_SUPPORT
 ) (
     input logic clk_i,
     input logic rst_ni,
@@ -53,7 +54,6 @@ module controller_flow_active
     output logic unhandled_unexp_nak_o,
     output logic unhandled_nak_timeout_o,
 
-`ifdef CONTROLLER_SUPPORT
     // HCI queues
     // Command FIFO
     input logic hci_cmd_queue_full_i,
@@ -118,7 +118,6 @@ module controller_flow_active
     output logic [    127:0] dct_wdata_hw_o,
     input  logic [    127:0] dct_rdata_hw_i,
 
-`endif  // CONTROLLER_SUPPORT
 
 
     // I2C/I3C received address (with RnW# bit) for the recovery handler
@@ -133,7 +132,7 @@ module controller_flow_active
     output i3c_irq_t irq,
 
     // Controller configuration
-    input I3CCSR_pkg::I3CCSR__out_t hwif_out_i,
+    input csr_cfg_t::hwif_out_t hwif_out_i,
 
     // Status update signals
     output logic [1:0] ibi_status_o,
@@ -213,7 +212,11 @@ module controller_flow_active
 
   localparam int unsigned RecoveryMode = 'h3;
 
-  configuration xconfiguration (
+  configuration #(
+      .ControllerEn(ControllerEn),
+      .TargetEn(TargetEn),
+      .csr_cfg_t(csr_cfg_t)
+  ) xconfiguration (
       .clk_i                          (clk_i),
       .rst_ni                         (rst_ni),
       .hwif_out_i                     (hwif_out_i),
@@ -260,7 +263,6 @@ module controller_flow_active
       .ibil_i                         (ibil)
   );  //
 
-`ifdef CONTROLLER_SUPPORT
   // Active controller
   logic
       unused_i3c_fsm_idle,
@@ -351,10 +353,4 @@ module controller_flow_active
       .err(unused_err),
       .irq(unused_irq)
   );
-`else
-  always_comb begin
-    err = '0;
-    irq = '0;
-  end
-`endif  // CONTROLLER_SUPPORT
 endmodule

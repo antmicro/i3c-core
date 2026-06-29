@@ -4,14 +4,17 @@
 `include "i3c_defines.svh"
 
 module axi_adapter_wrapper
-  import I3CCSR_pkg::I3CCSR_DATA_WIDTH;
-  import I3CCSR_pkg::I3CCSR_MIN_ADDR_WIDTH;
-  import I3CCSR_pkg::I3CCSR__in_t;
-  import I3CCSR_pkg::I3CCSR__out_t;
   import i3c_pkg::*;
 #(
-    localparam int unsigned CsrAddrWidth = I3CCSR_MIN_ADDR_WIDTH,
-    localparam int unsigned CsrDataWidth = I3CCSR_DATA_WIDTH,
+    parameter type csr_cfg_t = target_csr_t,
+    parameter bit ControllerEn = 0,  // enables host controller configuration
+    parameter bit TargetEn = 1,  // enables target configuration
+    parameter int unsigned CsrAddrWidth = (ControllerEn && TargetEn) ? controller_and_target_I3CCSR_pkg::controller_and_target_I3CCSR_MIN_ADDR_WIDTH :
+                               (ControllerEn)             ? controller_I3CCSR_pkg::controller_I3CCSR_MIN_ADDR_WIDTH :
+                                                            target_I3CCSR_pkg::target_I3CCSR_MIN_ADDR_WIDTH,
+    parameter int unsigned CsrDataWidth = (ControllerEn && TargetEn) ? controller_and_target_I3CCSR_pkg::controller_and_target_I3CCSR_DATA_WIDTH :
+                               (ControllerEn)             ? controller_I3CCSR_pkg::controller_I3CCSR_DATA_WIDTH :
+                                                            target_I3CCSR_pkg::target_I3CCSR_DATA_WIDTH,
 
     parameter int unsigned AxiAddrWidth = 12,
     parameter int unsigned AxiDataWidth = 32,
@@ -163,13 +166,14 @@ module axi_adapter_wrapper
       .s_cpuif_wr_err(s_cpuif_wr_err)
   );
 
-  I3CCSR__in_t  hwif_in;
-  I3CCSR__out_t hwif_out;
+  csr_cfg_t::hwif_in_t  hwif_in;
+  csr_cfg_t::hwif_out_t hwif_out;
 
   assign hwif_in.rst_ni = areset_n;
 
   // Connect to I3C CSRs to test SW access
-  I3CCSR i3c_csr (
+  // FUTUREFIX: #99552 add controller_csr and controller_and_target_csr
+  target_I3CCSR i3c_csr (
       .clk(aclk),
       .rst(~areset_n),
 
@@ -222,33 +226,6 @@ module axi_adapter_wrapper
   // TODO: These write-enable signals were not combo-driven or initialized on reset.
   // This is a placeholder driver. They require either unimplemented drivers or changes in RDL.
   always_comb begin : missing_csr_we_inits
-`ifdef CONTROLLER_SUPPORT
-    hwif_in.I3CBase.HC_CONTROL.RESUME.we = 0;
-    hwif_in.I3CBase.CONTROLLER_DEVICE_ADDR.DYNAMIC_ADDR.we = 0;
-    hwif_in.I3CBase.CONTROLLER_DEVICE_ADDR.DYNAMIC_ADDR_VALID.we = 0;
-    hwif_in.I3CBase.RESET_CONTROL.SOFT_RST.we = 0;
-    hwif_in.I3CBase.DCT_SECTION_OFFSET.TABLE_INDEX.we = 0;
-    hwif_in.I3CBase.IBI_DATA_ABORT_CTRL.IBI_DATA_ABORT_MON.we = 0;
-    hwif_in.I3C_EC.StdbyCtrlMode.STBY_CR_CONTROL.HANDOFF_DEEP_SLEEP.we = 0;
-    hwif_in.I3C_EC.StdbyCtrlMode.STBY_CR_CONTROL.TARGET_XACT_ENABLE.we = 0;
-    hwif_in.I3C_EC.StdbyCtrlMode.STBY_CR_CONTROL.DAA_SETAASA_ENABLE.we = 0;
-    hwif_in.I3C_EC.StdbyCtrlMode.STBY_CR_CONTROL.DAA_SETDASA_ENABLE.we = 0;
-    hwif_in.I3C_EC.StdbyCtrlMode.STBY_CR_CONTROL.DAA_ENTDAA_ENABLE.we = 0;
-    hwif_in.I3C_EC.TTI.RESET_CONTROL.SOFT_RST.we = 0;
-    hwif_in.I3C_EC.TTI.RESET_CONTROL.RX_DATA_RST.we = 0;
-    hwif_in.I3C_EC.CtrlCfg.CONTROLLER_CONFIG.OPERATION_MODE.we = 0;
-
-    hwif_in.I3CBase.HC_CONTROL.BUS_ENABLE.we = 0;
-
-    hwif_in.I3CBase.RESET_CONTROL.CMD_QUEUE_RST.we = 0;
-    hwif_in.I3CBase.RESET_CONTROL.RESP_QUEUE_RST.we = 0;
-    hwif_in.I3CBase.RESET_CONTROL.TX_FIFO_RST.we = 0;
-    hwif_in.I3CBase.RESET_CONTROL.RX_FIFO_RST.we = 0;
-    hwif_in.I3CBase.RESET_CONTROL.IBI_QUEUE_RST.we = 0;
-    hwif_in.PIOControl.QUEUE_THLD_CTRL.CMD_EMPTY_BUF_THLD.we = 0;
-    hwif_in.PIOControl.QUEUE_THLD_CTRL.RESP_BUF_THLD.we = 0;
-`endif // CONTROLLER_SUPPORT
-`ifdef TARGET_SUPPORT
     hwif_in.I3C_EC.TTI.RESET_CONTROL.TX_DESC_RST.we = 0;
     hwif_in.I3C_EC.TTI.RESET_CONTROL.RX_DESC_RST.we = 0;
     hwif_in.I3C_EC.TTI.RESET_CONTROL.TX_DATA_RST.we = 0;
@@ -256,34 +233,18 @@ module axi_adapter_wrapper
     hwif_in.I3C_EC.TTI.QUEUE_THLD_CTRL.TX_DESC_THLD.we = 0;
     hwif_in.I3C_EC.TTI.QUEUE_THLD_CTRL.RX_DESC_THLD.we = 0;
     hwif_in.I3C_EC.TTI.QUEUE_THLD_CTRL.IBI_THLD.we = 0;
-`endif // TARGET_SUPPORT
   end : missing_csr_we_inits
 
   always_comb begin : other_uninit_signals
     hwif_in.I3C_EC.StdbyCtrlMode.STBY_CR_CONTROL.HANDOFF_DEEP_SLEEP.hwclr = 0;
 
     // Unhandled wr/rd_ack (drivers are not included in this wrapper)
-`ifdef CONTROLLER_SUPPORT
-    hwif_in.PIOControl.COMMAND_PORT.wr_ack = 0;
-    hwif_in.PIOControl.RESPONSE_PORT.rd_ack = 0;
-    hwif_in.PIOControl.TX_DATA_PORT.wr_ack = 0;
-    hwif_in.PIOControl.RX_DATA_PORT.rd_ack = 0;
-    hwif_in.PIOControl.IBI_PORT.rd_ack = 0;
-`endif // CONTROLLER_SUPPORT
-`ifdef TARGET_SUPPORT
     hwif_in.I3C_EC.TTI.RX_DESC_QUEUE_PORT.rd_ack = 0;
     hwif_in.I3C_EC.TTI.RX_DATA_PORT.rd_ack = 0;
     hwif_in.I3C_EC.TTI.TX_DESC_QUEUE_PORT.wr_ack = 0;
     hwif_in.I3C_EC.TTI.IBI_PORT.wr_ack = 0;
-`endif // TARGET_SUPPORT
 
     // Unhandled wr/rd_ack (drivers are mising)
-`ifdef CONTROLLER_SUPPORT
-    hwif_in.DAT.rd_ack = 0;
-    hwif_in.DAT.wr_ack = 0;
-    hwif_in.DCT.rd_ack = 0;
-    hwif_in.DCT.wr_ack = 0;
-`endif // CONTROLLER_SUPPORT
   end : other_uninit_signals
 
   logic wr_ack_q, rd_ack_q;
@@ -293,15 +254,11 @@ module axi_adapter_wrapper
   always_comb begin : connect_inidrect_fifo
     fifo_wvalid = fifo_wvalid_q;
     fifo_wdata = fifo_wdata_q;
-`ifdef TARGET_SUPPORT
     hwif_in.I3C_EC.TTI.TX_DATA_PORT.wr_ack = wr_ack_q;
-`endif // TARGET_SUPPORT
 
     fifo_rready = fifo_rready_q;
-`ifdef TARGET_SUPPORT
     hwif_in.I3C_EC.SecFwRecoveryIf.INDIRECT_FIFO_DATA.rd_data = fifo_rdata_q;
     hwif_in.I3C_EC.SecFwRecoveryIf.INDIRECT_FIFO_DATA.rd_ack = rd_ack_q;
-`endif // TARGET_SUPPORT
   end
 
   always_ff @(posedge aclk or negedge areset_n) begin : stall_fifo_access
@@ -316,11 +273,9 @@ module axi_adapter_wrapper
       wr_ack_q <= fifo_wvalid & fifo_wready;
       rd_ack_q <= fifo_rvalid & fifo_rready;
       fifo_rdata_q <= fifo_rdata;
-`ifdef TARGET_SUPPORT
       fifo_rready_q <= hwif_out.I3C_EC.SecFwRecoveryIf.INDIRECT_FIFO_DATA.req & ~hwif_out.I3C_EC.SecFwRecoveryIf.INDIRECT_FIFO_DATA.req_is_wr;
       fifo_wvalid_q <= hwif_out.I3C_EC.TTI.TX_DATA_PORT.req & hwif_out.I3C_EC.TTI.TX_DATA_PORT.req_is_wr;
       fifo_wdata_q <= hwif_out.I3C_EC.TTI.TX_DATA_PORT.wr_data;
-`endif // TARGET_SUPPORT
     end
   end
 endmodule

@@ -1,7 +1,11 @@
 // SPDX-License-Identifier: Apache-2.0
 `include "i3c_defines.svh"
+import i3c_pkg::*;
 
 module test_wrapper #(
+    parameter bit ControllerEn = 1,
+    parameter bit TargetEn = 1,
+    parameter type csr_cfg_t = controller_and_target_csr_t,
 `ifdef I3C_USE_AHB
     parameter int unsigned AhbDataWidth = `AHB_DATA_WIDTH,
     parameter int unsigned AhbAddrWidth = `AHB_ADDR_WIDTH,
@@ -17,8 +21,12 @@ module test_wrapper #(
     parameter int unsigned DatAw = i3c_pkg::DatAw,
     parameter int unsigned DctAw = i3c_pkg::DctAw,
 
-    parameter int unsigned CsrAddrWidth = I3CCSR_pkg::I3CCSR_MIN_ADDR_WIDTH,
-    parameter int unsigned CsrDataWidth = I3CCSR_pkg::I3CCSR_DATA_WIDTH
+    parameter int unsigned CsrAddrWidth = (ControllerEn && TargetEn) ? controller_and_target_I3CCSR_pkg::controller_and_target_I3CCSR_MIN_ADDR_WIDTH :
+                               (ControllerEn)             ? controller_I3CCSR_pkg::controller_I3CCSR_MIN_ADDR_WIDTH :
+                                                            target_I3CCSR_pkg::target_I3CCSR_MIN_ADDR_WIDTH,
+    parameter int unsigned CsrDataWidth = (ControllerEn && TargetEn) ? controller_and_target_I3CCSR_pkg::controller_and_target_I3CCSR_DATA_WIDTH :
+                               (ControllerEn)             ? controller_I3CCSR_pkg::controller_I3CCSR_DATA_WIDTH :
+                                                            target_I3CCSR_pkg::target_I3CCSR_DATA_WIDTH
 ) (
 `ifdef I3C_USE_AHB
     // AHB-Lite interface
@@ -136,7 +144,6 @@ module test_wrapper #(
     end
   endgenerate
 
-`ifdef CONTROLLER_SUPPORT
   // DAT memory export interface
   i3c_pkg::dat_mem_src_t  dat_mem_src;
   i3c_pkg::dat_mem_sink_t dat_mem_sink;
@@ -144,9 +151,11 @@ module test_wrapper #(
   // DCT memory export interface
   i3c_pkg::dct_mem_src_t  dct_mem_src;
   i3c_pkg::dct_mem_sink_t dct_mem_sink;
-`endif  // CONTROLLER_SUPPORT
 
   i3c_flow_active #(
+      .ControllerEn(ControllerEn),
+      .TargetEn(TargetEn),
+      .csr_cfg_t(csr_cfg_t),
 `ifdef I3C_USE_AHB
       .AhbDataWidth(AhbDataWidth),
       .AhbAddrWidth(AhbAddrWidth),
@@ -243,13 +252,11 @@ module test_wrapper #(
       .unhandled_unexp_nak_o(unhandled_unexp_nak_o),
       .unhandled_nak_timeout_o(unhandled_nak_timeout_o),
 
-`ifdef CONTROLLER_SUPPORT
       .dat_mem_src_i (dat_mem_src),
       .dat_mem_sink_o(dat_mem_sink),
 
       .dct_mem_src_i (dct_mem_src),
       .dct_mem_sink_o(dct_mem_sink),
-`endif  // CONTROLLER_SUPPORT
 
       .recovery_payload_available_o(recovery_payload_available_o),
       .recovery_image_activated_o  (recovery_image_activated_o),
@@ -260,7 +267,6 @@ module test_wrapper #(
       .irq_o
   );
 
-`ifdef CONTROLLER_SUPPORT
   prim_ram_1p_adv #(
       .Depth(`DAT_DEPTH),
       .Width(64),
@@ -296,7 +302,6 @@ module test_wrapper #(
       .rerror_o(dct_mem_src.rerror),  // Unused
       .cfg_i('0)  // Unused
   );
-`endif  // CONTROLLER_SUPPORT
 
   /*
   Truth table.

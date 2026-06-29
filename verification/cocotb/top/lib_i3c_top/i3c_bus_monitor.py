@@ -965,14 +965,14 @@ class I3cBusMonitor:
     def _get_ccc_signal_path(self):
         """Return the CCC module's hierarchical path in the DUT."""
         try:
-            return self.dut.xi3c_wrapper.i3c.xcontroller.xcontroller_standby.xcontroller_standby_i3c.xccc
+            return self.dut.xi3c_wrapper.gen_target_config.i3c.xcontroller.xcontroller_standby.xcontroller_standby_i3c.xccc
         except AttributeError:
             return None
 
     def _get_config_path(self):
         """Return the configuration module's hierarchical path."""
         try:
-            return self.dut.xi3c_wrapper.i3c.xcontroller.xconfiguration
+            return self.dut.xi3c_wrapper.gen_target_config.i3c.xcontroller.xconfiguration
         except AttributeError:
             return None
 

@@ -578,7 +578,7 @@ async def test_controller_ccc_entdaa(dut):
     )
     
     # Based on the reg_map, each entry is 128-bits / 16-bytes
-    dct_base_addr = tb.reg_map.DCT.DCT_MEMORY.base_addr
+    dct_base_addr = tb.reg_maps[ACT_CONTROLLER_IDX].DCT.DCT_MEMORY.base_addr
     entry_size_bytes = 16 
 
     actual_target_found = False

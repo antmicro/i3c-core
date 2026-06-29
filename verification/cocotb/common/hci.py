@@ -1,5 +1,5 @@
 # SPDX-License-Identifier: Apache-2.0
-
+import os
 from dataclasses import dataclass
 from enum import IntEnum
 from functools import reduce
@@ -7,13 +7,27 @@ from random import randint
 from typing import Any, Callable, Iterable
 
 from bus2csr import FrontBusTestInterface, dword2int, int2dword
-from reg_map import reg_map
 from utils import SequenceFailed
 
 import cocotb
 from cocotb.handle import SimHandleBase
 from cocotb.triggers import ClockCycles, RisingEdge, Timer
 
+try:
+    from reg_map_controller_and_target_I3CCSR import reg_map as controller_and_target_reg_map
+    from reg_map_controller_I3CCSR import reg_map as controller_only_reg_map
+    from reg_map_target_I3CCSR import reg_map as target_only_reg_map
+except ImportError:
+    pass # Failsafe in case a specific config hasn't been compiled yet
+
+dut_config = os.environ.get("DUT_CONFIG", "controller_and_target")
+
+if dut_config == "target_only":
+    reg_map = target_only_reg_map
+elif dut_config == "controller_only":
+    reg_map = controller_only_reg_map
+else:
+    reg_map = controller_and_target_reg_map
 # TODO: obtain numbers from RDL description
 
 # DAT and DCT tables

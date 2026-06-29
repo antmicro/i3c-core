@@ -1,6 +1,9 @@
 module bus_monitor_wrapper
   import i3c_pkg::*;
-(
+#(
+    parameter bit ControllerEn = 0,
+    parameter bit TargetEn = 1
+) (
     input logic clk_i,
     input logic rst_ni,
 

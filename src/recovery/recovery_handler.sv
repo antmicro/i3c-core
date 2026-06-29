@@ -21,11 +21,11 @@
 //   4. Firmware data flows through indirect FIFO
 //
 //==============================================================================
-
 module recovery_handler
   import i3c_pkg::*;
 #(
 
+    parameter type csr_cfg_t = target_csr_t,
     parameter int unsigned TtiRxDescDataWidth = 32,
     parameter int unsigned TtiRxDescThldWidth = 8,
     parameter int unsigned TtiRxDescFifoDepth = 64,
@@ -190,12 +190,12 @@ module recovery_handler
 
     // ....................................................
     // SoC Managment CSR interface
-    input  I3CCSR_pkg::I3CCSR__I3C_EC__SoCMgmtIf__out_t hwif_socmgmt_i,
-    output I3CCSR_pkg::I3CCSR__I3C_EC__SoCMgmtIf__in_t  hwif_socmgmt_o,
+    input  csr_cfg_t::socmgmt_out_t hwif_socmgmt_i,
+    output csr_cfg_t::socmgmt_in_t  hwif_socmgmt_o,
 
     // Recovery CSR interface
-    input  I3CCSR_pkg::I3CCSR__I3C_EC__SecFwRecoveryIf__out_t hwif_rec_i,
-    output I3CCSR_pkg::I3CCSR__I3C_EC__SecFwRecoveryIf__in_t  hwif_rec_o,
+    input  csr_cfg_t::secfwrecoveryif_out_t hwif_rec_i,
+    output csr_cfg_t::secfwrecoveryif_in_t  hwif_rec_o,
 
     input logic bypass_i3c_core_i,
 
@@ -211,18 +211,18 @@ module recovery_handler
     input  logic xfer_in_progress_i,
 
     // Error detection enables (from TTI CSR)
-    input  logic pec_err_det_en_i,
-    input  logic length_err_det_en_i,
-    input  logic readonly_err_det_en_i,
-    input  logic unsupported_err_det_en_i,
-    input  logic rx_fifo_overflow_err_det_en_i,
-    input  logic indirect_fifo_overflow_err_det_en_i,
+    input logic pec_err_det_en_i,
+    input logic length_err_det_en_i,
+    input logic readonly_err_det_en_i,
+    input logic unsupported_err_det_en_i,
+    input logic rx_fifo_overflow_err_det_en_i,
+    input logic indirect_fifo_overflow_err_det_en_i,
 
     // Error outputs (from recovery_receiver)
-    output logic pec_err_o,          // PEC/CRC mismatch error
-    output logic length_err_o,       // Length mismatch error
-    output logic readonly_err_o,     // Write to read-only error
-    output logic unsupported_err_o,  // Unsupported command error
+    output logic pec_err_o,                    // PEC/CRC mismatch error
+    output logic length_err_o,                 // Length mismatch error
+    output logic readonly_err_o,               // Write to read-only error
+    output logic unsupported_err_o,            // Unsupported command error
     output logic rx_fifo_overflow_err_o,       // RX FIFO overflow error (always reported)
     output logic indirect_fifo_overflow_err_o  // INDIRECT_FIFO overflow error
 );
@@ -244,100 +244,100 @@ module recovery_handler
   //----------------------------------------------------------------------------
   // Recovery Mode Control Signals
   //----------------------------------------------------------------------------
-  logic        recovery_mode_csr_active;  // True when DEVICE_STATUS indicates Recovery Mode
-  logic        recovery_xfer_pending;     // Transfer in progress to recovery device
-  logic        recovery_exec_pending;     // Recovery command execution in progress
-  logic        recovery_pending;          // Combined recovery active flag
-  logic        virtual_device_sel_q;      // Delayed virtual device select (race fix)
-  logic        virtual_target_active;     // Virtual target currently addressed
-  logic        virtual_target_active_q;   // Delayed virtual target active
-  logic        virtual_target_start;      // Pulse on virtual target start
-  logic        ctl_bus_addr_valid_q;      // Delayed address valid for posedge detect
-  logic        ctl_bus_addr_valid_posedge;      // Posedge of address valid
-  logic        ctl_bus_addr_valid_posedge_q;    // Delayed posedge aligned with virtual_device_sel_i
-  logic        other_target_start;        // Pulse when other target is addressed
+  logic recovery_mode_csr_active;  // True when DEVICE_STATUS indicates Recovery Mode
+  logic recovery_xfer_pending;  // Transfer in progress to recovery device
+  logic recovery_exec_pending;  // Recovery command execution in progress
+  logic recovery_pending;  // Combined recovery active flag
+  logic virtual_device_sel_q;  // Delayed virtual device select (race fix)
+  logic virtual_target_active;  // Virtual target currently addressed
+  logic virtual_target_active_q;  // Delayed virtual target active
+  logic virtual_target_start;  // Pulse on virtual target start
+  logic ctl_bus_addr_valid_q;  // Delayed address valid for posedge detect
+  logic ctl_bus_addr_valid_posedge;  // Posedge of address valid
+  logic ctl_bus_addr_valid_posedge_q;  // Delayed posedge aligned with virtual_device_sel_i
+  logic other_target_start;  // Pulse when other target is addressed
 
   //----------------------------------------------------------------------------
   // TTI RX Descriptor Queue Signals
   //----------------------------------------------------------------------------
-  logic                               tti_rx_desc_queue_full;
+  logic tti_rx_desc_queue_full;
   logic [TtiRxDescFifoDepthWidth-1:0] tti_rx_desc_queue_depth;
-  logic                               unused_tti_rx_desc_start_thld_trig;
-  logic                               tti_rx_desc_queue_empty;
-  logic                               tti_rx_desc_queue_wvalid;
-  logic                               tti_rx_desc_queue_wready;
-  logic [     TtiRxDescDataWidth-1:0] tti_rx_desc_queue_wdata;
-  logic                               tti_rx_desc_queue_ready_thld_trig;
-  logic                               tti_rx_desc_queue_req;
-  logic                               tti_rx_desc_queue_ack;
-  logic [     TtiRxDescDataWidth-1:0] tti_rx_desc_queue_data;
-  logic [     TtiRxDescThldWidth-1:0] tti_rx_desc_queue_ready_thld_i;
-  logic [     TtiRxDescThldWidth-1:0] tti_rx_desc_queue_ready_thld_o;
-  logic                               tti_rx_desc_queue_reg_rst;
-  logic                               tti_rx_desc_queue_reg_rst_we;
-  logic                               tti_rx_desc_queue_reg_rst_data;
+  logic unused_tti_rx_desc_start_thld_trig;
+  logic tti_rx_desc_queue_empty;
+  logic tti_rx_desc_queue_wvalid;
+  logic tti_rx_desc_queue_wready;
+  logic [TtiRxDescDataWidth-1:0] tti_rx_desc_queue_wdata;
+  logic tti_rx_desc_queue_ready_thld_trig;
+  logic tti_rx_desc_queue_req;
+  logic tti_rx_desc_queue_ack;
+  logic [TtiRxDescDataWidth-1:0] tti_rx_desc_queue_data;
+  logic [TtiRxDescThldWidth-1:0] tti_rx_desc_queue_ready_thld_i;
+  logic [TtiRxDescThldWidth-1:0] tti_rx_desc_queue_ready_thld_o;
+  logic tti_rx_desc_queue_reg_rst;
+  logic tti_rx_desc_queue_reg_rst_we;
+  logic tti_rx_desc_queue_reg_rst_data;
 
   //----------------------------------------------------------------------------
   // TTI TX Descriptor Queue Signals
   //----------------------------------------------------------------------------
-  logic                               tti_tx_desc_queue_full;
+  logic tti_tx_desc_queue_full;
   logic [TtiTxDescFifoDepthWidth-1:0] tti_tx_desc_queue_depth;
-  logic                               tti_tx_desc_queue_empty;
-  logic                               tti_tx_desc_queue_rvalid;
-  logic                               tti_tx_desc_queue_rready;
-  logic [     TtiTxDescDataWidth-1:0] tti_tx_desc_queue_rdata;
-  logic                               tti_tx_desc_queue_ready_thld_trig;
-  logic                               tti_tx_desc_queue_req;
-  logic                               tti_tx_desc_queue_ack;
-  logic [     TtiTxDescDataWidth-1:0] tti_tx_desc_queue_data;
-  logic [     TtiTxDescThldWidth-1:0] tti_tx_desc_queue_ready_thld_i;
-  logic [     TtiTxDescThldWidth-1:0] tti_tx_desc_queue_ready_thld_o;
-  logic                               tti_tx_desc_queue_reg_rst;
-  logic                               tti_tx_desc_queue_reg_rst_we;
-  logic                               tti_tx_desc_queue_reg_rst_data;
+  logic tti_tx_desc_queue_empty;
+  logic tti_tx_desc_queue_rvalid;
+  logic tti_tx_desc_queue_rready;
+  logic [TtiTxDescDataWidth-1:0] tti_tx_desc_queue_rdata;
+  logic tti_tx_desc_queue_ready_thld_trig;
+  logic tti_tx_desc_queue_req;
+  logic tti_tx_desc_queue_ack;
+  logic [TtiTxDescDataWidth-1:0] tti_tx_desc_queue_data;
+  logic [TtiTxDescThldWidth-1:0] tti_tx_desc_queue_ready_thld_i;
+  logic [TtiTxDescThldWidth-1:0] tti_tx_desc_queue_ready_thld_o;
+  logic tti_tx_desc_queue_reg_rst;
+  logic tti_tx_desc_queue_reg_rst_we;
+  logic tti_tx_desc_queue_reg_rst_data;
 
   //----------------------------------------------------------------------------
   // TTI RX Data Queue Signals
   //----------------------------------------------------------------------------
-  logic                               tti_rx_data_queue_full;
+  logic tti_rx_data_queue_full;
   logic [TtiRxDataFifoDepthWidth-1:0] tti_rx_data_queue_depth;
-  logic                               tti_rx_data_queue_empty;
-  logic                               tti_rx_data_queue_wvalid;
-  logic                               tti_rx_data_queue_wready;
-  logic [                        7:0] tti_rx_data_queue_wdata;
-  logic                               tti_rx_data_queue_flush;
-  logic                               tti_rx_data_queue_start_thld_trig;
-  logic                               tti_rx_data_queue_ready_thld_trig;
-  logic                               tti_rx_data_queue_req;
-  logic                               tti_rx_data_queue_ack;
-  logic [     TtiRxDataDataWidth-1:0] tti_rx_data_queue_data;
-  logic [     TtiRxDataThldWidth-1:0] tti_rx_data_queue_start_thld;
-  logic [     TtiRxDataThldWidth-1:0] tti_rx_data_queue_ready_thld_i;
-  logic [     TtiRxDataThldWidth-1:0] tti_rx_data_queue_ready_thld_o;
-  logic                               tti_rx_data_queue_reg_rst;
-  logic                               tti_rx_data_queue_reg_rst_we;
-  logic                               tti_rx_data_queue_reg_rst_next;
+  logic tti_rx_data_queue_empty;
+  logic tti_rx_data_queue_wvalid;
+  logic tti_rx_data_queue_wready;
+  logic [7:0] tti_rx_data_queue_wdata;
+  logic tti_rx_data_queue_flush;
+  logic tti_rx_data_queue_start_thld_trig;
+  logic tti_rx_data_queue_ready_thld_trig;
+  logic tti_rx_data_queue_req;
+  logic tti_rx_data_queue_ack;
+  logic [TtiRxDataDataWidth-1:0] tti_rx_data_queue_data;
+  logic [TtiRxDataThldWidth-1:0] tti_rx_data_queue_start_thld;
+  logic [TtiRxDataThldWidth-1:0] tti_rx_data_queue_ready_thld_i;
+  logic [TtiRxDataThldWidth-1:0] tti_rx_data_queue_ready_thld_o;
+  logic tti_rx_data_queue_reg_rst;
+  logic tti_rx_data_queue_reg_rst_we;
+  logic tti_rx_data_queue_reg_rst_next;
 
   //----------------------------------------------------------------------------
   // TTI TX Data Queue Signals
   //----------------------------------------------------------------------------
-  logic                               tti_tx_data_queue_full;
+  logic tti_tx_data_queue_full;
   logic [TtiTxDataFifoDepthWidth-1:0] tti_tx_data_queue_depth;
-  logic                               tti_tx_data_queue_empty;
-  logic                               tti_tx_data_queue_rvalid;
-  logic                               tti_tx_data_queue_rready;
-  logic [                       31:0] tti_tx_data_queue_rdata;
-  logic                               tti_tx_data_queue_start_thld_trig;
-  logic                               tti_tx_data_queue_ready_thld_trig;
-  logic                               tti_tx_data_queue_req;
-  logic                               tti_tx_data_queue_ack;
-  logic [     TtiTxDataDataWidth-1:0] tti_tx_data_queue_data;
-  logic [     TtiTxDataThldWidth-1:0] tti_tx_data_queue_start_thld;
-  logic [     TtiTxDataThldWidth-1:0] tti_tx_data_queue_ready_thld_i;
-  logic [     TtiTxDataThldWidth-1:0] tti_tx_data_queue_ready_thld_o;
-  logic                               tti_tx_data_queue_reg_rst;
-  logic                               tti_tx_data_queue_reg_rst_we;
-  logic                               tti_tx_data_queue_reg_rst_next;
+  logic tti_tx_data_queue_empty;
+  logic tti_tx_data_queue_rvalid;
+  logic tti_tx_data_queue_rready;
+  logic [31:0] tti_tx_data_queue_rdata;
+  logic tti_tx_data_queue_start_thld_trig;
+  logic tti_tx_data_queue_ready_thld_trig;
+  logic tti_tx_data_queue_req;
+  logic tti_tx_data_queue_ack;
+  logic [TtiTxDataDataWidth-1:0] tti_tx_data_queue_data;
+  logic [TtiTxDataThldWidth-1:0] tti_tx_data_queue_start_thld;
+  logic [TtiTxDataThldWidth-1:0] tti_tx_data_queue_ready_thld_i;
+  logic [TtiTxDataThldWidth-1:0] tti_tx_data_queue_ready_thld_o;
+  logic tti_tx_data_queue_reg_rst;
+  logic tti_tx_data_queue_reg_rst_we;
+  logic tti_tx_data_queue_reg_rst_next;
 
   //----------------------------------------------------------------------------
   // RX FIFO Overflow Detection
@@ -349,89 +349,89 @@ module recovery_handler
   // Width Converter Signals (8-to-N and N-to-8)
   //----------------------------------------------------------------------------
   // 8toN Converter -> TTI RX Data Queue
-  logic                          tti_rx_data_queue_wvalid_q;
-  logic                          tti_rx_data_queue_wready_q;
+  logic tti_rx_data_queue_wvalid_q;
+  logic tti_rx_data_queue_wready_q;
   logic [TtiRxDataDataWidth-1:0] tti_rx_data_queue_wdata_q;
 
   // TTI TX Data Queue -> Nto8 Converter
-  logic                          tti_tx_data_queue_rvalid_conv_sink;
-  logic                          tti_tx_data_queue_rready_conv_sink;
+  logic tti_tx_data_queue_rvalid_conv_sink;
+  logic tti_tx_data_queue_rready_conv_sink;
   logic [TtiTxDataDataWidth-1:0] tti_tx_data_queue_rdata_conv_sink;
 
   // Nto8 Converter -> I3C Controller
-  logic                          tti_tx_data_queue_rvalid_conv_source;
-  logic                          tti_tx_data_queue_rready_conv_source;
-  logic [                   7:0] tti_tx_data_queue_rdata_conv_source;
-  logic                          tti_tx_data_queue_flush_conv_source;
+  logic tti_tx_data_queue_rvalid_conv_source;
+  logic tti_tx_data_queue_rready_conv_source;
+  logic [7:0] tti_tx_data_queue_rdata_conv_source;
+  logic tti_tx_data_queue_flush_conv_source;
 
   //----------------------------------------------------------------------------
   // Recovery Receiver Interface Signals
   //----------------------------------------------------------------------------
   // TX descriptor interface from receiver
-  logic                          send_tti_tx_desc_valid;
-  logic                          send_tti_tx_desc_ready;
+  logic send_tti_tx_desc_valid;
+  logic send_tti_tx_desc_ready;
   logic [TtiTxDescDataWidth-1:0] send_tti_tx_desc_data;
 
   // RX data interface to receiver
-  logic       recv_tti_rx_data_valid;
-  logic       recv_tti_rx_data_ready;
+  logic recv_tti_rx_data_valid;
+  logic recv_tti_rx_data_ready;
   logic [7:0] recv_tti_rx_data_data;
-  logic       recv_tti_rx_data_last;
-  logic       recv_tti_rx_data_queue_select;
-  logic       recv_tti_rx_data_queue_flush;
-  logic       recv_conv_soft_reset;
+  logic recv_tti_rx_data_last;
+  logic recv_tti_rx_data_queue_select;
+  logic recv_tti_rx_data_queue_flush;
+  logic recv_conv_soft_reset;
 
   // TX data interface from receiver
-  logic       send_tti_tx_data_valid;
-  logic       send_tti_tx_data_ready;
+  logic send_tti_tx_data_valid;
+  logic send_tti_tx_data_ready;
   logic [7:0] send_tti_tx_data_data;
-  logic       send_tti_tx_data_queue_select;
-  logic       send_tti_tx_start_trig;
+  logic send_tti_tx_data_queue_select;
+  logic send_tti_tx_start_trig;
 
   // Execution interface to receiver
-  logic                          exec_tti_rx_data_req;
-  logic                          exec_tti_rx_data_ack;
+  logic exec_tti_rx_data_req;
+  logic exec_tti_rx_data_ack;
   logic [TtiRxDataDataWidth-1:0] exec_tti_rx_data_data;
-  logic                          exec_tti_rx_queue_sel;
-  logic                          exec_tti_rx_desc_queue_clr;
-  logic                          exec_tti_tx_desc_queue_clr;
-  logic                          exec_tti_rx_data_queue_clr;
-  logic                          exec_tti_tx_data_queue_clr;
-  logic                          exec_tti_rx_data_ready;
+  logic exec_tti_rx_queue_sel;
+  logic exec_tti_rx_desc_queue_clr;
+  logic exec_tti_tx_desc_queue_clr;
+  logic exec_tti_rx_data_queue_clr;
+  logic exec_tti_tx_data_queue_clr;
+  logic exec_tti_rx_data_ready;
 
   //----------------------------------------------------------------------------
   // Indirect FIFO Signals
   //----------------------------------------------------------------------------
-  logic                          indirect_rx_wvalid;
-  logic                          indirect_rx_wvalid_muxed;
-  logic                          indirect_rx_wready;
+  logic indirect_rx_wvalid;
+  logic indirect_rx_wvalid_muxed;
+  logic indirect_rx_wready;
   logic [TtiRxDataDataWidth-1:0] indirect_rx_wdata;
   logic [TtiRxDataDataWidth-1:0] indirect_rx_wdata_muxed;
-  logic                          indirect_rx_rreq;
-  logic                          indirect_rx_rack;
-  logic [      CsrDataWidth-1:0] indirect_rx_rdata;
-  logic                          indirect_rx_clr;
-  logic                          indirect_rx_full;
-  logic                          indirect_rx_empty;
-  logic                          allow_indirect_write;
-  logic                          allow_indirect_read;
+  logic indirect_rx_rreq;
+  logic indirect_rx_rack;
+  logic [CsrDataWidth-1:0] indirect_rx_rdata;
+  logic indirect_rx_clr;
+  logic indirect_rx_full;
+  logic indirect_rx_empty;
+  logic allow_indirect_write;
+  logic allow_indirect_read;
 
   //----------------------------------------------------------------------------
   // PEC Computation Signals
   //----------------------------------------------------------------------------
   // RX PEC
-  logic        ctl_bus_any_start;
-  logic [7:0]  rx_pec_data;
-  logic [7:0]  rx_pec_crc;
-  logic        rx_pec_enable;
-  logic        rx_pec_init;
+  logic ctl_bus_any_start;
+  logic [7:0] rx_pec_data;
+  logic [7:0] rx_pec_crc;
+  logic rx_pec_enable;
+  logic rx_pec_init;
 
   // TX PEC
-  logic [7:0]  tx_pec_data;
-  logic [7:0]  tx_pec_crc;
-  logic        tx_pec_enable;
-  logic        tx_pec_init;
-  logic        tx_pec_soft_rst_n;
+  logic [7:0] tx_pec_data;
+  logic [7:0] tx_pec_crc;
+  logic tx_pec_enable;
+  logic tx_pec_init;
+  logic tx_pec_soft_rst_n;
 
   //----------------------------------------------------------------------------
   // Unused Signals
@@ -717,25 +717,25 @@ module recovery_handler
   always_comb begin : R1MUX
     if (recovery_pending) begin
       tti_rx_desc_queue_wvalid                = '0;
-      ctl_tti_rx_desc_queue_empty_o           = 1'b1; // Need to hide empty to reject AXI reads
+      ctl_tti_rx_desc_queue_empty_o           = 1'b1;  // Need to hide empty to reject AXI reads
       csr_tti_rx_desc_queue_ready_thld_trig_o = '0;
-      
-      ctl_tti_rx_data_queue_empty_o           = 1'b1; // Need to hide empty to reject AXI reads
+
+      ctl_tti_rx_data_queue_empty_o           = 1'b1;  // Need to hide empty to reject AXI reads
     end else begin
       tti_rx_desc_queue_wvalid                = ctl_tti_rx_desc_queue_wvalid_i;
       ctl_tti_rx_desc_queue_empty_o           = tti_rx_desc_queue_empty;
       csr_tti_rx_desc_queue_ready_thld_trig_o = tti_rx_desc_queue_ready_thld_trig;
-      
+
       ctl_tti_rx_data_queue_empty_o           = tti_rx_data_queue_empty;
     end
 
     tti_rx_desc_queue_wdata                 = ctl_tti_rx_desc_queue_wdata_i; // Don't mux data, disabling valid is enough
-    
-    ctl_tti_rx_desc_queue_wready_o          = tti_rx_desc_queue_wready;
+
+    ctl_tti_rx_desc_queue_wready_o = tti_rx_desc_queue_wready;
 
     // Don't hide status of queue from status registers
-    ctl_tti_rx_desc_queue_full_o            = tti_rx_desc_queue_full;
-    ctl_tti_rx_desc_queue_depth_o           = tti_rx_desc_queue_depth;
+    ctl_tti_rx_desc_queue_full_o = tti_rx_desc_queue_full;
+    ctl_tti_rx_desc_queue_depth_o = tti_rx_desc_queue_depth;
 
   end
   // Threshold
@@ -801,8 +801,8 @@ module recovery_handler
     recv_tti_rx_data_last = ctl_tti_rx_data_queue_wlast_i;
 
     // Don't hide status of queue from status registers
-    ctl_tti_rx_data_queue_full_o            = tti_rx_data_queue_full;
-    ctl_tti_rx_data_queue_depth_o           = tti_rx_data_queue_depth;
+    ctl_tti_rx_data_queue_full_o = tti_rx_data_queue_full;
+    ctl_tti_rx_data_queue_depth_o = tti_rx_data_queue_depth;
   end
 
   // Thresholds
@@ -810,7 +810,7 @@ module recovery_handler
   assign ctl_tti_rx_data_queue_ready_thld_o = tti_rx_data_queue_ready_thld_o;
   assign ctl_tti_rx_data_queue_ready_thld_trig_o = tti_rx_data_queue_ready_thld_trig;
 
-  assign rx_fifo_overflow_raw =  tti_rx_data_queue_wvalid_q && !tti_rx_data_queue_wready_q;
+  assign rx_fifo_overflow_raw = tti_rx_data_queue_wvalid_q && !tti_rx_data_queue_wready_q;
 
   //----------------------------------------------------------------------------
   // TX Data Queue Mux
@@ -840,14 +840,14 @@ module recovery_handler
       ctl_tti_tx_data_queue_ready_thld_trig_o = '0;
 
     end else begin
-      tti_tx_data_queue_rready_conv_source    = ctl_tti_tx_data_queue_rready_i;
+      tti_tx_data_queue_rready_conv_source = ctl_tti_tx_data_queue_rready_i;
       tti_tx_data_queue_flush_conv_source     = ctl_tti_tx_data_queue_flush_i | tti_tx_data_queue_reg_rst;
-      send_tti_tx_data_ready                  = '0;
-      ctl_tti_tx_data_queue_full_o            = tti_tx_data_queue_full;
-      ctl_tti_tx_data_queue_depth_o           = tti_tx_data_queue_depth;
-      ctl_tti_tx_data_queue_empty_o           = tti_tx_data_queue_empty;
-      ctl_tti_tx_data_queue_rvalid_o          = tti_tx_data_queue_rvalid_conv_source;
-      ctl_tti_tx_data_queue_rdata_o           = tti_tx_data_queue_rdata_conv_source;
+      send_tti_tx_data_ready = '0;
+      ctl_tti_tx_data_queue_full_o = tti_tx_data_queue_full;
+      ctl_tti_tx_data_queue_depth_o = tti_tx_data_queue_depth;
+      ctl_tti_tx_data_queue_empty_o = tti_tx_data_queue_empty;
+      ctl_tti_tx_data_queue_rvalid_o = tti_tx_data_queue_rvalid_conv_source;
+      ctl_tti_tx_data_queue_rdata_o = tti_tx_data_queue_rdata_conv_source;
       ctl_tti_tx_data_queue_start_thld_trig_o = tti_tx_data_queue_start_thld_trig;
       ctl_tti_tx_data_queue_ready_thld_trig_o = tti_tx_data_queue_ready_thld_trig;
     end
@@ -885,7 +885,7 @@ module recovery_handler
   end
 
   // Threshold
-  assign tti_rx_desc_queue_ready_thld_i     = csr_tti_rx_desc_queue_ready_thld_i;
+  assign tti_rx_desc_queue_ready_thld_i = csr_tti_rx_desc_queue_ready_thld_i;
   assign csr_tti_rx_desc_queue_ready_thld_o = tti_rx_desc_queue_ready_thld_o;
 
   //----------------------------------------------------------------------------
@@ -940,8 +940,8 @@ module recovery_handler
   end
 
   // Threshold
-  assign tti_rx_data_queue_start_thld       = csr_tti_rx_data_queue_start_thld_i;
-  assign tti_rx_data_queue_ready_thld_i     = csr_tti_rx_data_queue_ready_thld_i;
+  assign tti_rx_data_queue_start_thld = csr_tti_rx_data_queue_start_thld_i;
+  assign tti_rx_data_queue_ready_thld_i = csr_tti_rx_data_queue_ready_thld_i;
   assign csr_tti_rx_data_queue_ready_thld_o = tti_rx_data_queue_ready_thld_o;
 
   //----------------------------------------------------------------------------
@@ -986,7 +986,7 @@ module recovery_handler
 
   // RX PEC mux for initializing it with I2C/I3C address byte
   always_comb begin
-    rx_pec_data  = rx_pec_init ? ctl_bus_addr_i : tti_rx_data_queue_wdata;
+    rx_pec_data = rx_pec_init ? ctl_bus_addr_i : tti_rx_data_queue_wdata;
   end
 
   //============================================================================
@@ -1025,10 +1025,10 @@ module recovery_handler
       .conv_soft_reset_o     (recv_conv_soft_reset),
       .rx_data_queue_flow_i  (tti_rx_data_queue_wvalid & tti_rx_data_queue_wready),
 
-      .tti_rx_rreq_o (exec_tti_rx_data_req),
-      .tti_rx_rack_i (exec_tti_rx_data_ack),
+      .tti_rx_rreq_o(exec_tti_rx_data_req),
+      .tti_rx_rack_i(exec_tti_rx_data_ack),
       .tti_rx_rdata_i(exec_tti_rx_data_data),
-      .tti_rx_sel_o  (exec_tti_rx_queue_sel),
+      .tti_rx_sel_o(exec_tti_rx_queue_sel),
       .rx_data_queue_clr_o(exec_tti_rx_data_queue_clr),
       .rx_desc_queue_clr_o(exec_tti_rx_desc_queue_clr),
       .tx_data_queue_clr_o(exec_tti_tx_data_queue_clr),
@@ -1044,12 +1044,12 @@ module recovery_handler
       .indirect_rx_empty_i (indirect_rx_empty),
       .indirect_rx_clr_o   (indirect_rx_clr),
 
-      .bus_start_i (ctl_bus_start_i),
+      .bus_start_i(ctl_bus_start_i),
       .bus_rstart_i(ctl_bus_rstart_i),
       .bus_any_start_i(ctl_bus_any_start),
-      .bus_stop_i  (ctl_bus_stop_i),
+      .bus_stop_i(ctl_bus_stop_i),
       .in_hdr_mode_i(ctl_in_hdr_mode_i),
-      .bus_addr_i  (ctl_bus_addr_i),
+      .bus_addr_i(ctl_bus_addr_i),
 
       .pec_crc_i   (rx_pec_crc),
       .pec_enable_o(rx_pec_enable),
@@ -1085,7 +1085,7 @@ module recovery_handler
       .hwif_socmgmt_o,
 
       .virtual_target_start_i(virtual_target_start),
-      .other_target_start_i(other_target_start),
+      .other_target_start_i  (other_target_start),
 
       .pec_err_o,
       .length_err_o,
@@ -1095,7 +1095,7 @@ module recovery_handler
       .indirect_fifo_overflow_err_o,
       .rx_desc_wvalid_i(ctl_tti_rx_desc_queue_wvalid_i),
       .rx_desc_wdata_i (ctl_tti_rx_desc_queue_wdata_i),
-      .exec_pending_o(recovery_exec_pending)
+      .exec_pending_o  (recovery_exec_pending)
   );
 
   //----------------------------------------------------------------------------
@@ -1122,8 +1122,7 @@ module recovery_handler
   // Bypass mode mux: In bypass mode, TX queue writes directly to indirect FIFO
   assign indirect_rx_wvalid_muxed = bypass_i3c_core_i ?
       (tti_tx_data_queue_rvalid & allow_indirect_write) : indirect_rx_wvalid;
-  assign indirect_rx_wdata_muxed = bypass_i3c_core_i ?
-      tti_tx_data_queue_rdata : indirect_rx_wdata;
+  assign indirect_rx_wdata_muxed = bypass_i3c_core_i ? tti_tx_data_queue_rdata : indirect_rx_wdata;
 
   read_queue #(
       .Depth    (IndirectFifoDepth),
@@ -1163,19 +1162,19 @@ module recovery_handler
   always_ff @(posedge clk_i or negedge rst_ni) begin : indirect_fifo_access_permissions
     if (~rst_ni) begin
       allow_indirect_write <= '0;
-      allow_indirect_read <= '0;
+      allow_indirect_read  <= '0;
     end else begin
       if (bypass_i3c_core_i) begin
         if (indirect_rx_empty) begin
           allow_indirect_write <= 1'b1;
-          allow_indirect_read <= 1'b0;
+          allow_indirect_read  <= 1'b0;
         end else if (indirect_rx_full | payload_available_o) begin
           allow_indirect_write <= 1'b0;
-          allow_indirect_read <= 1'b1;
+          allow_indirect_read  <= 1'b1;
         end
       end else begin
         allow_indirect_write <= 1'b1;
-        allow_indirect_read <= 1'b1;
+        allow_indirect_read  <= 1'b1;
       end
     end
   end

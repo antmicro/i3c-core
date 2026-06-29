@@ -4,6 +4,7 @@
 module tti
   import i3c_pkg::*;
 #(
+    parameter type csr_cfg_t = target_csr_t,
     parameter int unsigned CsrDataWidth = 32,
 
     parameter int unsigned RxDescDataWidth = 32,
@@ -22,8 +23,8 @@ module tti
     input rst_ni, // active low reset
 
     // I3C CSR access interface
-    input  I3CCSR_pkg::I3CCSR__I3C_EC__TTI__out_t hwif_tti_i,
-    output I3CCSR_pkg::I3CCSR__I3C_EC__TTI__in_t  hwif_tti_o,
+    input  csr_cfg_t::tti_out_t hwif_tti_i,
+    output csr_cfg_t::tti_in_t  hwif_tti_o,
 
     // RX descriptors queue
     output logic                       rx_desc_queue_req_o,
@@ -89,13 +90,13 @@ module tti
     input  logic                    ibi_queue_reg_rst_data_i,
 
     // Queue depth inputs for status registers
-    input  logic [7:0] rx_desc_queue_depth_i,
-    input  logic [7:0] tx_desc_queue_depth_i,
-    input  logic [7:0] rx_data_queue_depth_i,
-    input  logic [7:0] tx_data_queue_depth_i,
-    input  logic [7:0] ibi_queue_depth_i,
-    input  logic       tx_desc_queue_empty_i,
-    input  logic       tx_data_queue_empty_i,
+    input logic [7:0] rx_desc_queue_depth_i,
+    input logic [7:0] tx_desc_queue_depth_i,
+    input logic [7:0] rx_data_queue_depth_i,
+    input logic [7:0] tx_data_queue_depth_i,
+    input logic [7:0] ibi_queue_depth_i,
+    input logic       tx_desc_queue_empty_i,
+    input logic       tx_data_queue_empty_i,
 
     input logic bypass_i3c_core_i,
 
@@ -104,10 +105,10 @@ module tti
     input logic        ibi_status_we_i,
     input logic        ibi_pending_i,
     // Virtual recovery target selection - gates TTI interrupts during recovery transactions
-    input logic virtual_device_sel_i,
+    input logic        virtual_device_sel_i,
     // Private read status
-    input logic tx_pr_end_i,
-    input logic tx_pr_start_i,
+    input logic        tx_pr_end_i,
+    input logic        tx_pr_start_i,
 
     input logic enec_ibi_i,
     input logic enec_crr_i,
@@ -172,7 +173,7 @@ module tti
   always_comb begin : wire_hwif_xfer
 
     // RX_DESC_QUEUE_PORT
-    hwif_tti_o.RESET_CONTROL.RX_DESC_RST.we = rx_desc_queue_reg_rst_we_i;
+    hwif_tti_o.RESET_CONTROL.RX_DESC_RST.we   = rx_desc_queue_reg_rst_we_i;
     hwif_tti_o.RESET_CONTROL.RX_DESC_RST.next = rx_desc_queue_reg_rst_data_i;
     if (rx_desc_queue_empty_i && hwif_tti_i.RX_DESC_QUEUE_PORT.req) begin
       hwif_tti_o.RX_DESC_QUEUE_PORT.rd_ack = hwif_tti_i.RX_DESC_QUEUE_PORT.req & ~hwif_tti_i.RX_DESC_QUEUE_PORT.req_is_wr;
@@ -185,11 +186,11 @@ module tti
     end
 
     // TX_DESC_QUEUE_PORT
-    hwif_tti_o.RESET_CONTROL.TX_DESC_RST.we = tx_desc_queue_reg_rst_we_i;
+    hwif_tti_o.RESET_CONTROL.TX_DESC_RST.we   = tx_desc_queue_reg_rst_we_i;
     hwif_tti_o.RESET_CONTROL.TX_DESC_RST.next = tx_desc_queue_reg_rst_data_i;
     if (tx_desc_queue_full_i && hwif_tti_i.TX_DESC_QUEUE_PORT.req) begin
       hwif_tti_o.TX_DESC_QUEUE_PORT.wr_ack = hwif_tti_i.TX_DESC_QUEUE_PORT.req & hwif_tti_i.TX_DESC_QUEUE_PORT.req_is_wr;
-      tx_desc_queue_req_o  = '0;
+      tx_desc_queue_req_o = '0;
       tx_desc_queue_data_o = '0;
     end else begin
       hwif_tti_o.TX_DESC_QUEUE_PORT.wr_ack = tx_desc_queue_ack_i;
@@ -198,7 +199,7 @@ module tti
     end
 
     // RX_DATA_PORT
-    hwif_tti_o.RESET_CONTROL.RX_DATA_RST.we = rx_data_queue_reg_rst_we_i;
+    hwif_tti_o.RESET_CONTROL.RX_DATA_RST.we   = rx_data_queue_reg_rst_we_i;
     hwif_tti_o.RESET_CONTROL.RX_DATA_RST.next = rx_data_queue_reg_rst_data_i;
     if (rx_data_queue_empty_i && hwif_tti_i.RX_DATA_PORT.req) begin
       hwif_tti_o.RX_DATA_PORT.rd_ack = hwif_tti_i.RX_DATA_PORT.req & ~hwif_tti_i.RX_DATA_PORT.req_is_wr;
@@ -211,7 +212,7 @@ module tti
     end
 
     // TX_DATA_PORT
-    hwif_tti_o.RESET_CONTROL.TX_DATA_RST.we = tx_data_queue_reg_rst_we_i;
+    hwif_tti_o.RESET_CONTROL.TX_DATA_RST.we   = tx_data_queue_reg_rst_we_i;
     hwif_tti_o.RESET_CONTROL.TX_DATA_RST.next = tx_data_queue_reg_rst_data_i;
     if (tx_data_queue_full_i && hwif_tti_i.TX_DATA_PORT.req) begin
       tx_data_queue_req_o = '0;
@@ -224,7 +225,7 @@ module tti
     end
 
     // IBI_PORT
-    hwif_tti_o.RESET_CONTROL.IBI_QUEUE_RST.we = ibi_queue_reg_rst_we_i;
+    hwif_tti_o.RESET_CONTROL.IBI_QUEUE_RST.we   = ibi_queue_reg_rst_we_i;
     hwif_tti_o.RESET_CONTROL.IBI_QUEUE_RST.next = ibi_queue_reg_rst_data_i;
     if (ibi_queue_full_i && hwif_tti_i.IBI_PORT.req) begin
       ibi_queue_req_o = '0;
@@ -267,9 +268,9 @@ module tti
 
     hwif_tti_o.INTERRUPT_STATUS.PENDING_INTERRUPT.next = {3'b0, ibi_pending_i};
     hwif_tti_o.INTERRUPT_STATUS.RX_DESC_TIMEOUT.next = '0;
-    hwif_tti_o.INTERRUPT_STATUS.RX_DESC_TIMEOUT.we = '0; // FUTUREFIX: Nice to have in the future
+    hwif_tti_o.INTERRUPT_STATUS.RX_DESC_TIMEOUT.we = '0;  // FUTUREFIX: Nice to have in the future
     hwif_tti_o.INTERRUPT_STATUS.TX_DESC_TIMEOUT.next = '0;
-    hwif_tti_o.INTERRUPT_STATUS.TX_DESC_TIMEOUT.we = '0; // FUTUREFIX: Nice to have in the future
+    hwif_tti_o.INTERRUPT_STATUS.TX_DESC_TIMEOUT.we = '0;  // FUTUREFIX: Nice to have in the future
     hwif_tti_o.INTERRUPT_STATUS.TX_DATA_THLD_STAT.next = '0;
     hwif_tti_o.INTERRUPT_STATUS.TX_DATA_THLD_STAT.we = '0; // FUTUREFIX: Not important since FW owns this queue
     hwif_tti_o.INTERRUPT_STATUS.TX_DESC_THLD_STAT.next = '0;
@@ -282,22 +283,22 @@ module tti
     hwif_tti_o.INTERRUPT_STATUS.TRANSFER_ERR_STAT.we = '0; // FUTUREFIX: Implement at the end if easy to add
 
     hwif_tti_o.QUEUE_THLD_CTRL.IBI_THLD.next = '0; // FUTUREFIX: Not important since FW owns this queue
-    hwif_tti_o.QUEUE_THLD_CTRL.IBI_THLD.we = '0;    
+    hwif_tti_o.QUEUE_THLD_CTRL.IBI_THLD.we = '0;
   end
 
   // Wire queue status and depth registers
   always_comb begin : wire_queue_status
     // QUEUE_STATUS - full/empty flags
-    hwif_tti_o.QUEUE_STATUS.RX_DESC_QUEUE_FULL.next  = rx_desc_queue_full_i;
-    hwif_tti_o.QUEUE_STATUS.RX_DESC_QUEUE_EMPTY.next = rx_desc_queue_empty_i;
-    hwif_tti_o.QUEUE_STATUS.TX_DESC_QUEUE_FULL.next  = tx_desc_queue_full_i;
-    hwif_tti_o.QUEUE_STATUS.TX_DESC_QUEUE_EMPTY.next = tx_desc_queue_empty_i;
-    hwif_tti_o.QUEUE_STATUS.RX_DATA_QUEUE_FULL.next  = rx_data_queue_full_i;
-    hwif_tti_o.QUEUE_STATUS.RX_DATA_QUEUE_EMPTY.next = rx_data_queue_empty_i;
-    hwif_tti_o.QUEUE_STATUS.TX_DATA_QUEUE_FULL.next  = tx_data_queue_full_i;
-    hwif_tti_o.QUEUE_STATUS.TX_DATA_QUEUE_EMPTY.next = tx_data_queue_empty_i;
-    hwif_tti_o.QUEUE_STATUS.IBI_QUEUE_FULL.next      = ibi_queue_full_i;
-    hwif_tti_o.QUEUE_STATUS.IBI_QUEUE_EMPTY.next     = ibi_queue_empty_i;
+    hwif_tti_o.QUEUE_STATUS.RX_DESC_QUEUE_FULL.next      = rx_desc_queue_full_i;
+    hwif_tti_o.QUEUE_STATUS.RX_DESC_QUEUE_EMPTY.next     = rx_desc_queue_empty_i;
+    hwif_tti_o.QUEUE_STATUS.TX_DESC_QUEUE_FULL.next      = tx_desc_queue_full_i;
+    hwif_tti_o.QUEUE_STATUS.TX_DESC_QUEUE_EMPTY.next     = tx_desc_queue_empty_i;
+    hwif_tti_o.QUEUE_STATUS.RX_DATA_QUEUE_FULL.next      = rx_data_queue_full_i;
+    hwif_tti_o.QUEUE_STATUS.RX_DATA_QUEUE_EMPTY.next     = rx_data_queue_empty_i;
+    hwif_tti_o.QUEUE_STATUS.TX_DATA_QUEUE_FULL.next      = tx_data_queue_full_i;
+    hwif_tti_o.QUEUE_STATUS.TX_DATA_QUEUE_EMPTY.next     = tx_data_queue_empty_i;
+    hwif_tti_o.QUEUE_STATUS.IBI_QUEUE_FULL.next          = ibi_queue_full_i;
+    hwif_tti_o.QUEUE_STATUS.IBI_QUEUE_EMPTY.next         = ibi_queue_empty_i;
 
     // DESC_QUEUE_DEPTH
     hwif_tti_o.DESC_QUEUE_DEPTH.RX_DESC_QUEUE_DEPTH.next = rx_desc_queue_depth_i;
@@ -308,7 +309,7 @@ module tti
     hwif_tti_o.DATA_QUEUE_DEPTH.TX_DATA_QUEUE_DEPTH.next = tx_data_queue_depth_i;
 
     // IBI_QUEUE_DEPTH
-    hwif_tti_o.IBI_QUEUE_DEPTH.IBI_QUEUE_DEPTH.next = ibi_queue_depth_i;
+    hwif_tti_o.IBI_QUEUE_DEPTH.IBI_QUEUE_DEPTH.next      = ibi_queue_depth_i;
   end
 
   assign hwif_tti_o.STATUS.PROTOCOL_ERROR.next = err_i;
@@ -337,102 +338,102 @@ module tti
   // set: any write to the RX desc queue
   // clr: any read from the RX desc queue
   interrupt xintr0 (
-    .clk_i          (clk_i),
-    .rst_ni         (rst_ni),
-    .irq_i          (rx_desc_queue_write_r),
-    .clr_i          (rx_desc_queue_ack_i),
-    .irq_force_i    (hwif_tti_i.INTERRUPT_FORCE.RX_DESC_STAT_FORCE.value),
-    .sts_o          (hwif_tti_o.INTERRUPT_STATUS.RX_DESC_STAT.next),
-    .sts_we_o       (hwif_tti_o.INTERRUPT_STATUS.RX_DESC_STAT.we),
-    .sts_i          (hwif_tti_i.INTERRUPT_STATUS.RX_DESC_STAT.value),
-    .sts_ena_i      (hwif_tti_i.INTERRUPT_ENABLE.RX_DESC_STAT_EN.value),
-    .sig_ena_i      ('1),
-    .irq_o          (irqs[0])
+      .clk_i      (clk_i),
+      .rst_ni     (rst_ni),
+      .irq_i      (rx_desc_queue_write_r),
+      .clr_i      (rx_desc_queue_ack_i),
+      .irq_force_i(hwif_tti_i.INTERRUPT_FORCE.RX_DESC_STAT_FORCE.value),
+      .sts_o      (hwif_tti_o.INTERRUPT_STATUS.RX_DESC_STAT.next),
+      .sts_we_o   (hwif_tti_o.INTERRUPT_STATUS.RX_DESC_STAT.we),
+      .sts_i      (hwif_tti_i.INTERRUPT_STATUS.RX_DESC_STAT.value),
+      .sts_ena_i  (hwif_tti_i.INTERRUPT_ENABLE.RX_DESC_STAT_EN.value),
+      .sig_ena_i  ('1),
+      .irq_o      (irqs[0])
   );
 
   // RX_DESC_THLD_STAT
   // set: a write to the RX desc queue an threshold exceeded
   // clr: any read from the RX desc queue
   interrupt xintr1 (
-    .clk_i          (clk_i),
-    .rst_ni         (rst_ni),
-    .irq_i          (rx_desc_queue_write_r & rx_desc_queue_ready_thld_trig_i),
-    .clr_i          (rx_desc_queue_ack_i),
-    .irq_force_i    (hwif_tti_i.INTERRUPT_FORCE.RX_DESC_THLD_FORCE.value),
-    .sts_o          (hwif_tti_o.INTERRUPT_STATUS.RX_DESC_THLD_STAT.next),
-    .sts_we_o       (hwif_tti_o.INTERRUPT_STATUS.RX_DESC_THLD_STAT.we),
-    .sts_i          (hwif_tti_i.INTERRUPT_STATUS.RX_DESC_THLD_STAT.value),
-    .sts_ena_i      (hwif_tti_i.INTERRUPT_ENABLE.RX_DESC_THLD_STAT_EN.value),
-    .sig_ena_i      ('1),
-    .irq_o          (irqs[1])
+      .clk_i      (clk_i),
+      .rst_ni     (rst_ni),
+      .irq_i      (rx_desc_queue_write_r & rx_desc_queue_ready_thld_trig_i),
+      .clr_i      (rx_desc_queue_ack_i),
+      .irq_force_i(hwif_tti_i.INTERRUPT_FORCE.RX_DESC_THLD_FORCE.value),
+      .sts_o      (hwif_tti_o.INTERRUPT_STATUS.RX_DESC_THLD_STAT.next),
+      .sts_we_o   (hwif_tti_o.INTERRUPT_STATUS.RX_DESC_THLD_STAT.we),
+      .sts_i      (hwif_tti_i.INTERRUPT_STATUS.RX_DESC_THLD_STAT.value),
+      .sts_ena_i  (hwif_tti_i.INTERRUPT_ENABLE.RX_DESC_THLD_STAT_EN.value),
+      .sig_ena_i  ('1),
+      .irq_o      (irqs[1])
   );
 
   // RX_DATA_THLD_STAT
   // set: a write to the RX data queue an threshold exceeded
   // clr: any read from the RX data queue
   interrupt xintr2 (
-    .clk_i          (clk_i),
-    .rst_ni         (rst_ni),
-    .irq_i          (rx_data_queue_write_r & rx_data_queue_ready_thld_trig_i),
-    .clr_i          (rx_data_queue_ack_i),
-    .irq_force_i    (hwif_tti_i.INTERRUPT_FORCE.RX_DATA_THLD_FORCE.value),
-    .sts_o          (hwif_tti_o.INTERRUPT_STATUS.RX_DATA_THLD_STAT.next),
-    .sts_we_o       (hwif_tti_o.INTERRUPT_STATUS.RX_DATA_THLD_STAT.we),
-    .sts_i          (hwif_tti_i.INTERRUPT_STATUS.RX_DATA_THLD_STAT.value),
-    .sts_ena_i      (hwif_tti_i.INTERRUPT_ENABLE.RX_DATA_THLD_STAT_EN.value),
-    .sig_ena_i      ('1),
-    .irq_o          (irqs[2])
+      .clk_i      (clk_i),
+      .rst_ni     (rst_ni),
+      .irq_i      (rx_data_queue_write_r & rx_data_queue_ready_thld_trig_i),
+      .clr_i      (rx_data_queue_ack_i),
+      .irq_force_i(hwif_tti_i.INTERRUPT_FORCE.RX_DATA_THLD_FORCE.value),
+      .sts_o      (hwif_tti_o.INTERRUPT_STATUS.RX_DATA_THLD_STAT.next),
+      .sts_we_o   (hwif_tti_o.INTERRUPT_STATUS.RX_DATA_THLD_STAT.we),
+      .sts_i      (hwif_tti_i.INTERRUPT_STATUS.RX_DATA_THLD_STAT.value),
+      .sts_ena_i  (hwif_tti_i.INTERRUPT_ENABLE.RX_DATA_THLD_STAT_EN.value),
+      .sig_ena_i  ('1),
+      .irq_o      (irqs[2])
   );
 
   // IBI_DONE
   // set: an IBI has been transmitter to the host
   // clr: read LAST_IBI_STATUS
   interrupt xintr3 (
-    .clk_i          (clk_i),
-    .rst_ni         (rst_ni),
-    .irq_i          (ibi_status_we_i),
-    .clr_i          (hwif_tti_i.STATUS.LAST_IBI_STATUS.swacc),
-    .irq_force_i    (hwif_tti_i.INTERRUPT_FORCE.IBI_DONE_FORCE.value),
-    .sts_o          (hwif_tti_o.INTERRUPT_STATUS.IBI_DONE.next),
-    .sts_we_o       (hwif_tti_o.INTERRUPT_STATUS.IBI_DONE.we),
-    .sts_i          (hwif_tti_i.INTERRUPT_STATUS.IBI_DONE.value),
-    .sts_ena_i      (hwif_tti_i.INTERRUPT_ENABLE.IBI_DONE_EN.value),
-    .sig_ena_i      ('1),
-    .irq_o          (irqs[3])
+      .clk_i      (clk_i),
+      .rst_ni     (rst_ni),
+      .irq_i      (ibi_status_we_i),
+      .clr_i      (hwif_tti_i.STATUS.LAST_IBI_STATUS.swacc),
+      .irq_force_i(hwif_tti_i.INTERRUPT_FORCE.IBI_DONE_FORCE.value),
+      .sts_o      (hwif_tti_o.INTERRUPT_STATUS.IBI_DONE.next),
+      .sts_we_o   (hwif_tti_o.INTERRUPT_STATUS.IBI_DONE.we),
+      .sts_i      (hwif_tti_i.INTERRUPT_STATUS.IBI_DONE.value),
+      .sts_ena_i  (hwif_tti_i.INTERRUPT_ENABLE.IBI_DONE_EN.value),
+      .sig_ena_i  ('1),
+      .irq_o      (irqs[3])
   );
 
   // TX_DESC_COMPLETE
   // set: A private read transfer has completed
   // clr: None, need to clear via INTERRUPT_STATUS
   interrupt xintr4 (
-    .clk_i          (clk_i),
-    .rst_ni         (rst_ni),
-    .irq_i          (~virtual_device_sel_i & tx_pr_end_i),
-    .clr_i          ('0),
-    .irq_force_i    (hwif_tti_i.INTERRUPT_FORCE.TX_DESC_COMPLETE_FORCE.value),
-    .sts_o          (hwif_tti_o.INTERRUPT_STATUS.TX_DESC_COMPLETE.next),
-    .sts_we_o       (hwif_tti_o.INTERRUPT_STATUS.TX_DESC_COMPLETE.we),
-    .sts_i          (hwif_tti_i.INTERRUPT_STATUS.TX_DESC_COMPLETE.value),
-    .sts_ena_i      (hwif_tti_i.INTERRUPT_ENABLE.TX_DESC_COMPLETE_EN.value),
-    .sig_ena_i      ('1),
-    .irq_o          (irqs[4])
+      .clk_i      (clk_i),
+      .rst_ni     (rst_ni),
+      .irq_i      (~virtual_device_sel_i & tx_pr_end_i),
+      .clr_i      ('0),
+      .irq_force_i(hwif_tti_i.INTERRUPT_FORCE.TX_DESC_COMPLETE_FORCE.value),
+      .sts_o      (hwif_tti_o.INTERRUPT_STATUS.TX_DESC_COMPLETE.next),
+      .sts_we_o   (hwif_tti_o.INTERRUPT_STATUS.TX_DESC_COMPLETE.we),
+      .sts_i      (hwif_tti_i.INTERRUPT_STATUS.TX_DESC_COMPLETE.value),
+      .sts_ena_i  (hwif_tti_i.INTERRUPT_ENABLE.TX_DESC_COMPLETE_EN.value),
+      .sig_ena_i  ('1),
+      .irq_o      (irqs[4])
   );
 
   // TX_DESC_STAT
   // set: A private read transfer has started
   // clr: None, need to clear via INTERRUPT_STATUS
   interrupt xintr5 (
-    .clk_i          (clk_i),
-    .rst_ni         (rst_ni),
-    .irq_i          (~virtual_device_sel_i & tx_pr_start_i),
-    .clr_i          ('0),
-    .irq_force_i    (hwif_tti_i.INTERRUPT_FORCE.TX_DESC_STAT_FORCE.value),
-    .sts_o          (hwif_tti_o.INTERRUPT_STATUS.TX_DESC_STAT.next),
-    .sts_we_o       (hwif_tti_o.INTERRUPT_STATUS.TX_DESC_STAT.we),
-    .sts_i          (hwif_tti_i.INTERRUPT_STATUS.TX_DESC_STAT.value),
-    .sts_ena_i      (hwif_tti_i.INTERRUPT_ENABLE.TX_DESC_STAT_EN.value),
-    .sig_ena_i      ('1),
-    .irq_o          (irqs[5])
+      .clk_i      (clk_i),
+      .rst_ni     (rst_ni),
+      .irq_i      (~virtual_device_sel_i & tx_pr_start_i),
+      .clr_i      ('0),
+      .irq_force_i(hwif_tti_i.INTERRUPT_FORCE.TX_DESC_STAT_FORCE.value),
+      .sts_o      (hwif_tti_o.INTERRUPT_STATUS.TX_DESC_STAT.next),
+      .sts_we_o   (hwif_tti_o.INTERRUPT_STATUS.TX_DESC_STAT.we),
+      .sts_i      (hwif_tti_i.INTERRUPT_STATUS.TX_DESC_STAT.value),
+      .sts_ena_i  (hwif_tti_i.INTERRUPT_ENABLE.TX_DESC_STAT_EN.value),
+      .sig_ena_i  ('1),
+      .irq_o      (irqs[5])
   );
 
   // ===========================================================================
@@ -444,201 +445,201 @@ module tti
 
   // TE0_ERR: Invalid reserved address + RnW combination
   interrupt xintr_te0 (
-    .clk_i          (clk_i),
-    .rst_ni         (rst_ni),
-    .irq_i          (te0_err_i),
-    .clr_i          ('0),
-    .irq_force_i    (hwif_tti_i.TARGET_ERR_INTR_FORCE.TE0_ERR_FORCE.value),
-    .sts_o          (hwif_tti_o.TARGET_ERR_INTR_STATUS.TE0_ERR_STAT.next),
-    .sts_we_o       (hwif_tti_o.TARGET_ERR_INTR_STATUS.TE0_ERR_STAT.we),
-    .sts_i          (hwif_tti_i.TARGET_ERR_INTR_STATUS.TE0_ERR_STAT.value),
-    .sts_ena_i      (hwif_tti_i.TARGET_ERR_INTR_ENABLE.TE0_ERR_EN.value),
-    .sig_ena_i      ('1),
-    .irq_o          (irqs[6])
+      .clk_i      (clk_i),
+      .rst_ni     (rst_ni),
+      .irq_i      (te0_err_i),
+      .clr_i      ('0),
+      .irq_force_i(hwif_tti_i.TARGET_ERR_INTR_FORCE.TE0_ERR_FORCE.value),
+      .sts_o      (hwif_tti_o.TARGET_ERR_INTR_STATUS.TE0_ERR_STAT.next),
+      .sts_we_o   (hwif_tti_o.TARGET_ERR_INTR_STATUS.TE0_ERR_STAT.we),
+      .sts_i      (hwif_tti_i.TARGET_ERR_INTR_STATUS.TE0_ERR_STAT.value),
+      .sts_ena_i  (hwif_tti_i.TARGET_ERR_INTR_ENABLE.TE0_ERR_EN.value),
+      .sig_ena_i  ('1),
+      .irq_o      (irqs[6])
   );
 
   // TE1_ERR: CCC command parity error
   interrupt xintr_te1 (
-    .clk_i          (clk_i),
-    .rst_ni         (rst_ni),
-    .irq_i          (te1_err_i),
-    .clr_i          ('0),
-    .irq_force_i    (hwif_tti_i.TARGET_ERR_INTR_FORCE.TE1_ERR_FORCE.value),
-    .sts_o          (hwif_tti_o.TARGET_ERR_INTR_STATUS.TE1_ERR_STAT.next),
-    .sts_we_o       (hwif_tti_o.TARGET_ERR_INTR_STATUS.TE1_ERR_STAT.we),
-    .sts_i          (hwif_tti_i.TARGET_ERR_INTR_STATUS.TE1_ERR_STAT.value),
-    .sts_ena_i      (hwif_tti_i.TARGET_ERR_INTR_ENABLE.TE1_ERR_EN.value),
-    .sig_ena_i      ('1),
-    .irq_o          (irqs[7])
+      .clk_i      (clk_i),
+      .rst_ni     (rst_ni),
+      .irq_i      (te1_err_i),
+      .clr_i      ('0),
+      .irq_force_i(hwif_tti_i.TARGET_ERR_INTR_FORCE.TE1_ERR_FORCE.value),
+      .sts_o      (hwif_tti_o.TARGET_ERR_INTR_STATUS.TE1_ERR_STAT.next),
+      .sts_we_o   (hwif_tti_o.TARGET_ERR_INTR_STATUS.TE1_ERR_STAT.we),
+      .sts_i      (hwif_tti_i.TARGET_ERR_INTR_STATUS.TE1_ERR_STAT.value),
+      .sts_ena_i  (hwif_tti_i.TARGET_ERR_INTR_ENABLE.TE1_ERR_EN.value),
+      .sig_ena_i  ('1),
+      .irq_o      (irqs[7])
   );
 
   // TE2_ERR: CCC or Private Write data parity error
   interrupt xintr_te2 (
-    .clk_i          (clk_i),
-    .rst_ni         (rst_ni),
-    .irq_i          (te2_err_i),
-    .clr_i          ('0),
-    .irq_force_i    (hwif_tti_i.TARGET_ERR_INTR_FORCE.TE2_ERR_FORCE.value),
-    .sts_o          (hwif_tti_o.TARGET_ERR_INTR_STATUS.TE2_ERR_STAT.next),
-    .sts_we_o       (hwif_tti_o.TARGET_ERR_INTR_STATUS.TE2_ERR_STAT.we),
-    .sts_i          (hwif_tti_i.TARGET_ERR_INTR_STATUS.TE2_ERR_STAT.value),
-    .sts_ena_i      (hwif_tti_i.TARGET_ERR_INTR_ENABLE.TE2_ERR_EN.value),
-    .sig_ena_i      ('1),
-    .irq_o          (irqs[8])
+      .clk_i      (clk_i),
+      .rst_ni     (rst_ni),
+      .irq_i      (te2_err_i),
+      .clr_i      ('0),
+      .irq_force_i(hwif_tti_i.TARGET_ERR_INTR_FORCE.TE2_ERR_FORCE.value),
+      .sts_o      (hwif_tti_o.TARGET_ERR_INTR_STATUS.TE2_ERR_STAT.next),
+      .sts_we_o   (hwif_tti_o.TARGET_ERR_INTR_STATUS.TE2_ERR_STAT.we),
+      .sts_i      (hwif_tti_i.TARGET_ERR_INTR_STATUS.TE2_ERR_STAT.value),
+      .sts_ena_i  (hwif_tti_i.TARGET_ERR_INTR_ENABLE.TE2_ERR_EN.value),
+      .sig_ena_i  ('1),
+      .irq_o      (irqs[8])
   );
 
   // TE3_ERR: ENTDAA PID mismatch
   interrupt xintr_te3 (
-    .clk_i          (clk_i),
-    .rst_ni         (rst_ni),
-    .irq_i          (te3_err_i),
-    .clr_i          ('0),
-    .irq_force_i    (hwif_tti_i.TARGET_ERR_INTR_FORCE.TE3_ERR_FORCE.value),
-    .sts_o          (hwif_tti_o.TARGET_ERR_INTR_STATUS.TE3_ERR_STAT.next),
-    .sts_we_o       (hwif_tti_o.TARGET_ERR_INTR_STATUS.TE3_ERR_STAT.we),
-    .sts_i          (hwif_tti_i.TARGET_ERR_INTR_STATUS.TE3_ERR_STAT.value),
-    .sts_ena_i      (hwif_tti_i.TARGET_ERR_INTR_ENABLE.TE3_ERR_EN.value),
-    .sig_ena_i      ('1),
-    .irq_o          (irqs[9])
+      .clk_i      (clk_i),
+      .rst_ni     (rst_ni),
+      .irq_i      (te3_err_i),
+      .clr_i      ('0),
+      .irq_force_i(hwif_tti_i.TARGET_ERR_INTR_FORCE.TE3_ERR_FORCE.value),
+      .sts_o      (hwif_tti_o.TARGET_ERR_INTR_STATUS.TE3_ERR_STAT.next),
+      .sts_we_o   (hwif_tti_o.TARGET_ERR_INTR_STATUS.TE3_ERR_STAT.we),
+      .sts_i      (hwif_tti_i.TARGET_ERR_INTR_STATUS.TE3_ERR_STAT.value),
+      .sts_ena_i  (hwif_tti_i.TARGET_ERR_INTR_ENABLE.TE3_ERR_EN.value),
+      .sig_ena_i  ('1),
+      .irq_o      (irqs[9])
   );
 
   // TE4_ERR: ENTDAA BCR/DCR mismatch
   interrupt xintr_te4 (
-    .clk_i          (clk_i),
-    .rst_ni         (rst_ni),
-    .irq_i          (te4_err_i),
-    .clr_i          ('0),
-    .irq_force_i    (hwif_tti_i.TARGET_ERR_INTR_FORCE.TE4_ERR_FORCE.value),
-    .sts_o          (hwif_tti_o.TARGET_ERR_INTR_STATUS.TE4_ERR_STAT.next),
-    .sts_we_o       (hwif_tti_o.TARGET_ERR_INTR_STATUS.TE4_ERR_STAT.we),
-    .sts_i          (hwif_tti_i.TARGET_ERR_INTR_STATUS.TE4_ERR_STAT.value),
-    .sts_ena_i      (hwif_tti_i.TARGET_ERR_INTR_ENABLE.TE4_ERR_EN.value),
-    .sig_ena_i      ('1),
-    .irq_o          (irqs[10])
+      .clk_i      (clk_i),
+      .rst_ni     (rst_ni),
+      .irq_i      (te4_err_i),
+      .clr_i      ('0),
+      .irq_force_i(hwif_tti_i.TARGET_ERR_INTR_FORCE.TE4_ERR_FORCE.value),
+      .sts_o      (hwif_tti_o.TARGET_ERR_INTR_STATUS.TE4_ERR_STAT.next),
+      .sts_we_o   (hwif_tti_o.TARGET_ERR_INTR_STATUS.TE4_ERR_STAT.we),
+      .sts_i      (hwif_tti_i.TARGET_ERR_INTR_STATUS.TE4_ERR_STAT.value),
+      .sts_ena_i  (hwif_tti_i.TARGET_ERR_INTR_ENABLE.TE4_ERR_EN.value),
+      .sig_ena_i  ('1),
+      .irq_o      (irqs[10])
   );
 
   // TE5_ERR: Broadcast/Direct CCC wrong R/W direction
   interrupt xintr_te5 (
-    .clk_i          (clk_i),
-    .rst_ni         (rst_ni),
-    .irq_i          (te5_err_i),
-    .clr_i          ('0),
-    .irq_force_i    (hwif_tti_i.TARGET_ERR_INTR_FORCE.TE5_ERR_FORCE.value),
-    .sts_o          (hwif_tti_o.TARGET_ERR_INTR_STATUS.TE5_ERR_STAT.next),
-    .sts_we_o       (hwif_tti_o.TARGET_ERR_INTR_STATUS.TE5_ERR_STAT.we),
-    .sts_i          (hwif_tti_i.TARGET_ERR_INTR_STATUS.TE5_ERR_STAT.value),
-    .sts_ena_i      (hwif_tti_i.TARGET_ERR_INTR_ENABLE.TE5_ERR_EN.value),
-    .sig_ena_i      ('1),
-    .irq_o          (irqs[11])
+      .clk_i      (clk_i),
+      .rst_ni     (rst_ni),
+      .irq_i      (te5_err_i),
+      .clr_i      ('0),
+      .irq_force_i(hwif_tti_i.TARGET_ERR_INTR_FORCE.TE5_ERR_FORCE.value),
+      .sts_o      (hwif_tti_o.TARGET_ERR_INTR_STATUS.TE5_ERR_STAT.next),
+      .sts_we_o   (hwif_tti_o.TARGET_ERR_INTR_STATUS.TE5_ERR_STAT.we),
+      .sts_i      (hwif_tti_i.TARGET_ERR_INTR_STATUS.TE5_ERR_STAT.value),
+      .sts_ena_i  (hwif_tti_i.TARGET_ERR_INTR_ENABLE.TE5_ERR_EN.value),
+      .sig_ena_i  ('1),
+      .irq_o      (irqs[11])
   );
 
   // FRAMING_ERR: DA padding error (Bit[0] != 0 in SETDASA/SETNEWDA)
   interrupt xintr_framing (
-    .clk_i          (clk_i),
-    .rst_ni         (rst_ni),
-    .irq_i          (framing_err_i),
-    .clr_i          ('0),
-    .irq_force_i    (hwif_tti_i.TARGET_ERR_INTR_FORCE.FRAMING_ERR_FORCE.value),
-    .sts_o          (hwif_tti_o.TARGET_ERR_INTR_STATUS.FRAMING_ERR_STAT.next),
-    .sts_we_o       (hwif_tti_o.TARGET_ERR_INTR_STATUS.FRAMING_ERR_STAT.we),
-    .sts_i          (hwif_tti_i.TARGET_ERR_INTR_STATUS.FRAMING_ERR_STAT.value),
-    .sts_ena_i      (hwif_tti_i.TARGET_ERR_INTR_ENABLE.FRAMING_ERR_EN.value),
-    .sig_ena_i      ('1),
-    .irq_o          (irqs[12])
+      .clk_i      (clk_i),
+      .rst_ni     (rst_ni),
+      .irq_i      (framing_err_i),
+      .clr_i      ('0),
+      .irq_force_i(hwif_tti_i.TARGET_ERR_INTR_FORCE.FRAMING_ERR_FORCE.value),
+      .sts_o      (hwif_tti_o.TARGET_ERR_INTR_STATUS.FRAMING_ERR_STAT.next),
+      .sts_we_o   (hwif_tti_o.TARGET_ERR_INTR_STATUS.FRAMING_ERR_STAT.we),
+      .sts_i      (hwif_tti_i.TARGET_ERR_INTR_STATUS.FRAMING_ERR_STAT.value),
+      .sts_ena_i  (hwif_tti_i.TARGET_ERR_INTR_ENABLE.FRAMING_ERR_EN.value),
+      .sig_ena_i  ('1),
+      .irq_o      (irqs[12])
   );
 
   // RI_PEC_ERR: Recovery Interface PEC/CRC error
   interrupt xintr_ri_pec (
-    .clk_i          (clk_i),
-    .rst_ni         (rst_ni),
-    .irq_i          (ri_pec_err_i),
-    .clr_i          ('0),
-    .irq_force_i    (hwif_tti_i.TARGET_ERR_INTR_FORCE.RI_PEC_ERR_FORCE.value),
-    .sts_o          (hwif_tti_o.TARGET_ERR_INTR_STATUS.RI_PEC_ERR_STAT.next),
-    .sts_we_o       (hwif_tti_o.TARGET_ERR_INTR_STATUS.RI_PEC_ERR_STAT.we),
-    .sts_i          (hwif_tti_i.TARGET_ERR_INTR_STATUS.RI_PEC_ERR_STAT.value),
-    .sts_ena_i      (hwif_tti_i.TARGET_ERR_INTR_ENABLE.RI_PEC_ERR_EN.value),
-    .sig_ena_i      ('1),
-    .irq_o          (irqs[13])
+      .clk_i      (clk_i),
+      .rst_ni     (rst_ni),
+      .irq_i      (ri_pec_err_i),
+      .clr_i      ('0),
+      .irq_force_i(hwif_tti_i.TARGET_ERR_INTR_FORCE.RI_PEC_ERR_FORCE.value),
+      .sts_o      (hwif_tti_o.TARGET_ERR_INTR_STATUS.RI_PEC_ERR_STAT.next),
+      .sts_we_o   (hwif_tti_o.TARGET_ERR_INTR_STATUS.RI_PEC_ERR_STAT.we),
+      .sts_i      (hwif_tti_i.TARGET_ERR_INTR_STATUS.RI_PEC_ERR_STAT.value),
+      .sts_ena_i  (hwif_tti_i.TARGET_ERR_INTR_ENABLE.RI_PEC_ERR_EN.value),
+      .sig_ena_i  ('1),
+      .irq_o      (irqs[13])
   );
 
   // RI_LENGTH_ERR: Recovery Interface length mismatch error
   interrupt xintr_ri_length (
-    .clk_i          (clk_i),
-    .rst_ni         (rst_ni),
-    .irq_i          (ri_length_err_i),
-    .clr_i          ('0),
-    .irq_force_i    (hwif_tti_i.TARGET_ERR_INTR_FORCE.RI_LENGTH_ERR_FORCE.value),
-    .sts_o          (hwif_tti_o.TARGET_ERR_INTR_STATUS.RI_LENGTH_ERR_STAT.next),
-    .sts_we_o       (hwif_tti_o.TARGET_ERR_INTR_STATUS.RI_LENGTH_ERR_STAT.we),
-    .sts_i          (hwif_tti_i.TARGET_ERR_INTR_STATUS.RI_LENGTH_ERR_STAT.value),
-    .sts_ena_i      (hwif_tti_i.TARGET_ERR_INTR_ENABLE.RI_LENGTH_ERR_EN.value),
-    .sig_ena_i      ('1),
-    .irq_o          (irqs[14])
+      .clk_i      (clk_i),
+      .rst_ni     (rst_ni),
+      .irq_i      (ri_length_err_i),
+      .clr_i      ('0),
+      .irq_force_i(hwif_tti_i.TARGET_ERR_INTR_FORCE.RI_LENGTH_ERR_FORCE.value),
+      .sts_o      (hwif_tti_o.TARGET_ERR_INTR_STATUS.RI_LENGTH_ERR_STAT.next),
+      .sts_we_o   (hwif_tti_o.TARGET_ERR_INTR_STATUS.RI_LENGTH_ERR_STAT.we),
+      .sts_i      (hwif_tti_i.TARGET_ERR_INTR_STATUS.RI_LENGTH_ERR_STAT.value),
+      .sts_ena_i  (hwif_tti_i.TARGET_ERR_INTR_ENABLE.RI_LENGTH_ERR_EN.value),
+      .sig_ena_i  ('1),
+      .irq_o      (irqs[14])
   );
 
   // RI_READONLY_ERR: Recovery Interface write-to-read-only error
   interrupt xintr_ri_readonly (
-    .clk_i          (clk_i),
-    .rst_ni         (rst_ni),
-    .irq_i          (ri_readonly_err_i),
-    .clr_i          ('0),
-    .irq_force_i    (hwif_tti_i.TARGET_ERR_INTR_FORCE.RI_READONLY_ERR_FORCE.value),
-    .sts_o          (hwif_tti_o.TARGET_ERR_INTR_STATUS.RI_READONLY_ERR_STAT.next),
-    .sts_we_o       (hwif_tti_o.TARGET_ERR_INTR_STATUS.RI_READONLY_ERR_STAT.we),
-    .sts_i          (hwif_tti_i.TARGET_ERR_INTR_STATUS.RI_READONLY_ERR_STAT.value),
-    .sts_ena_i      (hwif_tti_i.TARGET_ERR_INTR_ENABLE.RI_READONLY_ERR_EN.value),
-    .sig_ena_i      ('1),
-    .irq_o          (irqs[15])
+      .clk_i      (clk_i),
+      .rst_ni     (rst_ni),
+      .irq_i      (ri_readonly_err_i),
+      .clr_i      ('0),
+      .irq_force_i(hwif_tti_i.TARGET_ERR_INTR_FORCE.RI_READONLY_ERR_FORCE.value),
+      .sts_o      (hwif_tti_o.TARGET_ERR_INTR_STATUS.RI_READONLY_ERR_STAT.next),
+      .sts_we_o   (hwif_tti_o.TARGET_ERR_INTR_STATUS.RI_READONLY_ERR_STAT.we),
+      .sts_i      (hwif_tti_i.TARGET_ERR_INTR_STATUS.RI_READONLY_ERR_STAT.value),
+      .sts_ena_i  (hwif_tti_i.TARGET_ERR_INTR_ENABLE.RI_READONLY_ERR_EN.value),
+      .sig_ena_i  ('1),
+      .irq_o      (irqs[15])
   );
 
   // RI_UNSUPPORTED_ERR: Recovery Interface unsupported command error
   interrupt xintr_ri_unsupported (
-    .clk_i          (clk_i),
-    .rst_ni         (rst_ni),
-    .irq_i          (ri_unsupported_err_i),
-    .clr_i          ('0),
-    .irq_force_i    (hwif_tti_i.TARGET_ERR_INTR_FORCE.RI_UNSUPPORTED_ERR_FORCE.value),
-    .sts_o          (hwif_tti_o.TARGET_ERR_INTR_STATUS.RI_UNSUPPORTED_ERR_STAT.next),
-    .sts_we_o       (hwif_tti_o.TARGET_ERR_INTR_STATUS.RI_UNSUPPORTED_ERR_STAT.we),
-    .sts_i          (hwif_tti_i.TARGET_ERR_INTR_STATUS.RI_UNSUPPORTED_ERR_STAT.value),
-    .sts_ena_i      (hwif_tti_i.TARGET_ERR_INTR_ENABLE.RI_UNSUPPORTED_ERR_EN.value),
-    .sig_ena_i      ('1),
-    .irq_o          (irqs[16])
+      .clk_i      (clk_i),
+      .rst_ni     (rst_ni),
+      .irq_i      (ri_unsupported_err_i),
+      .clr_i      ('0),
+      .irq_force_i(hwif_tti_i.TARGET_ERR_INTR_FORCE.RI_UNSUPPORTED_ERR_FORCE.value),
+      .sts_o      (hwif_tti_o.TARGET_ERR_INTR_STATUS.RI_UNSUPPORTED_ERR_STAT.next),
+      .sts_we_o   (hwif_tti_o.TARGET_ERR_INTR_STATUS.RI_UNSUPPORTED_ERR_STAT.we),
+      .sts_i      (hwif_tti_i.TARGET_ERR_INTR_STATUS.RI_UNSUPPORTED_ERR_STAT.value),
+      .sts_ena_i  (hwif_tti_i.TARGET_ERR_INTR_ENABLE.RI_UNSUPPORTED_ERR_EN.value),
+      .sig_ena_i  ('1),
+      .irq_o      (irqs[16])
   );
 
   // RI_RX_FIFO_OVERFLOW_ERR: Recovery Interface RX FIFO overflow error
   // DET_EN controls whether the FSM transitions to Error state (via recovery_receiver).
   // Status is recorded when DET_EN allows it; interrupt enable controls IRQ output.
   interrupt xintr_ri_rx_fifo_overflow (
-    .clk_i          (clk_i),
-    .rst_ni         (rst_ni),
-    .irq_i          (ri_rx_fifo_overflow_err_i),
-    .clr_i          ('0),
-    .irq_force_i    (hwif_tti_i.TARGET_ERR_INTR_FORCE.RI_RX_FIFO_OVERFLOW_ERR_FORCE.value),
-    .sts_o          (hwif_tti_o.TARGET_ERR_INTR_STATUS.RI_RX_FIFO_OVERFLOW_ERR_STAT.next),
-    .sts_we_o       (hwif_tti_o.TARGET_ERR_INTR_STATUS.RI_RX_FIFO_OVERFLOW_ERR_STAT.we),
-    .sts_i          (hwif_tti_i.TARGET_ERR_INTR_STATUS.RI_RX_FIFO_OVERFLOW_ERR_STAT.value),
-    .sts_ena_i      (hwif_tti_i.TARGET_ERR_CTRL.RI_RX_FIFO_OVERFLOW_ERR_DET_EN.value),
-    .sig_ena_i      (hwif_tti_i.TARGET_ERR_INTR_ENABLE.RI_RX_FIFO_OVERFLOW_ERR_EN.value),
-    .irq_o          (irqs[17])
+      .clk_i      (clk_i),
+      .rst_ni     (rst_ni),
+      .irq_i      (ri_rx_fifo_overflow_err_i),
+      .clr_i      ('0),
+      .irq_force_i(hwif_tti_i.TARGET_ERR_INTR_FORCE.RI_RX_FIFO_OVERFLOW_ERR_FORCE.value),
+      .sts_o      (hwif_tti_o.TARGET_ERR_INTR_STATUS.RI_RX_FIFO_OVERFLOW_ERR_STAT.next),
+      .sts_we_o   (hwif_tti_o.TARGET_ERR_INTR_STATUS.RI_RX_FIFO_OVERFLOW_ERR_STAT.we),
+      .sts_i      (hwif_tti_i.TARGET_ERR_INTR_STATUS.RI_RX_FIFO_OVERFLOW_ERR_STAT.value),
+      .sts_ena_i  (hwif_tti_i.TARGET_ERR_CTRL.RI_RX_FIFO_OVERFLOW_ERR_DET_EN.value),
+      .sig_ena_i  (hwif_tti_i.TARGET_ERR_INTR_ENABLE.RI_RX_FIFO_OVERFLOW_ERR_EN.value),
+      .irq_o      (irqs[17])
   );
 
   // RI_INDIRECT_FIFO_OVERFLOW_ERR: Recovery Interface INDIRECT FIFO overflow error
   // DET_EN controls whether the FSM transitions to Error state (via recovery_receiver).
   // Status is recorded when DET_EN allows it; interrupt enable controls IRQ output.
   interrupt xintr_ri_indirect_fifo_overflow (
-    .clk_i          (clk_i),
-    .rst_ni         (rst_ni),
-    .irq_i          (ri_indirect_fifo_overflow_err_i),
-    .clr_i          ('0),
-    .irq_force_i    (hwif_tti_i.TARGET_ERR_INTR_FORCE.RI_INDIRECT_FIFO_OVERFLOW_ERR_FORCE.value),
-    .sts_o          (hwif_tti_o.TARGET_ERR_INTR_STATUS.RI_INDIRECT_FIFO_OVERFLOW_ERR_STAT.next),
-    .sts_we_o       (hwif_tti_o.TARGET_ERR_INTR_STATUS.RI_INDIRECT_FIFO_OVERFLOW_ERR_STAT.we),
-    .sts_i          (hwif_tti_i.TARGET_ERR_INTR_STATUS.RI_INDIRECT_FIFO_OVERFLOW_ERR_STAT.value),
-    .sts_ena_i      (hwif_tti_i.TARGET_ERR_CTRL.RI_INDIRECT_FIFO_OVERFLOW_ERR_DET_EN.value),
-    .sig_ena_i      (hwif_tti_i.TARGET_ERR_INTR_ENABLE.RI_INDIRECT_FIFO_OVERFLOW_ERR_EN.value),
-    .irq_o          (irqs[18])
+      .clk_i      (clk_i),
+      .rst_ni     (rst_ni),
+      .irq_i      (ri_indirect_fifo_overflow_err_i),
+      .clr_i      ('0),
+      .irq_force_i(hwif_tti_i.TARGET_ERR_INTR_FORCE.RI_INDIRECT_FIFO_OVERFLOW_ERR_FORCE.value),
+      .sts_o      (hwif_tti_o.TARGET_ERR_INTR_STATUS.RI_INDIRECT_FIFO_OVERFLOW_ERR_STAT.next),
+      .sts_we_o   (hwif_tti_o.TARGET_ERR_INTR_STATUS.RI_INDIRECT_FIFO_OVERFLOW_ERR_STAT.we),
+      .sts_i      (hwif_tti_i.TARGET_ERR_INTR_STATUS.RI_INDIRECT_FIFO_OVERFLOW_ERR_STAT.value),
+      .sts_ena_i  (hwif_tti_i.TARGET_ERR_CTRL.RI_INDIRECT_FIFO_OVERFLOW_ERR_DET_EN.value),
+      .sig_ena_i  (hwif_tti_i.TARGET_ERR_INTR_ENABLE.RI_INDIRECT_FIFO_OVERFLOW_ERR_EN.value),
+      .irq_o      (irqs[18])
   );
 
   // =========================================================================
@@ -703,4 +704,3 @@ module tti
   assign irq_o = |irqs;
 
 endmodule : tti
-

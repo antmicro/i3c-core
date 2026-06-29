@@ -89,11 +89,13 @@
 //   47: INDIRECT_FIFO_DATA (W)  - Firmware data to FIFO
 //
 //==============================================================================
-
 module recovery_receiver
   import i3c_pkg::*;
-  import I3CCSR_pkg::*;
+  import controller_I3CCSR_pkg::*;
+  import target_I3CCSR_pkg::*;
+  import controller_and_target_I3CCSR_pkg::*;
 #(
+    parameter type         csr_cfg_t          = target_csr_t,
     parameter int unsigned TtiRxDescDataWidth = 32,
     parameter int unsigned TtiTxDescDataWidth = 32,
     parameter int unsigned TtiRxDataDataWidth = 32,
@@ -103,21 +105,21 @@ module recovery_receiver
     //--------------------------------------------------------------------------
     // Clock and Reset
     //--------------------------------------------------------------------------
-    input  logic clk_i,
-    input  logic rst_ni,
+    input logic clk_i,
+    input logic rst_ni,
 
     //--------------------------------------------------------------------------
     // Configuration
     //--------------------------------------------------------------------------
-    input  logic bypass_i3c_core_i,
-    input  logic pec_err_det_en_i,
-    input  logic length_err_det_en_i,
-    input  logic readonly_err_det_en_i,
-    input  logic unsupported_err_det_en_i,
-    input  logic rx_fifo_overflow_err_det_en_i,
-    input  logic rx_fifo_overflow_raw_i,  // Raw overflow signal from handler
-    input  logic indirect_fifo_overflow_err_det_en_i,
-    input  logic recovery_mode_csr_active_i,
+    input logic bypass_i3c_core_i,
+    input logic pec_err_det_en_i,
+    input logic length_err_det_en_i,
+    input logic readonly_err_det_en_i,
+    input logic unsupported_err_det_en_i,
+    input logic rx_fifo_overflow_err_det_en_i,
+    input logic rx_fifo_overflow_raw_i,  // Raw overflow signal from handler
+    input logic indirect_fifo_overflow_err_det_en_i,
+    input logic recovery_mode_csr_active_i,
 
     //--------------------------------------------------------------------------
     // TTI RX Data Interface (byte stream from controller)
@@ -132,10 +134,10 @@ module recovery_receiver
     //--------------------------------------------------------------------------
     // Select=1: Receiver consumes bytes directly (header/PEC)
     // Select=0: Bytes go to queue (payload)
-    output logic rx_data_queue_select_o, 
+    output logic rx_data_queue_select_o,
     output logic rx_data_queue_flush_o,
     output logic conv_soft_reset_o,  // Assert during Error to reset width converters
-    input  logic rx_data_queue_flow_i,
+    input logic rx_data_queue_flow_i,
 
     //--------------------------------------------------------------------------
     // TTI RX Data Queue (32-bit word interface for execution)
@@ -165,12 +167,12 @@ module recovery_receiver
     //--------------------------------------------------------------------------
     // Bus Condition Signals
     //--------------------------------------------------------------------------
-    input  logic bus_start_i,      // Start condition (S)
-    input  logic bus_rstart_i,     // Repeated Start condition (Sr)
-    input  logic bus_any_start_i,  // Any start (S or Sr) - from recovery_handler
-    input  logic bus_stop_i,
-    input  logic in_hdr_mode_i,
-    input  logic [7:0] bus_addr_i, // Received I2C/I3C address with RnW bit (bit 0)
+    input logic       bus_start_i,      // Start condition (S)
+    input logic       bus_rstart_i,     // Repeated Start condition (Sr)
+    input logic       bus_any_start_i,  // Any start (S or Sr) - from recovery_handler
+    input logic       bus_stop_i,
+    input logic       in_hdr_mode_i,
+    input logic [7:0] bus_addr_i,       // Received I2C/I3C address with RnW bit (bit 0)
 
     //--------------------------------------------------------------------------
     // RX PEC Interface
@@ -210,8 +212,8 @@ module recovery_receiver
     //--------------------------------------------------------------------------
     // Control Signals
     //--------------------------------------------------------------------------
-    input  logic virtual_target_start_i,
-    input  logic other_target_start_i,   // Pulse when different target addressed (Sr to other)
+    input logic virtual_target_start_i,
+    input logic other_target_start_i,    // Pulse when different target addressed (Sr to other)
 
     //--------------------------------------------------------------------------
     // Status Outputs
@@ -227,20 +229,20 @@ module recovery_receiver
     output logic indirect_fifo_overflow_err_o, // INDIRECT_FIFO overflow error
 
     // RX descriptor interface — monitored for bus-level parity errors
-    input  logic                          rx_desc_wvalid_i,
-    input  logic [TtiRxDescDataWidth-1:0] rx_desc_wdata_i,
+    input logic                          rx_desc_wvalid_i,
+    input logic [TtiRxDescDataWidth-1:0] rx_desc_wdata_i,
 
     //--------------------------------------------------------------------------
     // Recovery CSR Interface
     //--------------------------------------------------------------------------
-    input  I3CCSR__I3C_EC__SecFwRecoveryIf__out_t hwif_rec_i,
-    output I3CCSR__I3C_EC__SecFwRecoveryIf__in_t  hwif_rec_o,
+    input  csr_cfg_t::secfwrecoveryif_out_t hwif_rec_i,
+    output csr_cfg_t::secfwrecoveryif_in_t  hwif_rec_o,
 
     //--------------------------------------------------------------------------
     // SoC Management CSR Interface (Bypass Mode)
     //--------------------------------------------------------------------------
-    input  I3CCSR__I3C_EC__SoCMgmtIf__out_t hwif_socmgmt_i,
-    output I3CCSR__I3C_EC__SoCMgmtIf__in_t  hwif_socmgmt_o
+    input  csr_cfg_t::socmgmt_out_t hwif_socmgmt_i,
+    output csr_cfg_t::socmgmt_in_t  hwif_socmgmt_o
 );
 
   //============================================================================
@@ -345,61 +347,61 @@ module recovery_receiver
   // FSM Signals
   //----------------------------------------------------------------------------
   state_e state_q, state_d;
-  
+
   // FSM trigger signals (active for one cycle)
-  logic capture_cmd;
-  logic capture_len_lsb;
-  logic capture_len_msb;
-  logic capture_pec;
-  logic set_cmd_is_rd;
-  logic latch_pec_from_len;
-  logic load_csr_sel;    // Loads csr_sel/csr_end (CmdDispatch)
-  logic inc_csr_sel;     // Advances csr_sel at DWORD boundaries
-  logic load_csr_data;   // Delayed pulse: captures csr_data 1 cycle after csr_sel settles
-  logic load_csr_length;
+  logic            capture_cmd;
+  logic            capture_len_lsb;
+  logic            capture_len_msb;
+  logic            capture_pec;
+  logic            set_cmd_is_rd;
+  logic            latch_pec_from_len;
+  logic            load_csr_sel;  // Loads csr_sel/csr_end (CmdDispatch)
+  logic            inc_csr_sel;  // Advances csr_sel at DWORD boundaries
+  logic            load_csr_data;  // Delayed pulse: captures csr_data 1 cycle after csr_sel settles
+  logic            load_csr_length;
 
   //----------------------------------------------------------------------------
   // Command Header Signals
   //----------------------------------------------------------------------------
-  command_e    cmd_cmd;           // Command code
-  logic        cmd_is_rd;         // READ command flag
+  command_e        cmd_cmd;  // Command code
+  logic            cmd_is_rd;  // READ command flag
 
-  logic [7:0]  len_lsb;           // Length LSB
-  logic [7:0]  len_msb;           // Length MSB
-  logic [15:0] cmd_len;           // Combined length
+  logic     [ 7:0] len_lsb;  // Length LSB
+  logic     [ 7:0] len_msb;  // Length MSB
+  logic     [15:0] cmd_len;  // Combined length
 
   //----------------------------------------------------------------------------
   // PEC Signals
   //----------------------------------------------------------------------------
-  logic [7:0] pec_recv;           // Received PEC byte
-  logic [7:0] pec_calc;           // Calculated PEC
+  logic     [ 7:0] pec_recv;  // Received PEC byte
+  logic     [ 7:0] pec_calc;  // Calculated PEC
 
   //----------------------------------------------------------------------------
   // Counter Signals
   //----------------------------------------------------------------------------
-  logic [15:0] dcnt, dcnt_next;                     // Data word counter
-  logic [1:0]  bcnt, bcnt_next;                     // Byte counter (0-3)
+  logic [15:0] dcnt, dcnt_next;  // Data word counter
+  logic [1:0] bcnt, bcnt_next;  // Byte counter (0-3)
   logic [15:0] payload_byte_cnt, payload_byte_cnt_next;  // Payload byte counter
-  logic [1:0]  pec_rx_byte_cnt;                     // PEC byte counter
+  logic [1:0] pec_rx_byte_cnt;  // PEC byte counter
 
   //----------------------------------------------------------------------------
   // Length Validation Signals
   //----------------------------------------------------------------------------
-  logic        all_data_received;
+  logic       all_data_received;
 
   //----------------------------------------------------------------------------
   // Bus Condition Signals
   //----------------------------------------------------------------------------
-  logic rx_flow;
+  logic       rx_flow;
 
   //----------------------------------------------------------------------------
   // CSR Access Signals
   //----------------------------------------------------------------------------
-  csr_e        csr_sel, csr_end;
-  csr_e        csr_sel_next, csr_end_next;
+  csr_e csr_sel, csr_end;
+  csr_e csr_sel_next, csr_end_next;
   logic [31:0] csr_data, csr_data_next;
   logic [15:0] csr_length, csr_length_next;
-  logic        csr_writable;
+  logic                          csr_writable;
   logic [TtiRxDataDataWidth-1:0] prev_tti_rx_rdata;
 
   //----------------------------------------------------------------------------
@@ -426,51 +428,51 @@ module recovery_receiver
   //----------------------------------------------------------------------------
   logic [31:0] fifo_size;
   logic [31:0] fifo_wrptr, fifo_rdptr;
-  logic        fifo_wrptr_inc, fifo_rdptr_inc;
-  logic        fifo_ptr_clr;
+  logic fifo_wrptr_inc, fifo_rdptr_inc;
+  logic                  fifo_ptr_clr;
 
   //----------------------------------------------------------------------------
   // Protocol Status Signals
   //----------------------------------------------------------------------------
-  protocol_error_e status_protocol;
-  logic            status_protocol_we;
-  logic            entering_error;
-  logic            entering_done_directly;
+  protocol_error_e       status_protocol;
+  logic                  status_protocol_we;
+  logic                  entering_error;
+  logic                  entering_done_directly;
 
   //----------------------------------------------------------------------------
   // Payload and Transfer Signals
   //----------------------------------------------------------------------------
-  logic payload_available_q;
-  logic fifo_xfer_done;
-  logic payload_high_en;
-  logic bypass_xfer_done;
+  logic                  payload_available_q;
+  logic                  fifo_xfer_done;
+  logic                  payload_high_en;
+  logic                  bypass_xfer_done;
 
   //----------------------------------------------------------------------------
   // Bypass Mode Signals
   //----------------------------------------------------------------------------
-  logic       sw_device_reset_ctrl_swmod;
-  logic       sw_recovery_ctrl_activate_rec_img_swmod;
-  logic       sw_indirect_fifo_ctrl_reset_swmod;
-  logic [7:0] sw_device_reset_ctrl_value;
-  logic [7:0] sw_recovery_ctrl_activate_rec_img_value;
-  logic [7:0] sw_indirect_fifo_ctrl_reset_value;
+  logic                  sw_device_reset_ctrl_swmod;
+  logic                  sw_recovery_ctrl_activate_rec_img_swmod;
+  logic                  sw_indirect_fifo_ctrl_reset_swmod;
+  logic            [7:0] sw_device_reset_ctrl_value;
+  logic            [7:0] sw_recovery_ctrl_activate_rec_img_value;
+  logic            [7:0] sw_indirect_fifo_ctrl_reset_value;
 
   //----------------------------------------------------------------------------
   // Error Detection Signals
   //----------------------------------------------------------------------------
   // FSM-generated error signals (set when masked error detected in correct state)
-  logic        pec_err;               // PEC error detected in CmdDispatch
-  logic        length_underrun_err;   // Underrun detected in RxData
-  logic        length_overrun_err;    // Overrun detected in RxPec
-  logic        readonly_err;          // Read-only error detected in CmdDispatch
-  logic        unsupported_err;       // Unsupported error detected in CmdDispatch
-  logic        csr_length_err;        // CSR write length mismatch detected in CmdDispatch
-  logic        premature_stop;        // Premature bus stop detected (combinational)
-  logic        premature_stop_q;      // Registered premature stop for Error state exit
-  
+  logic                  pec_err;  // PEC error detected in CmdDispatch
+  logic                  length_underrun_err;  // Underrun detected in RxData
+  logic                  length_overrun_err;  // Overrun detected in RxPec
+  logic                  readonly_err;  // Read-only error detected in CmdDispatch
+  logic                  unsupported_err;  // Unsupported error detected in CmdDispatch
+  logic                  csr_length_err;  // CSR write length mismatch detected in CmdDispatch
+  logic                  premature_stop;  // Premature bus stop detected (combinational)
+  logic                  premature_stop_q;  // Registered premature stop for Error state exit
+
   // FIFO overflow error signals
-  logic        rx_fifo_overflow_err;         // RX FIFO overflow detected in FSM
-  logic        indirect_fifo_overflow_err;       // INDIRECT_FIFO overflow detected in FSM
+  logic                  rx_fifo_overflow_err;  // RX FIFO overflow detected in FSM
+  logic                  indirect_fifo_overflow_err;  // INDIRECT_FIFO overflow detected in FSM
 
   //============================================================================
   //
@@ -479,13 +481,13 @@ module recovery_receiver
   //============================================================================
 
   // RX interface
-  assign rx_flow      = rx_data_valid_i & rx_data_ready_o;
-  assign cmd_len      = {len_msb, len_lsb};
+  assign rx_flow = rx_data_valid_i & rx_data_ready_o;
+  assign cmd_len = {len_msb, len_lsb};
   assign tti_rx_sel_o = 1'b1;
 
   // TX queue control
   assign tx_data_queue_select_o = 1'b1;
-  assign tx_start_trig_o        = 1'b0;
+  assign tx_start_trig_o = 1'b0;
 
   // Queue clear signals
   assign rx_data_queue_clr_o = (state_q == Error);
@@ -499,10 +501,10 @@ module recovery_receiver
   // recovery_pending from deasserting between xfer_pending and exec states
   assign exec_pending_o      = state_q inside {CmdDispatch, ExecCsrWrite, ExecFifoWrite,
                                                 TxDesc, TxLenL, TxLenH, TxData, TxPec};
-  assign image_activated_o   = (hwif_rec_i.RECOVERY_CTRL.ACTIVATE_REC_IMG.value == 8'h0F);
+  assign image_activated_o = (hwif_rec_i.RECOVERY_CTRL.ACTIVATE_REC_IMG.value == 8'h0F);
 
   // Length validation - Raw detection (always active, no state qualification)
-  assign all_data_received       = (payload_byte_cnt == cmd_len);
+  assign all_data_received = (payload_byte_cnt == cmd_len);
 
 
   //============================================================================
@@ -542,34 +544,34 @@ module recovery_receiver
   //----------------------------------------------------------------------------
   always_comb begin
     // Default values
-    state_d                = state_q;
-    capture_cmd            = 1'b0;
-    capture_len_lsb        = 1'b0;
-    capture_len_msb        = 1'b0;
-    capture_pec            = 1'b0;
-    set_cmd_is_rd          = 1'b0;
-    latch_pec_from_len     = 1'b0;
-    load_csr_sel           = 1'b0;
-    inc_csr_sel            = 1'b0;
-    load_csr_length        = 1'b0;
-    rx_data_queue_select_o = 1'b0;
-    rx_data_queue_flush_o  = 1'b0;
-    pec_enable_o           = 1'b0;
-    pec_init_o             = 1'b0;
-    tx_pec_enable_o        = 1'b0;
-    tx_pec_init_o          = 1'b0;
-    tx_pec_soft_rst_n_o    = 1'b0; // Reset unless in certain states
+    state_d                    = state_q;
+    capture_cmd                = 1'b0;
+    capture_len_lsb            = 1'b0;
+    capture_len_msb            = 1'b0;
+    capture_pec                = 1'b0;
+    set_cmd_is_rd              = 1'b0;
+    latch_pec_from_len         = 1'b0;
+    load_csr_sel               = 1'b0;
+    inc_csr_sel                = 1'b0;
+    load_csr_length            = 1'b0;
+    rx_data_queue_select_o     = 1'b0;
+    rx_data_queue_flush_o      = 1'b0;
+    pec_enable_o               = 1'b0;
+    pec_init_o                 = 1'b0;
+    tx_pec_enable_o            = 1'b0;
+    tx_pec_init_o              = 1'b0;
+    tx_pec_soft_rst_n_o        = 1'b0;  // Reset unless in certain states
 
     // Error signal defaults
-    pec_err               = 1'b0;
-    length_underrun_err   = 1'b0;
-    length_overrun_err    = 1'b0;
-    readonly_err          = 1'b0;
-    unsupported_err       = 1'b0;
-    csr_length_err        = 1'b0;
-    rx_fifo_overflow_err  = 1'b0;
+    pec_err                    = 1'b0;
+    length_underrun_err        = 1'b0;
+    length_overrun_err         = 1'b0;
+    readonly_err               = 1'b0;
+    unsupported_err            = 1'b0;
+    csr_length_err             = 1'b0;
+    rx_fifo_overflow_err       = 1'b0;
     indirect_fifo_overflow_err = 1'b0;
-    premature_stop        = 1'b0;
+    premature_stop             = 1'b0;
 
     //--------------------------------------------------------------------------
     // Global HDR Mode Check
@@ -608,16 +610,16 @@ module recovery_receiver
         //------------------------------------------------------------------------
         RxCmd: begin
           rx_data_queue_select_o = 1'b1;
-          
-          if (bus_stop_i || bus_rstart_i || rx_data_last_i)  begin
+
+          if (bus_stop_i || bus_rstart_i || rx_data_last_i) begin
             // Premature Stop or Repeated Start detected
             premature_stop      = 1'b1;
             length_underrun_err = length_err_det_en_i;  // Report as length error (underrun)
             state_d             = Error;
           end else if (rx_flow) begin
-            capture_cmd   = 1'b1;
-            pec_enable_o  = 1'b1;
-            state_d       = RxLenL;
+            capture_cmd  = 1'b1;
+            pec_enable_o = 1'b1;
+            state_d      = RxLenL;
           end
         end
 
@@ -627,7 +629,7 @@ module recovery_receiver
         RxLenL: begin
           rx_data_queue_select_o = 1'b1;
 
-          if (bus_stop_i || bus_rstart_i || rx_data_last_i)  begin
+          if (bus_stop_i || bus_rstart_i || rx_data_last_i) begin
             // Premature Stop or Repeated Start detected
             premature_stop      = 1'b1;
             length_underrun_err = length_err_det_en_i;  // Report as length error (underrun)
@@ -645,7 +647,7 @@ module recovery_receiver
         RxLenH: begin
           rx_data_queue_select_o = 1'b1;
 
-          if (bus_stop_i)  begin
+          if (bus_stop_i) begin
             // Premature Stop detected
             premature_stop      = 1'b1;
             length_underrun_err = length_err_det_en_i;  // Report as length error (underrun)
@@ -660,7 +662,7 @@ module recovery_receiver
             // Repeated Start (Sr) indicates READ command - controller wants to read
             set_cmd_is_rd      = 1'b1;
             latch_pec_from_len = 1'b1;
-            state_d = CmdDispatch;
+            state_d            = CmdDispatch;
           end else if (rx_flow) begin
             capture_len_msb = 1'b1;
             pec_enable_o    = 1'b1;
@@ -672,11 +674,11 @@ module recovery_receiver
         // RxData: Collect payload bytes until expected length reached
         //------------------------------------------------------------------------
         RxData: begin
-          if(rx_data_queue_flow_i) begin
-            pec_enable_o    = 1'b1;
+          if (rx_data_queue_flow_i) begin
+            pec_enable_o = 1'b1;
           end
 
-          if (bus_stop_i || bus_rstart_i || rx_data_last_i)  begin
+          if (bus_stop_i || bus_rstart_i || rx_data_last_i) begin
             // Premature Stop or Repeated Start detected
             premature_stop       = 1'b1;
             length_underrun_err  = (payload_byte_cnt < cmd_len) && length_err_det_en_i;
@@ -694,25 +696,25 @@ module recovery_receiver
           rx_data_queue_select_o = 1'b1;
 
           if (rx_flow) capture_pec = 1'b1;
-          
+
           if ((pec_rx_byte_cnt > 1) && length_err_det_en_i) begin
             length_overrun_err = 1'b1;
             state_d = Error;
           end else if ((pec_rx_byte_cnt == '0) && (bus_stop_i || bus_rstart_i || rx_data_last_i)) begin
             // Premature Stop/Repeated Start/last before PEC byte received - length underrun
-            premature_stop      = 1'b1;
+            premature_stop = 1'b1;
             length_underrun_err = ((payload_byte_cnt < cmd_len) || pec_rx_byte_cnt == '0) && length_err_det_en_i;
-            state_d             = Error;
+            state_d = Error;
           end else if (rx_data_last_i && |rx_desc_wdata_i[31:28] && pec_err_det_en_i) begin
             // RX descriptor reports bus-level error (T-bit parity or overflow)
             // rx_data_last_i should be asserted the same clock cycle
             // as rx_desc_wvalid_i if not an assertion will fire.
-            pec_err        = 1'b1;
-            state_d        = Error;
+            pec_err = 1'b1;
+            state_d = Error;
           end else if (rx_data_last_i) begin
-              state_d = CmdDispatch;
-              // Flush partial word from width converter before ExecCsrWrite reads
-              rx_data_queue_flush_o = |(payload_byte_cnt[1:0]);
+            state_d = CmdDispatch;
+            // Flush partial word from width converter before ExecCsrWrite reads
+            rx_data_queue_flush_o = |(payload_byte_cnt[1:0]);
           end
         end
 
@@ -722,11 +724,11 @@ module recovery_receiver
         // For READ commands: Transition to TxDesc to queue descriptor before Sr+Addr+R
         //------------------------------------------------------------------------
         CmdDispatch: begin
-          load_csr_sel    = 1'b1;
+          load_csr_sel = 1'b1;
           load_csr_length = 1'b1;
-          
+
           // Set error signals for masked errors detected in this state
-          pec_err             = (pec_calc != pec_recv) && pec_err_det_en_i;
+          pec_err = (pec_calc != pec_recv) && pec_err_det_en_i;
           readonly_err        = !cmd_is_rd && (cmd_cmd inside {
                                   CMD_PROT_CAP, CMD_DEVICE_ID, CMD_DEVICE_STATUS,
                                   CMD_HW_STATUS, CMD_INDIRECT_STATUS, CMD_INDIRECT_FIFO_STATUS
@@ -738,9 +740,8 @@ module recovery_receiver
 
           csr_length_err      = !cmd_is_rd && (cmd_cmd != CMD_INDIRECT_FIFO_DATA) &&
                                 (cmd_len != csr_length_next) && length_err_det_en_i;
-          
-          if (pec_err || readonly_err || unsupported_err || csr_length_err)
-            state_d = Error;
+
+          if (pec_err || readonly_err || unsupported_err || csr_length_err) state_d = Error;
           else if (!cmd_is_rd) begin
             // WRITE command - proceed to execution immediately
             state_d = (cmd_cmd == CMD_INDIRECT_FIFO_DATA) ? ExecFifoWrite : ExecCsrWrite;
@@ -784,7 +785,7 @@ module recovery_receiver
         // Detect protocol errors: STOP, Sr to other target, Sr + Addr+W
         //------------------------------------------------------------------------
         TxDesc: begin
-          tx_pec_soft_rst_n_o = 1'b1; 
+          tx_pec_soft_rst_n_o = 1'b1;
 
           if (bus_stop_i || other_target_start_i || (virtual_target_start_i && !bus_addr_i[0])) begin
             // Protocol errors:
@@ -794,9 +795,9 @@ module recovery_receiver
             unsupported_err = unsupported_err_det_en_i;
             state_d         = Error;
           end else if (tx_desc_ready_i) begin
-            state_d = TxLenL;
-            tx_pec_enable_o     = 1'b1;
-            tx_pec_init_o       = 1'b1;
+            state_d         = TxLenL;
+            tx_pec_enable_o = 1'b1;
+            tx_pec_init_o   = 1'b1;
           end
         end
 
@@ -804,9 +805,9 @@ module recovery_receiver
         // TxLenL: Send response length LSB
         //------------------------------------------------------------------------
         TxLenL: begin
-          tx_pec_soft_rst_n_o = 1'b1; 
+          tx_pec_soft_rst_n_o = 1'b1;
 
-          if (bus_rstart_i) begin        
+          if (bus_rstart_i) begin
             state_d = Done;  // Controller aborted read via Sr
           end else if (tx_data_ready_i) begin
             state_d = TxLenH;
@@ -818,7 +819,7 @@ module recovery_receiver
         // TxLenH: Send response length MSB
         //------------------------------------------------------------------------
         TxLenH: begin
-          tx_pec_soft_rst_n_o = 1'b1; 
+          tx_pec_soft_rst_n_o = 1'b1;
 
           if (bus_rstart_i) begin
             state_d = Done;  // Controller aborted read via Sr
@@ -832,7 +833,7 @@ module recovery_receiver
         // TxData: Send CSR data bytes
         //------------------------------------------------------------------------
         TxData: begin
-          tx_pec_soft_rst_n_o = 1'b1; 
+          tx_pec_soft_rst_n_o = 1'b1;
 
           if (bus_rstart_i) begin
             state_d = Done;  // Controller aborted read via Sr
@@ -840,11 +841,11 @@ module recovery_receiver
             tx_pec_enable_o = 1'b1;
 
             if (tx_data_valid_o) begin
-              if(bcnt == 3) begin
+              if (bcnt == 3) begin
                 inc_csr_sel = 1'b1;
               end
 
-              if(dcnt == 1) begin
+              if (dcnt == 1) begin
                 state_d = TxPec;
               end
             end
@@ -855,9 +856,9 @@ module recovery_receiver
         // TxPec: Send PEC byte
         //------------------------------------------------------------------------
         TxPec: begin
-          tx_pec_soft_rst_n_o = 1'b1; 
+          tx_pec_soft_rst_n_o = 1'b1;
 
-          if ((tx_data_ready_i && tx_data_valid_o) || bus_rstart_i) begin 
+          if ((tx_data_ready_i && tx_data_valid_o) || bus_rstart_i) begin
             state_d = Done;
           end
         end
@@ -871,8 +872,7 @@ module recovery_receiver
           // Converters are reset via conv_soft_reset_o which is asserted in Error.
           // Exit on Stop, any Start (S or Sr), HDR mode, or if we entered due to
           // premature stop (premature_stop_q is set since the stop pulse already occurred).
-          if (bus_stop_i || bus_any_start_i || premature_stop_q || in_hdr_mode_i)
-            state_d = Done;
+          if (bus_stop_i || bus_any_start_i || premature_stop_q || in_hdr_mode_i) state_d = Done;
           // else stay in Error, continue accepting and discarding bytes
         end
 
@@ -896,7 +896,7 @@ module recovery_receiver
   //----------------------------------------------------------------------------
   // Ready to receive during all RX states AND during Error (to drain bus).
   // During Error, bytes are accepted but discarded via converter soft reset.
-  assign rx_data_ready_o = state_q inside {RxCmd, RxLenL, RxLenH, RxData, RxPec, Error};
+  assign rx_data_ready_o   = state_q inside {RxCmd, RxLenL, RxLenH, RxData, RxPec, Error};
 
   // Assert soft reset to width converters during Error state (combinational for immediate effect)
   assign conv_soft_reset_o = (state_q == Error);
@@ -981,8 +981,7 @@ module recovery_receiver
         dcnt_next = csr_length;
       end
       TxData: begin
-        dcnt_next = (tx_data_valid_o && tx_data_ready_i) ? 
-                    (dcnt - 16'h1) : dcnt;
+        dcnt_next = (tx_data_valid_o && tx_data_ready_i) ? (dcnt - 16'h1) : dcnt;
       end
       default: begin
       end
@@ -1103,7 +1102,7 @@ module recovery_receiver
   // TX Descriptor
   //----------------------------------------------------------------------------
   assign tx_desc_valid_o = (state_q == TxDesc);
-  assign tx_desc_data_o  = {{(TtiTxDescDataWidth-16){1'b0}}, csr_length + 16'd3};
+  assign tx_desc_data_o  = {{(TtiTxDescDataWidth - 16) {1'b0}}, csr_length + 16'd3};
 
   //----------------------------------------------------------------------------
   // TX Data Valid
@@ -1160,7 +1159,7 @@ module recovery_receiver
   always_comb begin
     csr_sel_next = CSR_INVALID;
     csr_end_next = CSR_INVALID;
-    
+
     unique case (cmd_cmd)
       CMD_PROT_CAP: begin
         csr_sel_next = CSR_PROT_CAP_0;
@@ -1285,8 +1284,7 @@ module recovery_receiver
   // Composite CSR Values
   //----------------------------------------------------------------------------
   assign prot_cap_2 = {
-    hwif_rec_i.PROT_CAP_2.AGENT_CAPS.value,
-    hwif_rec_i.PROT_CAP_2.REC_PROT_VERSION.value
+    hwif_rec_i.PROT_CAP_2.AGENT_CAPS.value, hwif_rec_i.PROT_CAP_2.REC_PROT_VERSION.value
   };
 
   assign prot_cap_3 = {
@@ -1351,10 +1349,7 @@ module recovery_receiver
     hwif_rec_i.INDIRECT_FIFO_CTRL_0.CMS.value
   };
 
-  assign indirect_fifo_ctrl_1 = {
-    '0,
-    hwif_rec_i.INDIRECT_FIFO_CTRL_1.IMAGE_SIZE.value[31:16]
-  };
+  assign indirect_fifo_ctrl_1 = {'0, hwif_rec_i.INDIRECT_FIFO_CTRL_1.IMAGE_SIZE.value[31:16]};
 
   assign indirect_fifo_status_0 = {
     '0,
@@ -1503,13 +1498,13 @@ module recovery_receiver
   //----------------------------------------------------------------------------
   // FIFO Pointer Management
   //----------------------------------------------------------------------------
-  assign fifo_size      = hwif_rec_i.INDIRECT_FIFO_STATUS_3.FIFO_SIZE.value;
-  assign fifo_wrptr     = hwif_rec_i.INDIRECT_FIFO_STATUS_1.WRITE_INDEX.value;
-  assign fifo_rdptr     = hwif_rec_i.INDIRECT_FIFO_STATUS_2.READ_INDEX.value;
+  assign fifo_size = hwif_rec_i.INDIRECT_FIFO_STATUS_3.FIFO_SIZE.value;
+  assign fifo_wrptr = hwif_rec_i.INDIRECT_FIFO_STATUS_1.WRITE_INDEX.value;
+  assign fifo_rdptr = hwif_rec_i.INDIRECT_FIFO_STATUS_2.READ_INDEX.value;
   // Only increment write pointer if FIFO is not full - reject overflow writes
   assign fifo_wrptr_inc = indirect_rx_wvalid_o;
   assign fifo_rdptr_inc = indirect_rx_rack_i;
-  assign fifo_ptr_clr   = (hwif_rec_i.INDIRECT_FIFO_CTRL_0.RESET.value == 8'd1);
+  assign fifo_ptr_clr = (hwif_rec_i.INDIRECT_FIFO_CTRL_0.RESET.value == 8'd1);
   assign indirect_rx_clr_o = fifo_ptr_clr;
 
   //----------------------------------------------------------------------------
@@ -1524,12 +1519,12 @@ module recovery_receiver
     indirect_rx_rreq_o = hwif_rec_i.INDIRECT_FIFO_DATA.req && 
                          !hwif_rec_i.INDIRECT_FIFO_DATA.req_is_wr &&
                          !indirect_rx_empty_i;
-    
+
     hwif_rec_o.INDIRECT_FIFO_DATA.rd_ack = indirect_rx_rack_i || 
                                             (indirect_rx_empty_i && 
                                              hwif_rec_i.INDIRECT_FIFO_DATA.req && 
                                              !hwif_rec_i.INDIRECT_FIFO_DATA.req_is_wr);
-    
+
     hwif_rec_o.INDIRECT_FIFO_DATA.rd_data = indirect_rx_rdata_i;
   end
 
@@ -1543,30 +1538,30 @@ module recovery_receiver
   // Bypass Mode W1C Handling
   //----------------------------------------------------------------------------
   always_comb begin
-    sw_device_reset_ctrl_value            = hwif_socmgmt_i.REC_INTF_REG_W1C_ACCESS.DEVICE_RESET_CTRL.value;
+    sw_device_reset_ctrl_value = hwif_socmgmt_i.REC_INTF_REG_W1C_ACCESS.DEVICE_RESET_CTRL.value;
     sw_recovery_ctrl_activate_rec_img_value = hwif_socmgmt_i.REC_INTF_REG_W1C_ACCESS.RECOVERY_CTRL_ACTIVATE_REC_IMG.value;
     sw_indirect_fifo_ctrl_reset_value     = hwif_socmgmt_i.REC_INTF_REG_W1C_ACCESS.INDIRECT_FIFO_CTRL_RESET.value;
   end
 
   always_ff @(posedge clk_i or negedge rst_ni) begin
     if (!rst_ni) begin
-      sw_device_reset_ctrl_swmod            <= 1'b0;
+      sw_device_reset_ctrl_swmod              <= 1'b0;
       sw_recovery_ctrl_activate_rec_img_swmod <= 1'b0;
-      sw_indirect_fifo_ctrl_reset_swmod     <= 1'b0;
+      sw_indirect_fifo_ctrl_reset_swmod       <= 1'b0;
     end else begin
-      sw_device_reset_ctrl_swmod            <= hwif_socmgmt_i.REC_INTF_REG_W1C_ACCESS.DEVICE_RESET_CTRL.swmod;
+      sw_device_reset_ctrl_swmod <= hwif_socmgmt_i.REC_INTF_REG_W1C_ACCESS.DEVICE_RESET_CTRL.swmod;
       sw_recovery_ctrl_activate_rec_img_swmod <= hwif_socmgmt_i.REC_INTF_REG_W1C_ACCESS.RECOVERY_CTRL_ACTIVATE_REC_IMG.swmod;
       sw_indirect_fifo_ctrl_reset_swmod     <= hwif_socmgmt_i.REC_INTF_REG_W1C_ACCESS.INDIRECT_FIFO_CTRL_RESET.swmod;
     end
   end
 
   always_comb begin : clear_bypassed_regs
-    hwif_socmgmt_o.REC_INTF_REG_W1C_ACCESS.DEVICE_RESET_CTRL.we               = sw_device_reset_ctrl_swmod;
-    hwif_socmgmt_o.REC_INTF_REG_W1C_ACCESS.DEVICE_RESET_CTRL.next             = '0;
+    hwif_socmgmt_o.REC_INTF_REG_W1C_ACCESS.DEVICE_RESET_CTRL.we = sw_device_reset_ctrl_swmod;
+    hwif_socmgmt_o.REC_INTF_REG_W1C_ACCESS.DEVICE_RESET_CTRL.next = '0;
     hwif_socmgmt_o.REC_INTF_REG_W1C_ACCESS.RECOVERY_CTRL_ACTIVATE_REC_IMG.we  = sw_recovery_ctrl_activate_rec_img_swmod;
-    hwif_socmgmt_o.REC_INTF_REG_W1C_ACCESS.RECOVERY_CTRL_ACTIVATE_REC_IMG.next= '0;
+    hwif_socmgmt_o.REC_INTF_REG_W1C_ACCESS.RECOVERY_CTRL_ACTIVATE_REC_IMG.next = '0;
     hwif_socmgmt_o.REC_INTF_REG_W1C_ACCESS.INDIRECT_FIFO_CTRL_RESET.we        = sw_indirect_fifo_ctrl_reset_swmod;
-    hwif_socmgmt_o.REC_INTF_REG_W1C_ACCESS.INDIRECT_FIFO_CTRL_RESET.next      = '0;
+    hwif_socmgmt_o.REC_INTF_REG_W1C_ACCESS.INDIRECT_FIFO_CTRL_RESET.next = '0;
   end
 
   //----------------------------------------------------------------------------
@@ -1574,44 +1569,44 @@ module recovery_receiver
   //----------------------------------------------------------------------------
   always_comb begin
     // Read-only registers - no write enable
-    hwif_rec_o.PROT_CAP_2.REC_PROT_VERSION.we         = '0;
-    hwif_rec_o.PROT_CAP_2.AGENT_CAPS.we               = '0;
-    hwif_rec_o.PROT_CAP_3.NUM_OF_CMS_REGIONS.we       = '0;
-    hwif_rec_o.PROT_CAP_3.MAX_RESP_TIME.we            = '0;
-    hwif_rec_o.PROT_CAP_3.HEARTBEAT_PERIOD.we         = '0;
-    hwif_rec_o.DEVICE_ID_0.DESC_TYPE.we               = '0;
+    hwif_rec_o.PROT_CAP_2.REC_PROT_VERSION.we = '0;
+    hwif_rec_o.PROT_CAP_2.AGENT_CAPS.we = '0;
+    hwif_rec_o.PROT_CAP_3.NUM_OF_CMS_REGIONS.we = '0;
+    hwif_rec_o.PROT_CAP_3.MAX_RESP_TIME.we = '0;
+    hwif_rec_o.PROT_CAP_3.HEARTBEAT_PERIOD.we = '0;
+    hwif_rec_o.DEVICE_ID_0.DESC_TYPE.we = '0;
     hwif_rec_o.DEVICE_ID_0.VENDOR_SPECIFIC_STR_LENGTH.we = '0;
-    hwif_rec_o.DEVICE_ID_0.DATA.we                    = '0;
-    hwif_rec_o.DEVICE_ID_1.DATA.we                    = '0;
-    hwif_rec_o.DEVICE_ID_2.DATA.we                    = '0;
-    hwif_rec_o.DEVICE_ID_3.DATA.we                    = '0;
-    hwif_rec_o.DEVICE_ID_4.DATA.we                    = '0;
-    hwif_rec_o.DEVICE_ID_5.DATA.we                    = '0;
-    hwif_rec_o.DEVICE_STATUS_1.HEARTBEAT.we           = '0;
+    hwif_rec_o.DEVICE_ID_0.DATA.we = '0;
+    hwif_rec_o.DEVICE_ID_1.DATA.we = '0;
+    hwif_rec_o.DEVICE_ID_2.DATA.we = '0;
+    hwif_rec_o.DEVICE_ID_3.DATA.we = '0;
+    hwif_rec_o.DEVICE_ID_4.DATA.we = '0;
+    hwif_rec_o.DEVICE_ID_5.DATA.we = '0;
+    hwif_rec_o.DEVICE_STATUS_1.HEARTBEAT.we = '0;
     hwif_rec_o.DEVICE_STATUS_1.VENDOR_STATUS_LENGTH.we = '0;
-    hwif_rec_o.DEVICE_STATUS_1.VENDOR_STATUS.we       = '0;
-    hwif_rec_o.RECOVERY_STATUS.DEV_REC_STATUS.we      = '0;
-    hwif_rec_o.RECOVERY_STATUS.REC_IMG_INDEX.we       = '0;
+    hwif_rec_o.DEVICE_STATUS_1.VENDOR_STATUS.we = '0;
+    hwif_rec_o.RECOVERY_STATUS.DEV_REC_STATUS.we = '0;
+    hwif_rec_o.RECOVERY_STATUS.REC_IMG_INDEX.we = '0;
     hwif_rec_o.RECOVERY_STATUS.VENDOR_SPECIFIC_STATUS.we = '0;
-    hwif_rec_o.HW_STATUS.TEMP_CRITICAL.we             = '0;
-    hwif_rec_o.HW_STATUS.SOFT_ERR.we                  = '0;
-    hwif_rec_o.HW_STATUS.FATAL_ERR.we                 = '0;
-    hwif_rec_o.HW_STATUS.RESERVED_7_3.we              = '0;
-    hwif_rec_o.HW_STATUS.VENDOR_HW_STATUS.we          = '0;
-    hwif_rec_o.HW_STATUS.CTEMP.we                     = '0;
-    hwif_rec_o.HW_STATUS.VENDOR_HW_STATUS_LEN.we      = '0;
-    hwif_rec_o.INDIRECT_FIFO_STATUS_0.REGION_TYPE.we  = '0;
-    hwif_rec_o.INDIRECT_FIFO_RESERVED.DATA.we         = '0;
+    hwif_rec_o.HW_STATUS.TEMP_CRITICAL.we = '0;
+    hwif_rec_o.HW_STATUS.SOFT_ERR.we = '0;
+    hwif_rec_o.HW_STATUS.FATAL_ERR.we = '0;
+    hwif_rec_o.HW_STATUS.RESERVED_7_3.we = '0;
+    hwif_rec_o.HW_STATUS.VENDOR_HW_STATUS.we = '0;
+    hwif_rec_o.HW_STATUS.CTEMP.we = '0;
+    hwif_rec_o.HW_STATUS.VENDOR_HW_STATUS_LEN.we = '0;
+    hwif_rec_o.INDIRECT_FIFO_STATUS_0.REGION_TYPE.we = '0;
+    hwif_rec_o.INDIRECT_FIFO_RESERVED.DATA.we = '0;
 
     // Writable registers
     hwif_rec_o.DEVICE_RESET.RESET_CTRL.we     = bypass_i3c_core_i ? sw_device_reset_ctrl_swmod : device_reset_we;
     hwif_rec_o.DEVICE_RESET.FORCED_RECOVERY.we = device_reset_we;
-    hwif_rec_o.DEVICE_RESET.IF_CTRL.we        = device_reset_we;
+    hwif_rec_o.DEVICE_RESET.IF_CTRL.we = device_reset_we;
     hwif_rec_o.RECOVERY_CTRL.ACTIVATE_REC_IMG.we = bypass_i3c_core_i ? sw_recovery_ctrl_activate_rec_img_swmod : recovery_ctrl_we;
-    hwif_rec_o.RECOVERY_CTRL.REC_IMG_SEL.we   = recovery_ctrl_we;
-    hwif_rec_o.RECOVERY_CTRL.CMS.we           = recovery_ctrl_we;
+    hwif_rec_o.RECOVERY_CTRL.REC_IMG_SEL.we = recovery_ctrl_we;
+    hwif_rec_o.RECOVERY_CTRL.CMS.we = recovery_ctrl_we;
     hwif_rec_o.INDIRECT_FIFO_CTRL_0.RESET.we  = bypass_i3c_core_i ? sw_indirect_fifo_ctrl_reset_swmod : indirect_fifo_ctrl_0_we;
-    hwif_rec_o.INDIRECT_FIFO_CTRL_0.CMS.we    = indirect_fifo_ctrl_0_we;
+    hwif_rec_o.INDIRECT_FIFO_CTRL_0.CMS.we = indirect_fifo_ctrl_0_we;
     hwif_rec_o.INDIRECT_FIFO_CTRL_1.IMAGE_SIZE.we = tti_rx_rack_i && (csr_sel == CSR_INDIRECT_FIFO_CTRL_1);
   end
 
@@ -1621,47 +1616,49 @@ module recovery_receiver
   always_comb begin
     hwif_rec_o.DEVICE_RESET.RESET_CTRL.next     = bypass_i3c_core_i ? sw_device_reset_ctrl_value : tti_rx_rdata_i[7:0];
     hwif_rec_o.DEVICE_RESET.FORCED_RECOVERY.next = tti_rx_rdata_i[15:8];
-    hwif_rec_o.DEVICE_RESET.IF_CTRL.next        = tti_rx_rdata_i[23:16];
+    hwif_rec_o.DEVICE_RESET.IF_CTRL.next = tti_rx_rdata_i[23:16];
     hwif_rec_o.RECOVERY_CTRL.ACTIVATE_REC_IMG.next = bypass_i3c_core_i ? sw_recovery_ctrl_activate_rec_img_value : tti_rx_rdata_i[23:16];
-    hwif_rec_o.RECOVERY_CTRL.REC_IMG_SEL.next   = tti_rx_rdata_i[15:8];
-    hwif_rec_o.RECOVERY_CTRL.CMS.next           = tti_rx_rdata_i[7:0];
+    hwif_rec_o.RECOVERY_CTRL.REC_IMG_SEL.next = tti_rx_rdata_i[15:8];
+    hwif_rec_o.RECOVERY_CTRL.CMS.next = tti_rx_rdata_i[7:0];
     hwif_rec_o.INDIRECT_FIFO_CTRL_0.RESET.next  = bypass_i3c_core_i ? sw_indirect_fifo_ctrl_reset_value : tti_rx_rdata_i[15:8];
-    hwif_rec_o.INDIRECT_FIFO_CTRL_0.CMS.next    = tti_rx_rdata_i[7:0];
-    hwif_rec_o.INDIRECT_FIFO_CTRL_1.IMAGE_SIZE.next = {tti_rx_rdata_i[15:0], prev_tti_rx_rdata[31:16]};
+    hwif_rec_o.INDIRECT_FIFO_CTRL_0.CMS.next = tti_rx_rdata_i[7:0];
+    hwif_rec_o.INDIRECT_FIFO_CTRL_1.IMAGE_SIZE.next = {
+      tti_rx_rdata_i[15:0], prev_tti_rx_rdata[31:16]
+    };
   end
 
   //----------------------------------------------------------------------------
   // CSR Unused Next Values
   //----------------------------------------------------------------------------
   always_comb begin
-    hwif_rec_o.PROT_CAP_3.NUM_OF_CMS_REGIONS.next     = '0;
-    hwif_rec_o.PROT_CAP_3.MAX_RESP_TIME.next          = '0;
-    hwif_rec_o.PROT_CAP_3.HEARTBEAT_PERIOD.next       = '0;
-    hwif_rec_o.PROT_CAP_2.REC_PROT_VERSION.next       = '0;
-    hwif_rec_o.PROT_CAP_2.AGENT_CAPS.next             = '0;
-    hwif_rec_o.HW_STATUS.TEMP_CRITICAL.next           = '0;
-    hwif_rec_o.HW_STATUS.SOFT_ERR.next                = '0;
-    hwif_rec_o.HW_STATUS.FATAL_ERR.next               = '0;
-    hwif_rec_o.HW_STATUS.RESERVED_7_3.next            = '0;
-    hwif_rec_o.HW_STATUS.VENDOR_HW_STATUS.next        = '0;
-    hwif_rec_o.HW_STATUS.CTEMP.next                   = '0;
-    hwif_rec_o.HW_STATUS.VENDOR_HW_STATUS_LEN.next    = '0;
-    hwif_rec_o.DEVICE_STATUS_1.HEARTBEAT.next         = '0;
-    hwif_rec_o.DEVICE_STATUS_1.VENDOR_STATUS_LENGTH.next = '0;
-    hwif_rec_o.DEVICE_STATUS_1.VENDOR_STATUS.next     = '0;
-    hwif_rec_o.RECOVERY_STATUS.DEV_REC_STATUS.next    = '0;
-    hwif_rec_o.RECOVERY_STATUS.REC_IMG_INDEX.next     = '0;
+    hwif_rec_o.PROT_CAP_3.NUM_OF_CMS_REGIONS.next          = '0;
+    hwif_rec_o.PROT_CAP_3.MAX_RESP_TIME.next               = '0;
+    hwif_rec_o.PROT_CAP_3.HEARTBEAT_PERIOD.next            = '0;
+    hwif_rec_o.PROT_CAP_2.REC_PROT_VERSION.next            = '0;
+    hwif_rec_o.PROT_CAP_2.AGENT_CAPS.next                  = '0;
+    hwif_rec_o.HW_STATUS.TEMP_CRITICAL.next                = '0;
+    hwif_rec_o.HW_STATUS.SOFT_ERR.next                     = '0;
+    hwif_rec_o.HW_STATUS.FATAL_ERR.next                    = '0;
+    hwif_rec_o.HW_STATUS.RESERVED_7_3.next                 = '0;
+    hwif_rec_o.HW_STATUS.VENDOR_HW_STATUS.next             = '0;
+    hwif_rec_o.HW_STATUS.CTEMP.next                        = '0;
+    hwif_rec_o.HW_STATUS.VENDOR_HW_STATUS_LEN.next         = '0;
+    hwif_rec_o.DEVICE_STATUS_1.HEARTBEAT.next              = '0;
+    hwif_rec_o.DEVICE_STATUS_1.VENDOR_STATUS_LENGTH.next   = '0;
+    hwif_rec_o.DEVICE_STATUS_1.VENDOR_STATUS.next          = '0;
+    hwif_rec_o.RECOVERY_STATUS.DEV_REC_STATUS.next         = '0;
+    hwif_rec_o.RECOVERY_STATUS.REC_IMG_INDEX.next          = '0;
     hwif_rec_o.RECOVERY_STATUS.VENDOR_SPECIFIC_STATUS.next = '0;
-    hwif_rec_o.INDIRECT_FIFO_STATUS_0.REGION_TYPE.next = '0;
-    hwif_rec_o.INDIRECT_FIFO_RESERVED.DATA.next       = '0;
-    hwif_rec_o.DEVICE_ID_1.DATA.next                  = '0;
-    hwif_rec_o.DEVICE_ID_2.DATA.next                  = '0;
-    hwif_rec_o.DEVICE_ID_3.DATA.next                  = '0;
-    hwif_rec_o.DEVICE_ID_4.DATA.next                  = '0;
-    hwif_rec_o.DEVICE_ID_5.DATA.next                  = '0;
-    hwif_rec_o.DEVICE_ID_0.DESC_TYPE.next             = '0;
+    hwif_rec_o.INDIRECT_FIFO_STATUS_0.REGION_TYPE.next     = '0;
+    hwif_rec_o.INDIRECT_FIFO_RESERVED.DATA.next            = '0;
+    hwif_rec_o.DEVICE_ID_1.DATA.next                       = '0;
+    hwif_rec_o.DEVICE_ID_2.DATA.next                       = '0;
+    hwif_rec_o.DEVICE_ID_3.DATA.next                       = '0;
+    hwif_rec_o.DEVICE_ID_4.DATA.next                       = '0;
+    hwif_rec_o.DEVICE_ID_5.DATA.next                       = '0;
+    hwif_rec_o.DEVICE_ID_0.DESC_TYPE.next                  = '0;
     hwif_rec_o.DEVICE_ID_0.VENDOR_SPECIFIC_STR_LENGTH.next = '0;
-    hwif_rec_o.DEVICE_ID_0.DATA.next                  = '0;
+    hwif_rec_o.DEVICE_ID_0.DATA.next                       = '0;
   end
 
   //----------------------------------------------------------------------------
@@ -1705,8 +1702,7 @@ module recovery_receiver
   // FIFO overflow errors (RX FIFO and INDIRECT_FIFO) are reported as Length errors
   always_comb begin
     status_protocol = PROTOCOL_OK;
-    if (pec_err)
-      status_protocol = PROTOCOL_ERROR_CRC;
+    if (pec_err) status_protocol = PROTOCOL_ERROR_CRC;
     else if (length_underrun_err || length_overrun_err || csr_length_err || 
              rx_fifo_overflow_err || indirect_fifo_overflow_err)
       status_protocol = PROTOCOL_ERROR_LENGTH;
@@ -1743,7 +1739,7 @@ module recovery_receiver
   //----------------------------------------------------------------------------
   // Payload Availability
   //----------------------------------------------------------------------------
-  assign fifo_xfer_done   = indirect_rx_full_i || (image_activated_o && ~indirect_rx_empty_i);
+  assign fifo_xfer_done = indirect_rx_full_i || (image_activated_o && ~indirect_rx_empty_i);
   assign bypass_xfer_done = (state_q == ExecFifoWrite) && (state_d == Done);
   // In bypass mode: payload available when FIFO full, REC_PAYLOAD_DONE set, or image activated
   // In normal mode: payload available when fifo_xfer_done (full or image activated with data)
@@ -1773,14 +1769,14 @@ module recovery_receiver
   //
   //============================================================================
 
-  assign pec_err_o         = pec_err;
-  assign length_err_o      = length_underrun_err || length_overrun_err || csr_length_err;
-  assign readonly_err_o    = readonly_err;
-  assign unsupported_err_o = unsupported_err;
-  
+  assign pec_err_o                    = pec_err;
+  assign length_err_o                 = length_underrun_err || length_overrun_err || csr_length_err;
+  assign readonly_err_o               = readonly_err;
+  assign unsupported_err_o            = unsupported_err;
+
   // FIFO overflow error outputs
   // RX FIFO overflow: always reported (not gated by enable)
-  assign rx_fifo_overflow_err_o = rx_fifo_overflow_err;
+  assign rx_fifo_overflow_err_o       = rx_fifo_overflow_err;
   // INDIRECT_FIFO overflow: reported on each overflow event
   assign indirect_fifo_overflow_err_o = indirect_fifo_overflow_err;
 
@@ -1791,4 +1787,3 @@ module recovery_receiver
   `I3C_ASSERT(RxDescAlignedWithRstart_A, (state_q == RxLenH) && bus_rstart_i |-> rx_desc_wvalid_i)
 
 endmodule
-

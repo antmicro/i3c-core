@@ -2,15 +2,22 @@
 
 `ifdef I3C_USE_AHB
 module ahb_if
-  import I3CCSR_pkg::I3CCSR_DATA_WIDTH;
-  import I3CCSR_pkg::I3CCSR_MIN_ADDR_WIDTH;
+  import controller_I3CCSR_pkg::*;
+  import target_I3CCSR_pkg::*;
+  import controller_and_target_I3CCSR_pkg::*;
 #(
-    localparam int unsigned CsrAddrWidth = I3CCSR_MIN_ADDR_WIDTH,
-    localparam int unsigned CsrDataWidth = I3CCSR_DATA_WIDTH,
+    parameter bit ControllerEn = 0,
+    parameter bit TargetEn = 1,
+    localparam int unsigned CsrAddrWidth = (ControllerEn && TargetEn) ? controller_and_target_I3CCSR_pkg::controller_and_target_I3CCSR_MIN_ADDR_WIDTH :
+                               (ControllerEn)             ? controller_I3CCSR_pkg::controller_I3CCSR_MIN_ADDR_WIDTH :
+                                                            target_I3CCSR_pkg::target_I3CCSR_MIN_ADDR_WIDTH,
+    localparam int unsigned CsrDataWidth = (ControllerEn && TargetEn) ? controller_and_target_I3CCSR_pkg::controller_and_target_I3CCSR_DATA_WIDTH :
+                               (ControllerEn)             ? controller_I3CCSR_pkg::controller_I3CCSR_DATA_WIDTH :
+                                                            target_I3CCSR_pkg::target_I3CCSR_DATA_WIDTH,
     // Data width of AHB-Lite interface
-    parameter  int unsigned AhbDataWidth = 64,
+    parameter int unsigned AhbDataWidth = 64,
     // Address width of AHB-Lite interface.
-    parameter  int unsigned AhbAddrWidth = 32
+    parameter int unsigned AhbAddrWidth = 32
 ) (
     // AHB-Lite interface
     input  logic                      hclk_i,

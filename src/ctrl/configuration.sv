@@ -7,11 +7,15 @@
 // Required to report legal MWL/MRL/IBIL after reset
 `include "i3c_defines.svh"
 
-module configuration (
+module configuration #(
+    parameter bit ControllerEn = 1'b0,
+    parameter bit TargetEn = 1'b1,
+    parameter type csr_cfg_t = i3c_pkg::target_csr_t
+) (
     input logic clk_i,
     input logic rst_ni,
 
-    input I3CCSR_pkg::I3CCSR__out_t hwif_out_i,
+    input csr_cfg_t::hwif_out_t hwif_out_i,
 
     output logic phy_en_o,
     output logic [1:0] phy_mux_select_o,
@@ -117,13 +121,13 @@ module configuration (
   // Bus Configuration
   // TODO: implement usage for this signal
   logic i2c_dev_present;
-`ifdef CONTROLLER_SUPPORT
-  assign i2c_dev_present = hwif_out_i.I3CBase.HC_CONTROL.I2C_DEV_PRESENT.value;
-  assign halt_on_cmd_seq_timeout_o = hwif_out_i.I3CBase.HC_CONTROL.HALT_ON_CMD_SEQ_TIMEOUT.value;
-`else
-  assign i2c_dev_present = '0;
-  assign halt_on_cmd_seq_timeout_o = 1'b0;
-`endif  // CONTROLLER_SUPPORT
+  if (ControllerEn) begin : gen_controller_signal_assignments
+    assign i2c_dev_present = hwif_out_i.I3CBase.HC_CONTROL.I2C_DEV_PRESENT.value;
+    assign halt_on_cmd_seq_timeout_o = hwif_out_i.I3CBase.HC_CONTROL.HALT_ON_CMD_SEQ_TIMEOUT.value;
+  end else begin : gen_target_signal_assignment
+    assign i2c_dev_present = '0;
+    assign halt_on_cmd_seq_timeout_o = 1'b0;
+  end
 
   // Disables the TTI
   // TODO: implement usage for this signal
@@ -134,17 +138,17 @@ module configuration (
   // Define state: running, idle, waiting, halted, etc.
 
   logic abort, hc_intr;
-`ifdef CONTROLLER_SUPPORT
-  assign bus_enable = hwif_out_i.I3CBase.HC_CONTROL.BUS_ENABLE.value;
-  assign resume_o = hwif_out_i.I3CBase.HC_CONTROL.RESUME.value;
-  assign abort = hwif_out_i.I3CBase.HC_CONTROL.ABORT.value;  // TODO: implement aborting transaction
-  assign hc_intr = hwif_out_i.I3CBase.INTR_STATUS.intr;
-`else
-  assign bus_enable = hwif_out_i.I3C_EC.SoCMgmtIf.SOC_PAD_CONF.INPUT_ENABLE.value;
-  assign resume_o = '0;
-  assign abort = '0;
-  assign hc_intr = 1'b0;
-`endif  // CONTROLLER_SUPPORT
+  if (ControllerEn) begin : gen_controller_bus_control_assignments
+    assign bus_enable = hwif_out_i.I3CBase.HC_CONTROL.BUS_ENABLE.value;
+    assign resume_o = hwif_out_i.I3CBase.HC_CONTROL.RESUME.value;
+    assign abort = hwif_out_i.I3CBase.HC_CONTROL.ABORT.value;  // TODO: implement aborting transaction
+    assign hc_intr = hwif_out_i.I3CBase.INTR_STATUS.intr;
+  end else begin : gen_target_bus_control_assignments
+    assign bus_enable = hwif_out_i.I3C_EC.SoCMgmtIf.SOC_PAD_CONF.INPUT_ENABLE.value;
+    assign resume_o = '0;
+    assign abort = '0;
+    assign hc_intr = 1'b0;
+  end
 
   // These affect queue ctrl logic
   // for now these are not used since we only support PIO Mode -> it's
@@ -154,17 +158,17 @@ module configuration (
   logic pio_abort;
   logic pio_rs;
   logic pio_intr_signal;
-`ifdef CONTROLLER_SUPPORT
-  assign pio_enable = hwif_out_i.PIOControl.PIO_CONTROL.ENABLE.value;
-  assign pio_abort = hwif_out_i.PIOControl.PIO_CONTROL.ABORT.value;
-  assign pio_rs = hwif_out_i.PIOControl.PIO_CONTROL.RS.value;
-  assign pio_intr_signal = hwif_out_i.PIOControl.PIO_INTR_STATUS.intr;
-`else
-  assign pio_enable = '0;
-  assign pio_abort = '0;
-  assign pio_rs = '0;
-  assign pio_intr_signal = 1'b0;
-`endif  // CONTROLLER_SUPPORT
+  if (ControllerEn) begin : gen_controller_pio_assignments
+    assign pio_enable = hwif_out_i.PIOControl.PIO_CONTROL.ENABLE.value;
+    assign pio_abort = hwif_out_i.PIOControl.PIO_CONTROL.ABORT.value;
+    assign pio_rs = hwif_out_i.PIOControl.PIO_CONTROL.RS.value;
+    assign pio_intr_signal = hwif_out_i.PIOControl.PIO_INTR_STATUS.intr;
+  end else begin : gen_target_pio_assignments
+    assign pio_enable = '0;
+    assign pio_abort = '0;
+    assign pio_rs = '0;
+    assign pio_intr_signal = 1'b0;
+  end
 
   assign abort_o = pio_abort | abort; // since we only support PIO mode the global abort and PIO abort are handled equivalently.
   assign pio_rs_o = pio_rs;
@@ -252,14 +256,18 @@ module configuration (
     end
   end
 
-  assign get_status_fmt1_o = {
-    7'h00,  // Vendor-specific
-    hwif_out_i.I3C_EC.TTI.INTERRUPT_STATUS.PENDING_IBI.value,
-    2'b11,  // Unable to do Handoff
-    hwif_out_i.I3C_EC.TTI.STATUS.PROTOCOL_ERROR.value,
-    1'b0,  // Reserved
-    hwif_out_i.I3C_EC.TTI.INTERRUPT_STATUS.PENDING_INTERRUPT.value
-  };
+  if (TargetEn) begin : gen_target_tti_assignments
+    assign get_status_fmt1_o = {
+      7'h00,  // Vendor-specific
+      hwif_out_i.I3C_EC.TTI.INTERRUPT_STATUS.PENDING_IBI.value,
+      2'b11,  // Unable to do Handoff
+      hwif_out_i.I3C_EC.TTI.STATUS.PROTOCOL_ERROR.value,
+      1'b0,  // Reserved
+      hwif_out_i.I3C_EC.TTI.INTERRUPT_STATUS.PENDING_INTERRUPT.value
+    };
+  end else begin : gen_controller_tti_assignments
+    assign get_status_fmt1_o = '0;
+  end
 
   assign pid_o = {
     hwif_out_i.I3C_EC.StdbyCtrlMode.STBY_CR_DEVICE_CHAR.PID_HI.value,
@@ -290,8 +298,14 @@ module configuration (
   assign target_ibi_addr_valid_o = target_sta_addr_valid_o || target_dyn_addr_valid_o;
 
   // Configuration: Target IBI
-  assign ibi_enable_o = hwif_out_i.I3C_EC.TTI.CONTROL.IBI_EN.value;
-  assign ibi_retry_num_o = hwif_out_i.I3C_EC.TTI.CONTROL.IBI_RETRY_NUM.value;
-  assign ibi_retry_ctr_rst_o = hwif_out_i.I3C_EC.TTI.RESET_CONTROL.IBI_RETRY_CTR_RST.value;
+  if (TargetEn) begin : gen_target_ibi_assignments
+    assign ibi_enable_o = hwif_out_i.I3C_EC.TTI.CONTROL.IBI_EN.value;
+    assign ibi_retry_num_o = hwif_out_i.I3C_EC.TTI.CONTROL.IBI_RETRY_NUM.value;
+    assign ibi_retry_ctr_rst_o = hwif_out_i.I3C_EC.TTI.RESET_CONTROL.IBI_RETRY_CTR_RST.value;
+  end else begin : gen_controller_ibi_assignments
+    assign ibi_enable_o = '0;
+    assign ibi_retry_num_o = '0;
+    assign ibi_retry_ctr_rst_o = '0;
+  end
 
 endmodule

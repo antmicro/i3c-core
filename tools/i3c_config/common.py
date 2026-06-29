@@ -29,10 +29,6 @@ class I3CGenericConfig:
                 continue
             setattr(self, n, value)
 
-        assert any(
-            [dict_cfg["ControllerSupport"], dict_cfg["TargetSupport"]]
-        ), "I3C requires at least one of [ControllerSupport, TargetSupport] option to function"
-
     def items(self):
         return self.__dict__.items()
 

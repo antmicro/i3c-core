@@ -32,14 +32,15 @@ from peakrdl_uvm import UVMExporter
 from rdl_post_process import postprocess_sv
 from systemrdl import RDLCompiler
 
-REGISTERS_PREFIX = "I3CCSR"
-
-
 def setup_logger(level=logging.INFO, filename="log.log"):
     logging.basicConfig(
         level=level, handlers=[logging.FileHandler(filename), logging.StreamHandler()]
     )
 
+def rename_module_in_file(filepath, old_name, new_name):
+    if filepath.exists():
+        content = filepath.read_text()
+        filepath.write_text(content.replace(old_name, new_name))
 
 def main():
     setup_logger(level=logging.INFO, filename="reg_gen.log")
@@ -79,111 +80,140 @@ def main():
     args = parser.parse_args()
 
     # Parse Parameters
-    parameters = {}
+    base_parameters = {}
     for p in args.P or []:
-        # Expect: string=number
         try:
             p_split = p.split("=")
             text = p_split[0]
             number = int(p_split[-1])
-            parameters[text] = number
+            base_parameters[text] = number
         except Exception:
             raise ValueError(
                 f"SystemRDL Parameters should be a space separated list. Expected: -P param_1=1 -P param2=2. Got: {p}"
             )
     output_dir = Path(args.output_dir)
 
-    # Compile
+    # Compile RDL once
     rdlc = RDLCompiler()
     for udp in ALL_UDPS:
         rdlc.register_udp(udp)
 
     rdlc.compile_file(args.input_file)
-    root = rdlc.elaborate(parameters=parameters)
 
-    # Export SystemVerilog implementation
-    exporter = RegblockExporter()
-    exporter.export(
-        root,
-        str(output_dir),
-        cpuif_cls=PassthroughCpuif,
-        retime_read_response=False,
-        reuse_hwif_typedefs=not args.style_hier,
-    )
-    logging.info(f"Created: SystemVerilog files in {output_dir}")
+    # Define the 3 configurations
+    configs = [
+        {"prefix": "controller_I3CCSR",            "params": {"ControllerEn": 1, "TargetEn": 0}},
+        {"prefix": "target_I3CCSR",                "params": {"ControllerEn": 0, "TargetEn": 1}},
+        {"prefix": "controller_and_target_I3CCSR", "params": {"ControllerEn": 1, "TargetEn": 1}},
+    ]
 
-    # Export UVM register model
-    file_path_uvm = REGISTERS_PREFIX + "_uvm.sv"
-    output_file = output_dir / file_path_uvm
-    exporter = UVMExporter(user_template_dir=args.ral_template)
-    exporter.export(
-        root,
-        str(output_file),
-        reuse_class_definitions=not args.style_hier,
-    )
-    logging.info(f"Created: UVM file {output_file}")
+    i3c_root_dir = Path(os.environ.get("I3C_ROOT_DIR"))
 
-    # The below lines are used to generate a baseline/starting point for the include files "<reg_name>_covergroups.svh" and "<reg_name>_sample.svh"
-    # The generated files need to be hand-edited to provide the desired functionality.
-    def export_uvm_collateral(template_path, collateral_suffix):
-        file_path = REGISTERS_PREFIX + collateral_suffix
-        print(f"reg_gen: UVM collateral template path: {template_path}")
-        output_file = output_dir / file_path
-        exporter = UVMExporter(user_template_dir=template_path)
+    for config in configs:
+        REGISTERS_PREFIX = config["prefix"]
+        logging.info(f"--- Generating Configuration: {REGISTERS_PREFIX} ---")
+
+        # Merge base CLI parameters with the config parameters
+        run_params = base_parameters.copy()
+        run_params.update(config["params"])
+
+        root = rdlc.elaborate(parameters=run_params)
+
+        # Export SystemVerilog implementation
+        exporter = RegblockExporter()
+        exporter.export(
+            root,
+            str(output_dir),
+            cpuif_cls=PassthroughCpuif,
+            retime_read_response=False,
+            reuse_hwif_typedefs=not args.style_hier,
+        )
+        
+        # Rename standard output files to the prefix
+        sv_file = output_dir / f"{REGISTERS_PREFIX}.sv"
+        pkg_file = output_dir / f"{REGISTERS_PREFIX}_pkg.sv"
+        if (output_dir / "I3CCSR.sv").exists(): (output_dir / "I3CCSR.sv").rename(sv_file)
+        if (output_dir / "I3CCSR_pkg.sv").exists(): (output_dir / "I3CCSR_pkg.sv").rename(pkg_file)
+        
+        rename_module_in_file(sv_file, "I3CCSR", REGISTERS_PREFIX)
+        rename_module_in_file(pkg_file, "I3CCSR", REGISTERS_PREFIX)
+        logging.info(f"Created: SystemVerilog files in {output_dir}")
+
+        # Export UVM register model
+        file_path_uvm = REGISTERS_PREFIX + "_uvm.sv"
+        output_file = output_dir / file_path_uvm
+        exporter = UVMExporter(user_template_dir=args.ral_template)
         exporter.export(
             root,
             str(output_file),
             reuse_class_definitions=not args.style_hier,
         )
-        logging.info(f"Created file {output_file}")
+        rename_module_in_file(output_file, "I3CCSR", REGISTERS_PREFIX)
+        logging.info(f"Created: UVM file {output_file}")
 
-    export_uvm_collateral(args.cov_template, "_covergroups.svh")
-    export_uvm_collateral(args.smp_template, "_sample.svh")
+        def export_uvm_collateral(template_path, collateral_suffix):
+            file_path = REGISTERS_PREFIX + collateral_suffix
+            output_file = output_dir / file_path
+            exporter = UVMExporter(user_template_dir=template_path)
+            exporter.export(
+                root,
+                str(output_file),
+                reuse_class_definitions=not args.style_hier,
+            )
+            rename_module_in_file(output_file, "I3CCSR", REGISTERS_PREFIX)
+            logging.info(f"Created file {output_file}")
 
-    # Generate the C header
-    exporter = CHeaderExporter()
-    i3c_root_dir = Path(os.environ.get("I3C_ROOT_DIR"))
-    try:
-        (i3c_root_dir / "sw").mkdir()
-    except FileExistsError:
-        pass
-    output_file = i3c_root_dir / "sw" / (REGISTERS_PREFIX + ".h")
-    exporter.export(root, path=str(output_file), reuse_typedefs=not args.style_hier)
-    logging.info(f"Created: c-header file {output_file}")
+        export_uvm_collateral(args.cov_template, "_covergroups.svh")
+        export_uvm_collateral(args.smp_template, "_sample.svh")
 
-    # Export documentation in HTML
-    exporter = HTMLExporter()
-    output_file = i3c_root_dir / "src" / "rdl" / "docs" / "html"
-    exporter.export(root, str(output_file))
-    logging.info(f"Created: HTML files in {output_file}")
+        # Generate the C header
+        exporter = CHeaderExporter()
+        try:
+            (i3c_root_dir / "sw").mkdir(exist_ok=True)
+        except FileExistsError:
+            pass
+        output_file = i3c_root_dir / "sw" / (REGISTERS_PREFIX + ".h")
+        exporter.export(root, path=str(output_file), reuse_typedefs=not args.style_hier)
+        rename_module_in_file(output_file, "I3CCSR", REGISTERS_PREFIX.upper())
+        logging.info(f"Created: c-header file {output_file}")
 
-    # Export Markdown documentation
-    exporter = MarkdownExporter()
-    output_file = i3c_root_dir / "src" / "rdl" / "docs" / "README.md"
-    exporter.export(root, str(output_file), rename=REGISTERS_PREFIX)
-    logging.info(f"Created: Markdown file {output_file}")
+        # Export documentation in HTML (Protected against plugin crash)
+        try:
+            exporter = HTMLExporter()
+            output_file = i3c_root_dir / "src" / "rdl" / "docs" / REGISTERS_PREFIX / "html"
+            exporter.export(root, str(output_file))
+            logging.info(f"Created: HTML files in {output_file}")
+        except Exception as e:
+            logging.warning(f"Skipped HTML for {REGISTERS_PREFIX} due to plugin error: {e}")
 
-    # Fix SystemVerilog files
-    postprocess_sv(output_dir / (REGISTERS_PREFIX + ".sv"))
-    postprocess_sv(output_dir / (REGISTERS_PREFIX + "_pkg.sv"))
+        # Export Markdown documentation (Protected against plugin crash)
+        try:
+            exporter = MarkdownExporter()
+            output_file = i3c_root_dir / "src" / "rdl" / "docs" / REGISTERS_PREFIX / "README.md"
+            exporter.export(root, str(output_file), rename=REGISTERS_PREFIX)
+            logging.info(f"Created: Markdown file {output_file}")
+        except Exception as e:
+            logging.warning(f"Skipped Markdown for {REGISTERS_PREFIX} due to plugin error: {e}")
 
-    # Export Cocotb dictionary
-    exporter = CocotbExporter()
-    output_file = i3c_root_dir / "verification" / "cocotb" / "common" / "reg_map.py"
-    exporter.export(root, path=str(output_file))
-    logging.info(f"Created: Python dictionary file {output_file}")
+        # Fix SystemVerilog files
+        postprocess_sv(output_dir / (REGISTERS_PREFIX + ".sv"))
+        postprocess_sv(output_dir / (REGISTERS_PREFIX + "_pkg.sv"))
 
-    # Generate AXI CSR tracker bind module from the same reg_map data
-    # Re-import the freshly generated reg_map to get the dict
-    import importlib.util
-    spec = importlib.util.spec_from_file_location("reg_map", str(output_file))
-    reg_map_mod = importlib.util.module_from_spec(spec)
-    spec.loader.exec_module(reg_map_mod)
-    tracker_output = (
-        i3c_root_dir / "verification" / "cocotb" / "top" / "lib_i3c_top" / "axi_csr_tracker.sv"
-    )
-    generate_axi_csr_tracker(reg_map_mod.reg_map, tracker_output)
+        # Export Cocotb dictionary
+        exporter = CocotbExporter()
+        output_file = i3c_root_dir / "verification" / "cocotb" / "common" / f"reg_map_{REGISTERS_PREFIX}.py"
+        exporter.export(root, path=str(output_file))
+        logging.info(f"Created: Python dictionary file {output_file}")
 
+        # Generate AXI CSR tracker bind module
+        import importlib.util
+        spec = importlib.util.spec_from_file_location("reg_map", str(output_file))
+        reg_map_mod = importlib.util.module_from_spec(spec)
+        spec.loader.exec_module(reg_map_mod)
+        tracker_output = (
+            i3c_root_dir / "verification" / "cocotb" / "top" / "lib_i3c_top" / f"axi_csr_tracker_{REGISTERS_PREFIX}.sv"
+        )
+        generate_axi_csr_tracker(reg_map_mod.reg_map, tracker_output)
 
 if __name__ == "__main__":
     main()

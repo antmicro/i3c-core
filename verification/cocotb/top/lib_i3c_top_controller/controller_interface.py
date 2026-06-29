@@ -190,7 +190,7 @@ class I3CTopControllerTestInterface:
         self.num_busses = num_busses
 
         # Specifies DUT configuration, either Controller Only or Controller and Target
-        self.dut_config = os.environ.get("I3C_DUT_CONFIG", "controller_and_target")
+        self.dut_config = os.environ.get("DUT_CONFIG", "controller_and_target")
         
         self.dut._log.info(f"Testbench initialized. DUT compiled as: {self.dut_config}")
 
@@ -198,11 +198,13 @@ class I3CTopControllerTestInterface:
         # Build the Per-Bus Register Map
         self.reg_maps = {}
         for i in range(num_busses):
-            if i == ACT_CONTROLLER_IDX:
-                if self.dut_config == "controller":
+            if i == ACT_CONTROLLER_IDX or num_busses == 1:
+                if self.dut_config == "controller_only":
+                    self.dut._log.info("Reg map is controller_reg_map")
                     self.reg_maps[i] = controller_reg_map
                 else:
                     self.reg_maps[i] = controller_and_target_reg_map
+                    self.dut._log.info("Reg map is controller_and_target_reg_map")
             else:
                 self.reg_maps[i] = controller_and_target_reg_map
 

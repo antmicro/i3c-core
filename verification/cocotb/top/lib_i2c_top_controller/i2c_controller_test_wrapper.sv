@@ -290,8 +290,8 @@ module i2c_controller_test_wrapper #(
         .DatAw(DatAw),
         .DctAw(DctAw)
     ) i3c (
-        .clk_i,
-        .rst_ni,
+        .clk_i (aclk),
+        .rst_ni(areset_n),
 
 `ifdef I3C_USE_AHB
         .haddr_i,

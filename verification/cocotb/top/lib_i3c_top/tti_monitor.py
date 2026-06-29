@@ -24,8 +24,8 @@ class TtiQueueMonitor:
     """
 
     # Hierarchical paths relative to dut
-    _TTI = "xi3c_wrapper.i3c.xtti"
-    _REC = "xi3c_wrapper.i3c.xrecovery_handler"
+    _TTI = "xi3c_wrapper.gen_target_config.i3c.gen_target_tti.xtti"
+    _REC = "xi3c_wrapper.gen_target_config.i3c.gen_target_recovery_handler.xrecovery_handler"
 
     def __init__(self, dut):
         self.dut = dut
@@ -33,8 +33,8 @@ class TtiQueueMonitor:
         self._running = False
 
         # Resolve signal handles once
-        tti = getattr(dut, "xi3c_wrapper").i3c.xtti
-        rec = getattr(dut, "xi3c_wrapper").i3c.xrecovery_handler
+        tti = getattr(dut, "xi3c_wrapper").gen_target_config.i3c.gen_target_tti.xtti
+        rec = getattr(dut, "xi3c_wrapper").gen_target_config.i3c.gen_target_recovery_handler.xrecovery_handler
         self._rx_desc_write_r = tti.rx_desc_queue_write_r
         self._rx_data_write_r = tti.rx_data_queue_write_r
         self._recovery_pending = rec.recovery_pending

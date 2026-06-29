@@ -1,3 +1,4 @@
+import os
 from random import randint
 
 from hci_queues import HCIQueuesTestInterface
@@ -6,10 +7,25 @@ from tti_queues import TTIQueuesTestInterface
 from cocotb.handle import SimHandleBase
 from bus2csr import dword2int, int2dword
 from hci import HCIBaseTestInterface
-from reg_map import reg_map
 from utils import clog2
 
 from cocotb.triggers import ClockCycles, ReadOnly, RisingEdge
+
+try:
+    from reg_map_controller_and_target_I3CCSR import reg_map as controller_and_target_reg_map
+    from reg_map_controller_I3CCSR import reg_map as controller_only_reg_map
+    from reg_map_target_I3CCSR import reg_map as target_only_reg_map
+except ImportError:
+    pass # Failsafe in case a specific config hasn't been compiled yet
+
+dut_config = os.environ.get("DUT_CONFIG", "combo")
+
+if dut_config == "target_only":
+    reg_map = target_only_reg_map
+elif dut_config == "controller_only":
+    reg_map = controller_only_reg_map
+else:
+    reg_map = controller_and_target_reg_map
 
 
 async def should_be_empty_after_rst(dut: SimHandleBase, if_name: str, queue: str):

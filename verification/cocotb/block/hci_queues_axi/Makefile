@@ -22,8 +22,8 @@ include $(TEST_DIR)/../../caliptra_common.mk
 
 VERILOG_SOURCES += \
     $(SRC_DIR)/i3c_pkg.sv \
-    $(SRC_DIR)/csr/I3CCSR_pkg.sv \
-    $(SRC_DIR)/csr/I3CCSR.sv \
+    $(SRC_DIR)/csr/*_I3CCSR_pkg.sv \
+    $(SRC_DIR)/csr/*_I3CCSR.sv \
     ${SRC_DIR}/interrupt.sv \
     $(CALIPTRA_ROOT)/src/axi/rtl/axi_pkg.sv \
     $(CALIPTRA_ROOT)/src/axi/rtl/axi_if.sv \

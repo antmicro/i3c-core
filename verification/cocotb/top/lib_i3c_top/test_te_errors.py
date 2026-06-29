@@ -52,7 +52,7 @@ FSM_STATE_IDLE = 0
 FSM_STATE_IN_HDR_MODE = 19
 
 FSM_STATE_PATH = (
-    "xi3c_wrapper.i3c.xcontroller.xcontroller_standby"
+    "xi3c_wrapper.gen_target_config.i3c.xcontroller.gen_target_controller_standby.xcontroller_standby"
     ".xcontroller_standby_i3c.xi3c_target_fsm.state_q"
 )
 

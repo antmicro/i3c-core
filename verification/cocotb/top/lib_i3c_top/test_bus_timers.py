@@ -35,13 +35,13 @@ T_IDLE = 30
 
 # Hierarchy path to the xbus_timers instance
 BUS_TIMERS_PATH = (
-    "xi3c_wrapper.i3c.xcontroller.xcontroller_standby"
+    "xi3c_wrapper.gen_target_config.i3c.xcontroller.gen_target_controller_standby.xcontroller_standby"
     ".xcontroller_standby_i3c.xbus_timers"
 )
 
 # Hierarchy path to the target FSM state register
 FSM_STATE_PATH = (
-    "xi3c_wrapper.i3c.xcontroller.xcontroller_standby"
+    "xi3c_wrapper.gen_target_config.i3c.xcontroller.gen_target_controller_standby.xcontroller_standby"
     ".xcontroller_standby_i3c.xi3c_target_fsm.state_q"
 )
 
@@ -336,7 +336,7 @@ async def test_bus_edge_detectors(dut):
 
     i3c_controller, tb = await test_setup(dut)
 
-    SIG_STATE = dut.xi3c_wrapper.i3c.xcontroller.xbus_monitor
+    SIG_STATE = dut.xi3c_wrapper.gen_target_config.i3c.xcontroller.xbus_monitor
     await i3c_controller.take_bus_control()
 
     async def check_edge_occurred(edge, timing):

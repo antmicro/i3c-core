@@ -536,7 +536,7 @@ async def test_ibi_multi_queue_flush_large_payload(dut):
     await init_ibi(i3c_controller, tb)
 
     # Internal signal handles for coverage injection
-    standby = dut.xi3c_wrapper.i3c.xcontroller.xcontroller_standby.xcontroller_standby_i3c
+    standby = dut.xi3c_wrapper.gen_target_config.i3c.xcontroller.gen_target_controller_standby.xcontroller_standby.xcontroller_standby_i3c
     desc_ibi = standby.u_descriptor_ibi
 
     # IBI #0 has 20 bytes payload (will be truncated to 4)

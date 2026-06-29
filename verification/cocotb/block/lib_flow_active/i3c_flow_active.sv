@@ -22,6 +22,9 @@ module i3c_flow_active
   import i3c_pkg::*;
   import controller_pkg::*;
 #(
+    parameter bit ControllerEn = 1,
+    parameter bit TargetEn = 1,
+    parameter type csr_cfg_t = controller_and_target_csr_t,
 `ifdef I3C_USE_AHB
     parameter int unsigned AhbDataWidth = `AHB_DATA_WIDTH,
     parameter int unsigned AhbAddrWidth = `AHB_ADDR_WIDTH,
@@ -37,10 +40,9 @@ module i3c_flow_active
     parameter int unsigned DatAw = i3c_pkg::DatAw,
     parameter int unsigned DctAw = i3c_pkg::DctAw,
 
-    parameter int unsigned CsrAddrWidth = I3CCSR_pkg::I3CCSR_MIN_ADDR_WIDTH,
-    parameter int unsigned CsrDataWidth = I3CCSR_pkg::I3CCSR_DATA_WIDTH,
+    parameter int unsigned CsrAddrWidth = 12,
+    parameter int unsigned CsrDataWidth = 32,
 
-`ifdef CONTROLLER_SUPPORT
     parameter int unsigned HciRespFifoDepth = `RESP_FIFO_DEPTH,
     parameter int unsigned HciCmdFifoDepth  = `CMD_FIFO_DEPTH,
     parameter int unsigned HciRxFifoDepth   = `RX_FIFO_DEPTH,
@@ -68,7 +70,6 @@ module i3c_flow_active
     parameter int unsigned HciRxThldWidth = 3,
     parameter int unsigned HciTxThldWidth = 3,
     parameter int unsigned HciIbiThldWidth = 8,
-`endif  // CONTROLLER_SUPPORT
     parameter int unsigned IndirectFifoDepth = 64
 ) (
     input logic clk_i,  // clock
@@ -167,7 +168,6 @@ module i3c_flow_active
     output logic unhandled_unexp_nak_o,
     output logic unhandled_nak_timeout_o,
 
-`ifdef CONTROLLER_SUPPORT
     // DAT memory export interface
     input  dat_mem_src_t  dat_mem_src_i,
     output dat_mem_sink_t dat_mem_sink_o,
@@ -175,7 +175,6 @@ module i3c_flow_active
     // DCT memory export interface
     input  dct_mem_src_t  dct_mem_src_i,
     output dct_mem_sink_t dct_mem_sink_o,
-`endif  // CONTROLLER_SUPPORT
 
     // Recovery interface signals
     output logic recovery_payload_available_o,
@@ -190,20 +189,19 @@ module i3c_flow_active
 );
 
   // I3C SW CSR IF
-  logic                    s_cpuif_req;
-  logic                    s_cpuif_req_is_wr;
-  logic [CsrAddrWidth-1:0] s_cpuif_addr;
-  logic [CsrDataWidth-1:0] s_cpuif_wr_data;
-  logic [CsrDataWidth-1:0] s_cpuif_wr_biten;
-  logic                    s_cpuif_req_stall_wr;
-  logic                    s_cpuif_req_stall_rd;
-  logic                    s_cpuif_rd_ack;
-  logic                    s_cpuif_rd_err;
-  logic [CsrDataWidth-1:0] s_cpuif_rd_data;
-  logic                    s_cpuif_wr_ack;
-  logic                    s_cpuif_wr_err;
+  logic                             s_cpuif_req;
+  logic                             s_cpuif_req_is_wr;
+  logic [         CsrAddrWidth-1:0] s_cpuif_addr;
+  logic [         CsrDataWidth-1:0] s_cpuif_wr_data;
+  logic [         CsrDataWidth-1:0] s_cpuif_wr_biten;
+  logic                             s_cpuif_req_stall_wr;
+  logic                             s_cpuif_req_stall_rd;
+  logic                             s_cpuif_rd_ack;
+  logic                             s_cpuif_rd_err;
+  logic [         CsrDataWidth-1:0] s_cpuif_rd_data;
+  logic                             s_cpuif_wr_ack;
+  logic                             s_cpuif_wr_err;
 
-`ifdef CONTROLLER_SUPPORT
   // Response queue
   logic                             hci_resp_full;
   logic [HciRespFifoDepthWidth-1:0] hci_resp_depth;
@@ -258,25 +256,22 @@ module i3c_flow_active
   logic                             hci_ibi_wready;
   logic [      HciIbiDataWidth-1:0] hci_ibi_wdata;
 
-`ifdef CONTROLLER_SUPPORT
   // DAT <-> Controller interface
-  logic                          dat_read_valid_hw;
-  logic [$clog2(`DAT_DEPTH)-1:0] dat_index_hw;
-  logic [                  63:0] dat_rdata_hw;
+  logic                             dat_read_valid_hw;
+  logic [   $clog2(`DAT_DEPTH)-1:0] dat_index_hw;
+  logic [                     63:0] dat_rdata_hw;
 
   // DCT <-> Controller interface
-  logic                          dct_write_valid_hw;
-  logic                          dct_read_valid_hw;
-  logic [$clog2(`DCT_DEPTH)-1:0] dct_index_hw;
-  logic [                 127:0] dct_wdata_hw;
-  logic [                 127:0] dct_rdata_hw;
-`endif  // CONTROLLER_SUPPORT
+  logic                             dct_write_valid_hw;
+  logic                             dct_read_valid_hw;
+  logic [   $clog2(`DCT_DEPTH)-1:0] dct_index_hw;
+  logic [                    127:0] dct_wdata_hw;
+  logic [                    127:0] dct_rdata_hw;
 
-`endif  // CONTROLLER_SUPPORT
 
   // TODO: Fix these signals
   // Originally only used in active, should be removed and replaced with signal from CSR
-  logic i3c_fsm_en_i;
+  logic                             i3c_fsm_en_i;
   assign i3c_fsm_en_i = 1'b0;
   // This signal should only be used on level of fsm/flow modules. Expose it via CSR, if needed.
   logic i3c_fsm_idle_o;
@@ -460,25 +455,23 @@ module i3c_flow_active
   logic xfer_in_progress;
 
   // CSR Interface
-`ifdef CONTROLLER_SUPPORT
   // PIO CONTROL CSR interface
-  I3CCSR_pkg::I3CCSR__PIOControl__in_t hwif_pio_control_in;
-  I3CCSR_pkg::I3CCSR__PIOControl__out_t hwif_pio_control_out;
+  csr_cfg_t::pio_in_t hwif_pio_control_in;
+  csr_cfg_t::pio_out_t hwif_pio_control_out;
 
   // I3C BASE CSR interface
-  I3CCSR_pkg::I3CCSR__I3CBase__in_t hwif_base_in;
-  I3CCSR_pkg::I3CCSR__I3CBase__out_t hwif_base_out;
+  csr_cfg_t::base_in_t hwif_base_in;
+  csr_cfg_t::base_out_t hwif_base_out;
 
   // DAT CSR interface
-  I3CCSR_pkg::I3CCSR__DAT__in_t dat_in;
-  I3CCSR_pkg::I3CCSR__DAT__out_t dat_out;
+  csr_cfg_t::dat_in_t dat_in;
+  csr_cfg_t::dat_out_t dat_out;
 
   // DCT CSR interface
-  I3CCSR_pkg::I3CCSR__DCT__in_t dct_in;
-  I3CCSR_pkg::I3CCSR__DCT__out_t dct_out;
-`endif  // CONTROLLER_SUPPORT
+  csr_cfg_t::dct_in_t dct_in;
+  csr_cfg_t::dct_out_t dct_out;
 
-  I3CCSR_pkg::I3CCSR__out_t hwif_out;
+  csr_cfg_t::hwif_out_t hwif_out;
 
   logic bypass_i3c_core;
 `ifndef DISABLE_LOOPBACK
@@ -489,6 +482,9 @@ module i3c_flow_active
   logic unused_err;
 
   controller_flow_active #(
+      .ControllerEn(ControllerEn),
+      .TargetEn(TargetEn),
+      .csr_cfg_t(csr_cfg_t),
       .DatAw(DatAw),
       .DctAw(DctAw)
   ) xcontroller_flow_active (
@@ -507,7 +503,6 @@ module i3c_flow_active
       .unhandled_unexp_nak_o(unhandled_unexp_nak_o),
       .unhandled_nak_timeout_o(unhandled_nak_timeout_o),
 
-`ifdef CONTROLLER_SUPPORT
       // HCI Response queue
       .hci_resp_queue_empty_i(hci_resp_empty),
       .hci_resp_queue_full_i(hci_resp_full),
@@ -561,12 +556,10 @@ module i3c_flow_active
       .hci_ibi_queue_wvalid_o(hci_ibi_wvalid),
       .hci_ibi_queue_wready_i(hci_ibi_wready),
       .hci_ibi_queue_wdata_o(hci_ibi_wdata),
-`endif  // CONTROLLER_SUPPORT
 
       // I2C/I3C received address (with RnW# bit) for the recovery handler
       .bus_addr_o(rx_bus_addr),
       .bus_addr_valid_o(rx_bus_addr_valid),
-`ifdef CONTROLLER_SUPPORT
       // DAT <-> Controller interface
       .dat_read_valid_hw_o(dat_read_valid_hw),
       .dat_index_hw_o(dat_index_hw),
@@ -578,7 +571,6 @@ module i3c_flow_active
       .dct_index_hw_o(dct_index_hw),
       .dct_wdata_hw_o(dct_wdata_hw),
       .dct_rdata_hw_i(dct_rdata_hw),
-`endif
       //TODO: Rename
       .i3c_fsm_en_i(i3c_fsm_en_i),
       .i3c_fsm_idle_o(i3c_fsm_idle_o),
@@ -621,8 +613,8 @@ module i3c_flow_active
   );
 
   // HCI
-`ifdef CONTROLLER_SUPPORT
   hci #(
+      .csr_cfg_t(csr_cfg_t),
       .CsrAddrWidth(CsrAddrWidth),
       .CsrDataWidth(CsrDataWidth),
       .DatAw(DatAw),
@@ -723,9 +715,11 @@ module i3c_flow_active
       .hci_ibi_wready_o(hci_ibi_wready),
       .hci_ibi_wdata_i(hci_ibi_wdata)
   );
-`endif  // CONTROLLER_SUPPORT
 
   csri #(
+      .ControllerEn(ControllerEn),
+      .TargetEn(TargetEn),
+      .csr_cfg_t(csr_cfg_t),
       .CsrAddrWidth(CsrAddrWidth),
       .CsrDataWidth(CsrDataWidth)
   ) xcsri (
@@ -745,7 +739,6 @@ module i3c_flow_active
       .s_cpuif_wr_err(s_cpuif_wr_err),
 
       // CSR Interface
-`ifdef CONTROLLER_SUPPORT
       .hwif_pio_control_i(hwif_pio_control_in),
       .hwif_pio_control_o(hwif_pio_control_out),
       .hwif_base_i(hwif_base_in),
@@ -754,7 +747,6 @@ module i3c_flow_active
       .dat_o(dat_out),
       .dct_i(dct_in),
       .dct_o(dct_out),
-`endif
       .hwif_out_o(hwif_out),
 
       // Controller configuration status

@@ -7956,7 +7956,7 @@ async def test_recovery_hdr_abort_per_state(dut):
 
     # Get reference to recovery receiver state_q signal
     try:
-        recovery_rx = dut.xi3c_wrapper.i3c.xrecovery_handler.xrecovery_receiver
+        recovery_rx = dut.xi3c_wrapper.gen_target_config.i3c.xrecovery_handler.xrecovery_receiver
         state_sig = recovery_rx.state_q
     except AttributeError:
         dut._log.warning("Cannot access recovery_receiver.state_q -- skipping per-state test")

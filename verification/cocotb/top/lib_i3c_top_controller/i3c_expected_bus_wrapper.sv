@@ -20,16 +20,11 @@ module i3c_expected_bus_wrapper #(
     parameter int unsigned AxiDataWidth = `AXI_DATA_WIDTH,
     parameter int unsigned AxiAddrWidth = `AXI_ADDR_WIDTH,
     parameter int unsigned AxiUserWidth = `AXI_USER_WIDTH,
-    parameter int unsigned AxiIdWidth = `AXI_ID_WIDTH,
+    parameter int unsigned AxiIdWidth   = `AXI_ID_WIDTH,
 `ifdef AXI_ID_FILTERING
-    parameter int unsigned NumPrivIds = `NUM_PRIV_IDS,
+    parameter int unsigned NumPrivIds   = `NUM_PRIV_IDS
 `endif
 `endif
-    parameter int unsigned DatAw = i3c_pkg::DatAw,
-    parameter int unsigned DctAw = i3c_pkg::DctAw,
-
-    parameter int unsigned CsrAddrWidth = I3CCSR_pkg::I3CCSR_MIN_ADDR_WIDTH,
-    parameter int unsigned CsrDataWidth = I3CCSR_pkg::I3CCSR_DATA_WIDTH
 ) (
 `ifdef I3C_USE_AHB
     input  logic                      hclk,
@@ -151,6 +146,8 @@ module i3c_expected_bus_wrapper #(
   logic sel_od_pp;
 
   i3c_wrapper #(
+      .ControllerEn(1'b1),
+      .TargetEn(1'b1),
 `ifdef I3C_USE_AHB
       .AhbDataWidth(AhbDataWidth),
       .AhbAddrWidth(AhbAddrWidth),
@@ -160,13 +157,9 @@ module i3c_expected_bus_wrapper #(
       .AxiUserWidth(AxiUserWidth),
       .AxiIdWidth(AxiIdWidth),
 `ifdef AXI_ID_FILTERING
-      .NumPrivIds(NumPrivIds),
+      .NumPrivIds(NumPrivIds)
 `endif
 `endif
-      .DatAw(DatAw),
-      .DctAw(DctAw),
-      .CsrAddrWidth(CsrAddrWidth),
-      .CsrDataWidth(CsrDataWidth)
   ) xi3c_wrapper (
       .clk_i,
       .rst_ni,

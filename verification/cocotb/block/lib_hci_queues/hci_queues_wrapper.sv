@@ -3,9 +3,10 @@
 
 module hci_queues_wrapper
   import i3c_pkg::*;
-  import I3CCSR_pkg::I3CCSR_DATA_WIDTH;
-  import I3CCSR_pkg::I3CCSR_MIN_ADDR_WIDTH;
 #(
+    parameter bit ControllerEn = 0,  // enables host controller configuration
+    parameter bit TargetEn = 1,  // enables target configuration
+    parameter type csr_cfg_t = target_csr_t,
 `ifdef I3C_USE_AHB
     parameter int unsigned AhbAddrWidth = 18,
     parameter int unsigned AhbDataWidth = 64,
@@ -18,13 +19,13 @@ module hci_queues_wrapper
     parameter int unsigned NumPrivIds = 4,
 `endif
 `endif
-    parameter int unsigned DatAw = i3c_pkg::DatAw,
-    parameter int unsigned DctAw = i3c_pkg::DctAw,
+    parameter int unsigned CsrAddrWidth = (ControllerEn && TargetEn) ? controller_and_target_I3CCSR_pkg::controller_and_target_I3CCSR_MIN_ADDR_WIDTH :
+                               (ControllerEn)             ? controller_I3CCSR_pkg::controller_I3CCSR_MIN_ADDR_WIDTH :
+                                                            target_I3CCSR_pkg::target_I3CCSR_MIN_ADDR_WIDTH,
+    parameter int unsigned CsrDataWidth = (ControllerEn && TargetEn) ? controller_and_target_I3CCSR_pkg::controller_and_target_I3CCSR_DATA_WIDTH :
+                               (ControllerEn)             ? controller_I3CCSR_pkg::controller_I3CCSR_DATA_WIDTH :
+                                                            target_I3CCSR_pkg::target_I3CCSR_DATA_WIDTH,
 
-    localparam int unsigned CsrAddrWidth = I3CCSR_MIN_ADDR_WIDTH,
-    localparam int unsigned CsrDataWidth = I3CCSR_DATA_WIDTH
-
-`ifdef CONTROLLER_SUPPORT,
     parameter int unsigned HciRespFifoDepth = 64,
     parameter int unsigned HciCmdFifoDepth  = 64,
     parameter int unsigned HciRxFifoDepth   = 64,
@@ -47,9 +48,7 @@ module hci_queues_wrapper
     parameter int unsigned HciCmdThldWidth = 8,
     parameter int unsigned HciRxThldWidth = 3,
     parameter int unsigned HciTxThldWidth = 3,
-    parameter int unsigned HciIbiThldWidth = 8
-`endif  // CONTROLLER_SUPPORT
-`ifdef TARGET_SUPPORT,
+    parameter int unsigned HciIbiThldWidth = 8,
     parameter int unsigned TtiRxDescFifoDepth = 64,
     parameter int unsigned TtiTxDescFifoDepth = 64,
     parameter int unsigned TtiRxDataFifoDepth = 64,
@@ -73,7 +72,6 @@ module hci_queues_wrapper
     parameter int unsigned TtiRxThldWidth = 3,
     parameter int unsigned TtiTxThldWidth = 3,
     parameter int unsigned TtiIbiThldWidth = 8
-`endif  // TARGET_SUPPORT
 ) (
 `ifdef I3C_USE_AHB
     // AHB-Lite interface
@@ -146,7 +144,6 @@ module hci_queues_wrapper
 `endif  // AXI_ID_FILTERING
 `endif  // I3C_USE_AXI
     // HCI queues (FSM side)
-`ifdef CONTROLLER_SUPPORT
     // Response queue
     output logic [     HciRespThldWidth-1:0] hci_resp_ready_thld_o,
     output logic                             hci_resp_full_o,
@@ -199,9 +196,7 @@ module hci_queues_wrapper
     input logic hci_ibi_wvalid_i,
     output logic hci_ibi_wready_o,
     input logic [HciIbiDataWidth-1:0] hci_ibi_wdata_i,
-`endif  // CONTROLLER_SUPPORT
     // Target Transaction Interface
-`ifdef TARGET_SUPPORT
     // RX descriptors queue
     output logic tti_rx_desc_full_o,
     output logic [TtiRxDescFifoDepthWidth-1:0] tti_rx_desc_depth_o,
@@ -273,7 +268,6 @@ module hci_queues_wrapper
     output logic payload_available_o,
     output logic image_activated_o,
     output logic irq_o,
-`endif  // TARGET_SUPPORT
 
     input logic [7:0] rst_action_i
 );
@@ -291,38 +285,34 @@ module hci_queues_wrapper
   end
 
   // CSR Interface
-`ifdef TARGET_SUPPORT
   // Target Transaction CSR Interface
-  I3CCSR_pkg::I3CCSR__I3C_EC__TTI__out_t hwif_tti_out;
-  I3CCSR_pkg::I3CCSR__I3C_EC__TTI__in_t hwif_tti_in;
+  csr_cfg_t::tti_out_t hwif_tti_out;
+  csr_cfg_t::tti_in_t hwif_tti_in;
 
   // Recovery CSR Interface
-  I3CCSR_pkg::I3CCSR__I3C_EC__SecFwRecoveryIf__out_t hwif_rec_out;
-  I3CCSR_pkg::I3CCSR__I3C_EC__SecFwRecoveryIf__in_t hwif_rec_in;
+  csr_cfg_t::secfwrecoveryif_out_t hwif_rec_out;
+  csr_cfg_t::secfwrecoveryif_in_t hwif_rec_in;
 
   // SoC Management CSR Interface
-  I3CCSR_pkg::I3CCSR__I3C_EC__SoCMgmtIf__in_t hwif_soc_mgmt_in;
-  I3CCSR_pkg::I3CCSR__I3C_EC__SoCMgmtIf__out_t hwif_soc_mgmt_out;
-`endif  // TARGET_SUPPORT
+  csr_cfg_t::socmgmt_in_t hwif_soc_mgmt_in;
+  csr_cfg_t::socmgmt_out_t hwif_soc_mgmt_out;
 
-`ifdef CONTROLLER_SUPPORT
   // PIO CONTROL CSR interface
-  I3CCSR_pkg::I3CCSR__PIOControl__out_t hwif_pio_control_out;
-  I3CCSR_pkg::I3CCSR__PIOControl__in_t hwif_pio_control_in;
+  csr_cfg_t::pio_out_t hwif_pio_control_out;
+  csr_cfg_t::pio_in_t hwif_pio_control_in;
 
   // I3C BASE CSR interface
-  I3CCSR_pkg::I3CCSR__I3CBase__out_t hwif_base_out;
-  I3CCSR_pkg::I3CCSR__I3CBase__in_t hwif_base_in;
+  csr_cfg_t::base_out_t hwif_base_out;
+  csr_cfg_t::base_in_t hwif_base_in;
 
   // DAT CSR interface
-  I3CCSR_pkg::I3CCSR__DAT__out_t dat_out;
-  I3CCSR_pkg::I3CCSR__DAT__in_t dat_in;
+  csr_cfg_t::dat_out_t dat_out;
+  csr_cfg_t::dat_in_t dat_in;
 
   // DCT CSR interface
-  I3CCSR_pkg::I3CCSR__DCT__out_t dct_out;
-  I3CCSR_pkg::I3CCSR__DCT__in_t dct_in;
-`endif  // CONTROLLER_SUPPORT
-  I3CCSR_pkg::I3CCSR__out_t unused_hwif_out;
+  csr_cfg_t::dct_out_t dct_out;
+  csr_cfg_t::dct_in_t dct_in;
+  csr_cfg_t::hwif_out_t unused_hwif_out;
 
   // I3C SW CSR IF
   logic s_cpuif_req;
@@ -459,7 +449,6 @@ module hci_queues_wrapper
   logic [19:0] unused_t_bus_idle_o;
   logic [19:0] unused_t_bus_available_o;
 
-`ifdef CONTROLLER_SUPPORT
   hci #(
       .HciRespFifoDepth(HciRespFifoDepth),
       .HciCmdFifoDepth (HciCmdFifoDepth),
@@ -561,8 +550,6 @@ module hci_queues_wrapper
       .hci_ibi_wready_o,
       .hci_ibi_wdata_i
   );
-`endif  // CONTROLLER_SUPPORT
-`ifdef TARGET_SUPPORT
   // TTI
   // TTI RX Descriptor queue
   logic                          csr_tti_rx_desc_queue_req;
@@ -712,7 +699,6 @@ module hci_queues_wrapper
       .tx_pr_start_i('0),
       .irq_o(unused_irq)
   );
-`endif  // TARGET_SUPPORT
 
   csri #(
       .CsrAddrWidth(CsrAddrWidth),
@@ -735,15 +721,12 @@ module hci_queues_wrapper
       .s_cpuif_wr_err,
 
       // CSR Interface
-`ifdef TARGET_SUPPORT
       .hwif_tti_i(hwif_tti_in),
       .hwif_tti_o(hwif_tti_out),
       .hwif_rec_i(hwif_rec_in),
       .hwif_rec_o(hwif_rec_out),
       .hwif_socmgmt_i(hwif_soc_mgmt_in),
       .hwif_socmgmt_o(hwif_soc_mgmt_out),
-`endif  // TARGET_SUPPORT
-`ifdef CONTROLLER_SUPPORT
       .hwif_pio_control_i(hwif_pio_control_in),
       .hwif_pio_control_o(hwif_pio_control_out),
       .hwif_base_i(hwif_base_in),
@@ -752,11 +735,9 @@ module hci_queues_wrapper
       .dat_o(dat_out),
       .dct_i(dct_in),
       .dct_o(dct_out),
-`endif  // CONTROLLER_SUPPORT
       .hwif_out_o(unused_hwif_out)
 
   );
-`ifdef TARGET_SUPPORT
   logic unused_recovery_mode_enter;
   logic recovery_mode_enabled;
 
@@ -912,5 +893,4 @@ module hci_queues_wrapper
       .virtual_device_sel_i('0),
       .xfer_in_progress_i  ('0)
   );
-`endif  // TARGET_SUPPORT
 endmodule

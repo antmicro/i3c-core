@@ -14,8 +14,8 @@ TOPLEVEL     = ccc
 
 VERILOG_SOURCES  = \
     $(SRC_DIR)/i3c_pkg.sv \
-    $(SRC_DIR)/csr/I3CCSR_pkg.sv \
-    $(SRC_DIR)/csr/I3CCSR.sv \
+    $(SRC_DIR)/csr/*_I3CCSR_pkg.sv \
+    $(SRC_DIR)/csr/*_I3CCSR.sv \
     $(SRC_DIR)/ctrl/controller_pkg.sv \
     $(SRC_DIR)/ctrl/ccc_entdaa.sv \
     $(SRC_DIR)/ctrl/ccc.sv

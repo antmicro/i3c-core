@@ -1569,8 +1569,8 @@ async def test_ibi_flush_from_idle_interrupt_flood(dut):
 
     # Internal signal handles
     standby = (
-        dut.xi3c_wrapper
-        .i3c.xcontroller
+        dut.xi3c_wrapper.gen_target_config
+        .i3c.xcontroller.gen_target_controller_standby
         .xcontroller_standby
         .xcontroller_standby_i3c
     )
@@ -1861,7 +1861,7 @@ _FSM_IDLE = 0
 _FSM_IBI_DRIVE_ADDR = 20
 
 _FSM_STATE_PATH = (
-    "xi3c_wrapper.i3c.xcontroller.xcontroller_standby"
+    "xi3c_wrapper.gen_target_config.i3c.xcontroller.gen_target_controller_standby.xcontroller_standby"
     ".xcontroller_standby_i3c.xi3c_target_fsm.state_q"
 )
 
@@ -1997,7 +1997,7 @@ async def test_descriptor_ibi_flush_one_word(dut):
 
     try:
         # Internal signal handles
-        standby = dut.xi3c_wrapper.i3c.xcontroller.xcontroller_standby.xcontroller_standby_i3c
+        standby = dut.xi3c_wrapper.gen_target_config.i3c.xcontroller.xcontroller_standby.xcontroller_standby_i3c
         desc_ibi = standby.u_descriptor_ibi
 
         dut._log.info("Phase 1: Queue an IBI with 1 word of data (e.g. 2 bytes)")
@@ -2037,7 +2037,7 @@ async def test_descriptor_ibi_flush_no_data(dut):
 
     try:
         # Internal signal handles
-        standby = dut.xi3c_wrapper.i3c.xcontroller.xcontroller_standby.xcontroller_standby_i3c
+        standby = dut.xi3c_wrapper.gen_target_config.i3c.xcontroller.xcontroller_standby.xcontroller_standby_i3c
         desc_ibi = standby.u_descriptor_ibi
 
         dut._log.info("Phase 1: Queue an IBI with 0 words of data")
@@ -2077,7 +2077,7 @@ async def test_descriptor_ibi_flush_max_word(dut):
 
     try:
         # Internal signal handles
-        standby = dut.xi3c_wrapper.i3c.xcontroller.xcontroller_standby.xcontroller_standby_i3c
+        standby = dut.xi3c_wrapper.gen_target_config.i3c.xcontroller.xcontroller_standby.xcontroller_standby_i3c
         desc_ibi = standby.u_descriptor_ibi
 
         dut._log.info("Phase 1: Queue a standard IBI")

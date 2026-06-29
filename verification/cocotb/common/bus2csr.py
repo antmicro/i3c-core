@@ -15,7 +15,7 @@ from cocotb_AHB.interconnect.SimInterconnect import SimInterconnect
 
 # AXI
 from cocotbext.axi import AxiBus, AxiMaster, AxiResp
-from reg_map import reg_map
+from reg_map_target_I3CCSR import reg_map
 
 # Cocotb
 import cocotb

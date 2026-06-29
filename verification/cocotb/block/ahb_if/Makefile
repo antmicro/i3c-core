@@ -17,9 +17,10 @@ TOPLEVEL     = ahb_if_wrapper
 CFG_NAME     = ahb
 
 VERILOG_SOURCES  = \
+    $(SRC_DIR)/i3c_pkg.sv \
     $(CALIPTRA_ROOT)/src/libs/rtl/ahb_defines_pkg.sv \
-    $(SRC_DIR)/csr/I3CCSR_pkg.sv \
-    $(SRC_DIR)/csr/I3CCSR.sv \
+    $(SRC_DIR)/csr/*_I3CCSR_pkg.sv \
+    $(SRC_DIR)/csr/*_I3CCSR.sv \
     $(SRC_DIR)/hci/ahb_if.sv \
     $(TEST_DIR)/ahb_if_wrapper.sv
 

@@ -119,8 +119,6 @@ module csri
       hwif_rec_o = '0;
       hwif_socmgmt_o = '0;
 
-      hwif_in.I3C_EC.TTI = '0;
-      hwif_in.I3C_EC.SecFwRecoveryIf = '0;
       hwif_in.I3C_EC.SoCMgmtIf = '0;
     end
   end

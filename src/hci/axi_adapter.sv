@@ -2,11 +2,18 @@
 `include "i3c_defines.svh"
 
 module axi_adapter
-  import I3CCSR_pkg::I3CCSR_DATA_WIDTH;
-  import I3CCSR_pkg::I3CCSR_MIN_ADDR_WIDTH;
+  import controller_I3CCSR_pkg::*;
+  import target_I3CCSR_pkg::*;
+  import controller_and_target_I3CCSR_pkg::*;
 #(
-    localparam int unsigned CsrAddrWidth = I3CCSR_MIN_ADDR_WIDTH,
-    localparam int unsigned CsrDataWidth = I3CCSR_DATA_WIDTH,
+    parameter bit ControllerEn = 0,
+    parameter bit TargetEn = 1,
+    localparam int unsigned CsrAddrWidth = (ControllerEn && TargetEn) ? controller_and_target_I3CCSR_pkg::controller_and_target_I3CCSR_MIN_ADDR_WIDTH :
+                               (ControllerEn)             ? controller_I3CCSR_pkg::controller_I3CCSR_MIN_ADDR_WIDTH :
+                                                            target_I3CCSR_pkg::target_I3CCSR_MIN_ADDR_WIDTH,
+    localparam int unsigned CsrDataWidth = (ControllerEn && TargetEn) ? controller_and_target_I3CCSR_pkg::controller_and_target_I3CCSR_DATA_WIDTH :
+                               (ControllerEn)             ? controller_I3CCSR_pkg::controller_I3CCSR_DATA_WIDTH :
+                                                            target_I3CCSR_pkg::target_I3CCSR_DATA_WIDTH,
 
     parameter int unsigned AxiDataWidth = 64,
     parameter int unsigned AxiAddrWidth = 32,

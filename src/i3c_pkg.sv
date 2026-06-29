@@ -3,6 +3,7 @@
 package i3c_pkg;
   `include "i3c_defines.svh"
   `include "ccc.svh"
+  `include "csr/csr_types.svh"
   `define I3C_RSVD_ADDR 7'h7E
   `define I3C_RSVD_BYTE 8'hFC
 

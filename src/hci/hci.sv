@@ -1,9 +1,9 @@
 // SPDX-License-Identifier: Apache-2.0
-`ifdef CONTROLLER_SUPPORT
 // I3C Host Controller Interface
 module hci
   import i3c_pkg::*;
 #(
+    parameter type csr_cfg_t = target_csr_t,
     parameter int unsigned DatAw = 7,
     parameter int unsigned DctAw = 7,
 
@@ -63,9 +63,9 @@ module hci
     output logic [HciRespThldWidth-1:0] hci_resp_ready_thld_o,
     output logic hci_resp_ready_thld_trig_o,
     output logic hci_resp_empty_o,
-    input  logic hci_resp_wvalid_i,
+    input logic hci_resp_wvalid_i,
     output logic hci_resp_wready_o,
-    input  logic [CsrDataWidth-1:0] hci_resp_wdata_i,
+    input logic [CsrDataWidth-1:0] hci_resp_wdata_i,
 
     // Command queue
     output logic hci_cmd_full_o,
@@ -74,7 +74,7 @@ module hci
     output logic hci_cmd_ready_thld_trig_o,
     output logic hci_cmd_empty_o,
     output logic hci_cmd_rvalid_o,
-    input  logic hci_cmd_rready_i,
+    input logic hci_cmd_rready_i,
     output logic [HciCmdDataWidth-1:0] hci_cmd_rdata_o,
 
     // RX queue
@@ -85,9 +85,9 @@ module hci
     output logic hci_rx_start_thld_trig_o,
     output logic hci_rx_ready_thld_trig_o,
     output logic hci_rx_empty_o,
-    input  logic hci_rx_wvalid_i,
+    input logic hci_rx_wvalid_i,
     output logic hci_rx_wready_o,
-    input  logic [CsrDataWidth-1:0] hci_rx_wdata_i,
+    input logic [CsrDataWidth-1:0] hci_rx_wdata_i,
 
     // TX queue
     output logic hci_tx_full_o,
@@ -98,7 +98,7 @@ module hci
     output logic hci_tx_ready_thld_trig_o,
     output logic hci_tx_empty_o,
     output logic hci_tx_rvalid_o,
-    input  logic hci_tx_rready_i,
+    input logic hci_tx_rready_i,
     output logic [HciTxDataWidth-1:0] hci_tx_rdata_o,
 
     // In-band Interrupt queue
@@ -107,25 +107,25 @@ module hci
     output logic [HciIbiThldWidth-1:0] hci_ibi_ready_thld_o,
     output logic hci_ibi_ready_thld_trig_o,
     output logic hci_ibi_empty_o,
-    input  logic hci_ibi_wvalid_i,
+    input logic hci_ibi_wvalid_i,
     output logic hci_ibi_wready_o,
-    input  logic [HciIbiDataWidth-1:0] hci_ibi_wdata_i,
+    input logic [HciIbiDataWidth-1:0] hci_ibi_wdata_i,
 
     // PIO CONTROL CSR interface
-    input  I3CCSR_pkg::I3CCSR__PIOControl__out_t hwif_pio_control_i,
-    output I3CCSR_pkg::I3CCSR__PIOControl__in_t  hwif_pio_control_o,
+    input  csr_cfg_t::pio_out_t hwif_pio_control_i,
+    output csr_cfg_t::pio_in_t  hwif_pio_control_o,
 
     // I3C BASE CSR interface
-    input  I3CCSR_pkg::I3CCSR__I3CBase__out_t hwif_base_i,
-    output I3CCSR_pkg::I3CCSR__I3CBase__in_t  hwif_base_o,
+    input  csr_cfg_t::base_out_t hwif_base_i,
+    output csr_cfg_t::base_in_t  hwif_base_o,
 
     // DAT CSR interface
-    input  I3CCSR_pkg::I3CCSR__DAT__out_t dat_i,
-    output I3CCSR_pkg::I3CCSR__DAT__in_t  dat_o,
+    input  csr_cfg_t::dat_out_t dat_i,
+    output csr_cfg_t::dat_in_t  dat_o,
 
     // DCT CSR interface
-    input  I3CCSR_pkg::I3CCSR__DCT__out_t dct_i,
-    output I3CCSR_pkg::I3CCSR__DCT__in_t  dct_o,
+    input  csr_cfg_t::dct_out_t dct_i,
+    output csr_cfg_t::dct_in_t  dct_o,
 
     // Error Interface from flow_active
     input i3c_irq_t ctrl_int_stat_i
@@ -178,7 +178,7 @@ module hci
 
   always_ff @(posedge clk_i or negedge rst_ni) begin : blockName
     if (!rst_ni) begin
-      cmd_ready_thld_we  <= '0;
+      cmd_ready_thld_we <= '0;
       resp_ready_thld_we <= '0;
       cmd_ready_thld_swmod_q <= '0;
       resp_ready_thld_swmod_q <= '0;
@@ -497,4 +497,3 @@ module hci
   end
 
 endmodule : hci
-`endif  // CONTROLLER_SUPPORT

@@ -1,45 +1,44 @@
 module csri
   import i3c_pkg::*;
 #(
+    parameter bit ControllerEn = 0,
+    parameter bit TargetEn = 1,
+    parameter type csr_cfg_t = target_csr_t,
     parameter int unsigned CsrDataWidth = 32,
     parameter int unsigned CsrAddrWidth = 12
 ) (
     input clk_i,  // clock
     input rst_ni, // active low reset
 
-`ifdef TARGET_SUPPORT
     // Target Transaction Interface CSRs
-    input  I3CCSR_pkg::I3CCSR__I3C_EC__TTI__in_t  hwif_tti_i,
-    output I3CCSR_pkg::I3CCSR__I3C_EC__TTI__out_t hwif_tti_o,
+    input  csr_cfg_t::tti_in_t  hwif_tti_i,
+    output csr_cfg_t::tti_out_t hwif_tti_o,
 
     // Recovery interface CSRs
-    input  I3CCSR_pkg::I3CCSR__I3C_EC__SecFwRecoveryIf__in_t  hwif_rec_i,
-    output I3CCSR_pkg::I3CCSR__I3C_EC__SecFwRecoveryIf__out_t hwif_rec_o,
+    input  csr_cfg_t::secfwrecoveryif_in_t  hwif_rec_i,
+    output csr_cfg_t::secfwrecoveryif_out_t hwif_rec_o,
 
     // SoC Management CSR Interface
-    input  I3CCSR_pkg::I3CCSR__I3C_EC__SoCMgmtIf__in_t  hwif_socmgmt_i,
-    output I3CCSR_pkg::I3CCSR__I3C_EC__SoCMgmtIf__out_t hwif_socmgmt_o,
-`endif  // TARGET_SUPPORT
+    input  csr_cfg_t::socmgmt_in_t  hwif_socmgmt_i,
+    output csr_cfg_t::socmgmt_out_t hwif_socmgmt_o,
 
-`ifdef CONTROLLER_SUPPORT
     // PIO CONTROL CSR interface
-    input  I3CCSR_pkg::I3CCSR__PIOControl__in_t  hwif_pio_control_i,
-    output I3CCSR_pkg::I3CCSR__PIOControl__out_t hwif_pio_control_o,
+    input  csr_cfg_t::pio_in_t  hwif_pio_control_i,
+    output csr_cfg_t::pio_out_t hwif_pio_control_o,
 
     // I3C BASE CSR interface
-    input  I3CCSR_pkg::I3CCSR__I3CBase__in_t  hwif_base_i,
-    output I3CCSR_pkg::I3CCSR__I3CBase__out_t hwif_base_o,
+    input  csr_cfg_t::base_in_t  hwif_base_i,
+    output csr_cfg_t::base_out_t hwif_base_o,
 
     // DAT CSR interface
-    input  I3CCSR_pkg::I3CCSR__DAT__in_t  dat_i,
-    output I3CCSR_pkg::I3CCSR__DAT__out_t dat_o,
+    input  csr_cfg_t::dat_in_t  dat_i,
+    output csr_cfg_t::dat_out_t dat_o,
 
     // DCT CSR interface
-    input  I3CCSR_pkg::I3CCSR__DCT__in_t  dct_i,
-    output I3CCSR_pkg::I3CCSR__DCT__out_t dct_o,
-`endif  // CONTROLLER_SUPPORT
+    input  csr_cfg_t::dct_in_t  dct_i,
+    output csr_cfg_t::dct_out_t dct_o,
 
-    output I3CCSR_pkg::I3CCSR__out_t hwif_out_o,
+    output csr_cfg_t::hwif_out_t hwif_out_o,
 
     // I3C SW CSR access interface
     input  logic                    s_cpuif_req,
@@ -78,34 +77,52 @@ module csri
     input logic rst_action_valid_i
 );
 
-  I3CCSR_pkg::I3CCSR__in_t hwif_in;
+  csr_cfg_t::hwif_in_t hwif_in;
 
   // Propagate reset to CSRs
   assign hwif_in.rst_ni = rst_ni;
 
-  always_comb begin : connect_hwif
-`ifdef CONTROLLER_SUPPORT
-    hwif_in.I3CBase = hwif_base_i;
-    hwif_in.PIOControl = hwif_pio_control_i;
-    hwif_in.DAT = dat_i;
-    hwif_in.DCT = dct_i;
+  if (ControllerEn) begin : gen_controller_connect_hwif
+    always_comb begin
+      hwif_in.I3CBase = hwif_base_i;
+      hwif_in.PIOControl = hwif_pio_control_i;
+      hwif_in.DAT = dat_i;
+      hwif_in.DCT = dct_i;
 
-    hwif_base_o = hwif_out_o.I3CBase;
-    hwif_pio_control_o = hwif_out_o.PIOControl;
-    dat_o = hwif_out_o.DAT;
-    dct_o = hwif_out_o.DCT;
-`endif  // CONTROLLER_SUPPORT
+      hwif_base_o = hwif_out_o.I3CBase;
+      hwif_pio_control_o = hwif_out_o.PIOControl;
+      dat_o = hwif_out_o.DAT;
+      dct_o = hwif_out_o.DCT;
+    end
+  end else begin : gen_controller_tieoff_connect_hwif
+    always_comb begin
+      hwif_base_o = '0;
+      hwif_pio_control_o = '0;
+      dat_o = '0;
+      dct_o = '0;
+    end
+  end
 
-`ifdef TARGET_SUPPORT
-    hwif_tti_o = hwif_out_o.I3C_EC.TTI;
-    hwif_rec_o = hwif_out_o.I3C_EC.SecFwRecoveryIf;
-    hwif_socmgmt_o = hwif_out_o.I3C_EC.SoCMgmtIf;
+  if (TargetEn) begin : gen_target_connect_tti
+    always_comb begin
+      hwif_tti_o = hwif_out_o.I3C_EC.TTI;
+      hwif_rec_o = hwif_out_o.I3C_EC.SecFwRecoveryIf;
+      hwif_socmgmt_o = hwif_out_o.I3C_EC.SoCMgmtIf;
 
-    hwif_in.I3C_EC.TTI = hwif_tti_i;
-    hwif_in.I3C_EC.SecFwRecoveryIf = hwif_rec_i;
-    hwif_in.I3C_EC.SoCMgmtIf = hwif_socmgmt_i;
+      hwif_in.I3C_EC.TTI = hwif_tti_i;
+      hwif_in.I3C_EC.SecFwRecoveryIf = hwif_rec_i;
+      hwif_in.I3C_EC.SoCMgmtIf = hwif_socmgmt_i;
+    end
+  end else begin : gen_controller_tieoff_tti
+    always_comb begin
+      hwif_tti_o = '0;
+      hwif_rec_o = '0;
+      hwif_socmgmt_o = '0;
 
-`endif  // TARGET_SUPPORT
+      hwif_in.I3C_EC.TTI = '0;
+      hwif_in.I3C_EC.SecFwRecoveryIf = '0;
+      hwif_in.I3C_EC.SoCMgmtIf = '0;
+    end
   end
 
   // Update Standby Controller mode based on the controller configuration status
@@ -174,27 +191,70 @@ module csri
     hwif_in.I3C_EC.StdbyCtrlMode.STBY_CR_MRL.IBIL.next = ibil_i;
   end
 
+  if (ControllerEn && TargetEn) begin : gen_controller_and_target_csr
+    controller_and_target_I3CCSR controller_and_target_i3c_csr (
+        .clk(clk_i),
+        .rst('0),  // Unused, CSRs are reset through hwif_in.rst_ni
 
-  I3CCSR i3c_csr (
-      .clk(clk_i),
-      .rst('0),  // Unused, CSRs are reset through hwif_in.rst_ni
+        .s_cpuif_req(s_cpuif_req),
+        .s_cpuif_req_is_wr(s_cpuif_req_is_wr),
+        .s_cpuif_addr(s_cpuif_addr),
+        .s_cpuif_wr_data(s_cpuif_wr_data),
+        .s_cpuif_wr_biten(s_cpuif_wr_biten),  // Write strobes not handled by AHB-Lite interface
+        .s_cpuif_req_stall_wr(s_cpuif_req_stall_wr),
+        .s_cpuif_req_stall_rd(s_cpuif_req_stall_rd),
+        .s_cpuif_rd_ack(s_cpuif_rd_ack),  // Ignored by AHB component
+        .s_cpuif_rd_err(s_cpuif_rd_err),
+        .s_cpuif_rd_data(s_cpuif_rd_data),
+        .s_cpuif_wr_ack(s_cpuif_wr_ack),  // Ignored by AHB component
+        .s_cpuif_wr_err(s_cpuif_wr_err),
 
-      .s_cpuif_req(s_cpuif_req),
-      .s_cpuif_req_is_wr(s_cpuif_req_is_wr),
-      .s_cpuif_addr(s_cpuif_addr),
-      .s_cpuif_wr_data(s_cpuif_wr_data),
-      .s_cpuif_wr_biten(s_cpuif_wr_biten),  // Write strobes not handled by AHB-Lite interface
-      .s_cpuif_req_stall_wr(s_cpuif_req_stall_wr),
-      .s_cpuif_req_stall_rd(s_cpuif_req_stall_rd),
-      .s_cpuif_rd_ack(s_cpuif_rd_ack),  // Ignored by AHB component
-      .s_cpuif_rd_err(s_cpuif_rd_err),
-      .s_cpuif_rd_data(s_cpuif_rd_data),
-      .s_cpuif_wr_ack(s_cpuif_wr_ack),  // Ignored by AHB component
-      .s_cpuif_wr_err(s_cpuif_wr_err),
+        .hwif_in (hwif_in),
+        .hwif_out(hwif_out_o)
+    );
+  end else if (ControllerEn) begin : gen_controller_csr
+    controller_I3CCSR controller_i3c_csr (
+        .clk(clk_i),
+        .rst('0),  // Unused, CSRs are reset through hwif_in.rst_ni
 
-      .hwif_in (hwif_in),
-      .hwif_out(hwif_out_o)
-  );
+        .s_cpuif_req(s_cpuif_req),
+        .s_cpuif_req_is_wr(s_cpuif_req_is_wr),
+        .s_cpuif_addr(s_cpuif_addr),
+        .s_cpuif_wr_data(s_cpuif_wr_data),
+        .s_cpuif_wr_biten(s_cpuif_wr_biten),  // Write strobes not handled by AHB-Lite interface
+        .s_cpuif_req_stall_wr(s_cpuif_req_stall_wr),
+        .s_cpuif_req_stall_rd(s_cpuif_req_stall_rd),
+        .s_cpuif_rd_ack(s_cpuif_rd_ack),  // Ignored by AHB component
+        .s_cpuif_rd_err(s_cpuif_rd_err),
+        .s_cpuif_rd_data(s_cpuif_rd_data),
+        .s_cpuif_wr_ack(s_cpuif_wr_ack),  // Ignored by AHB component
+        .s_cpuif_wr_err(s_cpuif_wr_err),
+
+        .hwif_in (hwif_in),
+        .hwif_out(hwif_out_o)
+    );
+  end else if (TargetEn) begin : gen_target_csr
+    target_I3CCSR target_i3c_csr (
+        .clk(clk_i),
+        .rst('0),  // Unused, CSRs are reset through hwif_in.rst_ni
+
+        .s_cpuif_req(s_cpuif_req),
+        .s_cpuif_req_is_wr(s_cpuif_req_is_wr),
+        .s_cpuif_addr(s_cpuif_addr),
+        .s_cpuif_wr_data(s_cpuif_wr_data),
+        .s_cpuif_wr_biten(s_cpuif_wr_biten),  // Write strobes not handled by AHB-Lite interface
+        .s_cpuif_req_stall_wr(s_cpuif_req_stall_wr),
+        .s_cpuif_req_stall_rd(s_cpuif_req_stall_rd),
+        .s_cpuif_rd_ack(s_cpuif_rd_ack),  // Ignored by AHB component
+        .s_cpuif_rd_err(s_cpuif_rd_err),
+        .s_cpuif_rd_data(s_cpuif_rd_data),
+        .s_cpuif_wr_ack(s_cpuif_wr_ack),  // Ignored by AHB component
+        .s_cpuif_wr_err(s_cpuif_wr_err),
+
+        .hwif_in (hwif_in),
+        .hwif_out(hwif_out_o)
+    );
+  end
 
   always_comb begin : wire_unconnected_regs
     hwif_in.I3C_EC.StdbyCtrlMode.STBY_CR_VIRT_DEVICE_ADDR.VIRT_STATIC_ADDR_VALID.next = '0;

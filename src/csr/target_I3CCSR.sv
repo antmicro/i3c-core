@@ -3,13 +3,13 @@
 
 `include "i3c_sva.svh"
 
-module I3CCSR (
+module target_I3CCSR (
         input wire clk,
         input wire rst,
 
         input wire s_cpuif_req,
         input wire s_cpuif_req_is_wr,
-        input wire [9:0] s_cpuif_addr,
+        input wire [11:0] s_cpuif_addr,
         input wire [31:0] s_cpuif_wr_data,
         input wire [31:0] s_cpuif_wr_biten,
         output wire s_cpuif_req_stall_wr,
@@ -20,8 +20,8 @@ module I3CCSR (
         output wire s_cpuif_wr_ack,
         output wire s_cpuif_wr_err,
 
-        input I3CCSR_pkg::I3CCSR__in_t hwif_in,
-        output I3CCSR_pkg::I3CCSR__out_t hwif_out
+        input target_I3CCSR_pkg::target_I3CCSR__in_t hwif_in,
+        output target_I3CCSR_pkg::target_I3CCSR__out_t hwif_out
     );
 
     //--------------------------------------------------------------------------
@@ -29,7 +29,7 @@ module I3CCSR (
     //--------------------------------------------------------------------------
     logic cpuif_req;
     logic cpuif_req_is_wr;
-    logic [9:0] cpuif_addr;
+    logic [11:0] cpuif_addr;
     logic [31:0] cpuif_wr_data;
     logic [31:0] cpuif_wr_biten;
     logic cpuif_req_stall_wr;
@@ -232,133 +232,133 @@ module I3CCSR (
     always_comb begin
         automatic logic is_external;
         is_external = '0;
-        decoded_reg_strb.I3C_EC.SecFwRecoveryIf.EXTCAP_HEADER = cpuif_req_masked & (cpuif_addr == 10'h100);
-        decoded_reg_strb.I3C_EC.SecFwRecoveryIf.PROT_CAP_0 = cpuif_req_masked & (cpuif_addr == 10'h104);
-        decoded_reg_strb.I3C_EC.SecFwRecoveryIf.PROT_CAP_1 = cpuif_req_masked & (cpuif_addr == 10'h108);
-        decoded_reg_strb.I3C_EC.SecFwRecoveryIf.PROT_CAP_2 = cpuif_req_masked & (cpuif_addr == 10'h10c);
-        decoded_reg_strb.I3C_EC.SecFwRecoveryIf.PROT_CAP_3 = cpuif_req_masked & (cpuif_addr == 10'h110);
-        decoded_reg_strb.I3C_EC.SecFwRecoveryIf.DEVICE_ID_0 = cpuif_req_masked & (cpuif_addr == 10'h114);
-        decoded_reg_strb.I3C_EC.SecFwRecoveryIf.DEVICE_ID_1 = cpuif_req_masked & (cpuif_addr == 10'h118);
-        decoded_reg_strb.I3C_EC.SecFwRecoveryIf.DEVICE_ID_2 = cpuif_req_masked & (cpuif_addr == 10'h11c);
-        decoded_reg_strb.I3C_EC.SecFwRecoveryIf.DEVICE_ID_3 = cpuif_req_masked & (cpuif_addr == 10'h120);
-        decoded_reg_strb.I3C_EC.SecFwRecoveryIf.DEVICE_ID_4 = cpuif_req_masked & (cpuif_addr == 10'h124);
-        decoded_reg_strb.I3C_EC.SecFwRecoveryIf.DEVICE_ID_5 = cpuif_req_masked & (cpuif_addr == 10'h128);
-        decoded_reg_strb.I3C_EC.SecFwRecoveryIf.DEVICE_ID_RESERVED = cpuif_req_masked & (cpuif_addr == 10'h12c);
-        decoded_reg_strb.I3C_EC.SecFwRecoveryIf.DEVICE_STATUS_0 = cpuif_req_masked & (cpuif_addr == 10'h130);
-        decoded_reg_strb.I3C_EC.SecFwRecoveryIf.DEVICE_STATUS_1 = cpuif_req_masked & (cpuif_addr == 10'h134);
-        decoded_reg_strb.I3C_EC.SecFwRecoveryIf.DEVICE_RESET = cpuif_req_masked & (cpuif_addr == 10'h138);
-        decoded_reg_strb.I3C_EC.SecFwRecoveryIf.RECOVERY_CTRL = cpuif_req_masked & (cpuif_addr == 10'h13c);
-        decoded_reg_strb.I3C_EC.SecFwRecoveryIf.RECOVERY_STATUS = cpuif_req_masked & (cpuif_addr == 10'h140);
-        decoded_reg_strb.I3C_EC.SecFwRecoveryIf.HW_STATUS = cpuif_req_masked & (cpuif_addr == 10'h144);
-        decoded_reg_strb.I3C_EC.SecFwRecoveryIf.INDIRECT_FIFO_CTRL_0 = cpuif_req_masked & (cpuif_addr == 10'h148);
-        decoded_reg_strb.I3C_EC.SecFwRecoveryIf.INDIRECT_FIFO_CTRL_1 = cpuif_req_masked & (cpuif_addr == 10'h14c);
-        decoded_reg_strb.I3C_EC.SecFwRecoveryIf.INDIRECT_FIFO_STATUS_0 = cpuif_req_masked & (cpuif_addr == 10'h150);
-        decoded_reg_strb.I3C_EC.SecFwRecoveryIf.INDIRECT_FIFO_STATUS_1 = cpuif_req_masked & (cpuif_addr == 10'h154);
-        decoded_reg_strb.I3C_EC.SecFwRecoveryIf.INDIRECT_FIFO_STATUS_2 = cpuif_req_masked & (cpuif_addr == 10'h158);
-        decoded_reg_strb.I3C_EC.SecFwRecoveryIf.INDIRECT_FIFO_STATUS_3 = cpuif_req_masked & (cpuif_addr == 10'h15c);
-        decoded_reg_strb.I3C_EC.SecFwRecoveryIf.INDIRECT_FIFO_STATUS_4 = cpuif_req_masked & (cpuif_addr == 10'h160);
-        decoded_reg_strb.I3C_EC.SecFwRecoveryIf.INDIRECT_FIFO_RESERVED = cpuif_req_masked & (cpuif_addr == 10'h164);
-        decoded_reg_strb.I3C_EC.SecFwRecoveryIf.INDIRECT_FIFO_DATA = cpuif_req_masked & (cpuif_addr == 10'h168);
-        is_external |= cpuif_req_masked & (cpuif_addr == 10'h168) & !cpuif_req_is_wr;
-        decoded_reg_strb.I3C_EC.StdbyCtrlMode.EXTCAP_HEADER = cpuif_req_masked & (cpuif_addr == 10'h180);
-        decoded_reg_strb.I3C_EC.StdbyCtrlMode.STBY_CR_CONTROL = cpuif_req_masked & (cpuif_addr == 10'h184);
-        decoded_reg_strb.I3C_EC.StdbyCtrlMode.STBY_CR_DEVICE_ADDR = cpuif_req_masked & (cpuif_addr == 10'h188);
-        decoded_reg_strb.I3C_EC.StdbyCtrlMode.STBY_CR_CAPABILITIES = cpuif_req_masked & (cpuif_addr == 10'h18c);
-        decoded_reg_strb.I3C_EC.StdbyCtrlMode.STBY_CR_VIRTUAL_DEVICE_CHAR = cpuif_req_masked & (cpuif_addr == 10'h190);
-        decoded_reg_strb.I3C_EC.StdbyCtrlMode.STBY_CR_STATUS = cpuif_req_masked & (cpuif_addr == 10'h194);
-        decoded_reg_strb.I3C_EC.StdbyCtrlMode.STBY_CR_DEVICE_CHAR = cpuif_req_masked & (cpuif_addr == 10'h198);
-        decoded_reg_strb.I3C_EC.StdbyCtrlMode.STBY_CR_DEVICE_PID_LO = cpuif_req_masked & (cpuif_addr == 10'h19c);
-        decoded_reg_strb.I3C_EC.StdbyCtrlMode.STBY_CR_INTR_STATUS = cpuif_req_masked & (cpuif_addr == 10'h1a0);
-        decoded_reg_strb.I3C_EC.StdbyCtrlMode.STBY_CR_VIRTUAL_DEVICE_PID_LO = cpuif_req_masked & (cpuif_addr == 10'h1a4);
-        decoded_reg_strb.I3C_EC.StdbyCtrlMode.STBY_CR_INTR_SIGNAL_ENABLE = cpuif_req_masked & (cpuif_addr == 10'h1a8);
-        decoded_reg_strb.I3C_EC.StdbyCtrlMode.STBY_CR_INTR_FORCE = cpuif_req_masked & (cpuif_addr == 10'h1ac);
-        decoded_reg_strb.I3C_EC.StdbyCtrlMode.STBY_CR_CCC_CONFIG_GETCAPS = cpuif_req_masked & (cpuif_addr == 10'h1b0);
-        decoded_reg_strb.I3C_EC.StdbyCtrlMode.STBY_CR_CCC_CONFIG_RSTACT_PARAMS = cpuif_req_masked & (cpuif_addr == 10'h1b4);
-        decoded_reg_strb.I3C_EC.StdbyCtrlMode.STBY_CR_VIRT_DEVICE_ADDR = cpuif_req_masked & (cpuif_addr == 10'h1b8);
-        decoded_reg_strb.I3C_EC.StdbyCtrlMode.STBY_CR_MWL = cpuif_req_masked & (cpuif_addr == 10'h1bc);
-        decoded_reg_strb.I3C_EC.StdbyCtrlMode.STBY_CR_MRL = cpuif_req_masked & (cpuif_addr == 10'h1c0);
-        decoded_reg_strb.I3C_EC.TTI.EXTCAP_HEADER = cpuif_req_masked & (cpuif_addr == 10'h200);
-        decoded_reg_strb.I3C_EC.TTI.CONTROL = cpuif_req_masked & (cpuif_addr == 10'h204);
-        decoded_reg_strb.I3C_EC.TTI.STATUS = cpuif_req_masked & (cpuif_addr == 10'h208);
-        decoded_reg_strb.I3C_EC.TTI.RESET_CONTROL = cpuif_req_masked & (cpuif_addr == 10'h20c);
-        decoded_reg_strb.I3C_EC.TTI.QUEUE_STATUS = cpuif_req_masked & (cpuif_addr == 10'h210);
-        decoded_reg_strb.I3C_EC.TTI.DESC_QUEUE_DEPTH = cpuif_req_masked & (cpuif_addr == 10'h214);
-        decoded_reg_strb.I3C_EC.TTI.DATA_QUEUE_DEPTH = cpuif_req_masked & (cpuif_addr == 10'h218);
-        decoded_reg_strb.I3C_EC.TTI.IBI_QUEUE_DEPTH = cpuif_req_masked & (cpuif_addr == 10'h21c);
-        decoded_reg_strb.I3C_EC.TTI.INTERRUPT_STATUS = cpuif_req_masked & (cpuif_addr == 10'h220);
-        decoded_reg_strb.I3C_EC.TTI.INTERRUPT_ENABLE = cpuif_req_masked & (cpuif_addr == 10'h224);
-        decoded_reg_strb.I3C_EC.TTI.INTERRUPT_FORCE = cpuif_req_masked & (cpuif_addr == 10'h228);
-        decoded_reg_strb.I3C_EC.TTI.TARGET_ERR_CTRL = cpuif_req_masked & (cpuif_addr == 10'h22c);
-        decoded_reg_strb.I3C_EC.TTI.TARGET_ERR_INTR_STATUS = cpuif_req_masked & (cpuif_addr == 10'h230);
-        decoded_reg_strb.I3C_EC.TTI.TARGET_ERR_INTR_ENABLE = cpuif_req_masked & (cpuif_addr == 10'h234);
-        decoded_reg_strb.I3C_EC.TTI.TARGET_ERR_INTR_FORCE = cpuif_req_masked & (cpuif_addr == 10'h238);
-        decoded_reg_strb.I3C_EC.TTI.TARGET_ERR_CNT_TE0 = cpuif_req_masked & (cpuif_addr == 10'h23c);
-        decoded_reg_strb.I3C_EC.TTI.TARGET_ERR_CNT_TE1 = cpuif_req_masked & (cpuif_addr == 10'h240);
-        decoded_reg_strb.I3C_EC.TTI.TARGET_ERR_CNT_TE2 = cpuif_req_masked & (cpuif_addr == 10'h244);
-        decoded_reg_strb.I3C_EC.TTI.TARGET_ERR_CNT_TE3 = cpuif_req_masked & (cpuif_addr == 10'h248);
-        decoded_reg_strb.I3C_EC.TTI.TARGET_ERR_CNT_TE4 = cpuif_req_masked & (cpuif_addr == 10'h24c);
-        decoded_reg_strb.I3C_EC.TTI.TARGET_ERR_CNT_TE5 = cpuif_req_masked & (cpuif_addr == 10'h250);
-        decoded_reg_strb.I3C_EC.TTI.TARGET_ERR_CNT_FRAMING = cpuif_req_masked & (cpuif_addr == 10'h254);
-        decoded_reg_strb.I3C_EC.TTI.TARGET_ERR_CNT_RI_PEC = cpuif_req_masked & (cpuif_addr == 10'h258);
-        decoded_reg_strb.I3C_EC.TTI.TARGET_ERR_CNT_RI_LENGTH = cpuif_req_masked & (cpuif_addr == 10'h25c);
-        decoded_reg_strb.I3C_EC.TTI.TARGET_ERR_CNT_RI_READONLY = cpuif_req_masked & (cpuif_addr == 10'h260);
-        decoded_reg_strb.I3C_EC.TTI.TARGET_ERR_CNT_RI_UNSUPPORTED = cpuif_req_masked & (cpuif_addr == 10'h264);
-        decoded_reg_strb.I3C_EC.TTI.TARGET_ERR_CNT_RI_RX_FIFO_OVERFLOW = cpuif_req_masked & (cpuif_addr == 10'h268);
-        decoded_reg_strb.I3C_EC.TTI.TARGET_ERR_CNT_RI_INDIRECT_FIFO_OVERFLOW = cpuif_req_masked & (cpuif_addr == 10'h26c);
-        decoded_reg_strb.I3C_EC.TTI.RX_DESC_QUEUE_PORT = cpuif_req_masked & (cpuif_addr == 10'h270);
-        is_external |= cpuif_req_masked & (cpuif_addr == 10'h270) & !cpuif_req_is_wr;
-        decoded_reg_strb.I3C_EC.TTI.RX_DATA_PORT = cpuif_req_masked & (cpuif_addr == 10'h274);
-        is_external |= cpuif_req_masked & (cpuif_addr == 10'h274) & !cpuif_req_is_wr;
-        decoded_reg_strb.I3C_EC.TTI.TX_DESC_QUEUE_PORT = cpuif_req_masked & (cpuif_addr == 10'h278);
-        is_external |= cpuif_req_masked & (cpuif_addr == 10'h278) & cpuif_req_is_wr;
-        decoded_reg_strb.I3C_EC.TTI.TX_DATA_PORT = cpuif_req_masked & (cpuif_addr == 10'h27c);
-        is_external |= cpuif_req_masked & (cpuif_addr == 10'h27c) & cpuif_req_is_wr;
-        decoded_reg_strb.I3C_EC.TTI.IBI_PORT = cpuif_req_masked & (cpuif_addr == 10'h280);
-        is_external |= cpuif_req_masked & (cpuif_addr == 10'h280) & cpuif_req_is_wr;
-        decoded_reg_strb.I3C_EC.TTI.QUEUE_SIZE = cpuif_req_masked & (cpuif_addr == 10'h284);
-        decoded_reg_strb.I3C_EC.TTI.IBI_QUEUE_SIZE = cpuif_req_masked & (cpuif_addr == 10'h288);
-        decoded_reg_strb.I3C_EC.TTI.QUEUE_THLD_CTRL = cpuif_req_masked & (cpuif_addr == 10'h28c);
-        decoded_reg_strb.I3C_EC.TTI.DATA_BUFFER_THLD_CTRL = cpuif_req_masked & (cpuif_addr == 10'h290);
-        decoded_reg_strb.I3C_EC.SoCMgmtIf.EXTCAP_HEADER = cpuif_req_masked & (cpuif_addr == 10'h300);
-        decoded_reg_strb.I3C_EC.SoCMgmtIf.SOC_MGMT_CONTROL = cpuif_req_masked & (cpuif_addr == 10'h304);
-        decoded_reg_strb.I3C_EC.SoCMgmtIf.SOC_MGMT_STATUS = cpuif_req_masked & (cpuif_addr == 10'h308);
-        decoded_reg_strb.I3C_EC.SoCMgmtIf.REC_INTF_CFG = cpuif_req_masked & (cpuif_addr == 10'h30c);
-        decoded_reg_strb.I3C_EC.SoCMgmtIf.REC_INTF_REG_W1C_ACCESS = cpuif_req_masked & (cpuif_addr == 10'h310);
-        decoded_reg_strb.I3C_EC.SoCMgmtIf.SOC_MGMT_RSVD_2 = cpuif_req_masked & (cpuif_addr == 10'h314);
-        decoded_reg_strb.I3C_EC.SoCMgmtIf.SOC_MGMT_RSVD_3 = cpuif_req_masked & (cpuif_addr == 10'h318);
-        decoded_reg_strb.I3C_EC.SoCMgmtIf.SOC_PAD_CONF = cpuif_req_masked & (cpuif_addr == 10'h31c);
-        decoded_reg_strb.I3C_EC.SoCMgmtIf.SOC_PAD_ATTR = cpuif_req_masked & (cpuif_addr == 10'h320);
-        decoded_reg_strb.I3C_EC.SoCMgmtIf.SOC_MGMT_FEATURE_2 = cpuif_req_masked & (cpuif_addr == 10'h324);
-        decoded_reg_strb.I3C_EC.SoCMgmtIf.SOC_MGMT_FEATURE_3 = cpuif_req_masked & (cpuif_addr == 10'h328);
-        decoded_reg_strb.I3C_EC.SoCMgmtIf.T_R_REG = cpuif_req_masked & (cpuif_addr == 10'h32c);
-        decoded_reg_strb.I3C_EC.SoCMgmtIf.T_F_REG = cpuif_req_masked & (cpuif_addr == 10'h330);
-        decoded_reg_strb.I3C_EC.SoCMgmtIf.T_SU_DAT_REG = cpuif_req_masked & (cpuif_addr == 10'h334);
-        decoded_reg_strb.I3C_EC.SoCMgmtIf.T_SU_DAT_I2C_REG = cpuif_req_masked & (cpuif_addr == 10'h338);
-        decoded_reg_strb.I3C_EC.SoCMgmtIf.T_HD_DAT_REG = cpuif_req_masked & (cpuif_addr == 10'h33c);
-        decoded_reg_strb.I3C_EC.SoCMgmtIf.T_HIGH_REG = cpuif_req_masked & (cpuif_addr == 10'h340);
-        decoded_reg_strb.I3C_EC.SoCMgmtIf.T_HIGH_OD_REG = cpuif_req_masked & (cpuif_addr == 10'h344);
-        decoded_reg_strb.I3C_EC.SoCMgmtIf.T_HIGH_INIT_OD_REG = cpuif_req_masked & (cpuif_addr == 10'h348);
-        decoded_reg_strb.I3C_EC.SoCMgmtIf.T_HIGH_I2C_REG = cpuif_req_masked & (cpuif_addr == 10'h34c);
-        decoded_reg_strb.I3C_EC.SoCMgmtIf.T_LOW_REG = cpuif_req_masked & (cpuif_addr == 10'h350);
-        decoded_reg_strb.I3C_EC.SoCMgmtIf.T_LOW_OD_REG = cpuif_req_masked & (cpuif_addr == 10'h354);
-        decoded_reg_strb.I3C_EC.SoCMgmtIf.T_LOW_I2C_REG = cpuif_req_masked & (cpuif_addr == 10'h358);
-        decoded_reg_strb.I3C_EC.SoCMgmtIf.T_HD_STA_REG = cpuif_req_masked & (cpuif_addr == 10'h35c);
-        decoded_reg_strb.I3C_EC.SoCMgmtIf.T_HD_STA_I2C_REG = cpuif_req_masked & (cpuif_addr == 10'h360);
-        decoded_reg_strb.I3C_EC.SoCMgmtIf.T_HD_RSTA_REG = cpuif_req_masked & (cpuif_addr == 10'h364);
-        decoded_reg_strb.I3C_EC.SoCMgmtIf.T_SU_STA_REG = cpuif_req_masked & (cpuif_addr == 10'h368);
-        decoded_reg_strb.I3C_EC.SoCMgmtIf.T_SU_STA_I2C_REG = cpuif_req_masked & (cpuif_addr == 10'h36c);
-        decoded_reg_strb.I3C_EC.SoCMgmtIf.T_SU_STO_REG = cpuif_req_masked & (cpuif_addr == 10'h370);
-        decoded_reg_strb.I3C_EC.SoCMgmtIf.T_SU_STO_I2C_REG = cpuif_req_masked & (cpuif_addr == 10'h374);
-        decoded_reg_strb.I3C_EC.SoCMgmtIf.T_DS_OD_REG = cpuif_req_masked & (cpuif_addr == 10'h378);
-        decoded_reg_strb.I3C_EC.SoCMgmtIf.T_FREE_REG = cpuif_req_masked & (cpuif_addr == 10'h37c);
-        decoded_reg_strb.I3C_EC.SoCMgmtIf.T_FREE_I2C_REG = cpuif_req_masked & (cpuif_addr == 10'h380);
-        decoded_reg_strb.I3C_EC.SoCMgmtIf.T_AVAL_REG = cpuif_req_masked & (cpuif_addr == 10'h384);
-        decoded_reg_strb.I3C_EC.SoCMgmtIf.T_IDLE_REG = cpuif_req_masked & (cpuif_addr == 10'h388);
-        decoded_reg_strb.I3C_EC.SoCMgmtIf.HDR_TIMEOUT_EN_REG = cpuif_req_masked & (cpuif_addr == 10'h38c);
-        decoded_reg_strb.I3C_EC.SoCMgmtIf.T_HDR_TIMEOUT_REG = cpuif_req_masked & (cpuif_addr == 10'h390);
-        decoded_reg_strb.I3C_EC.CtrlCfg.EXTCAP_HEADER = cpuif_req_masked & (cpuif_addr == 10'h398);
-        decoded_reg_strb.I3C_EC.CtrlCfg.CONTROLLER_CONFIG = cpuif_req_masked & (cpuif_addr == 10'h39c);
-        decoded_reg_strb.I3C_EC.TERMINATION_EXTCAP_HEADER = cpuif_req_masked & (cpuif_addr == 10'h3a0);
+        decoded_reg_strb.I3C_EC.SecFwRecoveryIf.EXTCAP_HEADER = cpuif_req_masked & (cpuif_addr == 12'h100);
+        decoded_reg_strb.I3C_EC.SecFwRecoveryIf.PROT_CAP_0 = cpuif_req_masked & (cpuif_addr == 12'h104);
+        decoded_reg_strb.I3C_EC.SecFwRecoveryIf.PROT_CAP_1 = cpuif_req_masked & (cpuif_addr == 12'h108);
+        decoded_reg_strb.I3C_EC.SecFwRecoveryIf.PROT_CAP_2 = cpuif_req_masked & (cpuif_addr == 12'h10c);
+        decoded_reg_strb.I3C_EC.SecFwRecoveryIf.PROT_CAP_3 = cpuif_req_masked & (cpuif_addr == 12'h110);
+        decoded_reg_strb.I3C_EC.SecFwRecoveryIf.DEVICE_ID_0 = cpuif_req_masked & (cpuif_addr == 12'h114);
+        decoded_reg_strb.I3C_EC.SecFwRecoveryIf.DEVICE_ID_1 = cpuif_req_masked & (cpuif_addr == 12'h118);
+        decoded_reg_strb.I3C_EC.SecFwRecoveryIf.DEVICE_ID_2 = cpuif_req_masked & (cpuif_addr == 12'h11c);
+        decoded_reg_strb.I3C_EC.SecFwRecoveryIf.DEVICE_ID_3 = cpuif_req_masked & (cpuif_addr == 12'h120);
+        decoded_reg_strb.I3C_EC.SecFwRecoveryIf.DEVICE_ID_4 = cpuif_req_masked & (cpuif_addr == 12'h124);
+        decoded_reg_strb.I3C_EC.SecFwRecoveryIf.DEVICE_ID_5 = cpuif_req_masked & (cpuif_addr == 12'h128);
+        decoded_reg_strb.I3C_EC.SecFwRecoveryIf.DEVICE_ID_RESERVED = cpuif_req_masked & (cpuif_addr == 12'h12c);
+        decoded_reg_strb.I3C_EC.SecFwRecoveryIf.DEVICE_STATUS_0 = cpuif_req_masked & (cpuif_addr == 12'h130);
+        decoded_reg_strb.I3C_EC.SecFwRecoveryIf.DEVICE_STATUS_1 = cpuif_req_masked & (cpuif_addr == 12'h134);
+        decoded_reg_strb.I3C_EC.SecFwRecoveryIf.DEVICE_RESET = cpuif_req_masked & (cpuif_addr == 12'h138);
+        decoded_reg_strb.I3C_EC.SecFwRecoveryIf.RECOVERY_CTRL = cpuif_req_masked & (cpuif_addr == 12'h13c);
+        decoded_reg_strb.I3C_EC.SecFwRecoveryIf.RECOVERY_STATUS = cpuif_req_masked & (cpuif_addr == 12'h140);
+        decoded_reg_strb.I3C_EC.SecFwRecoveryIf.HW_STATUS = cpuif_req_masked & (cpuif_addr == 12'h144);
+        decoded_reg_strb.I3C_EC.SecFwRecoveryIf.INDIRECT_FIFO_CTRL_0 = cpuif_req_masked & (cpuif_addr == 12'h148);
+        decoded_reg_strb.I3C_EC.SecFwRecoveryIf.INDIRECT_FIFO_CTRL_1 = cpuif_req_masked & (cpuif_addr == 12'h14c);
+        decoded_reg_strb.I3C_EC.SecFwRecoveryIf.INDIRECT_FIFO_STATUS_0 = cpuif_req_masked & (cpuif_addr == 12'h150);
+        decoded_reg_strb.I3C_EC.SecFwRecoveryIf.INDIRECT_FIFO_STATUS_1 = cpuif_req_masked & (cpuif_addr == 12'h154);
+        decoded_reg_strb.I3C_EC.SecFwRecoveryIf.INDIRECT_FIFO_STATUS_2 = cpuif_req_masked & (cpuif_addr == 12'h158);
+        decoded_reg_strb.I3C_EC.SecFwRecoveryIf.INDIRECT_FIFO_STATUS_3 = cpuif_req_masked & (cpuif_addr == 12'h15c);
+        decoded_reg_strb.I3C_EC.SecFwRecoveryIf.INDIRECT_FIFO_STATUS_4 = cpuif_req_masked & (cpuif_addr == 12'h160);
+        decoded_reg_strb.I3C_EC.SecFwRecoveryIf.INDIRECT_FIFO_RESERVED = cpuif_req_masked & (cpuif_addr == 12'h164);
+        decoded_reg_strb.I3C_EC.SecFwRecoveryIf.INDIRECT_FIFO_DATA = cpuif_req_masked & (cpuif_addr == 12'h168);
+        is_external |= cpuif_req_masked & (cpuif_addr == 12'h168) & !cpuif_req_is_wr;
+        decoded_reg_strb.I3C_EC.StdbyCtrlMode.EXTCAP_HEADER = cpuif_req_masked & (cpuif_addr == 12'h180);
+        decoded_reg_strb.I3C_EC.StdbyCtrlMode.STBY_CR_CONTROL = cpuif_req_masked & (cpuif_addr == 12'h184);
+        decoded_reg_strb.I3C_EC.StdbyCtrlMode.STBY_CR_DEVICE_ADDR = cpuif_req_masked & (cpuif_addr == 12'h188);
+        decoded_reg_strb.I3C_EC.StdbyCtrlMode.STBY_CR_CAPABILITIES = cpuif_req_masked & (cpuif_addr == 12'h18c);
+        decoded_reg_strb.I3C_EC.StdbyCtrlMode.STBY_CR_VIRTUAL_DEVICE_CHAR = cpuif_req_masked & (cpuif_addr == 12'h190);
+        decoded_reg_strb.I3C_EC.StdbyCtrlMode.STBY_CR_STATUS = cpuif_req_masked & (cpuif_addr == 12'h194);
+        decoded_reg_strb.I3C_EC.StdbyCtrlMode.STBY_CR_DEVICE_CHAR = cpuif_req_masked & (cpuif_addr == 12'h198);
+        decoded_reg_strb.I3C_EC.StdbyCtrlMode.STBY_CR_DEVICE_PID_LO = cpuif_req_masked & (cpuif_addr == 12'h19c);
+        decoded_reg_strb.I3C_EC.StdbyCtrlMode.STBY_CR_INTR_STATUS = cpuif_req_masked & (cpuif_addr == 12'h1a0);
+        decoded_reg_strb.I3C_EC.StdbyCtrlMode.STBY_CR_VIRTUAL_DEVICE_PID_LO = cpuif_req_masked & (cpuif_addr == 12'h1a4);
+        decoded_reg_strb.I3C_EC.StdbyCtrlMode.STBY_CR_INTR_SIGNAL_ENABLE = cpuif_req_masked & (cpuif_addr == 12'h1a8);
+        decoded_reg_strb.I3C_EC.StdbyCtrlMode.STBY_CR_INTR_FORCE = cpuif_req_masked & (cpuif_addr == 12'h1ac);
+        decoded_reg_strb.I3C_EC.StdbyCtrlMode.STBY_CR_CCC_CONFIG_GETCAPS = cpuif_req_masked & (cpuif_addr == 12'h1b0);
+        decoded_reg_strb.I3C_EC.StdbyCtrlMode.STBY_CR_CCC_CONFIG_RSTACT_PARAMS = cpuif_req_masked & (cpuif_addr == 12'h1b4);
+        decoded_reg_strb.I3C_EC.StdbyCtrlMode.STBY_CR_VIRT_DEVICE_ADDR = cpuif_req_masked & (cpuif_addr == 12'h1b8);
+        decoded_reg_strb.I3C_EC.StdbyCtrlMode.STBY_CR_MWL = cpuif_req_masked & (cpuif_addr == 12'h1bc);
+        decoded_reg_strb.I3C_EC.StdbyCtrlMode.STBY_CR_MRL = cpuif_req_masked & (cpuif_addr == 12'h1c0);
+        decoded_reg_strb.I3C_EC.TTI.EXTCAP_HEADER = cpuif_req_masked & (cpuif_addr == 12'h200);
+        decoded_reg_strb.I3C_EC.TTI.CONTROL = cpuif_req_masked & (cpuif_addr == 12'h204);
+        decoded_reg_strb.I3C_EC.TTI.STATUS = cpuif_req_masked & (cpuif_addr == 12'h208);
+        decoded_reg_strb.I3C_EC.TTI.RESET_CONTROL = cpuif_req_masked & (cpuif_addr == 12'h20c);
+        decoded_reg_strb.I3C_EC.TTI.QUEUE_STATUS = cpuif_req_masked & (cpuif_addr == 12'h210);
+        decoded_reg_strb.I3C_EC.TTI.DESC_QUEUE_DEPTH = cpuif_req_masked & (cpuif_addr == 12'h214);
+        decoded_reg_strb.I3C_EC.TTI.DATA_QUEUE_DEPTH = cpuif_req_masked & (cpuif_addr == 12'h218);
+        decoded_reg_strb.I3C_EC.TTI.IBI_QUEUE_DEPTH = cpuif_req_masked & (cpuif_addr == 12'h21c);
+        decoded_reg_strb.I3C_EC.TTI.INTERRUPT_STATUS = cpuif_req_masked & (cpuif_addr == 12'h220);
+        decoded_reg_strb.I3C_EC.TTI.INTERRUPT_ENABLE = cpuif_req_masked & (cpuif_addr == 12'h224);
+        decoded_reg_strb.I3C_EC.TTI.INTERRUPT_FORCE = cpuif_req_masked & (cpuif_addr == 12'h228);
+        decoded_reg_strb.I3C_EC.TTI.TARGET_ERR_CTRL = cpuif_req_masked & (cpuif_addr == 12'h22c);
+        decoded_reg_strb.I3C_EC.TTI.TARGET_ERR_INTR_STATUS = cpuif_req_masked & (cpuif_addr == 12'h230);
+        decoded_reg_strb.I3C_EC.TTI.TARGET_ERR_INTR_ENABLE = cpuif_req_masked & (cpuif_addr == 12'h234);
+        decoded_reg_strb.I3C_EC.TTI.TARGET_ERR_INTR_FORCE = cpuif_req_masked & (cpuif_addr == 12'h238);
+        decoded_reg_strb.I3C_EC.TTI.TARGET_ERR_CNT_TE0 = cpuif_req_masked & (cpuif_addr == 12'h23c);
+        decoded_reg_strb.I3C_EC.TTI.TARGET_ERR_CNT_TE1 = cpuif_req_masked & (cpuif_addr == 12'h240);
+        decoded_reg_strb.I3C_EC.TTI.TARGET_ERR_CNT_TE2 = cpuif_req_masked & (cpuif_addr == 12'h244);
+        decoded_reg_strb.I3C_EC.TTI.TARGET_ERR_CNT_TE3 = cpuif_req_masked & (cpuif_addr == 12'h248);
+        decoded_reg_strb.I3C_EC.TTI.TARGET_ERR_CNT_TE4 = cpuif_req_masked & (cpuif_addr == 12'h24c);
+        decoded_reg_strb.I3C_EC.TTI.TARGET_ERR_CNT_TE5 = cpuif_req_masked & (cpuif_addr == 12'h250);
+        decoded_reg_strb.I3C_EC.TTI.TARGET_ERR_CNT_FRAMING = cpuif_req_masked & (cpuif_addr == 12'h254);
+        decoded_reg_strb.I3C_EC.TTI.TARGET_ERR_CNT_RI_PEC = cpuif_req_masked & (cpuif_addr == 12'h258);
+        decoded_reg_strb.I3C_EC.TTI.TARGET_ERR_CNT_RI_LENGTH = cpuif_req_masked & (cpuif_addr == 12'h25c);
+        decoded_reg_strb.I3C_EC.TTI.TARGET_ERR_CNT_RI_READONLY = cpuif_req_masked & (cpuif_addr == 12'h260);
+        decoded_reg_strb.I3C_EC.TTI.TARGET_ERR_CNT_RI_UNSUPPORTED = cpuif_req_masked & (cpuif_addr == 12'h264);
+        decoded_reg_strb.I3C_EC.TTI.TARGET_ERR_CNT_RI_RX_FIFO_OVERFLOW = cpuif_req_masked & (cpuif_addr == 12'h268);
+        decoded_reg_strb.I3C_EC.TTI.TARGET_ERR_CNT_RI_INDIRECT_FIFO_OVERFLOW = cpuif_req_masked & (cpuif_addr == 12'h26c);
+        decoded_reg_strb.I3C_EC.TTI.RX_DESC_QUEUE_PORT = cpuif_req_masked & (cpuif_addr == 12'h270);
+        is_external |= cpuif_req_masked & (cpuif_addr == 12'h270) & !cpuif_req_is_wr;
+        decoded_reg_strb.I3C_EC.TTI.RX_DATA_PORT = cpuif_req_masked & (cpuif_addr == 12'h274);
+        is_external |= cpuif_req_masked & (cpuif_addr == 12'h274) & !cpuif_req_is_wr;
+        decoded_reg_strb.I3C_EC.TTI.TX_DESC_QUEUE_PORT = cpuif_req_masked & (cpuif_addr == 12'h278);
+        is_external |= cpuif_req_masked & (cpuif_addr == 12'h278) & cpuif_req_is_wr;
+        decoded_reg_strb.I3C_EC.TTI.TX_DATA_PORT = cpuif_req_masked & (cpuif_addr == 12'h27c);
+        is_external |= cpuif_req_masked & (cpuif_addr == 12'h27c) & cpuif_req_is_wr;
+        decoded_reg_strb.I3C_EC.TTI.IBI_PORT = cpuif_req_masked & (cpuif_addr == 12'h280);
+        is_external |= cpuif_req_masked & (cpuif_addr == 12'h280) & cpuif_req_is_wr;
+        decoded_reg_strb.I3C_EC.TTI.QUEUE_SIZE = cpuif_req_masked & (cpuif_addr == 12'h284);
+        decoded_reg_strb.I3C_EC.TTI.IBI_QUEUE_SIZE = cpuif_req_masked & (cpuif_addr == 12'h288);
+        decoded_reg_strb.I3C_EC.TTI.QUEUE_THLD_CTRL = cpuif_req_masked & (cpuif_addr == 12'h28c);
+        decoded_reg_strb.I3C_EC.TTI.DATA_BUFFER_THLD_CTRL = cpuif_req_masked & (cpuif_addr == 12'h290);
+        decoded_reg_strb.I3C_EC.SoCMgmtIf.EXTCAP_HEADER = cpuif_req_masked & (cpuif_addr == 12'h300);
+        decoded_reg_strb.I3C_EC.SoCMgmtIf.SOC_MGMT_CONTROL = cpuif_req_masked & (cpuif_addr == 12'h304);
+        decoded_reg_strb.I3C_EC.SoCMgmtIf.SOC_MGMT_STATUS = cpuif_req_masked & (cpuif_addr == 12'h308);
+        decoded_reg_strb.I3C_EC.SoCMgmtIf.REC_INTF_CFG = cpuif_req_masked & (cpuif_addr == 12'h30c);
+        decoded_reg_strb.I3C_EC.SoCMgmtIf.REC_INTF_REG_W1C_ACCESS = cpuif_req_masked & (cpuif_addr == 12'h310);
+        decoded_reg_strb.I3C_EC.SoCMgmtIf.SOC_MGMT_RSVD_2 = cpuif_req_masked & (cpuif_addr == 12'h314);
+        decoded_reg_strb.I3C_EC.SoCMgmtIf.SOC_MGMT_RSVD_3 = cpuif_req_masked & (cpuif_addr == 12'h318);
+        decoded_reg_strb.I3C_EC.SoCMgmtIf.SOC_PAD_CONF = cpuif_req_masked & (cpuif_addr == 12'h31c);
+        decoded_reg_strb.I3C_EC.SoCMgmtIf.SOC_PAD_ATTR = cpuif_req_masked & (cpuif_addr == 12'h320);
+        decoded_reg_strb.I3C_EC.SoCMgmtIf.SOC_MGMT_FEATURE_2 = cpuif_req_masked & (cpuif_addr == 12'h324);
+        decoded_reg_strb.I3C_EC.SoCMgmtIf.SOC_MGMT_FEATURE_3 = cpuif_req_masked & (cpuif_addr == 12'h328);
+        decoded_reg_strb.I3C_EC.SoCMgmtIf.T_R_REG = cpuif_req_masked & (cpuif_addr == 12'h32c);
+        decoded_reg_strb.I3C_EC.SoCMgmtIf.T_F_REG = cpuif_req_masked & (cpuif_addr == 12'h330);
+        decoded_reg_strb.I3C_EC.SoCMgmtIf.T_SU_DAT_REG = cpuif_req_masked & (cpuif_addr == 12'h334);
+        decoded_reg_strb.I3C_EC.SoCMgmtIf.T_SU_DAT_I2C_REG = cpuif_req_masked & (cpuif_addr == 12'h338);
+        decoded_reg_strb.I3C_EC.SoCMgmtIf.T_HD_DAT_REG = cpuif_req_masked & (cpuif_addr == 12'h33c);
+        decoded_reg_strb.I3C_EC.SoCMgmtIf.T_HIGH_REG = cpuif_req_masked & (cpuif_addr == 12'h340);
+        decoded_reg_strb.I3C_EC.SoCMgmtIf.T_HIGH_OD_REG = cpuif_req_masked & (cpuif_addr == 12'h344);
+        decoded_reg_strb.I3C_EC.SoCMgmtIf.T_HIGH_INIT_OD_REG = cpuif_req_masked & (cpuif_addr == 12'h348);
+        decoded_reg_strb.I3C_EC.SoCMgmtIf.T_HIGH_I2C_REG = cpuif_req_masked & (cpuif_addr == 12'h34c);
+        decoded_reg_strb.I3C_EC.SoCMgmtIf.T_LOW_REG = cpuif_req_masked & (cpuif_addr == 12'h350);
+        decoded_reg_strb.I3C_EC.SoCMgmtIf.T_LOW_OD_REG = cpuif_req_masked & (cpuif_addr == 12'h354);
+        decoded_reg_strb.I3C_EC.SoCMgmtIf.T_LOW_I2C_REG = cpuif_req_masked & (cpuif_addr == 12'h358);
+        decoded_reg_strb.I3C_EC.SoCMgmtIf.T_HD_STA_REG = cpuif_req_masked & (cpuif_addr == 12'h35c);
+        decoded_reg_strb.I3C_EC.SoCMgmtIf.T_HD_STA_I2C_REG = cpuif_req_masked & (cpuif_addr == 12'h360);
+        decoded_reg_strb.I3C_EC.SoCMgmtIf.T_HD_RSTA_REG = cpuif_req_masked & (cpuif_addr == 12'h364);
+        decoded_reg_strb.I3C_EC.SoCMgmtIf.T_SU_STA_REG = cpuif_req_masked & (cpuif_addr == 12'h368);
+        decoded_reg_strb.I3C_EC.SoCMgmtIf.T_SU_STA_I2C_REG = cpuif_req_masked & (cpuif_addr == 12'h36c);
+        decoded_reg_strb.I3C_EC.SoCMgmtIf.T_SU_STO_REG = cpuif_req_masked & (cpuif_addr == 12'h370);
+        decoded_reg_strb.I3C_EC.SoCMgmtIf.T_SU_STO_I2C_REG = cpuif_req_masked & (cpuif_addr == 12'h374);
+        decoded_reg_strb.I3C_EC.SoCMgmtIf.T_DS_OD_REG = cpuif_req_masked & (cpuif_addr == 12'h378);
+        decoded_reg_strb.I3C_EC.SoCMgmtIf.T_FREE_REG = cpuif_req_masked & (cpuif_addr == 12'h37c);
+        decoded_reg_strb.I3C_EC.SoCMgmtIf.T_FREE_I2C_REG = cpuif_req_masked & (cpuif_addr == 12'h380);
+        decoded_reg_strb.I3C_EC.SoCMgmtIf.T_AVAL_REG = cpuif_req_masked & (cpuif_addr == 12'h384);
+        decoded_reg_strb.I3C_EC.SoCMgmtIf.T_IDLE_REG = cpuif_req_masked & (cpuif_addr == 12'h388);
+        decoded_reg_strb.I3C_EC.SoCMgmtIf.HDR_TIMEOUT_EN_REG = cpuif_req_masked & (cpuif_addr == 12'h38c);
+        decoded_reg_strb.I3C_EC.SoCMgmtIf.T_HDR_TIMEOUT_REG = cpuif_req_masked & (cpuif_addr == 12'h390);
+        decoded_reg_strb.I3C_EC.CtrlCfg.EXTCAP_HEADER = cpuif_req_masked & (cpuif_addr == 12'h398);
+        decoded_reg_strb.I3C_EC.CtrlCfg.CONTROLLER_CONFIG = cpuif_req_masked & (cpuif_addr == 12'h39c);
+        decoded_reg_strb.I3C_EC.TERMINATION_EXTCAP_HEADER = cpuif_req_masked & (cpuif_addr == 12'h3a0);
         decoded_strb_is_external = is_external;
         external_req = is_external;
     end
@@ -2886,7 +2886,7 @@ module I3CCSR (
     assign hwif_out.I3C_EC.SecFwRecoveryIf.EXTCAP_HEADER.CAP_LENGTH.value = 16'h20;
     assign hwif_out.I3C_EC.SecFwRecoveryIf.PROT_CAP_0.REC_MAGIC_STRING_0.value = 32'h2050434f;
     assign hwif_out.I3C_EC.SecFwRecoveryIf.PROT_CAP_1.REC_MAGIC_STRING_1.value = 32'h56434552;
-    // Field: I3CCSR.I3C_EC.SecFwRecoveryIf.PROT_CAP_2.REC_PROT_VERSION
+    // Field: target_I3CCSR.I3C_EC.SecFwRecoveryIf.PROT_CAP_2.REC_PROT_VERSION
     always_comb begin
         automatic logic [15:0] next_c;
         automatic logic load_next_c;
@@ -2912,7 +2912,7 @@ module I3CCSR (
         end
     end
     assign hwif_out.I3C_EC.SecFwRecoveryIf.PROT_CAP_2.REC_PROT_VERSION.value = field_storage.I3C_EC.SecFwRecoveryIf.PROT_CAP_2.REC_PROT_VERSION.value;
-    // Field: I3CCSR.I3C_EC.SecFwRecoveryIf.PROT_CAP_2.AGENT_CAPS
+    // Field: target_I3CCSR.I3C_EC.SecFwRecoveryIf.PROT_CAP_2.AGENT_CAPS
     always_comb begin
         automatic logic [15:0] next_c;
         automatic logic load_next_c;
@@ -2938,7 +2938,7 @@ module I3CCSR (
         end
     end
     assign hwif_out.I3C_EC.SecFwRecoveryIf.PROT_CAP_2.AGENT_CAPS.value = field_storage.I3C_EC.SecFwRecoveryIf.PROT_CAP_2.AGENT_CAPS.value;
-    // Field: I3CCSR.I3C_EC.SecFwRecoveryIf.PROT_CAP_3.NUM_OF_CMS_REGIONS
+    // Field: target_I3CCSR.I3C_EC.SecFwRecoveryIf.PROT_CAP_3.NUM_OF_CMS_REGIONS
     always_comb begin
         automatic logic [7:0] next_c;
         automatic logic load_next_c;
@@ -2964,7 +2964,7 @@ module I3CCSR (
         end
     end
     assign hwif_out.I3C_EC.SecFwRecoveryIf.PROT_CAP_3.NUM_OF_CMS_REGIONS.value = field_storage.I3C_EC.SecFwRecoveryIf.PROT_CAP_3.NUM_OF_CMS_REGIONS.value;
-    // Field: I3CCSR.I3C_EC.SecFwRecoveryIf.PROT_CAP_3.MAX_RESP_TIME
+    // Field: target_I3CCSR.I3C_EC.SecFwRecoveryIf.PROT_CAP_3.MAX_RESP_TIME
     always_comb begin
         automatic logic [7:0] next_c;
         automatic logic load_next_c;
@@ -2990,7 +2990,7 @@ module I3CCSR (
         end
     end
     assign hwif_out.I3C_EC.SecFwRecoveryIf.PROT_CAP_3.MAX_RESP_TIME.value = field_storage.I3C_EC.SecFwRecoveryIf.PROT_CAP_3.MAX_RESP_TIME.value;
-    // Field: I3CCSR.I3C_EC.SecFwRecoveryIf.PROT_CAP_3.HEARTBEAT_PERIOD
+    // Field: target_I3CCSR.I3C_EC.SecFwRecoveryIf.PROT_CAP_3.HEARTBEAT_PERIOD
     always_comb begin
         automatic logic [7:0] next_c;
         automatic logic load_next_c;
@@ -3016,7 +3016,7 @@ module I3CCSR (
         end
     end
     assign hwif_out.I3C_EC.SecFwRecoveryIf.PROT_CAP_3.HEARTBEAT_PERIOD.value = field_storage.I3C_EC.SecFwRecoveryIf.PROT_CAP_3.HEARTBEAT_PERIOD.value;
-    // Field: I3CCSR.I3C_EC.SecFwRecoveryIf.DEVICE_ID_0.DESC_TYPE
+    // Field: target_I3CCSR.I3C_EC.SecFwRecoveryIf.DEVICE_ID_0.DESC_TYPE
     always_comb begin
         automatic logic [7:0] next_c;
         automatic logic load_next_c;
@@ -3042,7 +3042,7 @@ module I3CCSR (
         end
     end
     assign hwif_out.I3C_EC.SecFwRecoveryIf.DEVICE_ID_0.DESC_TYPE.value = field_storage.I3C_EC.SecFwRecoveryIf.DEVICE_ID_0.DESC_TYPE.value;
-    // Field: I3CCSR.I3C_EC.SecFwRecoveryIf.DEVICE_ID_0.VENDOR_SPECIFIC_STR_LENGTH
+    // Field: target_I3CCSR.I3C_EC.SecFwRecoveryIf.DEVICE_ID_0.VENDOR_SPECIFIC_STR_LENGTH
     always_comb begin
         automatic logic [7:0] next_c;
         automatic logic load_next_c;
@@ -3068,7 +3068,7 @@ module I3CCSR (
         end
     end
     assign hwif_out.I3C_EC.SecFwRecoveryIf.DEVICE_ID_0.VENDOR_SPECIFIC_STR_LENGTH.value = field_storage.I3C_EC.SecFwRecoveryIf.DEVICE_ID_0.VENDOR_SPECIFIC_STR_LENGTH.value;
-    // Field: I3CCSR.I3C_EC.SecFwRecoveryIf.DEVICE_ID_0.DATA
+    // Field: target_I3CCSR.I3C_EC.SecFwRecoveryIf.DEVICE_ID_0.DATA
     always_comb begin
         automatic logic [15:0] next_c;
         automatic logic load_next_c;
@@ -3094,7 +3094,7 @@ module I3CCSR (
         end
     end
     assign hwif_out.I3C_EC.SecFwRecoveryIf.DEVICE_ID_0.DATA.value = field_storage.I3C_EC.SecFwRecoveryIf.DEVICE_ID_0.DATA.value;
-    // Field: I3CCSR.I3C_EC.SecFwRecoveryIf.DEVICE_ID_1.DATA
+    // Field: target_I3CCSR.I3C_EC.SecFwRecoveryIf.DEVICE_ID_1.DATA
     always_comb begin
         automatic logic [31:0] next_c;
         automatic logic load_next_c;
@@ -3120,7 +3120,7 @@ module I3CCSR (
         end
     end
     assign hwif_out.I3C_EC.SecFwRecoveryIf.DEVICE_ID_1.DATA.value = field_storage.I3C_EC.SecFwRecoveryIf.DEVICE_ID_1.DATA.value;
-    // Field: I3CCSR.I3C_EC.SecFwRecoveryIf.DEVICE_ID_2.DATA
+    // Field: target_I3CCSR.I3C_EC.SecFwRecoveryIf.DEVICE_ID_2.DATA
     always_comb begin
         automatic logic [31:0] next_c;
         automatic logic load_next_c;
@@ -3146,7 +3146,7 @@ module I3CCSR (
         end
     end
     assign hwif_out.I3C_EC.SecFwRecoveryIf.DEVICE_ID_2.DATA.value = field_storage.I3C_EC.SecFwRecoveryIf.DEVICE_ID_2.DATA.value;
-    // Field: I3CCSR.I3C_EC.SecFwRecoveryIf.DEVICE_ID_3.DATA
+    // Field: target_I3CCSR.I3C_EC.SecFwRecoveryIf.DEVICE_ID_3.DATA
     always_comb begin
         automatic logic [31:0] next_c;
         automatic logic load_next_c;
@@ -3172,7 +3172,7 @@ module I3CCSR (
         end
     end
     assign hwif_out.I3C_EC.SecFwRecoveryIf.DEVICE_ID_3.DATA.value = field_storage.I3C_EC.SecFwRecoveryIf.DEVICE_ID_3.DATA.value;
-    // Field: I3CCSR.I3C_EC.SecFwRecoveryIf.DEVICE_ID_4.DATA
+    // Field: target_I3CCSR.I3C_EC.SecFwRecoveryIf.DEVICE_ID_4.DATA
     always_comb begin
         automatic logic [31:0] next_c;
         automatic logic load_next_c;
@@ -3198,7 +3198,7 @@ module I3CCSR (
         end
     end
     assign hwif_out.I3C_EC.SecFwRecoveryIf.DEVICE_ID_4.DATA.value = field_storage.I3C_EC.SecFwRecoveryIf.DEVICE_ID_4.DATA.value;
-    // Field: I3CCSR.I3C_EC.SecFwRecoveryIf.DEVICE_ID_5.DATA
+    // Field: target_I3CCSR.I3C_EC.SecFwRecoveryIf.DEVICE_ID_5.DATA
     always_comb begin
         automatic logic [31:0] next_c;
         automatic logic load_next_c;
@@ -3225,7 +3225,7 @@ module I3CCSR (
     end
     assign hwif_out.I3C_EC.SecFwRecoveryIf.DEVICE_ID_5.DATA.value = field_storage.I3C_EC.SecFwRecoveryIf.DEVICE_ID_5.DATA.value;
     assign hwif_out.I3C_EC.SecFwRecoveryIf.DEVICE_ID_RESERVED.DATA.value = 32'h0;
-    // Field: I3CCSR.I3C_EC.SecFwRecoveryIf.DEVICE_STATUS_0.DEV_STATUS
+    // Field: target_I3CCSR.I3C_EC.SecFwRecoveryIf.DEVICE_STATUS_0.DEV_STATUS
     always_comb begin
         automatic logic [7:0] next_c;
         automatic logic load_next_c;
@@ -3251,7 +3251,7 @@ module I3CCSR (
         end
     end
     assign hwif_out.I3C_EC.SecFwRecoveryIf.DEVICE_STATUS_0.DEV_STATUS.value = field_storage.I3C_EC.SecFwRecoveryIf.DEVICE_STATUS_0.DEV_STATUS.value;
-    // Field: I3CCSR.I3C_EC.SecFwRecoveryIf.DEVICE_STATUS_0.PROT_ERROR
+    // Field: target_I3CCSR.I3C_EC.SecFwRecoveryIf.DEVICE_STATUS_0.PROT_ERROR
     always_comb begin
         automatic logic [7:0] next_c;
         automatic logic load_next_c;
@@ -3280,7 +3280,7 @@ module I3CCSR (
         end
     end
     assign hwif_out.I3C_EC.SecFwRecoveryIf.DEVICE_STATUS_0.PROT_ERROR.value = field_storage.I3C_EC.SecFwRecoveryIf.DEVICE_STATUS_0.PROT_ERROR.value;
-    // Field: I3CCSR.I3C_EC.SecFwRecoveryIf.DEVICE_STATUS_0.REC_REASON_CODE
+    // Field: target_I3CCSR.I3C_EC.SecFwRecoveryIf.DEVICE_STATUS_0.REC_REASON_CODE
     always_comb begin
         automatic logic [15:0] next_c;
         automatic logic load_next_c;
@@ -3306,7 +3306,7 @@ module I3CCSR (
         end
     end
     assign hwif_out.I3C_EC.SecFwRecoveryIf.DEVICE_STATUS_0.REC_REASON_CODE.value = field_storage.I3C_EC.SecFwRecoveryIf.DEVICE_STATUS_0.REC_REASON_CODE.value;
-    // Field: I3CCSR.I3C_EC.SecFwRecoveryIf.DEVICE_STATUS_1.HEARTBEAT
+    // Field: target_I3CCSR.I3C_EC.SecFwRecoveryIf.DEVICE_STATUS_1.HEARTBEAT
     always_comb begin
         automatic logic [15:0] next_c;
         automatic logic load_next_c;
@@ -3332,7 +3332,7 @@ module I3CCSR (
         end
     end
     assign hwif_out.I3C_EC.SecFwRecoveryIf.DEVICE_STATUS_1.HEARTBEAT.value = field_storage.I3C_EC.SecFwRecoveryIf.DEVICE_STATUS_1.HEARTBEAT.value;
-    // Field: I3CCSR.I3C_EC.SecFwRecoveryIf.DEVICE_STATUS_1.VENDOR_STATUS_LENGTH
+    // Field: target_I3CCSR.I3C_EC.SecFwRecoveryIf.DEVICE_STATUS_1.VENDOR_STATUS_LENGTH
     always_comb begin
         automatic logic [8:0] next_c;
         automatic logic load_next_c;
@@ -3358,7 +3358,7 @@ module I3CCSR (
         end
     end
     assign hwif_out.I3C_EC.SecFwRecoveryIf.DEVICE_STATUS_1.VENDOR_STATUS_LENGTH.value = field_storage.I3C_EC.SecFwRecoveryIf.DEVICE_STATUS_1.VENDOR_STATUS_LENGTH.value;
-    // Field: I3CCSR.I3C_EC.SecFwRecoveryIf.DEVICE_STATUS_1.VENDOR_STATUS
+    // Field: target_I3CCSR.I3C_EC.SecFwRecoveryIf.DEVICE_STATUS_1.VENDOR_STATUS
     always_comb begin
         automatic logic [6:0] next_c;
         automatic logic load_next_c;
@@ -3384,7 +3384,7 @@ module I3CCSR (
         end
     end
     assign hwif_out.I3C_EC.SecFwRecoveryIf.DEVICE_STATUS_1.VENDOR_STATUS.value = field_storage.I3C_EC.SecFwRecoveryIf.DEVICE_STATUS_1.VENDOR_STATUS.value;
-    // Field: I3CCSR.I3C_EC.SecFwRecoveryIf.DEVICE_RESET.RESET_CTRL
+    // Field: target_I3CCSR.I3C_EC.SecFwRecoveryIf.DEVICE_RESET.RESET_CTRL
     always_comb begin
         automatic logic [7:0] next_c;
         automatic logic load_next_c;
@@ -3410,7 +3410,7 @@ module I3CCSR (
         end
     end
     assign hwif_out.I3C_EC.SecFwRecoveryIf.DEVICE_RESET.RESET_CTRL.value = field_storage.I3C_EC.SecFwRecoveryIf.DEVICE_RESET.RESET_CTRL.value;
-    // Field: I3CCSR.I3C_EC.SecFwRecoveryIf.DEVICE_RESET.FORCED_RECOVERY
+    // Field: target_I3CCSR.I3C_EC.SecFwRecoveryIf.DEVICE_RESET.FORCED_RECOVERY
     always_comb begin
         automatic logic [7:0] next_c;
         automatic logic load_next_c;
@@ -3436,7 +3436,7 @@ module I3CCSR (
         end
     end
     assign hwif_out.I3C_EC.SecFwRecoveryIf.DEVICE_RESET.FORCED_RECOVERY.value = field_storage.I3C_EC.SecFwRecoveryIf.DEVICE_RESET.FORCED_RECOVERY.value;
-    // Field: I3CCSR.I3C_EC.SecFwRecoveryIf.DEVICE_RESET.IF_CTRL
+    // Field: target_I3CCSR.I3C_EC.SecFwRecoveryIf.DEVICE_RESET.IF_CTRL
     always_comb begin
         automatic logic [7:0] next_c;
         automatic logic load_next_c;
@@ -3462,7 +3462,7 @@ module I3CCSR (
         end
     end
     assign hwif_out.I3C_EC.SecFwRecoveryIf.DEVICE_RESET.IF_CTRL.value = field_storage.I3C_EC.SecFwRecoveryIf.DEVICE_RESET.IF_CTRL.value;
-    // Field: I3CCSR.I3C_EC.SecFwRecoveryIf.RECOVERY_CTRL.CMS
+    // Field: target_I3CCSR.I3C_EC.SecFwRecoveryIf.RECOVERY_CTRL.CMS
     always_comb begin
         automatic logic [7:0] next_c;
         automatic logic load_next_c;
@@ -3489,7 +3489,7 @@ module I3CCSR (
     end
     assign hwif_out.I3C_EC.SecFwRecoveryIf.RECOVERY_CTRL.CMS.value = field_storage.I3C_EC.SecFwRecoveryIf.RECOVERY_CTRL.CMS.value;
     assign hwif_out.I3C_EC.SecFwRecoveryIf.RECOVERY_CTRL.CMS.swmod = decoded_reg_strb.I3C_EC.SecFwRecoveryIf.RECOVERY_CTRL && decoded_req_is_wr;
-    // Field: I3CCSR.I3C_EC.SecFwRecoveryIf.RECOVERY_CTRL.REC_IMG_SEL
+    // Field: target_I3CCSR.I3C_EC.SecFwRecoveryIf.RECOVERY_CTRL.REC_IMG_SEL
     always_comb begin
         automatic logic [7:0] next_c;
         automatic logic load_next_c;
@@ -3516,7 +3516,7 @@ module I3CCSR (
     end
     assign hwif_out.I3C_EC.SecFwRecoveryIf.RECOVERY_CTRL.REC_IMG_SEL.value = field_storage.I3C_EC.SecFwRecoveryIf.RECOVERY_CTRL.REC_IMG_SEL.value;
     assign hwif_out.I3C_EC.SecFwRecoveryIf.RECOVERY_CTRL.REC_IMG_SEL.swmod = decoded_reg_strb.I3C_EC.SecFwRecoveryIf.RECOVERY_CTRL && decoded_req_is_wr;
-    // Field: I3CCSR.I3C_EC.SecFwRecoveryIf.RECOVERY_CTRL.ACTIVATE_REC_IMG
+    // Field: target_I3CCSR.I3C_EC.SecFwRecoveryIf.RECOVERY_CTRL.ACTIVATE_REC_IMG
     always_comb begin
         automatic logic [7:0] next_c;
         automatic logic load_next_c;
@@ -3543,7 +3543,7 @@ module I3CCSR (
     end
     assign hwif_out.I3C_EC.SecFwRecoveryIf.RECOVERY_CTRL.ACTIVATE_REC_IMG.value = field_storage.I3C_EC.SecFwRecoveryIf.RECOVERY_CTRL.ACTIVATE_REC_IMG.value;
     assign hwif_out.I3C_EC.SecFwRecoveryIf.RECOVERY_CTRL.ACTIVATE_REC_IMG.swmod = decoded_reg_strb.I3C_EC.SecFwRecoveryIf.RECOVERY_CTRL && decoded_req_is_wr;
-    // Field: I3CCSR.I3C_EC.SecFwRecoveryIf.RECOVERY_STATUS.DEV_REC_STATUS
+    // Field: target_I3CCSR.I3C_EC.SecFwRecoveryIf.RECOVERY_STATUS.DEV_REC_STATUS
     always_comb begin
         automatic logic [3:0] next_c;
         automatic logic load_next_c;
@@ -3569,7 +3569,7 @@ module I3CCSR (
         end
     end
     assign hwif_out.I3C_EC.SecFwRecoveryIf.RECOVERY_STATUS.DEV_REC_STATUS.value = field_storage.I3C_EC.SecFwRecoveryIf.RECOVERY_STATUS.DEV_REC_STATUS.value;
-    // Field: I3CCSR.I3C_EC.SecFwRecoveryIf.RECOVERY_STATUS.REC_IMG_INDEX
+    // Field: target_I3CCSR.I3C_EC.SecFwRecoveryIf.RECOVERY_STATUS.REC_IMG_INDEX
     always_comb begin
         automatic logic [3:0] next_c;
         automatic logic load_next_c;
@@ -3595,7 +3595,7 @@ module I3CCSR (
         end
     end
     assign hwif_out.I3C_EC.SecFwRecoveryIf.RECOVERY_STATUS.REC_IMG_INDEX.value = field_storage.I3C_EC.SecFwRecoveryIf.RECOVERY_STATUS.REC_IMG_INDEX.value;
-    // Field: I3CCSR.I3C_EC.SecFwRecoveryIf.RECOVERY_STATUS.VENDOR_SPECIFIC_STATUS
+    // Field: target_I3CCSR.I3C_EC.SecFwRecoveryIf.RECOVERY_STATUS.VENDOR_SPECIFIC_STATUS
     always_comb begin
         automatic logic [7:0] next_c;
         automatic logic load_next_c;
@@ -3621,7 +3621,7 @@ module I3CCSR (
         end
     end
     assign hwif_out.I3C_EC.SecFwRecoveryIf.RECOVERY_STATUS.VENDOR_SPECIFIC_STATUS.value = field_storage.I3C_EC.SecFwRecoveryIf.RECOVERY_STATUS.VENDOR_SPECIFIC_STATUS.value;
-    // Field: I3CCSR.I3C_EC.SecFwRecoveryIf.HW_STATUS.TEMP_CRITICAL
+    // Field: target_I3CCSR.I3C_EC.SecFwRecoveryIf.HW_STATUS.TEMP_CRITICAL
     always_comb begin
         automatic logic [0:0] next_c;
         automatic logic load_next_c;
@@ -3647,7 +3647,7 @@ module I3CCSR (
         end
     end
     assign hwif_out.I3C_EC.SecFwRecoveryIf.HW_STATUS.TEMP_CRITICAL.value = field_storage.I3C_EC.SecFwRecoveryIf.HW_STATUS.TEMP_CRITICAL.value;
-    // Field: I3CCSR.I3C_EC.SecFwRecoveryIf.HW_STATUS.SOFT_ERR
+    // Field: target_I3CCSR.I3C_EC.SecFwRecoveryIf.HW_STATUS.SOFT_ERR
     always_comb begin
         automatic logic [0:0] next_c;
         automatic logic load_next_c;
@@ -3673,7 +3673,7 @@ module I3CCSR (
         end
     end
     assign hwif_out.I3C_EC.SecFwRecoveryIf.HW_STATUS.SOFT_ERR.value = field_storage.I3C_EC.SecFwRecoveryIf.HW_STATUS.SOFT_ERR.value;
-    // Field: I3CCSR.I3C_EC.SecFwRecoveryIf.HW_STATUS.FATAL_ERR
+    // Field: target_I3CCSR.I3C_EC.SecFwRecoveryIf.HW_STATUS.FATAL_ERR
     always_comb begin
         automatic logic [0:0] next_c;
         automatic logic load_next_c;
@@ -3699,7 +3699,7 @@ module I3CCSR (
         end
     end
     assign hwif_out.I3C_EC.SecFwRecoveryIf.HW_STATUS.FATAL_ERR.value = field_storage.I3C_EC.SecFwRecoveryIf.HW_STATUS.FATAL_ERR.value;
-    // Field: I3CCSR.I3C_EC.SecFwRecoveryIf.HW_STATUS.RESERVED_7_3
+    // Field: target_I3CCSR.I3C_EC.SecFwRecoveryIf.HW_STATUS.RESERVED_7_3
     always_comb begin
         automatic logic [4:0] next_c;
         automatic logic load_next_c;
@@ -3725,7 +3725,7 @@ module I3CCSR (
         end
     end
     assign hwif_out.I3C_EC.SecFwRecoveryIf.HW_STATUS.RESERVED_7_3.value = field_storage.I3C_EC.SecFwRecoveryIf.HW_STATUS.RESERVED_7_3.value;
-    // Field: I3CCSR.I3C_EC.SecFwRecoveryIf.HW_STATUS.VENDOR_HW_STATUS
+    // Field: target_I3CCSR.I3C_EC.SecFwRecoveryIf.HW_STATUS.VENDOR_HW_STATUS
     always_comb begin
         automatic logic [7:0] next_c;
         automatic logic load_next_c;
@@ -3751,7 +3751,7 @@ module I3CCSR (
         end
     end
     assign hwif_out.I3C_EC.SecFwRecoveryIf.HW_STATUS.VENDOR_HW_STATUS.value = field_storage.I3C_EC.SecFwRecoveryIf.HW_STATUS.VENDOR_HW_STATUS.value;
-    // Field: I3CCSR.I3C_EC.SecFwRecoveryIf.HW_STATUS.CTEMP
+    // Field: target_I3CCSR.I3C_EC.SecFwRecoveryIf.HW_STATUS.CTEMP
     always_comb begin
         automatic logic [7:0] next_c;
         automatic logic load_next_c;
@@ -3777,7 +3777,7 @@ module I3CCSR (
         end
     end
     assign hwif_out.I3C_EC.SecFwRecoveryIf.HW_STATUS.CTEMP.value = field_storage.I3C_EC.SecFwRecoveryIf.HW_STATUS.CTEMP.value;
-    // Field: I3CCSR.I3C_EC.SecFwRecoveryIf.HW_STATUS.VENDOR_HW_STATUS_LEN
+    // Field: target_I3CCSR.I3C_EC.SecFwRecoveryIf.HW_STATUS.VENDOR_HW_STATUS_LEN
     always_comb begin
         automatic logic [7:0] next_c;
         automatic logic load_next_c;
@@ -3803,7 +3803,7 @@ module I3CCSR (
         end
     end
     assign hwif_out.I3C_EC.SecFwRecoveryIf.HW_STATUS.VENDOR_HW_STATUS_LEN.value = field_storage.I3C_EC.SecFwRecoveryIf.HW_STATUS.VENDOR_HW_STATUS_LEN.value;
-    // Field: I3CCSR.I3C_EC.SecFwRecoveryIf.INDIRECT_FIFO_CTRL_0.CMS
+    // Field: target_I3CCSR.I3C_EC.SecFwRecoveryIf.INDIRECT_FIFO_CTRL_0.CMS
     always_comb begin
         automatic logic [7:0] next_c;
         automatic logic load_next_c;
@@ -3829,7 +3829,7 @@ module I3CCSR (
         end
     end
     assign hwif_out.I3C_EC.SecFwRecoveryIf.INDIRECT_FIFO_CTRL_0.CMS.value = field_storage.I3C_EC.SecFwRecoveryIf.INDIRECT_FIFO_CTRL_0.CMS.value;
-    // Field: I3CCSR.I3C_EC.SecFwRecoveryIf.INDIRECT_FIFO_CTRL_0.RESET
+    // Field: target_I3CCSR.I3C_EC.SecFwRecoveryIf.INDIRECT_FIFO_CTRL_0.RESET
     always_comb begin
         automatic logic [7:0] next_c;
         automatic logic load_next_c;
@@ -3858,7 +3858,7 @@ module I3CCSR (
         end
     end
     assign hwif_out.I3C_EC.SecFwRecoveryIf.INDIRECT_FIFO_CTRL_0.RESET.value = field_storage.I3C_EC.SecFwRecoveryIf.INDIRECT_FIFO_CTRL_0.RESET.value;
-    // Field: I3CCSR.I3C_EC.SecFwRecoveryIf.INDIRECT_FIFO_CTRL_1.IMAGE_SIZE
+    // Field: target_I3CCSR.I3C_EC.SecFwRecoveryIf.INDIRECT_FIFO_CTRL_1.IMAGE_SIZE
     always_comb begin
         automatic logic [31:0] next_c;
         automatic logic load_next_c;
@@ -3884,7 +3884,7 @@ module I3CCSR (
         end
     end
     assign hwif_out.I3C_EC.SecFwRecoveryIf.INDIRECT_FIFO_CTRL_1.IMAGE_SIZE.value = field_storage.I3C_EC.SecFwRecoveryIf.INDIRECT_FIFO_CTRL_1.IMAGE_SIZE.value;
-    // Field: I3CCSR.I3C_EC.SecFwRecoveryIf.INDIRECT_FIFO_STATUS_0.EMPTY
+    // Field: target_I3CCSR.I3C_EC.SecFwRecoveryIf.INDIRECT_FIFO_STATUS_0.EMPTY
     always_comb begin
         automatic logic [0:0] next_c;
         automatic logic load_next_c;
@@ -3907,7 +3907,7 @@ module I3CCSR (
         end
     end
     assign hwif_out.I3C_EC.SecFwRecoveryIf.INDIRECT_FIFO_STATUS_0.EMPTY.value = field_storage.I3C_EC.SecFwRecoveryIf.INDIRECT_FIFO_STATUS_0.EMPTY.value;
-    // Field: I3CCSR.I3C_EC.SecFwRecoveryIf.INDIRECT_FIFO_STATUS_0.FULL
+    // Field: target_I3CCSR.I3C_EC.SecFwRecoveryIf.INDIRECT_FIFO_STATUS_0.FULL
     always_comb begin
         automatic logic [0:0] next_c;
         automatic logic load_next_c;
@@ -3930,7 +3930,7 @@ module I3CCSR (
         end
     end
     assign hwif_out.I3C_EC.SecFwRecoveryIf.INDIRECT_FIFO_STATUS_0.FULL.value = field_storage.I3C_EC.SecFwRecoveryIf.INDIRECT_FIFO_STATUS_0.FULL.value;
-    // Field: I3CCSR.I3C_EC.SecFwRecoveryIf.INDIRECT_FIFO_STATUS_0.REGION_TYPE
+    // Field: target_I3CCSR.I3C_EC.SecFwRecoveryIf.INDIRECT_FIFO_STATUS_0.REGION_TYPE
     always_comb begin
         automatic logic [2:0] next_c;
         automatic logic load_next_c;
@@ -3953,7 +3953,7 @@ module I3CCSR (
         end
     end
     assign hwif_out.I3C_EC.SecFwRecoveryIf.INDIRECT_FIFO_STATUS_0.REGION_TYPE.value = field_storage.I3C_EC.SecFwRecoveryIf.INDIRECT_FIFO_STATUS_0.REGION_TYPE.value;
-    // Field: I3CCSR.I3C_EC.SecFwRecoveryIf.INDIRECT_FIFO_STATUS_1.WRITE_INDEX
+    // Field: target_I3CCSR.I3C_EC.SecFwRecoveryIf.INDIRECT_FIFO_STATUS_1.WRITE_INDEX
     always_comb begin
         automatic logic [31:0] next_c;
         automatic logic load_next_c;
@@ -3976,7 +3976,7 @@ module I3CCSR (
         end
     end
     assign hwif_out.I3C_EC.SecFwRecoveryIf.INDIRECT_FIFO_STATUS_1.WRITE_INDEX.value = field_storage.I3C_EC.SecFwRecoveryIf.INDIRECT_FIFO_STATUS_1.WRITE_INDEX.value;
-    // Field: I3CCSR.I3C_EC.SecFwRecoveryIf.INDIRECT_FIFO_STATUS_2.READ_INDEX
+    // Field: target_I3CCSR.I3C_EC.SecFwRecoveryIf.INDIRECT_FIFO_STATUS_2.READ_INDEX
     always_comb begin
         automatic logic [31:0] next_c;
         automatic logic load_next_c;
@@ -3999,7 +3999,7 @@ module I3CCSR (
         end
     end
     assign hwif_out.I3C_EC.SecFwRecoveryIf.INDIRECT_FIFO_STATUS_2.READ_INDEX.value = field_storage.I3C_EC.SecFwRecoveryIf.INDIRECT_FIFO_STATUS_2.READ_INDEX.value;
-    // Field: I3CCSR.I3C_EC.SecFwRecoveryIf.INDIRECT_FIFO_STATUS_3.FIFO_SIZE
+    // Field: target_I3CCSR.I3C_EC.SecFwRecoveryIf.INDIRECT_FIFO_STATUS_3.FIFO_SIZE
     always_comb begin
         automatic logic [31:0] next_c;
         automatic logic load_next_c;
@@ -4023,7 +4023,7 @@ module I3CCSR (
     end
     assign hwif_out.I3C_EC.SecFwRecoveryIf.INDIRECT_FIFO_STATUS_3.FIFO_SIZE.value = field_storage.I3C_EC.SecFwRecoveryIf.INDIRECT_FIFO_STATUS_3.FIFO_SIZE.value;
     assign hwif_out.I3C_EC.SecFwRecoveryIf.INDIRECT_FIFO_STATUS_4.MAX_TRANSFER_SIZE.value = 32'h40;
-    // Field: I3CCSR.I3C_EC.SecFwRecoveryIf.INDIRECT_FIFO_RESERVED.DATA
+    // Field: target_I3CCSR.I3C_EC.SecFwRecoveryIf.INDIRECT_FIFO_RESERVED.DATA
     always_comb begin
         automatic logic [31:0] next_c;
         automatic logic load_next_c;
@@ -4051,7 +4051,7 @@ module I3CCSR (
     assign hwif_out.I3C_EC.SecFwRecoveryIf.INDIRECT_FIFO_DATA.req_is_wr = decoded_req_is_wr;
     assign hwif_out.I3C_EC.StdbyCtrlMode.EXTCAP_HEADER.CAP_ID.value = 8'h12;
     assign hwif_out.I3C_EC.StdbyCtrlMode.EXTCAP_HEADER.CAP_LENGTH.value = 16'h20;
-    // Field: I3CCSR.I3C_EC.StdbyCtrlMode.STBY_CR_CONTROL.PENDING_RX_NACK
+    // Field: target_I3CCSR.I3C_EC.StdbyCtrlMode.STBY_CR_CONTROL.PENDING_RX_NACK
     always_comb begin
         automatic logic [0:0] next_c;
         automatic logic load_next_c;
@@ -4077,7 +4077,7 @@ module I3CCSR (
         end
     end
     assign hwif_out.I3C_EC.StdbyCtrlMode.STBY_CR_CONTROL.PENDING_RX_NACK.value = field_storage.I3C_EC.StdbyCtrlMode.STBY_CR_CONTROL.PENDING_RX_NACK.value;
-    // Field: I3CCSR.I3C_EC.StdbyCtrlMode.STBY_CR_CONTROL.HANDOFF_DELAY_NACK
+    // Field: target_I3CCSR.I3C_EC.StdbyCtrlMode.STBY_CR_CONTROL.HANDOFF_DELAY_NACK
     always_comb begin
         automatic logic [0:0] next_c;
         automatic logic load_next_c;
@@ -4103,7 +4103,7 @@ module I3CCSR (
         end
     end
     assign hwif_out.I3C_EC.StdbyCtrlMode.STBY_CR_CONTROL.HANDOFF_DELAY_NACK.value = field_storage.I3C_EC.StdbyCtrlMode.STBY_CR_CONTROL.HANDOFF_DELAY_NACK.value;
-    // Field: I3CCSR.I3C_EC.StdbyCtrlMode.STBY_CR_CONTROL.ACR_FSM_OP_SELECT
+    // Field: target_I3CCSR.I3C_EC.StdbyCtrlMode.STBY_CR_CONTROL.ACR_FSM_OP_SELECT
     always_comb begin
         automatic logic [0:0] next_c;
         automatic logic load_next_c;
@@ -4129,7 +4129,7 @@ module I3CCSR (
         end
     end
     assign hwif_out.I3C_EC.StdbyCtrlMode.STBY_CR_CONTROL.ACR_FSM_OP_SELECT.value = field_storage.I3C_EC.StdbyCtrlMode.STBY_CR_CONTROL.ACR_FSM_OP_SELECT.value;
-    // Field: I3CCSR.I3C_EC.StdbyCtrlMode.STBY_CR_CONTROL.PRIME_ACCEPT_GETACCCR
+    // Field: target_I3CCSR.I3C_EC.StdbyCtrlMode.STBY_CR_CONTROL.PRIME_ACCEPT_GETACCCR
     always_comb begin
         automatic logic [0:0] next_c;
         automatic logic load_next_c;
@@ -4155,7 +4155,7 @@ module I3CCSR (
         end
     end
     assign hwif_out.I3C_EC.StdbyCtrlMode.STBY_CR_CONTROL.PRIME_ACCEPT_GETACCCR.value = field_storage.I3C_EC.StdbyCtrlMode.STBY_CR_CONTROL.PRIME_ACCEPT_GETACCCR.value;
-    // Field: I3CCSR.I3C_EC.StdbyCtrlMode.STBY_CR_CONTROL.HANDOFF_DEEP_SLEEP
+    // Field: target_I3CCSR.I3C_EC.StdbyCtrlMode.STBY_CR_CONTROL.HANDOFF_DEEP_SLEEP
     always_comb begin
         automatic logic [0:0] next_c;
         automatic logic load_next_c;
@@ -4184,7 +4184,7 @@ module I3CCSR (
         end
     end
     assign hwif_out.I3C_EC.StdbyCtrlMode.STBY_CR_CONTROL.HANDOFF_DEEP_SLEEP.value = field_storage.I3C_EC.StdbyCtrlMode.STBY_CR_CONTROL.HANDOFF_DEEP_SLEEP.value;
-    // Field: I3CCSR.I3C_EC.StdbyCtrlMode.STBY_CR_CONTROL.CR_REQUEST_SEND
+    // Field: target_I3CCSR.I3C_EC.StdbyCtrlMode.STBY_CR_CONTROL.CR_REQUEST_SEND
     always_comb begin
         automatic logic [0:0] next_c;
         automatic logic load_next_c;
@@ -4207,7 +4207,7 @@ module I3CCSR (
         end
     end
     assign hwif_out.I3C_EC.StdbyCtrlMode.STBY_CR_CONTROL.CR_REQUEST_SEND.value = field_storage.I3C_EC.StdbyCtrlMode.STBY_CR_CONTROL.CR_REQUEST_SEND.value;
-    // Field: I3CCSR.I3C_EC.StdbyCtrlMode.STBY_CR_CONTROL.BAST_CCC_IBI_RING
+    // Field: target_I3CCSR.I3C_EC.StdbyCtrlMode.STBY_CR_CONTROL.BAST_CCC_IBI_RING
     always_comb begin
         automatic logic [2:0] next_c;
         automatic logic load_next_c;
@@ -4230,7 +4230,7 @@ module I3CCSR (
         end
     end
     assign hwif_out.I3C_EC.StdbyCtrlMode.STBY_CR_CONTROL.BAST_CCC_IBI_RING.value = field_storage.I3C_EC.StdbyCtrlMode.STBY_CR_CONTROL.BAST_CCC_IBI_RING.value;
-    // Field: I3CCSR.I3C_EC.StdbyCtrlMode.STBY_CR_CONTROL.TARGET_XACT_ENABLE
+    // Field: target_I3CCSR.I3C_EC.StdbyCtrlMode.STBY_CR_CONTROL.TARGET_XACT_ENABLE
     always_comb begin
         automatic logic [0:0] next_c;
         automatic logic load_next_c;
@@ -4256,7 +4256,7 @@ module I3CCSR (
         end
     end
     assign hwif_out.I3C_EC.StdbyCtrlMode.STBY_CR_CONTROL.TARGET_XACT_ENABLE.value = field_storage.I3C_EC.StdbyCtrlMode.STBY_CR_CONTROL.TARGET_XACT_ENABLE.value;
-    // Field: I3CCSR.I3C_EC.StdbyCtrlMode.STBY_CR_CONTROL.DAA_SETAASA_ENABLE
+    // Field: target_I3CCSR.I3C_EC.StdbyCtrlMode.STBY_CR_CONTROL.DAA_SETAASA_ENABLE
     always_comb begin
         automatic logic [0:0] next_c;
         automatic logic load_next_c;
@@ -4282,7 +4282,7 @@ module I3CCSR (
         end
     end
     assign hwif_out.I3C_EC.StdbyCtrlMode.STBY_CR_CONTROL.DAA_SETAASA_ENABLE.value = field_storage.I3C_EC.StdbyCtrlMode.STBY_CR_CONTROL.DAA_SETAASA_ENABLE.value;
-    // Field: I3CCSR.I3C_EC.StdbyCtrlMode.STBY_CR_CONTROL.DAA_SETDASA_ENABLE
+    // Field: target_I3CCSR.I3C_EC.StdbyCtrlMode.STBY_CR_CONTROL.DAA_SETDASA_ENABLE
     always_comb begin
         automatic logic [0:0] next_c;
         automatic logic load_next_c;
@@ -4308,7 +4308,7 @@ module I3CCSR (
         end
     end
     assign hwif_out.I3C_EC.StdbyCtrlMode.STBY_CR_CONTROL.DAA_SETDASA_ENABLE.value = field_storage.I3C_EC.StdbyCtrlMode.STBY_CR_CONTROL.DAA_SETDASA_ENABLE.value;
-    // Field: I3CCSR.I3C_EC.StdbyCtrlMode.STBY_CR_CONTROL.DAA_ENTDAA_ENABLE
+    // Field: target_I3CCSR.I3C_EC.StdbyCtrlMode.STBY_CR_CONTROL.DAA_ENTDAA_ENABLE
     always_comb begin
         automatic logic [0:0] next_c;
         automatic logic load_next_c;
@@ -4334,7 +4334,7 @@ module I3CCSR (
         end
     end
     assign hwif_out.I3C_EC.StdbyCtrlMode.STBY_CR_CONTROL.DAA_ENTDAA_ENABLE.value = field_storage.I3C_EC.StdbyCtrlMode.STBY_CR_CONTROL.DAA_ENTDAA_ENABLE.value;
-    // Field: I3CCSR.I3C_EC.StdbyCtrlMode.STBY_CR_CONTROL.RSTACT_DEFBYTE_02
+    // Field: target_I3CCSR.I3C_EC.StdbyCtrlMode.STBY_CR_CONTROL.RSTACT_DEFBYTE_02
     always_comb begin
         automatic logic [0:0] next_c;
         automatic logic load_next_c;
@@ -4357,7 +4357,7 @@ module I3CCSR (
         end
     end
     assign hwif_out.I3C_EC.StdbyCtrlMode.STBY_CR_CONTROL.RSTACT_DEFBYTE_02.value = field_storage.I3C_EC.StdbyCtrlMode.STBY_CR_CONTROL.RSTACT_DEFBYTE_02.value;
-    // Field: I3CCSR.I3C_EC.StdbyCtrlMode.STBY_CR_CONTROL.STBY_CR_ENABLE_INIT
+    // Field: target_I3CCSR.I3C_EC.StdbyCtrlMode.STBY_CR_CONTROL.STBY_CR_ENABLE_INIT
     always_comb begin
         automatic logic [1:0] next_c;
         automatic logic load_next_c;
@@ -4380,7 +4380,7 @@ module I3CCSR (
         end
     end
     assign hwif_out.I3C_EC.StdbyCtrlMode.STBY_CR_CONTROL.STBY_CR_ENABLE_INIT.value = field_storage.I3C_EC.StdbyCtrlMode.STBY_CR_CONTROL.STBY_CR_ENABLE_INIT.value;
-    // Field: I3CCSR.I3C_EC.StdbyCtrlMode.STBY_CR_DEVICE_ADDR.STATIC_ADDR
+    // Field: target_I3CCSR.I3C_EC.StdbyCtrlMode.STBY_CR_DEVICE_ADDR.STATIC_ADDR
     always_comb begin
         automatic logic [6:0] next_c;
         automatic logic load_next_c;
@@ -4406,7 +4406,7 @@ module I3CCSR (
         end
     end
     assign hwif_out.I3C_EC.StdbyCtrlMode.STBY_CR_DEVICE_ADDR.STATIC_ADDR.value = field_storage.I3C_EC.StdbyCtrlMode.STBY_CR_DEVICE_ADDR.STATIC_ADDR.value;
-    // Field: I3CCSR.I3C_EC.StdbyCtrlMode.STBY_CR_DEVICE_ADDR.STATIC_ADDR_VALID
+    // Field: target_I3CCSR.I3C_EC.StdbyCtrlMode.STBY_CR_DEVICE_ADDR.STATIC_ADDR_VALID
     always_comb begin
         automatic logic [0:0] next_c;
         automatic logic load_next_c;
@@ -4432,7 +4432,7 @@ module I3CCSR (
         end
     end
     assign hwif_out.I3C_EC.StdbyCtrlMode.STBY_CR_DEVICE_ADDR.STATIC_ADDR_VALID.value = field_storage.I3C_EC.StdbyCtrlMode.STBY_CR_DEVICE_ADDR.STATIC_ADDR_VALID.value;
-    // Field: I3CCSR.I3C_EC.StdbyCtrlMode.STBY_CR_DEVICE_ADDR.DYNAMIC_ADDR
+    // Field: target_I3CCSR.I3C_EC.StdbyCtrlMode.STBY_CR_DEVICE_ADDR.DYNAMIC_ADDR
     always_comb begin
         automatic logic [6:0] next_c;
         automatic logic load_next_c;
@@ -4458,7 +4458,7 @@ module I3CCSR (
         end
     end
     assign hwif_out.I3C_EC.StdbyCtrlMode.STBY_CR_DEVICE_ADDR.DYNAMIC_ADDR.value = field_storage.I3C_EC.StdbyCtrlMode.STBY_CR_DEVICE_ADDR.DYNAMIC_ADDR.value;
-    // Field: I3CCSR.I3C_EC.StdbyCtrlMode.STBY_CR_DEVICE_ADDR.DYNAMIC_ADDR_VALID
+    // Field: target_I3CCSR.I3C_EC.StdbyCtrlMode.STBY_CR_DEVICE_ADDR.DYNAMIC_ADDR_VALID
     always_comb begin
         automatic logic [0:0] next_c;
         automatic logic load_next_c;
@@ -4489,7 +4489,7 @@ module I3CCSR (
     assign hwif_out.I3C_EC.StdbyCtrlMode.STBY_CR_CAPABILITIES.DAA_SETAASA_SUPPORT.value = 1'h1;
     assign hwif_out.I3C_EC.StdbyCtrlMode.STBY_CR_CAPABILITIES.DAA_SETDASA_SUPPORT.value = 1'h1;
     assign hwif_out.I3C_EC.StdbyCtrlMode.STBY_CR_CAPABILITIES.DAA_ENTDAA_SUPPORT.value = 1'h0;
-    // Field: I3CCSR.I3C_EC.StdbyCtrlMode.STBY_CR_VIRTUAL_DEVICE_CHAR.PID_HI
+    // Field: target_I3CCSR.I3C_EC.StdbyCtrlMode.STBY_CR_VIRTUAL_DEVICE_CHAR.PID_HI
     always_comb begin
         automatic logic [14:0] next_c;
         automatic logic load_next_c;
@@ -4512,7 +4512,7 @@ module I3CCSR (
         end
     end
     assign hwif_out.I3C_EC.StdbyCtrlMode.STBY_CR_VIRTUAL_DEVICE_CHAR.PID_HI.value = field_storage.I3C_EC.StdbyCtrlMode.STBY_CR_VIRTUAL_DEVICE_CHAR.PID_HI.value;
-    // Field: I3CCSR.I3C_EC.StdbyCtrlMode.STBY_CR_VIRTUAL_DEVICE_CHAR.DCR
+    // Field: target_I3CCSR.I3C_EC.StdbyCtrlMode.STBY_CR_VIRTUAL_DEVICE_CHAR.DCR
     always_comb begin
         automatic logic [7:0] next_c;
         automatic logic load_next_c;
@@ -4535,7 +4535,7 @@ module I3CCSR (
         end
     end
     assign hwif_out.I3C_EC.StdbyCtrlMode.STBY_CR_VIRTUAL_DEVICE_CHAR.DCR.value = field_storage.I3C_EC.StdbyCtrlMode.STBY_CR_VIRTUAL_DEVICE_CHAR.DCR.value;
-    // Field: I3CCSR.I3C_EC.StdbyCtrlMode.STBY_CR_VIRTUAL_DEVICE_CHAR.BCR_VAR
+    // Field: target_I3CCSR.I3C_EC.StdbyCtrlMode.STBY_CR_VIRTUAL_DEVICE_CHAR.BCR_VAR
     always_comb begin
         automatic logic [4:0] next_c;
         automatic logic load_next_c;
@@ -4558,7 +4558,7 @@ module I3CCSR (
         end
     end
     assign hwif_out.I3C_EC.StdbyCtrlMode.STBY_CR_VIRTUAL_DEVICE_CHAR.BCR_VAR.value = field_storage.I3C_EC.StdbyCtrlMode.STBY_CR_VIRTUAL_DEVICE_CHAR.BCR_VAR.value;
-    // Field: I3CCSR.I3C_EC.StdbyCtrlMode.STBY_CR_VIRTUAL_DEVICE_CHAR.BCR_FIXED
+    // Field: target_I3CCSR.I3C_EC.StdbyCtrlMode.STBY_CR_VIRTUAL_DEVICE_CHAR.BCR_FIXED
     always_comb begin
         automatic logic [2:0] next_c;
         automatic logic load_next_c;
@@ -4581,7 +4581,7 @@ module I3CCSR (
         end
     end
     assign hwif_out.I3C_EC.StdbyCtrlMode.STBY_CR_VIRTUAL_DEVICE_CHAR.BCR_FIXED.value = field_storage.I3C_EC.StdbyCtrlMode.STBY_CR_VIRTUAL_DEVICE_CHAR.BCR_FIXED.value;
-    // Field: I3CCSR.I3C_EC.StdbyCtrlMode.STBY_CR_STATUS.AC_CURRENT_OWN
+    // Field: target_I3CCSR.I3C_EC.StdbyCtrlMode.STBY_CR_STATUS.AC_CURRENT_OWN
     always_comb begin
         automatic logic [0:0] next_c;
         automatic logic load_next_c;
@@ -4607,7 +4607,7 @@ module I3CCSR (
         end
     end
     assign hwif_out.I3C_EC.StdbyCtrlMode.STBY_CR_STATUS.AC_CURRENT_OWN.value = field_storage.I3C_EC.StdbyCtrlMode.STBY_CR_STATUS.AC_CURRENT_OWN.value;
-    // Field: I3CCSR.I3C_EC.StdbyCtrlMode.STBY_CR_STATUS.SIMPLE_CRR_STATUS
+    // Field: target_I3CCSR.I3C_EC.StdbyCtrlMode.STBY_CR_STATUS.SIMPLE_CRR_STATUS
     always_comb begin
         automatic logic [2:0] next_c;
         automatic logic load_next_c;
@@ -4633,7 +4633,7 @@ module I3CCSR (
         end
     end
     assign hwif_out.I3C_EC.StdbyCtrlMode.STBY_CR_STATUS.SIMPLE_CRR_STATUS.value = field_storage.I3C_EC.StdbyCtrlMode.STBY_CR_STATUS.SIMPLE_CRR_STATUS.value;
-    // Field: I3CCSR.I3C_EC.StdbyCtrlMode.STBY_CR_STATUS.HJ_REQ_STATUS
+    // Field: target_I3CCSR.I3C_EC.StdbyCtrlMode.STBY_CR_STATUS.HJ_REQ_STATUS
     always_comb begin
         automatic logic [0:0] next_c;
         automatic logic load_next_c;
@@ -4659,7 +4659,7 @@ module I3CCSR (
         end
     end
     assign hwif_out.I3C_EC.StdbyCtrlMode.STBY_CR_STATUS.HJ_REQ_STATUS.value = field_storage.I3C_EC.StdbyCtrlMode.STBY_CR_STATUS.HJ_REQ_STATUS.value;
-    // Field: I3CCSR.I3C_EC.StdbyCtrlMode.STBY_CR_DEVICE_CHAR.PID_HI
+    // Field: target_I3CCSR.I3C_EC.StdbyCtrlMode.STBY_CR_DEVICE_CHAR.PID_HI
     always_comb begin
         automatic logic [14:0] next_c;
         automatic logic load_next_c;
@@ -4682,7 +4682,7 @@ module I3CCSR (
         end
     end
     assign hwif_out.I3C_EC.StdbyCtrlMode.STBY_CR_DEVICE_CHAR.PID_HI.value = field_storage.I3C_EC.StdbyCtrlMode.STBY_CR_DEVICE_CHAR.PID_HI.value;
-    // Field: I3CCSR.I3C_EC.StdbyCtrlMode.STBY_CR_DEVICE_CHAR.DCR
+    // Field: target_I3CCSR.I3C_EC.StdbyCtrlMode.STBY_CR_DEVICE_CHAR.DCR
     always_comb begin
         automatic logic [7:0] next_c;
         automatic logic load_next_c;
@@ -4705,7 +4705,7 @@ module I3CCSR (
         end
     end
     assign hwif_out.I3C_EC.StdbyCtrlMode.STBY_CR_DEVICE_CHAR.DCR.value = field_storage.I3C_EC.StdbyCtrlMode.STBY_CR_DEVICE_CHAR.DCR.value;
-    // Field: I3CCSR.I3C_EC.StdbyCtrlMode.STBY_CR_DEVICE_CHAR.BCR_VAR
+    // Field: target_I3CCSR.I3C_EC.StdbyCtrlMode.STBY_CR_DEVICE_CHAR.BCR_VAR
     always_comb begin
         automatic logic [4:0] next_c;
         automatic logic load_next_c;
@@ -4728,7 +4728,7 @@ module I3CCSR (
         end
     end
     assign hwif_out.I3C_EC.StdbyCtrlMode.STBY_CR_DEVICE_CHAR.BCR_VAR.value = field_storage.I3C_EC.StdbyCtrlMode.STBY_CR_DEVICE_CHAR.BCR_VAR.value;
-    // Field: I3CCSR.I3C_EC.StdbyCtrlMode.STBY_CR_DEVICE_CHAR.BCR_FIXED
+    // Field: target_I3CCSR.I3C_EC.StdbyCtrlMode.STBY_CR_DEVICE_CHAR.BCR_FIXED
     always_comb begin
         automatic logic [2:0] next_c;
         automatic logic load_next_c;
@@ -4751,7 +4751,7 @@ module I3CCSR (
         end
     end
     assign hwif_out.I3C_EC.StdbyCtrlMode.STBY_CR_DEVICE_CHAR.BCR_FIXED.value = field_storage.I3C_EC.StdbyCtrlMode.STBY_CR_DEVICE_CHAR.BCR_FIXED.value;
-    // Field: I3CCSR.I3C_EC.StdbyCtrlMode.STBY_CR_DEVICE_PID_LO.PID_LO
+    // Field: target_I3CCSR.I3C_EC.StdbyCtrlMode.STBY_CR_DEVICE_PID_LO.PID_LO
     always_comb begin
         automatic logic [31:0] next_c;
         automatic logic load_next_c;
@@ -4774,7 +4774,7 @@ module I3CCSR (
         end
     end
     assign hwif_out.I3C_EC.StdbyCtrlMode.STBY_CR_DEVICE_PID_LO.PID_LO.value = field_storage.I3C_EC.StdbyCtrlMode.STBY_CR_DEVICE_PID_LO.PID_LO.value;
-    // Field: I3CCSR.I3C_EC.StdbyCtrlMode.STBY_CR_INTR_STATUS.ACR_HANDOFF_OK_REMAIN_STAT
+    // Field: target_I3CCSR.I3C_EC.StdbyCtrlMode.STBY_CR_INTR_STATUS.ACR_HANDOFF_OK_REMAIN_STAT
     always_comb begin
         automatic logic [0:0] next_c;
         automatic logic load_next_c;
@@ -4800,7 +4800,7 @@ module I3CCSR (
         end
     end
     assign hwif_out.I3C_EC.StdbyCtrlMode.STBY_CR_INTR_STATUS.ACR_HANDOFF_OK_REMAIN_STAT.value = field_storage.I3C_EC.StdbyCtrlMode.STBY_CR_INTR_STATUS.ACR_HANDOFF_OK_REMAIN_STAT.value;
-    // Field: I3CCSR.I3C_EC.StdbyCtrlMode.STBY_CR_INTR_STATUS.ACR_HANDOFF_OK_PRIMED_STAT
+    // Field: target_I3CCSR.I3C_EC.StdbyCtrlMode.STBY_CR_INTR_STATUS.ACR_HANDOFF_OK_PRIMED_STAT
     always_comb begin
         automatic logic [0:0] next_c;
         automatic logic load_next_c;
@@ -4826,7 +4826,7 @@ module I3CCSR (
         end
     end
     assign hwif_out.I3C_EC.StdbyCtrlMode.STBY_CR_INTR_STATUS.ACR_HANDOFF_OK_PRIMED_STAT.value = field_storage.I3C_EC.StdbyCtrlMode.STBY_CR_INTR_STATUS.ACR_HANDOFF_OK_PRIMED_STAT.value;
-    // Field: I3CCSR.I3C_EC.StdbyCtrlMode.STBY_CR_INTR_STATUS.ACR_HANDOFF_ERR_FAIL_STAT
+    // Field: target_I3CCSR.I3C_EC.StdbyCtrlMode.STBY_CR_INTR_STATUS.ACR_HANDOFF_ERR_FAIL_STAT
     always_comb begin
         automatic logic [0:0] next_c;
         automatic logic load_next_c;
@@ -4852,7 +4852,7 @@ module I3CCSR (
         end
     end
     assign hwif_out.I3C_EC.StdbyCtrlMode.STBY_CR_INTR_STATUS.ACR_HANDOFF_ERR_FAIL_STAT.value = field_storage.I3C_EC.StdbyCtrlMode.STBY_CR_INTR_STATUS.ACR_HANDOFF_ERR_FAIL_STAT.value;
-    // Field: I3CCSR.I3C_EC.StdbyCtrlMode.STBY_CR_INTR_STATUS.ACR_HANDOFF_ERR_M3_STAT
+    // Field: target_I3CCSR.I3C_EC.StdbyCtrlMode.STBY_CR_INTR_STATUS.ACR_HANDOFF_ERR_M3_STAT
     always_comb begin
         automatic logic [0:0] next_c;
         automatic logic load_next_c;
@@ -4878,7 +4878,7 @@ module I3CCSR (
         end
     end
     assign hwif_out.I3C_EC.StdbyCtrlMode.STBY_CR_INTR_STATUS.ACR_HANDOFF_ERR_M3_STAT.value = field_storage.I3C_EC.StdbyCtrlMode.STBY_CR_INTR_STATUS.ACR_HANDOFF_ERR_M3_STAT.value;
-    // Field: I3CCSR.I3C_EC.StdbyCtrlMode.STBY_CR_INTR_STATUS.CRR_RESPONSE_STAT
+    // Field: target_I3CCSR.I3C_EC.StdbyCtrlMode.STBY_CR_INTR_STATUS.CRR_RESPONSE_STAT
     always_comb begin
         automatic logic [0:0] next_c;
         automatic logic load_next_c;
@@ -4904,7 +4904,7 @@ module I3CCSR (
         end
     end
     assign hwif_out.I3C_EC.StdbyCtrlMode.STBY_CR_INTR_STATUS.CRR_RESPONSE_STAT.value = field_storage.I3C_EC.StdbyCtrlMode.STBY_CR_INTR_STATUS.CRR_RESPONSE_STAT.value;
-    // Field: I3CCSR.I3C_EC.StdbyCtrlMode.STBY_CR_INTR_STATUS.STBY_CR_DYN_ADDR_STAT
+    // Field: target_I3CCSR.I3C_EC.StdbyCtrlMode.STBY_CR_INTR_STATUS.STBY_CR_DYN_ADDR_STAT
     always_comb begin
         automatic logic [0:0] next_c;
         automatic logic load_next_c;
@@ -4930,7 +4930,7 @@ module I3CCSR (
         end
     end
     assign hwif_out.I3C_EC.StdbyCtrlMode.STBY_CR_INTR_STATUS.STBY_CR_DYN_ADDR_STAT.value = field_storage.I3C_EC.StdbyCtrlMode.STBY_CR_INTR_STATUS.STBY_CR_DYN_ADDR_STAT.value;
-    // Field: I3CCSR.I3C_EC.StdbyCtrlMode.STBY_CR_INTR_STATUS.STBY_CR_ACCEPT_NACKED_STAT
+    // Field: target_I3CCSR.I3C_EC.StdbyCtrlMode.STBY_CR_INTR_STATUS.STBY_CR_ACCEPT_NACKED_STAT
     always_comb begin
         automatic logic [0:0] next_c;
         automatic logic load_next_c;
@@ -4956,7 +4956,7 @@ module I3CCSR (
         end
     end
     assign hwif_out.I3C_EC.StdbyCtrlMode.STBY_CR_INTR_STATUS.STBY_CR_ACCEPT_NACKED_STAT.value = field_storage.I3C_EC.StdbyCtrlMode.STBY_CR_INTR_STATUS.STBY_CR_ACCEPT_NACKED_STAT.value;
-    // Field: I3CCSR.I3C_EC.StdbyCtrlMode.STBY_CR_INTR_STATUS.STBY_CR_ACCEPT_OK_STAT
+    // Field: target_I3CCSR.I3C_EC.StdbyCtrlMode.STBY_CR_INTR_STATUS.STBY_CR_ACCEPT_OK_STAT
     always_comb begin
         automatic logic [0:0] next_c;
         automatic logic load_next_c;
@@ -4982,7 +4982,7 @@ module I3CCSR (
         end
     end
     assign hwif_out.I3C_EC.StdbyCtrlMode.STBY_CR_INTR_STATUS.STBY_CR_ACCEPT_OK_STAT.value = field_storage.I3C_EC.StdbyCtrlMode.STBY_CR_INTR_STATUS.STBY_CR_ACCEPT_OK_STAT.value;
-    // Field: I3CCSR.I3C_EC.StdbyCtrlMode.STBY_CR_INTR_STATUS.STBY_CR_ACCEPT_ERR_STAT
+    // Field: target_I3CCSR.I3C_EC.StdbyCtrlMode.STBY_CR_INTR_STATUS.STBY_CR_ACCEPT_ERR_STAT
     always_comb begin
         automatic logic [0:0] next_c;
         automatic logic load_next_c;
@@ -5008,7 +5008,7 @@ module I3CCSR (
         end
     end
     assign hwif_out.I3C_EC.StdbyCtrlMode.STBY_CR_INTR_STATUS.STBY_CR_ACCEPT_ERR_STAT.value = field_storage.I3C_EC.StdbyCtrlMode.STBY_CR_INTR_STATUS.STBY_CR_ACCEPT_ERR_STAT.value;
-    // Field: I3CCSR.I3C_EC.StdbyCtrlMode.STBY_CR_INTR_STATUS.STBY_CR_OP_RSTACT_STAT
+    // Field: target_I3CCSR.I3C_EC.StdbyCtrlMode.STBY_CR_INTR_STATUS.STBY_CR_OP_RSTACT_STAT
     always_comb begin
         automatic logic [0:0] next_c;
         automatic logic load_next_c;
@@ -5034,7 +5034,7 @@ module I3CCSR (
         end
     end
     assign hwif_out.I3C_EC.StdbyCtrlMode.STBY_CR_INTR_STATUS.STBY_CR_OP_RSTACT_STAT.value = field_storage.I3C_EC.StdbyCtrlMode.STBY_CR_INTR_STATUS.STBY_CR_OP_RSTACT_STAT.value;
-    // Field: I3CCSR.I3C_EC.StdbyCtrlMode.STBY_CR_INTR_STATUS.CCC_PARAM_MODIFIED_STAT
+    // Field: target_I3CCSR.I3C_EC.StdbyCtrlMode.STBY_CR_INTR_STATUS.CCC_PARAM_MODIFIED_STAT
     always_comb begin
         automatic logic [0:0] next_c;
         automatic logic load_next_c;
@@ -5060,7 +5060,7 @@ module I3CCSR (
         end
     end
     assign hwif_out.I3C_EC.StdbyCtrlMode.STBY_CR_INTR_STATUS.CCC_PARAM_MODIFIED_STAT.value = field_storage.I3C_EC.StdbyCtrlMode.STBY_CR_INTR_STATUS.CCC_PARAM_MODIFIED_STAT.value;
-    // Field: I3CCSR.I3C_EC.StdbyCtrlMode.STBY_CR_INTR_STATUS.CCC_UNHANDLED_NACK_STAT
+    // Field: target_I3CCSR.I3C_EC.StdbyCtrlMode.STBY_CR_INTR_STATUS.CCC_UNHANDLED_NACK_STAT
     always_comb begin
         automatic logic [0:0] next_c;
         automatic logic load_next_c;
@@ -5086,7 +5086,7 @@ module I3CCSR (
         end
     end
     assign hwif_out.I3C_EC.StdbyCtrlMode.STBY_CR_INTR_STATUS.CCC_UNHANDLED_NACK_STAT.value = field_storage.I3C_EC.StdbyCtrlMode.STBY_CR_INTR_STATUS.CCC_UNHANDLED_NACK_STAT.value;
-    // Field: I3CCSR.I3C_EC.StdbyCtrlMode.STBY_CR_INTR_STATUS.CCC_FATAL_RSTDAA_ERR_STAT
+    // Field: target_I3CCSR.I3C_EC.StdbyCtrlMode.STBY_CR_INTR_STATUS.CCC_FATAL_RSTDAA_ERR_STAT
     always_comb begin
         automatic logic [0:0] next_c;
         automatic logic load_next_c;
@@ -5112,7 +5112,7 @@ module I3CCSR (
         end
     end
     assign hwif_out.I3C_EC.StdbyCtrlMode.STBY_CR_INTR_STATUS.CCC_FATAL_RSTDAA_ERR_STAT.value = field_storage.I3C_EC.StdbyCtrlMode.STBY_CR_INTR_STATUS.CCC_FATAL_RSTDAA_ERR_STAT.value;
-    // Field: I3CCSR.I3C_EC.StdbyCtrlMode.STBY_CR_VIRTUAL_DEVICE_PID_LO.PID_LO
+    // Field: target_I3CCSR.I3C_EC.StdbyCtrlMode.STBY_CR_VIRTUAL_DEVICE_PID_LO.PID_LO
     always_comb begin
         automatic logic [31:0] next_c;
         automatic logic load_next_c;
@@ -5135,7 +5135,7 @@ module I3CCSR (
         end
     end
     assign hwif_out.I3C_EC.StdbyCtrlMode.STBY_CR_VIRTUAL_DEVICE_PID_LO.PID_LO.value = field_storage.I3C_EC.StdbyCtrlMode.STBY_CR_VIRTUAL_DEVICE_PID_LO.PID_LO.value;
-    // Field: I3CCSR.I3C_EC.StdbyCtrlMode.STBY_CR_INTR_SIGNAL_ENABLE.ACR_HANDOFF_OK_REMAIN_SIGNAL_EN
+    // Field: target_I3CCSR.I3C_EC.StdbyCtrlMode.STBY_CR_INTR_SIGNAL_ENABLE.ACR_HANDOFF_OK_REMAIN_SIGNAL_EN
     always_comb begin
         automatic logic [0:0] next_c;
         automatic logic load_next_c;
@@ -5161,7 +5161,7 @@ module I3CCSR (
         end
     end
     assign hwif_out.I3C_EC.StdbyCtrlMode.STBY_CR_INTR_SIGNAL_ENABLE.ACR_HANDOFF_OK_REMAIN_SIGNAL_EN.value = field_storage.I3C_EC.StdbyCtrlMode.STBY_CR_INTR_SIGNAL_ENABLE.ACR_HANDOFF_OK_REMAIN_SIGNAL_EN.value;
-    // Field: I3CCSR.I3C_EC.StdbyCtrlMode.STBY_CR_INTR_SIGNAL_ENABLE.ACR_HANDOFF_OK_PRIMED_SIGNAL_EN
+    // Field: target_I3CCSR.I3C_EC.StdbyCtrlMode.STBY_CR_INTR_SIGNAL_ENABLE.ACR_HANDOFF_OK_PRIMED_SIGNAL_EN
     always_comb begin
         automatic logic [0:0] next_c;
         automatic logic load_next_c;
@@ -5187,7 +5187,7 @@ module I3CCSR (
         end
     end
     assign hwif_out.I3C_EC.StdbyCtrlMode.STBY_CR_INTR_SIGNAL_ENABLE.ACR_HANDOFF_OK_PRIMED_SIGNAL_EN.value = field_storage.I3C_EC.StdbyCtrlMode.STBY_CR_INTR_SIGNAL_ENABLE.ACR_HANDOFF_OK_PRIMED_SIGNAL_EN.value;
-    // Field: I3CCSR.I3C_EC.StdbyCtrlMode.STBY_CR_INTR_SIGNAL_ENABLE.ACR_HANDOFF_ERR_FAIL_SIGNAL_EN
+    // Field: target_I3CCSR.I3C_EC.StdbyCtrlMode.STBY_CR_INTR_SIGNAL_ENABLE.ACR_HANDOFF_ERR_FAIL_SIGNAL_EN
     always_comb begin
         automatic logic [0:0] next_c;
         automatic logic load_next_c;
@@ -5213,7 +5213,7 @@ module I3CCSR (
         end
     end
     assign hwif_out.I3C_EC.StdbyCtrlMode.STBY_CR_INTR_SIGNAL_ENABLE.ACR_HANDOFF_ERR_FAIL_SIGNAL_EN.value = field_storage.I3C_EC.StdbyCtrlMode.STBY_CR_INTR_SIGNAL_ENABLE.ACR_HANDOFF_ERR_FAIL_SIGNAL_EN.value;
-    // Field: I3CCSR.I3C_EC.StdbyCtrlMode.STBY_CR_INTR_SIGNAL_ENABLE.ACR_HANDOFF_ERR_M3_SIGNAL_EN
+    // Field: target_I3CCSR.I3C_EC.StdbyCtrlMode.STBY_CR_INTR_SIGNAL_ENABLE.ACR_HANDOFF_ERR_M3_SIGNAL_EN
     always_comb begin
         automatic logic [0:0] next_c;
         automatic logic load_next_c;
@@ -5239,7 +5239,7 @@ module I3CCSR (
         end
     end
     assign hwif_out.I3C_EC.StdbyCtrlMode.STBY_CR_INTR_SIGNAL_ENABLE.ACR_HANDOFF_ERR_M3_SIGNAL_EN.value = field_storage.I3C_EC.StdbyCtrlMode.STBY_CR_INTR_SIGNAL_ENABLE.ACR_HANDOFF_ERR_M3_SIGNAL_EN.value;
-    // Field: I3CCSR.I3C_EC.StdbyCtrlMode.STBY_CR_INTR_SIGNAL_ENABLE.CRR_RESPONSE_SIGNAL_EN
+    // Field: target_I3CCSR.I3C_EC.StdbyCtrlMode.STBY_CR_INTR_SIGNAL_ENABLE.CRR_RESPONSE_SIGNAL_EN
     always_comb begin
         automatic logic [0:0] next_c;
         automatic logic load_next_c;
@@ -5265,7 +5265,7 @@ module I3CCSR (
         end
     end
     assign hwif_out.I3C_EC.StdbyCtrlMode.STBY_CR_INTR_SIGNAL_ENABLE.CRR_RESPONSE_SIGNAL_EN.value = field_storage.I3C_EC.StdbyCtrlMode.STBY_CR_INTR_SIGNAL_ENABLE.CRR_RESPONSE_SIGNAL_EN.value;
-    // Field: I3CCSR.I3C_EC.StdbyCtrlMode.STBY_CR_INTR_SIGNAL_ENABLE.STBY_CR_DYN_ADDR_SIGNAL_EN
+    // Field: target_I3CCSR.I3C_EC.StdbyCtrlMode.STBY_CR_INTR_SIGNAL_ENABLE.STBY_CR_DYN_ADDR_SIGNAL_EN
     always_comb begin
         automatic logic [0:0] next_c;
         automatic logic load_next_c;
@@ -5291,7 +5291,7 @@ module I3CCSR (
         end
     end
     assign hwif_out.I3C_EC.StdbyCtrlMode.STBY_CR_INTR_SIGNAL_ENABLE.STBY_CR_DYN_ADDR_SIGNAL_EN.value = field_storage.I3C_EC.StdbyCtrlMode.STBY_CR_INTR_SIGNAL_ENABLE.STBY_CR_DYN_ADDR_SIGNAL_EN.value;
-    // Field: I3CCSR.I3C_EC.StdbyCtrlMode.STBY_CR_INTR_SIGNAL_ENABLE.STBY_CR_ACCEPT_NACKED_SIGNAL_EN
+    // Field: target_I3CCSR.I3C_EC.StdbyCtrlMode.STBY_CR_INTR_SIGNAL_ENABLE.STBY_CR_ACCEPT_NACKED_SIGNAL_EN
     always_comb begin
         automatic logic [0:0] next_c;
         automatic logic load_next_c;
@@ -5317,7 +5317,7 @@ module I3CCSR (
         end
     end
     assign hwif_out.I3C_EC.StdbyCtrlMode.STBY_CR_INTR_SIGNAL_ENABLE.STBY_CR_ACCEPT_NACKED_SIGNAL_EN.value = field_storage.I3C_EC.StdbyCtrlMode.STBY_CR_INTR_SIGNAL_ENABLE.STBY_CR_ACCEPT_NACKED_SIGNAL_EN.value;
-    // Field: I3CCSR.I3C_EC.StdbyCtrlMode.STBY_CR_INTR_SIGNAL_ENABLE.STBY_CR_ACCEPT_OK_SIGNAL_EN
+    // Field: target_I3CCSR.I3C_EC.StdbyCtrlMode.STBY_CR_INTR_SIGNAL_ENABLE.STBY_CR_ACCEPT_OK_SIGNAL_EN
     always_comb begin
         automatic logic [0:0] next_c;
         automatic logic load_next_c;
@@ -5343,7 +5343,7 @@ module I3CCSR (
         end
     end
     assign hwif_out.I3C_EC.StdbyCtrlMode.STBY_CR_INTR_SIGNAL_ENABLE.STBY_CR_ACCEPT_OK_SIGNAL_EN.value = field_storage.I3C_EC.StdbyCtrlMode.STBY_CR_INTR_SIGNAL_ENABLE.STBY_CR_ACCEPT_OK_SIGNAL_EN.value;
-    // Field: I3CCSR.I3C_EC.StdbyCtrlMode.STBY_CR_INTR_SIGNAL_ENABLE.STBY_CR_ACCEPT_ERR_SIGNAL_EN
+    // Field: target_I3CCSR.I3C_EC.StdbyCtrlMode.STBY_CR_INTR_SIGNAL_ENABLE.STBY_CR_ACCEPT_ERR_SIGNAL_EN
     always_comb begin
         automatic logic [0:0] next_c;
         automatic logic load_next_c;
@@ -5369,7 +5369,7 @@ module I3CCSR (
         end
     end
     assign hwif_out.I3C_EC.StdbyCtrlMode.STBY_CR_INTR_SIGNAL_ENABLE.STBY_CR_ACCEPT_ERR_SIGNAL_EN.value = field_storage.I3C_EC.StdbyCtrlMode.STBY_CR_INTR_SIGNAL_ENABLE.STBY_CR_ACCEPT_ERR_SIGNAL_EN.value;
-    // Field: I3CCSR.I3C_EC.StdbyCtrlMode.STBY_CR_INTR_SIGNAL_ENABLE.STBY_CR_OP_RSTACT_SIGNAL_EN
+    // Field: target_I3CCSR.I3C_EC.StdbyCtrlMode.STBY_CR_INTR_SIGNAL_ENABLE.STBY_CR_OP_RSTACT_SIGNAL_EN
     always_comb begin
         automatic logic [0:0] next_c;
         automatic logic load_next_c;
@@ -5395,7 +5395,7 @@ module I3CCSR (
         end
     end
     assign hwif_out.I3C_EC.StdbyCtrlMode.STBY_CR_INTR_SIGNAL_ENABLE.STBY_CR_OP_RSTACT_SIGNAL_EN.value = field_storage.I3C_EC.StdbyCtrlMode.STBY_CR_INTR_SIGNAL_ENABLE.STBY_CR_OP_RSTACT_SIGNAL_EN.value;
-    // Field: I3CCSR.I3C_EC.StdbyCtrlMode.STBY_CR_INTR_SIGNAL_ENABLE.CCC_PARAM_MODIFIED_SIGNAL_EN
+    // Field: target_I3CCSR.I3C_EC.StdbyCtrlMode.STBY_CR_INTR_SIGNAL_ENABLE.CCC_PARAM_MODIFIED_SIGNAL_EN
     always_comb begin
         automatic logic [0:0] next_c;
         automatic logic load_next_c;
@@ -5421,7 +5421,7 @@ module I3CCSR (
         end
     end
     assign hwif_out.I3C_EC.StdbyCtrlMode.STBY_CR_INTR_SIGNAL_ENABLE.CCC_PARAM_MODIFIED_SIGNAL_EN.value = field_storage.I3C_EC.StdbyCtrlMode.STBY_CR_INTR_SIGNAL_ENABLE.CCC_PARAM_MODIFIED_SIGNAL_EN.value;
-    // Field: I3CCSR.I3C_EC.StdbyCtrlMode.STBY_CR_INTR_SIGNAL_ENABLE.CCC_UNHANDLED_NACK_SIGNAL_EN
+    // Field: target_I3CCSR.I3C_EC.StdbyCtrlMode.STBY_CR_INTR_SIGNAL_ENABLE.CCC_UNHANDLED_NACK_SIGNAL_EN
     always_comb begin
         automatic logic [0:0] next_c;
         automatic logic load_next_c;
@@ -5447,7 +5447,7 @@ module I3CCSR (
         end
     end
     assign hwif_out.I3C_EC.StdbyCtrlMode.STBY_CR_INTR_SIGNAL_ENABLE.CCC_UNHANDLED_NACK_SIGNAL_EN.value = field_storage.I3C_EC.StdbyCtrlMode.STBY_CR_INTR_SIGNAL_ENABLE.CCC_UNHANDLED_NACK_SIGNAL_EN.value;
-    // Field: I3CCSR.I3C_EC.StdbyCtrlMode.STBY_CR_INTR_SIGNAL_ENABLE.CCC_FATAL_RSTDAA_ERR_SIGNAL_EN
+    // Field: target_I3CCSR.I3C_EC.StdbyCtrlMode.STBY_CR_INTR_SIGNAL_ENABLE.CCC_FATAL_RSTDAA_ERR_SIGNAL_EN
     always_comb begin
         automatic logic [0:0] next_c;
         automatic logic load_next_c;
@@ -5473,7 +5473,7 @@ module I3CCSR (
         end
     end
     assign hwif_out.I3C_EC.StdbyCtrlMode.STBY_CR_INTR_SIGNAL_ENABLE.CCC_FATAL_RSTDAA_ERR_SIGNAL_EN.value = field_storage.I3C_EC.StdbyCtrlMode.STBY_CR_INTR_SIGNAL_ENABLE.CCC_FATAL_RSTDAA_ERR_SIGNAL_EN.value;
-    // Field: I3CCSR.I3C_EC.StdbyCtrlMode.STBY_CR_INTR_FORCE.CRR_RESPONSE_FORCE
+    // Field: target_I3CCSR.I3C_EC.StdbyCtrlMode.STBY_CR_INTR_FORCE.CRR_RESPONSE_FORCE
     always_comb begin
         automatic logic [0:0] next_c;
         automatic logic load_next_c;
@@ -5499,7 +5499,7 @@ module I3CCSR (
         end
     end
     assign hwif_out.I3C_EC.StdbyCtrlMode.STBY_CR_INTR_FORCE.CRR_RESPONSE_FORCE.value = field_storage.I3C_EC.StdbyCtrlMode.STBY_CR_INTR_FORCE.CRR_RESPONSE_FORCE.value;
-    // Field: I3CCSR.I3C_EC.StdbyCtrlMode.STBY_CR_INTR_FORCE.STBY_CR_DYN_ADDR_FORCE
+    // Field: target_I3CCSR.I3C_EC.StdbyCtrlMode.STBY_CR_INTR_FORCE.STBY_CR_DYN_ADDR_FORCE
     always_comb begin
         automatic logic [0:0] next_c;
         automatic logic load_next_c;
@@ -5525,7 +5525,7 @@ module I3CCSR (
         end
     end
     assign hwif_out.I3C_EC.StdbyCtrlMode.STBY_CR_INTR_FORCE.STBY_CR_DYN_ADDR_FORCE.value = field_storage.I3C_EC.StdbyCtrlMode.STBY_CR_INTR_FORCE.STBY_CR_DYN_ADDR_FORCE.value;
-    // Field: I3CCSR.I3C_EC.StdbyCtrlMode.STBY_CR_INTR_FORCE.STBY_CR_ACCEPT_NACKED_FORCE
+    // Field: target_I3CCSR.I3C_EC.StdbyCtrlMode.STBY_CR_INTR_FORCE.STBY_CR_ACCEPT_NACKED_FORCE
     always_comb begin
         automatic logic [0:0] next_c;
         automatic logic load_next_c;
@@ -5551,7 +5551,7 @@ module I3CCSR (
         end
     end
     assign hwif_out.I3C_EC.StdbyCtrlMode.STBY_CR_INTR_FORCE.STBY_CR_ACCEPT_NACKED_FORCE.value = field_storage.I3C_EC.StdbyCtrlMode.STBY_CR_INTR_FORCE.STBY_CR_ACCEPT_NACKED_FORCE.value;
-    // Field: I3CCSR.I3C_EC.StdbyCtrlMode.STBY_CR_INTR_FORCE.STBY_CR_ACCEPT_OK_FORCE
+    // Field: target_I3CCSR.I3C_EC.StdbyCtrlMode.STBY_CR_INTR_FORCE.STBY_CR_ACCEPT_OK_FORCE
     always_comb begin
         automatic logic [0:0] next_c;
         automatic logic load_next_c;
@@ -5577,7 +5577,7 @@ module I3CCSR (
         end
     end
     assign hwif_out.I3C_EC.StdbyCtrlMode.STBY_CR_INTR_FORCE.STBY_CR_ACCEPT_OK_FORCE.value = field_storage.I3C_EC.StdbyCtrlMode.STBY_CR_INTR_FORCE.STBY_CR_ACCEPT_OK_FORCE.value;
-    // Field: I3CCSR.I3C_EC.StdbyCtrlMode.STBY_CR_INTR_FORCE.STBY_CR_ACCEPT_ERR_FORCE
+    // Field: target_I3CCSR.I3C_EC.StdbyCtrlMode.STBY_CR_INTR_FORCE.STBY_CR_ACCEPT_ERR_FORCE
     always_comb begin
         automatic logic [0:0] next_c;
         automatic logic load_next_c;
@@ -5603,7 +5603,7 @@ module I3CCSR (
         end
     end
     assign hwif_out.I3C_EC.StdbyCtrlMode.STBY_CR_INTR_FORCE.STBY_CR_ACCEPT_ERR_FORCE.value = field_storage.I3C_EC.StdbyCtrlMode.STBY_CR_INTR_FORCE.STBY_CR_ACCEPT_ERR_FORCE.value;
-    // Field: I3CCSR.I3C_EC.StdbyCtrlMode.STBY_CR_INTR_FORCE.STBY_CR_OP_RSTACT_FORCE
+    // Field: target_I3CCSR.I3C_EC.StdbyCtrlMode.STBY_CR_INTR_FORCE.STBY_CR_OP_RSTACT_FORCE
     always_comb begin
         automatic logic [0:0] next_c;
         automatic logic load_next_c;
@@ -5629,7 +5629,7 @@ module I3CCSR (
         end
     end
     assign hwif_out.I3C_EC.StdbyCtrlMode.STBY_CR_INTR_FORCE.STBY_CR_OP_RSTACT_FORCE.value = field_storage.I3C_EC.StdbyCtrlMode.STBY_CR_INTR_FORCE.STBY_CR_OP_RSTACT_FORCE.value;
-    // Field: I3CCSR.I3C_EC.StdbyCtrlMode.STBY_CR_INTR_FORCE.CCC_PARAM_MODIFIED_FORCE
+    // Field: target_I3CCSR.I3C_EC.StdbyCtrlMode.STBY_CR_INTR_FORCE.CCC_PARAM_MODIFIED_FORCE
     always_comb begin
         automatic logic [0:0] next_c;
         automatic logic load_next_c;
@@ -5655,7 +5655,7 @@ module I3CCSR (
         end
     end
     assign hwif_out.I3C_EC.StdbyCtrlMode.STBY_CR_INTR_FORCE.CCC_PARAM_MODIFIED_FORCE.value = field_storage.I3C_EC.StdbyCtrlMode.STBY_CR_INTR_FORCE.CCC_PARAM_MODIFIED_FORCE.value;
-    // Field: I3CCSR.I3C_EC.StdbyCtrlMode.STBY_CR_INTR_FORCE.CCC_UNHANDLED_NACK_FORCE
+    // Field: target_I3CCSR.I3C_EC.StdbyCtrlMode.STBY_CR_INTR_FORCE.CCC_UNHANDLED_NACK_FORCE
     always_comb begin
         automatic logic [0:0] next_c;
         automatic logic load_next_c;
@@ -5681,7 +5681,7 @@ module I3CCSR (
         end
     end
     assign hwif_out.I3C_EC.StdbyCtrlMode.STBY_CR_INTR_FORCE.CCC_UNHANDLED_NACK_FORCE.value = field_storage.I3C_EC.StdbyCtrlMode.STBY_CR_INTR_FORCE.CCC_UNHANDLED_NACK_FORCE.value;
-    // Field: I3CCSR.I3C_EC.StdbyCtrlMode.STBY_CR_INTR_FORCE.CCC_FATAL_RSTDAA_ERR_FORCE
+    // Field: target_I3CCSR.I3C_EC.StdbyCtrlMode.STBY_CR_INTR_FORCE.CCC_FATAL_RSTDAA_ERR_FORCE
     always_comb begin
         automatic logic [0:0] next_c;
         automatic logic load_next_c;
@@ -5707,7 +5707,7 @@ module I3CCSR (
         end
     end
     assign hwif_out.I3C_EC.StdbyCtrlMode.STBY_CR_INTR_FORCE.CCC_FATAL_RSTDAA_ERR_FORCE.value = field_storage.I3C_EC.StdbyCtrlMode.STBY_CR_INTR_FORCE.CCC_FATAL_RSTDAA_ERR_FORCE.value;
-    // Field: I3CCSR.I3C_EC.StdbyCtrlMode.STBY_CR_CCC_CONFIG_GETCAPS.F2_CRCAP1_BUS_CONFIG
+    // Field: target_I3CCSR.I3C_EC.StdbyCtrlMode.STBY_CR_CCC_CONFIG_GETCAPS.F2_CRCAP1_BUS_CONFIG
     always_comb begin
         automatic logic [2:0] next_c;
         automatic logic load_next_c;
@@ -5733,7 +5733,7 @@ module I3CCSR (
         end
     end
     assign hwif_out.I3C_EC.StdbyCtrlMode.STBY_CR_CCC_CONFIG_GETCAPS.F2_CRCAP1_BUS_CONFIG.value = field_storage.I3C_EC.StdbyCtrlMode.STBY_CR_CCC_CONFIG_GETCAPS.F2_CRCAP1_BUS_CONFIG.value;
-    // Field: I3CCSR.I3C_EC.StdbyCtrlMode.STBY_CR_CCC_CONFIG_GETCAPS.F2_CRCAP2_DEV_INTERACT
+    // Field: target_I3CCSR.I3C_EC.StdbyCtrlMode.STBY_CR_CCC_CONFIG_GETCAPS.F2_CRCAP2_DEV_INTERACT
     always_comb begin
         automatic logic [3:0] next_c;
         automatic logic load_next_c;
@@ -5759,7 +5759,7 @@ module I3CCSR (
         end
     end
     assign hwif_out.I3C_EC.StdbyCtrlMode.STBY_CR_CCC_CONFIG_GETCAPS.F2_CRCAP2_DEV_INTERACT.value = field_storage.I3C_EC.StdbyCtrlMode.STBY_CR_CCC_CONFIG_GETCAPS.F2_CRCAP2_DEV_INTERACT.value;
-    // Field: I3CCSR.I3C_EC.StdbyCtrlMode.STBY_CR_CCC_CONFIG_RSTACT_PARAMS.RST_ACTION
+    // Field: target_I3CCSR.I3C_EC.StdbyCtrlMode.STBY_CR_CCC_CONFIG_RSTACT_PARAMS.RST_ACTION
     always_comb begin
         automatic logic [7:0] next_c;
         automatic logic load_next_c;
@@ -5782,7 +5782,7 @@ module I3CCSR (
         end
     end
     assign hwif_out.I3C_EC.StdbyCtrlMode.STBY_CR_CCC_CONFIG_RSTACT_PARAMS.RST_ACTION.value = field_storage.I3C_EC.StdbyCtrlMode.STBY_CR_CCC_CONFIG_RSTACT_PARAMS.RST_ACTION.value;
-    // Field: I3CCSR.I3C_EC.StdbyCtrlMode.STBY_CR_CCC_CONFIG_RSTACT_PARAMS.RESET_TIME_PERIPHERAL
+    // Field: target_I3CCSR.I3C_EC.StdbyCtrlMode.STBY_CR_CCC_CONFIG_RSTACT_PARAMS.RESET_TIME_PERIPHERAL
     always_comb begin
         automatic logic [7:0] next_c;
         automatic logic load_next_c;
@@ -5808,7 +5808,7 @@ module I3CCSR (
         end
     end
     assign hwif_out.I3C_EC.StdbyCtrlMode.STBY_CR_CCC_CONFIG_RSTACT_PARAMS.RESET_TIME_PERIPHERAL.value = field_storage.I3C_EC.StdbyCtrlMode.STBY_CR_CCC_CONFIG_RSTACT_PARAMS.RESET_TIME_PERIPHERAL.value;
-    // Field: I3CCSR.I3C_EC.StdbyCtrlMode.STBY_CR_CCC_CONFIG_RSTACT_PARAMS.RESET_TIME_TARGET
+    // Field: target_I3CCSR.I3C_EC.StdbyCtrlMode.STBY_CR_CCC_CONFIG_RSTACT_PARAMS.RESET_TIME_TARGET
     always_comb begin
         automatic logic [7:0] next_c;
         automatic logic load_next_c;
@@ -5834,7 +5834,7 @@ module I3CCSR (
         end
     end
     assign hwif_out.I3C_EC.StdbyCtrlMode.STBY_CR_CCC_CONFIG_RSTACT_PARAMS.RESET_TIME_TARGET.value = field_storage.I3C_EC.StdbyCtrlMode.STBY_CR_CCC_CONFIG_RSTACT_PARAMS.RESET_TIME_TARGET.value;
-    // Field: I3CCSR.I3C_EC.StdbyCtrlMode.STBY_CR_CCC_CONFIG_RSTACT_PARAMS.RESET_DYNAMIC_ADDR
+    // Field: target_I3CCSR.I3C_EC.StdbyCtrlMode.STBY_CR_CCC_CONFIG_RSTACT_PARAMS.RESET_DYNAMIC_ADDR
     always_comb begin
         automatic logic [0:0] next_c;
         automatic logic load_next_c;
@@ -5860,7 +5860,7 @@ module I3CCSR (
         end
     end
     assign hwif_out.I3C_EC.StdbyCtrlMode.STBY_CR_CCC_CONFIG_RSTACT_PARAMS.RESET_DYNAMIC_ADDR.value = field_storage.I3C_EC.StdbyCtrlMode.STBY_CR_CCC_CONFIG_RSTACT_PARAMS.RESET_DYNAMIC_ADDR.value;
-    // Field: I3CCSR.I3C_EC.StdbyCtrlMode.STBY_CR_VIRT_DEVICE_ADDR.VIRT_STATIC_ADDR
+    // Field: target_I3CCSR.I3C_EC.StdbyCtrlMode.STBY_CR_VIRT_DEVICE_ADDR.VIRT_STATIC_ADDR
     always_comb begin
         automatic logic [6:0] next_c;
         automatic logic load_next_c;
@@ -5886,7 +5886,7 @@ module I3CCSR (
         end
     end
     assign hwif_out.I3C_EC.StdbyCtrlMode.STBY_CR_VIRT_DEVICE_ADDR.VIRT_STATIC_ADDR.value = field_storage.I3C_EC.StdbyCtrlMode.STBY_CR_VIRT_DEVICE_ADDR.VIRT_STATIC_ADDR.value;
-    // Field: I3CCSR.I3C_EC.StdbyCtrlMode.STBY_CR_VIRT_DEVICE_ADDR.VIRT_STATIC_ADDR_VALID
+    // Field: target_I3CCSR.I3C_EC.StdbyCtrlMode.STBY_CR_VIRT_DEVICE_ADDR.VIRT_STATIC_ADDR_VALID
     always_comb begin
         automatic logic [0:0] next_c;
         automatic logic load_next_c;
@@ -5912,7 +5912,7 @@ module I3CCSR (
         end
     end
     assign hwif_out.I3C_EC.StdbyCtrlMode.STBY_CR_VIRT_DEVICE_ADDR.VIRT_STATIC_ADDR_VALID.value = field_storage.I3C_EC.StdbyCtrlMode.STBY_CR_VIRT_DEVICE_ADDR.VIRT_STATIC_ADDR_VALID.value;
-    // Field: I3CCSR.I3C_EC.StdbyCtrlMode.STBY_CR_VIRT_DEVICE_ADDR.VIRT_DYNAMIC_ADDR
+    // Field: target_I3CCSR.I3C_EC.StdbyCtrlMode.STBY_CR_VIRT_DEVICE_ADDR.VIRT_DYNAMIC_ADDR
     always_comb begin
         automatic logic [6:0] next_c;
         automatic logic load_next_c;
@@ -5938,7 +5938,7 @@ module I3CCSR (
         end
     end
     assign hwif_out.I3C_EC.StdbyCtrlMode.STBY_CR_VIRT_DEVICE_ADDR.VIRT_DYNAMIC_ADDR.value = field_storage.I3C_EC.StdbyCtrlMode.STBY_CR_VIRT_DEVICE_ADDR.VIRT_DYNAMIC_ADDR.value;
-    // Field: I3CCSR.I3C_EC.StdbyCtrlMode.STBY_CR_VIRT_DEVICE_ADDR.VIRT_DYNAMIC_ADDR_VALID
+    // Field: target_I3CCSR.I3C_EC.StdbyCtrlMode.STBY_CR_VIRT_DEVICE_ADDR.VIRT_DYNAMIC_ADDR_VALID
     always_comb begin
         automatic logic [0:0] next_c;
         automatic logic load_next_c;
@@ -5964,7 +5964,7 @@ module I3CCSR (
         end
     end
     assign hwif_out.I3C_EC.StdbyCtrlMode.STBY_CR_VIRT_DEVICE_ADDR.VIRT_DYNAMIC_ADDR_VALID.value = field_storage.I3C_EC.StdbyCtrlMode.STBY_CR_VIRT_DEVICE_ADDR.VIRT_DYNAMIC_ADDR_VALID.value;
-    // Field: I3CCSR.I3C_EC.StdbyCtrlMode.STBY_CR_MWL.MWL
+    // Field: target_I3CCSR.I3C_EC.StdbyCtrlMode.STBY_CR_MWL.MWL
     always_comb begin
         automatic logic [15:0] next_c;
         automatic logic load_next_c;
@@ -5987,7 +5987,7 @@ module I3CCSR (
         end
     end
     assign hwif_out.I3C_EC.StdbyCtrlMode.STBY_CR_MWL.MWL.value = field_storage.I3C_EC.StdbyCtrlMode.STBY_CR_MWL.MWL.value;
-    // Field: I3CCSR.I3C_EC.StdbyCtrlMode.STBY_CR_MRL.MRL
+    // Field: target_I3CCSR.I3C_EC.StdbyCtrlMode.STBY_CR_MRL.MRL
     always_comb begin
         automatic logic [15:0] next_c;
         automatic logic load_next_c;
@@ -6010,7 +6010,7 @@ module I3CCSR (
         end
     end
     assign hwif_out.I3C_EC.StdbyCtrlMode.STBY_CR_MRL.MRL.value = field_storage.I3C_EC.StdbyCtrlMode.STBY_CR_MRL.MRL.value;
-    // Field: I3CCSR.I3C_EC.StdbyCtrlMode.STBY_CR_MRL.IBIL
+    // Field: target_I3CCSR.I3C_EC.StdbyCtrlMode.STBY_CR_MRL.IBIL
     always_comb begin
         automatic logic [7:0] next_c;
         automatic logic load_next_c;
@@ -6035,7 +6035,7 @@ module I3CCSR (
     assign hwif_out.I3C_EC.StdbyCtrlMode.STBY_CR_MRL.IBIL.value = field_storage.I3C_EC.StdbyCtrlMode.STBY_CR_MRL.IBIL.value;
     assign hwif_out.I3C_EC.TTI.EXTCAP_HEADER.CAP_ID.value = 8'hc4;
     assign hwif_out.I3C_EC.TTI.EXTCAP_HEADER.CAP_LENGTH.value = 16'h40;
-    // Field: I3CCSR.I3C_EC.TTI.CONTROL.HJ_EN
+    // Field: target_I3CCSR.I3C_EC.TTI.CONTROL.HJ_EN
     always_comb begin
         automatic logic [0:0] next_c;
         automatic logic load_next_c;
@@ -6061,7 +6061,7 @@ module I3CCSR (
         end
     end
     assign hwif_out.I3C_EC.TTI.CONTROL.HJ_EN.value = field_storage.I3C_EC.TTI.CONTROL.HJ_EN.value;
-    // Field: I3CCSR.I3C_EC.TTI.CONTROL.CRR_EN
+    // Field: target_I3CCSR.I3C_EC.TTI.CONTROL.CRR_EN
     always_comb begin
         automatic logic [0:0] next_c;
         automatic logic load_next_c;
@@ -6087,7 +6087,7 @@ module I3CCSR (
         end
     end
     assign hwif_out.I3C_EC.TTI.CONTROL.CRR_EN.value = field_storage.I3C_EC.TTI.CONTROL.CRR_EN.value;
-    // Field: I3CCSR.I3C_EC.TTI.CONTROL.IBI_EN
+    // Field: target_I3CCSR.I3C_EC.TTI.CONTROL.IBI_EN
     always_comb begin
         automatic logic [0:0] next_c;
         automatic logic load_next_c;
@@ -6113,7 +6113,7 @@ module I3CCSR (
         end
     end
     assign hwif_out.I3C_EC.TTI.CONTROL.IBI_EN.value = field_storage.I3C_EC.TTI.CONTROL.IBI_EN.value;
-    // Field: I3CCSR.I3C_EC.TTI.CONTROL.IBI_RETRY_NUM
+    // Field: target_I3CCSR.I3C_EC.TTI.CONTROL.IBI_RETRY_NUM
     always_comb begin
         automatic logic [2:0] next_c;
         automatic logic load_next_c;
@@ -6136,7 +6136,7 @@ module I3CCSR (
         end
     end
     assign hwif_out.I3C_EC.TTI.CONTROL.IBI_RETRY_NUM.value = field_storage.I3C_EC.TTI.CONTROL.IBI_RETRY_NUM.value;
-    // Field: I3CCSR.I3C_EC.TTI.STATUS.PROTOCOL_ERROR
+    // Field: target_I3CCSR.I3C_EC.TTI.STATUS.PROTOCOL_ERROR
     always_comb begin
         automatic logic [0:0] next_c;
         automatic logic load_next_c;
@@ -6159,7 +6159,7 @@ module I3CCSR (
         end
     end
     assign hwif_out.I3C_EC.TTI.STATUS.PROTOCOL_ERROR.value = field_storage.I3C_EC.TTI.STATUS.PROTOCOL_ERROR.value;
-    // Field: I3CCSR.I3C_EC.TTI.STATUS.LAST_IBI_STATUS
+    // Field: target_I3CCSR.I3C_EC.TTI.STATUS.LAST_IBI_STATUS
     always_comb begin
         automatic logic [2:0] next_c;
         automatic logic load_next_c;
@@ -6183,7 +6183,7 @@ module I3CCSR (
     end
     assign hwif_out.I3C_EC.TTI.STATUS.LAST_IBI_STATUS.value = field_storage.I3C_EC.TTI.STATUS.LAST_IBI_STATUS.value;
     assign hwif_out.I3C_EC.TTI.STATUS.LAST_IBI_STATUS.swacc = decoded_reg_strb.I3C_EC.TTI.STATUS;
-    // Field: I3CCSR.I3C_EC.TTI.RESET_CONTROL.SOFT_RST
+    // Field: target_I3CCSR.I3C_EC.TTI.RESET_CONTROL.SOFT_RST
     always_comb begin
         automatic logic [0:0] next_c;
         automatic logic load_next_c;
@@ -6209,7 +6209,7 @@ module I3CCSR (
         end
     end
     assign hwif_out.I3C_EC.TTI.RESET_CONTROL.SOFT_RST.value = field_storage.I3C_EC.TTI.RESET_CONTROL.SOFT_RST.value;
-    // Field: I3CCSR.I3C_EC.TTI.RESET_CONTROL.TX_DESC_RST
+    // Field: target_I3CCSR.I3C_EC.TTI.RESET_CONTROL.TX_DESC_RST
     always_comb begin
         automatic logic [0:0] next_c;
         automatic logic load_next_c;
@@ -6235,7 +6235,7 @@ module I3CCSR (
         end
     end
     assign hwif_out.I3C_EC.TTI.RESET_CONTROL.TX_DESC_RST.value = field_storage.I3C_EC.TTI.RESET_CONTROL.TX_DESC_RST.value;
-    // Field: I3CCSR.I3C_EC.TTI.RESET_CONTROL.RX_DESC_RST
+    // Field: target_I3CCSR.I3C_EC.TTI.RESET_CONTROL.RX_DESC_RST
     always_comb begin
         automatic logic [0:0] next_c;
         automatic logic load_next_c;
@@ -6261,7 +6261,7 @@ module I3CCSR (
         end
     end
     assign hwif_out.I3C_EC.TTI.RESET_CONTROL.RX_DESC_RST.value = field_storage.I3C_EC.TTI.RESET_CONTROL.RX_DESC_RST.value;
-    // Field: I3CCSR.I3C_EC.TTI.RESET_CONTROL.TX_DATA_RST
+    // Field: target_I3CCSR.I3C_EC.TTI.RESET_CONTROL.TX_DATA_RST
     always_comb begin
         automatic logic [0:0] next_c;
         automatic logic load_next_c;
@@ -6287,7 +6287,7 @@ module I3CCSR (
         end
     end
     assign hwif_out.I3C_EC.TTI.RESET_CONTROL.TX_DATA_RST.value = field_storage.I3C_EC.TTI.RESET_CONTROL.TX_DATA_RST.value;
-    // Field: I3CCSR.I3C_EC.TTI.RESET_CONTROL.RX_DATA_RST
+    // Field: target_I3CCSR.I3C_EC.TTI.RESET_CONTROL.RX_DATA_RST
     always_comb begin
         automatic logic [0:0] next_c;
         automatic logic load_next_c;
@@ -6313,7 +6313,7 @@ module I3CCSR (
         end
     end
     assign hwif_out.I3C_EC.TTI.RESET_CONTROL.RX_DATA_RST.value = field_storage.I3C_EC.TTI.RESET_CONTROL.RX_DATA_RST.value;
-    // Field: I3CCSR.I3C_EC.TTI.RESET_CONTROL.IBI_QUEUE_RST
+    // Field: target_I3CCSR.I3C_EC.TTI.RESET_CONTROL.IBI_QUEUE_RST
     always_comb begin
         automatic logic [0:0] next_c;
         automatic logic load_next_c;
@@ -6339,7 +6339,7 @@ module I3CCSR (
         end
     end
     assign hwif_out.I3C_EC.TTI.RESET_CONTROL.IBI_QUEUE_RST.value = field_storage.I3C_EC.TTI.RESET_CONTROL.IBI_QUEUE_RST.value;
-    // Field: I3CCSR.I3C_EC.TTI.RESET_CONTROL.IBI_RETRY_CTR_RST
+    // Field: target_I3CCSR.I3C_EC.TTI.RESET_CONTROL.IBI_RETRY_CTR_RST
     always_comb begin
         automatic logic [0:0] next_c;
         automatic logic load_next_c;
@@ -6365,7 +6365,7 @@ module I3CCSR (
         end
     end
     assign hwif_out.I3C_EC.TTI.RESET_CONTROL.IBI_RETRY_CTR_RST.value = field_storage.I3C_EC.TTI.RESET_CONTROL.IBI_RETRY_CTR_RST.value;
-    // Field: I3CCSR.I3C_EC.TTI.INTERRUPT_STATUS.RX_DESC_STAT
+    // Field: target_I3CCSR.I3C_EC.TTI.INTERRUPT_STATUS.RX_DESC_STAT
     always_comb begin
         automatic logic [0:0] next_c;
         automatic logic load_next_c;
@@ -6391,7 +6391,7 @@ module I3CCSR (
         end
     end
     assign hwif_out.I3C_EC.TTI.INTERRUPT_STATUS.RX_DESC_STAT.value = field_storage.I3C_EC.TTI.INTERRUPT_STATUS.RX_DESC_STAT.value;
-    // Field: I3CCSR.I3C_EC.TTI.INTERRUPT_STATUS.TX_DESC_STAT
+    // Field: target_I3CCSR.I3C_EC.TTI.INTERRUPT_STATUS.TX_DESC_STAT
     always_comb begin
         automatic logic [0:0] next_c;
         automatic logic load_next_c;
@@ -6417,7 +6417,7 @@ module I3CCSR (
         end
     end
     assign hwif_out.I3C_EC.TTI.INTERRUPT_STATUS.TX_DESC_STAT.value = field_storage.I3C_EC.TTI.INTERRUPT_STATUS.TX_DESC_STAT.value;
-    // Field: I3CCSR.I3C_EC.TTI.INTERRUPT_STATUS.RX_DESC_TIMEOUT
+    // Field: target_I3CCSR.I3C_EC.TTI.INTERRUPT_STATUS.RX_DESC_TIMEOUT
     always_comb begin
         automatic logic [0:0] next_c;
         automatic logic load_next_c;
@@ -6443,7 +6443,7 @@ module I3CCSR (
         end
     end
     assign hwif_out.I3C_EC.TTI.INTERRUPT_STATUS.RX_DESC_TIMEOUT.value = field_storage.I3C_EC.TTI.INTERRUPT_STATUS.RX_DESC_TIMEOUT.value;
-    // Field: I3CCSR.I3C_EC.TTI.INTERRUPT_STATUS.TX_DESC_TIMEOUT
+    // Field: target_I3CCSR.I3C_EC.TTI.INTERRUPT_STATUS.TX_DESC_TIMEOUT
     always_comb begin
         automatic logic [0:0] next_c;
         automatic logic load_next_c;
@@ -6469,7 +6469,7 @@ module I3CCSR (
         end
     end
     assign hwif_out.I3C_EC.TTI.INTERRUPT_STATUS.TX_DESC_TIMEOUT.value = field_storage.I3C_EC.TTI.INTERRUPT_STATUS.TX_DESC_TIMEOUT.value;
-    // Field: I3CCSR.I3C_EC.TTI.INTERRUPT_STATUS.TX_DATA_THLD_STAT
+    // Field: target_I3CCSR.I3C_EC.TTI.INTERRUPT_STATUS.TX_DATA_THLD_STAT
     always_comb begin
         automatic logic [0:0] next_c;
         automatic logic load_next_c;
@@ -6495,7 +6495,7 @@ module I3CCSR (
         end
     end
     assign hwif_out.I3C_EC.TTI.INTERRUPT_STATUS.TX_DATA_THLD_STAT.value = field_storage.I3C_EC.TTI.INTERRUPT_STATUS.TX_DATA_THLD_STAT.value;
-    // Field: I3CCSR.I3C_EC.TTI.INTERRUPT_STATUS.RX_DATA_THLD_STAT
+    // Field: target_I3CCSR.I3C_EC.TTI.INTERRUPT_STATUS.RX_DATA_THLD_STAT
     always_comb begin
         automatic logic [0:0] next_c;
         automatic logic load_next_c;
@@ -6521,7 +6521,7 @@ module I3CCSR (
         end
     end
     assign hwif_out.I3C_EC.TTI.INTERRUPT_STATUS.RX_DATA_THLD_STAT.value = field_storage.I3C_EC.TTI.INTERRUPT_STATUS.RX_DATA_THLD_STAT.value;
-    // Field: I3CCSR.I3C_EC.TTI.INTERRUPT_STATUS.TX_DESC_THLD_STAT
+    // Field: target_I3CCSR.I3C_EC.TTI.INTERRUPT_STATUS.TX_DESC_THLD_STAT
     always_comb begin
         automatic logic [0:0] next_c;
         automatic logic load_next_c;
@@ -6547,7 +6547,7 @@ module I3CCSR (
         end
     end
     assign hwif_out.I3C_EC.TTI.INTERRUPT_STATUS.TX_DESC_THLD_STAT.value = field_storage.I3C_EC.TTI.INTERRUPT_STATUS.TX_DESC_THLD_STAT.value;
-    // Field: I3CCSR.I3C_EC.TTI.INTERRUPT_STATUS.RX_DESC_THLD_STAT
+    // Field: target_I3CCSR.I3C_EC.TTI.INTERRUPT_STATUS.RX_DESC_THLD_STAT
     always_comb begin
         automatic logic [0:0] next_c;
         automatic logic load_next_c;
@@ -6573,7 +6573,7 @@ module I3CCSR (
         end
     end
     assign hwif_out.I3C_EC.TTI.INTERRUPT_STATUS.RX_DESC_THLD_STAT.value = field_storage.I3C_EC.TTI.INTERRUPT_STATUS.RX_DESC_THLD_STAT.value;
-    // Field: I3CCSR.I3C_EC.TTI.INTERRUPT_STATUS.IBI_THLD_STAT
+    // Field: target_I3CCSR.I3C_EC.TTI.INTERRUPT_STATUS.IBI_THLD_STAT
     always_comb begin
         automatic logic [0:0] next_c;
         automatic logic load_next_c;
@@ -6599,7 +6599,7 @@ module I3CCSR (
         end
     end
     assign hwif_out.I3C_EC.TTI.INTERRUPT_STATUS.IBI_THLD_STAT.value = field_storage.I3C_EC.TTI.INTERRUPT_STATUS.IBI_THLD_STAT.value;
-    // Field: I3CCSR.I3C_EC.TTI.INTERRUPT_STATUS.IBI_DONE
+    // Field: target_I3CCSR.I3C_EC.TTI.INTERRUPT_STATUS.IBI_DONE
     always_comb begin
         automatic logic [0:0] next_c;
         automatic logic load_next_c;
@@ -6625,7 +6625,7 @@ module I3CCSR (
         end
     end
     assign hwif_out.I3C_EC.TTI.INTERRUPT_STATUS.IBI_DONE.value = field_storage.I3C_EC.TTI.INTERRUPT_STATUS.IBI_DONE.value;
-    // Field: I3CCSR.I3C_EC.TTI.INTERRUPT_STATUS.PENDING_INTERRUPT
+    // Field: target_I3CCSR.I3C_EC.TTI.INTERRUPT_STATUS.PENDING_INTERRUPT
     always_comb begin
         automatic logic [3:0] next_c;
         automatic logic load_next_c;
@@ -6651,7 +6651,7 @@ module I3CCSR (
         end
     end
     assign hwif_out.I3C_EC.TTI.INTERRUPT_STATUS.PENDING_INTERRUPT.value = field_storage.I3C_EC.TTI.INTERRUPT_STATUS.PENDING_INTERRUPT.value;
-    // Field: I3CCSR.I3C_EC.TTI.INTERRUPT_STATUS.PENDING_IBI
+    // Field: target_I3CCSR.I3C_EC.TTI.INTERRUPT_STATUS.PENDING_IBI
     always_comb begin
         automatic logic [0:0] next_c;
         automatic logic load_next_c;
@@ -6674,7 +6674,7 @@ module I3CCSR (
         end
     end
     assign hwif_out.I3C_EC.TTI.INTERRUPT_STATUS.PENDING_IBI.value = field_storage.I3C_EC.TTI.INTERRUPT_STATUS.PENDING_IBI.value;
-    // Field: I3CCSR.I3C_EC.TTI.INTERRUPT_STATUS.TRANSFER_ABORT_STAT
+    // Field: target_I3CCSR.I3C_EC.TTI.INTERRUPT_STATUS.TRANSFER_ABORT_STAT
     always_comb begin
         automatic logic [0:0] next_c;
         automatic logic load_next_c;
@@ -6700,7 +6700,7 @@ module I3CCSR (
         end
     end
     assign hwif_out.I3C_EC.TTI.INTERRUPT_STATUS.TRANSFER_ABORT_STAT.value = field_storage.I3C_EC.TTI.INTERRUPT_STATUS.TRANSFER_ABORT_STAT.value;
-    // Field: I3CCSR.I3C_EC.TTI.INTERRUPT_STATUS.TX_DESC_COMPLETE
+    // Field: target_I3CCSR.I3C_EC.TTI.INTERRUPT_STATUS.TX_DESC_COMPLETE
     always_comb begin
         automatic logic [0:0] next_c;
         automatic logic load_next_c;
@@ -6726,7 +6726,7 @@ module I3CCSR (
         end
     end
     assign hwif_out.I3C_EC.TTI.INTERRUPT_STATUS.TX_DESC_COMPLETE.value = field_storage.I3C_EC.TTI.INTERRUPT_STATUS.TX_DESC_COMPLETE.value;
-    // Field: I3CCSR.I3C_EC.TTI.INTERRUPT_STATUS.TRANSFER_ERR_STAT
+    // Field: target_I3CCSR.I3C_EC.TTI.INTERRUPT_STATUS.TRANSFER_ERR_STAT
     always_comb begin
         automatic logic [0:0] next_c;
         automatic logic load_next_c;
@@ -6752,7 +6752,7 @@ module I3CCSR (
         end
     end
     assign hwif_out.I3C_EC.TTI.INTERRUPT_STATUS.TRANSFER_ERR_STAT.value = field_storage.I3C_EC.TTI.INTERRUPT_STATUS.TRANSFER_ERR_STAT.value;
-    // Field: I3CCSR.I3C_EC.TTI.INTERRUPT_ENABLE.RX_DESC_STAT_EN
+    // Field: target_I3CCSR.I3C_EC.TTI.INTERRUPT_ENABLE.RX_DESC_STAT_EN
     always_comb begin
         automatic logic [0:0] next_c;
         automatic logic load_next_c;
@@ -6775,7 +6775,7 @@ module I3CCSR (
         end
     end
     assign hwif_out.I3C_EC.TTI.INTERRUPT_ENABLE.RX_DESC_STAT_EN.value = field_storage.I3C_EC.TTI.INTERRUPT_ENABLE.RX_DESC_STAT_EN.value;
-    // Field: I3CCSR.I3C_EC.TTI.INTERRUPT_ENABLE.TX_DESC_STAT_EN
+    // Field: target_I3CCSR.I3C_EC.TTI.INTERRUPT_ENABLE.TX_DESC_STAT_EN
     always_comb begin
         automatic logic [0:0] next_c;
         automatic logic load_next_c;
@@ -6798,7 +6798,7 @@ module I3CCSR (
         end
     end
     assign hwif_out.I3C_EC.TTI.INTERRUPT_ENABLE.TX_DESC_STAT_EN.value = field_storage.I3C_EC.TTI.INTERRUPT_ENABLE.TX_DESC_STAT_EN.value;
-    // Field: I3CCSR.I3C_EC.TTI.INTERRUPT_ENABLE.RX_DESC_TIMEOUT_EN
+    // Field: target_I3CCSR.I3C_EC.TTI.INTERRUPT_ENABLE.RX_DESC_TIMEOUT_EN
     always_comb begin
         automatic logic [0:0] next_c;
         automatic logic load_next_c;
@@ -6821,7 +6821,7 @@ module I3CCSR (
         end
     end
     assign hwif_out.I3C_EC.TTI.INTERRUPT_ENABLE.RX_DESC_TIMEOUT_EN.value = field_storage.I3C_EC.TTI.INTERRUPT_ENABLE.RX_DESC_TIMEOUT_EN.value;
-    // Field: I3CCSR.I3C_EC.TTI.INTERRUPT_ENABLE.TX_DESC_TIMEOUT_EN
+    // Field: target_I3CCSR.I3C_EC.TTI.INTERRUPT_ENABLE.TX_DESC_TIMEOUT_EN
     always_comb begin
         automatic logic [0:0] next_c;
         automatic logic load_next_c;
@@ -6844,7 +6844,7 @@ module I3CCSR (
         end
     end
     assign hwif_out.I3C_EC.TTI.INTERRUPT_ENABLE.TX_DESC_TIMEOUT_EN.value = field_storage.I3C_EC.TTI.INTERRUPT_ENABLE.TX_DESC_TIMEOUT_EN.value;
-    // Field: I3CCSR.I3C_EC.TTI.INTERRUPT_ENABLE.TX_DATA_THLD_STAT_EN
+    // Field: target_I3CCSR.I3C_EC.TTI.INTERRUPT_ENABLE.TX_DATA_THLD_STAT_EN
     always_comb begin
         automatic logic [0:0] next_c;
         automatic logic load_next_c;
@@ -6867,7 +6867,7 @@ module I3CCSR (
         end
     end
     assign hwif_out.I3C_EC.TTI.INTERRUPT_ENABLE.TX_DATA_THLD_STAT_EN.value = field_storage.I3C_EC.TTI.INTERRUPT_ENABLE.TX_DATA_THLD_STAT_EN.value;
-    // Field: I3CCSR.I3C_EC.TTI.INTERRUPT_ENABLE.RX_DATA_THLD_STAT_EN
+    // Field: target_I3CCSR.I3C_EC.TTI.INTERRUPT_ENABLE.RX_DATA_THLD_STAT_EN
     always_comb begin
         automatic logic [0:0] next_c;
         automatic logic load_next_c;
@@ -6890,7 +6890,7 @@ module I3CCSR (
         end
     end
     assign hwif_out.I3C_EC.TTI.INTERRUPT_ENABLE.RX_DATA_THLD_STAT_EN.value = field_storage.I3C_EC.TTI.INTERRUPT_ENABLE.RX_DATA_THLD_STAT_EN.value;
-    // Field: I3CCSR.I3C_EC.TTI.INTERRUPT_ENABLE.TX_DESC_THLD_STAT_EN
+    // Field: target_I3CCSR.I3C_EC.TTI.INTERRUPT_ENABLE.TX_DESC_THLD_STAT_EN
     always_comb begin
         automatic logic [0:0] next_c;
         automatic logic load_next_c;
@@ -6913,7 +6913,7 @@ module I3CCSR (
         end
     end
     assign hwif_out.I3C_EC.TTI.INTERRUPT_ENABLE.TX_DESC_THLD_STAT_EN.value = field_storage.I3C_EC.TTI.INTERRUPT_ENABLE.TX_DESC_THLD_STAT_EN.value;
-    // Field: I3CCSR.I3C_EC.TTI.INTERRUPT_ENABLE.RX_DESC_THLD_STAT_EN
+    // Field: target_I3CCSR.I3C_EC.TTI.INTERRUPT_ENABLE.RX_DESC_THLD_STAT_EN
     always_comb begin
         automatic logic [0:0] next_c;
         automatic logic load_next_c;
@@ -6936,7 +6936,7 @@ module I3CCSR (
         end
     end
     assign hwif_out.I3C_EC.TTI.INTERRUPT_ENABLE.RX_DESC_THLD_STAT_EN.value = field_storage.I3C_EC.TTI.INTERRUPT_ENABLE.RX_DESC_THLD_STAT_EN.value;
-    // Field: I3CCSR.I3C_EC.TTI.INTERRUPT_ENABLE.IBI_THLD_STAT_EN
+    // Field: target_I3CCSR.I3C_EC.TTI.INTERRUPT_ENABLE.IBI_THLD_STAT_EN
     always_comb begin
         automatic logic [0:0] next_c;
         automatic logic load_next_c;
@@ -6959,7 +6959,7 @@ module I3CCSR (
         end
     end
     assign hwif_out.I3C_EC.TTI.INTERRUPT_ENABLE.IBI_THLD_STAT_EN.value = field_storage.I3C_EC.TTI.INTERRUPT_ENABLE.IBI_THLD_STAT_EN.value;
-    // Field: I3CCSR.I3C_EC.TTI.INTERRUPT_ENABLE.IBI_DONE_EN
+    // Field: target_I3CCSR.I3C_EC.TTI.INTERRUPT_ENABLE.IBI_DONE_EN
     always_comb begin
         automatic logic [0:0] next_c;
         automatic logic load_next_c;
@@ -6982,7 +6982,7 @@ module I3CCSR (
         end
     end
     assign hwif_out.I3C_EC.TTI.INTERRUPT_ENABLE.IBI_DONE_EN.value = field_storage.I3C_EC.TTI.INTERRUPT_ENABLE.IBI_DONE_EN.value;
-    // Field: I3CCSR.I3C_EC.TTI.INTERRUPT_ENABLE.TRANSFER_ABORT_STAT_EN
+    // Field: target_I3CCSR.I3C_EC.TTI.INTERRUPT_ENABLE.TRANSFER_ABORT_STAT_EN
     always_comb begin
         automatic logic [0:0] next_c;
         automatic logic load_next_c;
@@ -7005,7 +7005,7 @@ module I3CCSR (
         end
     end
     assign hwif_out.I3C_EC.TTI.INTERRUPT_ENABLE.TRANSFER_ABORT_STAT_EN.value = field_storage.I3C_EC.TTI.INTERRUPT_ENABLE.TRANSFER_ABORT_STAT_EN.value;
-    // Field: I3CCSR.I3C_EC.TTI.INTERRUPT_ENABLE.TX_DESC_COMPLETE_EN
+    // Field: target_I3CCSR.I3C_EC.TTI.INTERRUPT_ENABLE.TX_DESC_COMPLETE_EN
     always_comb begin
         automatic logic [0:0] next_c;
         automatic logic load_next_c;
@@ -7028,7 +7028,7 @@ module I3CCSR (
         end
     end
     assign hwif_out.I3C_EC.TTI.INTERRUPT_ENABLE.TX_DESC_COMPLETE_EN.value = field_storage.I3C_EC.TTI.INTERRUPT_ENABLE.TX_DESC_COMPLETE_EN.value;
-    // Field: I3CCSR.I3C_EC.TTI.INTERRUPT_ENABLE.TRANSFER_ERR_STAT_EN
+    // Field: target_I3CCSR.I3C_EC.TTI.INTERRUPT_ENABLE.TRANSFER_ERR_STAT_EN
     always_comb begin
         automatic logic [0:0] next_c;
         automatic logic load_next_c;
@@ -7051,7 +7051,7 @@ module I3CCSR (
         end
     end
     assign hwif_out.I3C_EC.TTI.INTERRUPT_ENABLE.TRANSFER_ERR_STAT_EN.value = field_storage.I3C_EC.TTI.INTERRUPT_ENABLE.TRANSFER_ERR_STAT_EN.value;
-    // Field: I3CCSR.I3C_EC.TTI.INTERRUPT_FORCE.RX_DESC_STAT_FORCE
+    // Field: target_I3CCSR.I3C_EC.TTI.INTERRUPT_FORCE.RX_DESC_STAT_FORCE
     always_comb begin
         automatic logic [0:0] next_c;
         automatic logic load_next_c;
@@ -7074,7 +7074,7 @@ module I3CCSR (
         end
     end
     assign hwif_out.I3C_EC.TTI.INTERRUPT_FORCE.RX_DESC_STAT_FORCE.value = field_storage.I3C_EC.TTI.INTERRUPT_FORCE.RX_DESC_STAT_FORCE.value;
-    // Field: I3CCSR.I3C_EC.TTI.INTERRUPT_FORCE.TX_DESC_STAT_FORCE
+    // Field: target_I3CCSR.I3C_EC.TTI.INTERRUPT_FORCE.TX_DESC_STAT_FORCE
     always_comb begin
         automatic logic [0:0] next_c;
         automatic logic load_next_c;
@@ -7097,7 +7097,7 @@ module I3CCSR (
         end
     end
     assign hwif_out.I3C_EC.TTI.INTERRUPT_FORCE.TX_DESC_STAT_FORCE.value = field_storage.I3C_EC.TTI.INTERRUPT_FORCE.TX_DESC_STAT_FORCE.value;
-    // Field: I3CCSR.I3C_EC.TTI.INTERRUPT_FORCE.RX_DESC_TIMEOUT_FORCE
+    // Field: target_I3CCSR.I3C_EC.TTI.INTERRUPT_FORCE.RX_DESC_TIMEOUT_FORCE
     always_comb begin
         automatic logic [0:0] next_c;
         automatic logic load_next_c;
@@ -7120,7 +7120,7 @@ module I3CCSR (
         end
     end
     assign hwif_out.I3C_EC.TTI.INTERRUPT_FORCE.RX_DESC_TIMEOUT_FORCE.value = field_storage.I3C_EC.TTI.INTERRUPT_FORCE.RX_DESC_TIMEOUT_FORCE.value;
-    // Field: I3CCSR.I3C_EC.TTI.INTERRUPT_FORCE.TX_DESC_TIMEOUT_FORCE
+    // Field: target_I3CCSR.I3C_EC.TTI.INTERRUPT_FORCE.TX_DESC_TIMEOUT_FORCE
     always_comb begin
         automatic logic [0:0] next_c;
         automatic logic load_next_c;
@@ -7143,7 +7143,7 @@ module I3CCSR (
         end
     end
     assign hwif_out.I3C_EC.TTI.INTERRUPT_FORCE.TX_DESC_TIMEOUT_FORCE.value = field_storage.I3C_EC.TTI.INTERRUPT_FORCE.TX_DESC_TIMEOUT_FORCE.value;
-    // Field: I3CCSR.I3C_EC.TTI.INTERRUPT_FORCE.TX_DATA_THLD_FORCE
+    // Field: target_I3CCSR.I3C_EC.TTI.INTERRUPT_FORCE.TX_DATA_THLD_FORCE
     always_comb begin
         automatic logic [0:0] next_c;
         automatic logic load_next_c;
@@ -7166,7 +7166,7 @@ module I3CCSR (
         end
     end
     assign hwif_out.I3C_EC.TTI.INTERRUPT_FORCE.TX_DATA_THLD_FORCE.value = field_storage.I3C_EC.TTI.INTERRUPT_FORCE.TX_DATA_THLD_FORCE.value;
-    // Field: I3CCSR.I3C_EC.TTI.INTERRUPT_FORCE.RX_DATA_THLD_FORCE
+    // Field: target_I3CCSR.I3C_EC.TTI.INTERRUPT_FORCE.RX_DATA_THLD_FORCE
     always_comb begin
         automatic logic [0:0] next_c;
         automatic logic load_next_c;
@@ -7189,7 +7189,7 @@ module I3CCSR (
         end
     end
     assign hwif_out.I3C_EC.TTI.INTERRUPT_FORCE.RX_DATA_THLD_FORCE.value = field_storage.I3C_EC.TTI.INTERRUPT_FORCE.RX_DATA_THLD_FORCE.value;
-    // Field: I3CCSR.I3C_EC.TTI.INTERRUPT_FORCE.TX_DESC_THLD_FORCE
+    // Field: target_I3CCSR.I3C_EC.TTI.INTERRUPT_FORCE.TX_DESC_THLD_FORCE
     always_comb begin
         automatic logic [0:0] next_c;
         automatic logic load_next_c;
@@ -7212,7 +7212,7 @@ module I3CCSR (
         end
     end
     assign hwif_out.I3C_EC.TTI.INTERRUPT_FORCE.TX_DESC_THLD_FORCE.value = field_storage.I3C_EC.TTI.INTERRUPT_FORCE.TX_DESC_THLD_FORCE.value;
-    // Field: I3CCSR.I3C_EC.TTI.INTERRUPT_FORCE.RX_DESC_THLD_FORCE
+    // Field: target_I3CCSR.I3C_EC.TTI.INTERRUPT_FORCE.RX_DESC_THLD_FORCE
     always_comb begin
         automatic logic [0:0] next_c;
         automatic logic load_next_c;
@@ -7235,7 +7235,7 @@ module I3CCSR (
         end
     end
     assign hwif_out.I3C_EC.TTI.INTERRUPT_FORCE.RX_DESC_THLD_FORCE.value = field_storage.I3C_EC.TTI.INTERRUPT_FORCE.RX_DESC_THLD_FORCE.value;
-    // Field: I3CCSR.I3C_EC.TTI.INTERRUPT_FORCE.IBI_THLD_FORCE
+    // Field: target_I3CCSR.I3C_EC.TTI.INTERRUPT_FORCE.IBI_THLD_FORCE
     always_comb begin
         automatic logic [0:0] next_c;
         automatic logic load_next_c;
@@ -7258,7 +7258,7 @@ module I3CCSR (
         end
     end
     assign hwif_out.I3C_EC.TTI.INTERRUPT_FORCE.IBI_THLD_FORCE.value = field_storage.I3C_EC.TTI.INTERRUPT_FORCE.IBI_THLD_FORCE.value;
-    // Field: I3CCSR.I3C_EC.TTI.INTERRUPT_FORCE.IBI_DONE_FORCE
+    // Field: target_I3CCSR.I3C_EC.TTI.INTERRUPT_FORCE.IBI_DONE_FORCE
     always_comb begin
         automatic logic [0:0] next_c;
         automatic logic load_next_c;
@@ -7281,7 +7281,7 @@ module I3CCSR (
         end
     end
     assign hwif_out.I3C_EC.TTI.INTERRUPT_FORCE.IBI_DONE_FORCE.value = field_storage.I3C_EC.TTI.INTERRUPT_FORCE.IBI_DONE_FORCE.value;
-    // Field: I3CCSR.I3C_EC.TTI.INTERRUPT_FORCE.TRANSFER_ABORT_STAT_FORCE
+    // Field: target_I3CCSR.I3C_EC.TTI.INTERRUPT_FORCE.TRANSFER_ABORT_STAT_FORCE
     always_comb begin
         automatic logic [0:0] next_c;
         automatic logic load_next_c;
@@ -7304,7 +7304,7 @@ module I3CCSR (
         end
     end
     assign hwif_out.I3C_EC.TTI.INTERRUPT_FORCE.TRANSFER_ABORT_STAT_FORCE.value = field_storage.I3C_EC.TTI.INTERRUPT_FORCE.TRANSFER_ABORT_STAT_FORCE.value;
-    // Field: I3CCSR.I3C_EC.TTI.INTERRUPT_FORCE.TX_DESC_COMPLETE_FORCE
+    // Field: target_I3CCSR.I3C_EC.TTI.INTERRUPT_FORCE.TX_DESC_COMPLETE_FORCE
     always_comb begin
         automatic logic [0:0] next_c;
         automatic logic load_next_c;
@@ -7327,7 +7327,7 @@ module I3CCSR (
         end
     end
     assign hwif_out.I3C_EC.TTI.INTERRUPT_FORCE.TX_DESC_COMPLETE_FORCE.value = field_storage.I3C_EC.TTI.INTERRUPT_FORCE.TX_DESC_COMPLETE_FORCE.value;
-    // Field: I3CCSR.I3C_EC.TTI.INTERRUPT_FORCE.TRANSFER_ERR_STAT_FORCE
+    // Field: target_I3CCSR.I3C_EC.TTI.INTERRUPT_FORCE.TRANSFER_ERR_STAT_FORCE
     always_comb begin
         automatic logic [0:0] next_c;
         automatic logic load_next_c;
@@ -7350,7 +7350,7 @@ module I3CCSR (
         end
     end
     assign hwif_out.I3C_EC.TTI.INTERRUPT_FORCE.TRANSFER_ERR_STAT_FORCE.value = field_storage.I3C_EC.TTI.INTERRUPT_FORCE.TRANSFER_ERR_STAT_FORCE.value;
-    // Field: I3CCSR.I3C_EC.TTI.TARGET_ERR_CTRL.TE0_ERR_DET_EN
+    // Field: target_I3CCSR.I3C_EC.TTI.TARGET_ERR_CTRL.TE0_ERR_DET_EN
     always_comb begin
         automatic logic [0:0] next_c;
         automatic logic load_next_c;
@@ -7373,7 +7373,7 @@ module I3CCSR (
         end
     end
     assign hwif_out.I3C_EC.TTI.TARGET_ERR_CTRL.TE0_ERR_DET_EN.value = field_storage.I3C_EC.TTI.TARGET_ERR_CTRL.TE0_ERR_DET_EN.value;
-    // Field: I3CCSR.I3C_EC.TTI.TARGET_ERR_CTRL.TE1_ERR_DET_EN
+    // Field: target_I3CCSR.I3C_EC.TTI.TARGET_ERR_CTRL.TE1_ERR_DET_EN
     always_comb begin
         automatic logic [0:0] next_c;
         automatic logic load_next_c;
@@ -7396,7 +7396,7 @@ module I3CCSR (
         end
     end
     assign hwif_out.I3C_EC.TTI.TARGET_ERR_CTRL.TE1_ERR_DET_EN.value = field_storage.I3C_EC.TTI.TARGET_ERR_CTRL.TE1_ERR_DET_EN.value;
-    // Field: I3CCSR.I3C_EC.TTI.TARGET_ERR_CTRL.TE2_ERR_DET_EN
+    // Field: target_I3CCSR.I3C_EC.TTI.TARGET_ERR_CTRL.TE2_ERR_DET_EN
     always_comb begin
         automatic logic [0:0] next_c;
         automatic logic load_next_c;
@@ -7419,7 +7419,7 @@ module I3CCSR (
         end
     end
     assign hwif_out.I3C_EC.TTI.TARGET_ERR_CTRL.TE2_ERR_DET_EN.value = field_storage.I3C_EC.TTI.TARGET_ERR_CTRL.TE2_ERR_DET_EN.value;
-    // Field: I3CCSR.I3C_EC.TTI.TARGET_ERR_CTRL.TE3_ERR_DET_EN
+    // Field: target_I3CCSR.I3C_EC.TTI.TARGET_ERR_CTRL.TE3_ERR_DET_EN
     always_comb begin
         automatic logic [0:0] next_c;
         automatic logic load_next_c;
@@ -7442,7 +7442,7 @@ module I3CCSR (
         end
     end
     assign hwif_out.I3C_EC.TTI.TARGET_ERR_CTRL.TE3_ERR_DET_EN.value = field_storage.I3C_EC.TTI.TARGET_ERR_CTRL.TE3_ERR_DET_EN.value;
-    // Field: I3CCSR.I3C_EC.TTI.TARGET_ERR_CTRL.TE4_ERR_DET_EN
+    // Field: target_I3CCSR.I3C_EC.TTI.TARGET_ERR_CTRL.TE4_ERR_DET_EN
     always_comb begin
         automatic logic [0:0] next_c;
         automatic logic load_next_c;
@@ -7465,7 +7465,7 @@ module I3CCSR (
         end
     end
     assign hwif_out.I3C_EC.TTI.TARGET_ERR_CTRL.TE4_ERR_DET_EN.value = field_storage.I3C_EC.TTI.TARGET_ERR_CTRL.TE4_ERR_DET_EN.value;
-    // Field: I3CCSR.I3C_EC.TTI.TARGET_ERR_CTRL.TE5_ERR_DET_EN
+    // Field: target_I3CCSR.I3C_EC.TTI.TARGET_ERR_CTRL.TE5_ERR_DET_EN
     always_comb begin
         automatic logic [0:0] next_c;
         automatic logic load_next_c;
@@ -7488,7 +7488,7 @@ module I3CCSR (
         end
     end
     assign hwif_out.I3C_EC.TTI.TARGET_ERR_CTRL.TE5_ERR_DET_EN.value = field_storage.I3C_EC.TTI.TARGET_ERR_CTRL.TE5_ERR_DET_EN.value;
-    // Field: I3CCSR.I3C_EC.TTI.TARGET_ERR_CTRL.FRAMING_ERR_DET_EN
+    // Field: target_I3CCSR.I3C_EC.TTI.TARGET_ERR_CTRL.FRAMING_ERR_DET_EN
     always_comb begin
         automatic logic [0:0] next_c;
         automatic logic load_next_c;
@@ -7511,7 +7511,7 @@ module I3CCSR (
         end
     end
     assign hwif_out.I3C_EC.TTI.TARGET_ERR_CTRL.FRAMING_ERR_DET_EN.value = field_storage.I3C_EC.TTI.TARGET_ERR_CTRL.FRAMING_ERR_DET_EN.value;
-    // Field: I3CCSR.I3C_EC.TTI.TARGET_ERR_CTRL.RI_PEC_ERR_DET_EN
+    // Field: target_I3CCSR.I3C_EC.TTI.TARGET_ERR_CTRL.RI_PEC_ERR_DET_EN
     always_comb begin
         automatic logic [0:0] next_c;
         automatic logic load_next_c;
@@ -7534,7 +7534,7 @@ module I3CCSR (
         end
     end
     assign hwif_out.I3C_EC.TTI.TARGET_ERR_CTRL.RI_PEC_ERR_DET_EN.value = field_storage.I3C_EC.TTI.TARGET_ERR_CTRL.RI_PEC_ERR_DET_EN.value;
-    // Field: I3CCSR.I3C_EC.TTI.TARGET_ERR_CTRL.RI_LENGTH_ERR_DET_EN
+    // Field: target_I3CCSR.I3C_EC.TTI.TARGET_ERR_CTRL.RI_LENGTH_ERR_DET_EN
     always_comb begin
         automatic logic [0:0] next_c;
         automatic logic load_next_c;
@@ -7557,7 +7557,7 @@ module I3CCSR (
         end
     end
     assign hwif_out.I3C_EC.TTI.TARGET_ERR_CTRL.RI_LENGTH_ERR_DET_EN.value = field_storage.I3C_EC.TTI.TARGET_ERR_CTRL.RI_LENGTH_ERR_DET_EN.value;
-    // Field: I3CCSR.I3C_EC.TTI.TARGET_ERR_CTRL.RI_READONLY_ERR_DET_EN
+    // Field: target_I3CCSR.I3C_EC.TTI.TARGET_ERR_CTRL.RI_READONLY_ERR_DET_EN
     always_comb begin
         automatic logic [0:0] next_c;
         automatic logic load_next_c;
@@ -7580,7 +7580,7 @@ module I3CCSR (
         end
     end
     assign hwif_out.I3C_EC.TTI.TARGET_ERR_CTRL.RI_READONLY_ERR_DET_EN.value = field_storage.I3C_EC.TTI.TARGET_ERR_CTRL.RI_READONLY_ERR_DET_EN.value;
-    // Field: I3CCSR.I3C_EC.TTI.TARGET_ERR_CTRL.RI_UNSUPPORTED_ERR_DET_EN
+    // Field: target_I3CCSR.I3C_EC.TTI.TARGET_ERR_CTRL.RI_UNSUPPORTED_ERR_DET_EN
     always_comb begin
         automatic logic [0:0] next_c;
         automatic logic load_next_c;
@@ -7603,7 +7603,7 @@ module I3CCSR (
         end
     end
     assign hwif_out.I3C_EC.TTI.TARGET_ERR_CTRL.RI_UNSUPPORTED_ERR_DET_EN.value = field_storage.I3C_EC.TTI.TARGET_ERR_CTRL.RI_UNSUPPORTED_ERR_DET_EN.value;
-    // Field: I3CCSR.I3C_EC.TTI.TARGET_ERR_CTRL.RI_RX_FIFO_OVERFLOW_ERR_DET_EN
+    // Field: target_I3CCSR.I3C_EC.TTI.TARGET_ERR_CTRL.RI_RX_FIFO_OVERFLOW_ERR_DET_EN
     always_comb begin
         automatic logic [0:0] next_c;
         automatic logic load_next_c;
@@ -7626,7 +7626,7 @@ module I3CCSR (
         end
     end
     assign hwif_out.I3C_EC.TTI.TARGET_ERR_CTRL.RI_RX_FIFO_OVERFLOW_ERR_DET_EN.value = field_storage.I3C_EC.TTI.TARGET_ERR_CTRL.RI_RX_FIFO_OVERFLOW_ERR_DET_EN.value;
-    // Field: I3CCSR.I3C_EC.TTI.TARGET_ERR_CTRL.RI_INDIRECT_FIFO_OVERFLOW_ERR_DET_EN
+    // Field: target_I3CCSR.I3C_EC.TTI.TARGET_ERR_CTRL.RI_INDIRECT_FIFO_OVERFLOW_ERR_DET_EN
     always_comb begin
         automatic logic [0:0] next_c;
         automatic logic load_next_c;
@@ -7649,7 +7649,7 @@ module I3CCSR (
         end
     end
     assign hwif_out.I3C_EC.TTI.TARGET_ERR_CTRL.RI_INDIRECT_FIFO_OVERFLOW_ERR_DET_EN.value = field_storage.I3C_EC.TTI.TARGET_ERR_CTRL.RI_INDIRECT_FIFO_OVERFLOW_ERR_DET_EN.value;
-    // Field: I3CCSR.I3C_EC.TTI.TARGET_ERR_INTR_STATUS.TE0_ERR_STAT
+    // Field: target_I3CCSR.I3C_EC.TTI.TARGET_ERR_INTR_STATUS.TE0_ERR_STAT
     always_comb begin
         automatic logic [0:0] next_c;
         automatic logic load_next_c;
@@ -7675,7 +7675,7 @@ module I3CCSR (
         end
     end
     assign hwif_out.I3C_EC.TTI.TARGET_ERR_INTR_STATUS.TE0_ERR_STAT.value = field_storage.I3C_EC.TTI.TARGET_ERR_INTR_STATUS.TE0_ERR_STAT.value;
-    // Field: I3CCSR.I3C_EC.TTI.TARGET_ERR_INTR_STATUS.TE1_ERR_STAT
+    // Field: target_I3CCSR.I3C_EC.TTI.TARGET_ERR_INTR_STATUS.TE1_ERR_STAT
     always_comb begin
         automatic logic [0:0] next_c;
         automatic logic load_next_c;
@@ -7701,7 +7701,7 @@ module I3CCSR (
         end
     end
     assign hwif_out.I3C_EC.TTI.TARGET_ERR_INTR_STATUS.TE1_ERR_STAT.value = field_storage.I3C_EC.TTI.TARGET_ERR_INTR_STATUS.TE1_ERR_STAT.value;
-    // Field: I3CCSR.I3C_EC.TTI.TARGET_ERR_INTR_STATUS.TE2_ERR_STAT
+    // Field: target_I3CCSR.I3C_EC.TTI.TARGET_ERR_INTR_STATUS.TE2_ERR_STAT
     always_comb begin
         automatic logic [0:0] next_c;
         automatic logic load_next_c;
@@ -7727,7 +7727,7 @@ module I3CCSR (
         end
     end
     assign hwif_out.I3C_EC.TTI.TARGET_ERR_INTR_STATUS.TE2_ERR_STAT.value = field_storage.I3C_EC.TTI.TARGET_ERR_INTR_STATUS.TE2_ERR_STAT.value;
-    // Field: I3CCSR.I3C_EC.TTI.TARGET_ERR_INTR_STATUS.TE3_ERR_STAT
+    // Field: target_I3CCSR.I3C_EC.TTI.TARGET_ERR_INTR_STATUS.TE3_ERR_STAT
     always_comb begin
         automatic logic [0:0] next_c;
         automatic logic load_next_c;
@@ -7753,7 +7753,7 @@ module I3CCSR (
         end
     end
     assign hwif_out.I3C_EC.TTI.TARGET_ERR_INTR_STATUS.TE3_ERR_STAT.value = field_storage.I3C_EC.TTI.TARGET_ERR_INTR_STATUS.TE3_ERR_STAT.value;
-    // Field: I3CCSR.I3C_EC.TTI.TARGET_ERR_INTR_STATUS.TE4_ERR_STAT
+    // Field: target_I3CCSR.I3C_EC.TTI.TARGET_ERR_INTR_STATUS.TE4_ERR_STAT
     always_comb begin
         automatic logic [0:0] next_c;
         automatic logic load_next_c;
@@ -7779,7 +7779,7 @@ module I3CCSR (
         end
     end
     assign hwif_out.I3C_EC.TTI.TARGET_ERR_INTR_STATUS.TE4_ERR_STAT.value = field_storage.I3C_EC.TTI.TARGET_ERR_INTR_STATUS.TE4_ERR_STAT.value;
-    // Field: I3CCSR.I3C_EC.TTI.TARGET_ERR_INTR_STATUS.TE5_ERR_STAT
+    // Field: target_I3CCSR.I3C_EC.TTI.TARGET_ERR_INTR_STATUS.TE5_ERR_STAT
     always_comb begin
         automatic logic [0:0] next_c;
         automatic logic load_next_c;
@@ -7805,7 +7805,7 @@ module I3CCSR (
         end
     end
     assign hwif_out.I3C_EC.TTI.TARGET_ERR_INTR_STATUS.TE5_ERR_STAT.value = field_storage.I3C_EC.TTI.TARGET_ERR_INTR_STATUS.TE5_ERR_STAT.value;
-    // Field: I3CCSR.I3C_EC.TTI.TARGET_ERR_INTR_STATUS.FRAMING_ERR_STAT
+    // Field: target_I3CCSR.I3C_EC.TTI.TARGET_ERR_INTR_STATUS.FRAMING_ERR_STAT
     always_comb begin
         automatic logic [0:0] next_c;
         automatic logic load_next_c;
@@ -7831,7 +7831,7 @@ module I3CCSR (
         end
     end
     assign hwif_out.I3C_EC.TTI.TARGET_ERR_INTR_STATUS.FRAMING_ERR_STAT.value = field_storage.I3C_EC.TTI.TARGET_ERR_INTR_STATUS.FRAMING_ERR_STAT.value;
-    // Field: I3CCSR.I3C_EC.TTI.TARGET_ERR_INTR_STATUS.RI_PEC_ERR_STAT
+    // Field: target_I3CCSR.I3C_EC.TTI.TARGET_ERR_INTR_STATUS.RI_PEC_ERR_STAT
     always_comb begin
         automatic logic [0:0] next_c;
         automatic logic load_next_c;
@@ -7857,7 +7857,7 @@ module I3CCSR (
         end
     end
     assign hwif_out.I3C_EC.TTI.TARGET_ERR_INTR_STATUS.RI_PEC_ERR_STAT.value = field_storage.I3C_EC.TTI.TARGET_ERR_INTR_STATUS.RI_PEC_ERR_STAT.value;
-    // Field: I3CCSR.I3C_EC.TTI.TARGET_ERR_INTR_STATUS.RI_LENGTH_ERR_STAT
+    // Field: target_I3CCSR.I3C_EC.TTI.TARGET_ERR_INTR_STATUS.RI_LENGTH_ERR_STAT
     always_comb begin
         automatic logic [0:0] next_c;
         automatic logic load_next_c;
@@ -7883,7 +7883,7 @@ module I3CCSR (
         end
     end
     assign hwif_out.I3C_EC.TTI.TARGET_ERR_INTR_STATUS.RI_LENGTH_ERR_STAT.value = field_storage.I3C_EC.TTI.TARGET_ERR_INTR_STATUS.RI_LENGTH_ERR_STAT.value;
-    // Field: I3CCSR.I3C_EC.TTI.TARGET_ERR_INTR_STATUS.RI_READONLY_ERR_STAT
+    // Field: target_I3CCSR.I3C_EC.TTI.TARGET_ERR_INTR_STATUS.RI_READONLY_ERR_STAT
     always_comb begin
         automatic logic [0:0] next_c;
         automatic logic load_next_c;
@@ -7909,7 +7909,7 @@ module I3CCSR (
         end
     end
     assign hwif_out.I3C_EC.TTI.TARGET_ERR_INTR_STATUS.RI_READONLY_ERR_STAT.value = field_storage.I3C_EC.TTI.TARGET_ERR_INTR_STATUS.RI_READONLY_ERR_STAT.value;
-    // Field: I3CCSR.I3C_EC.TTI.TARGET_ERR_INTR_STATUS.RI_UNSUPPORTED_ERR_STAT
+    // Field: target_I3CCSR.I3C_EC.TTI.TARGET_ERR_INTR_STATUS.RI_UNSUPPORTED_ERR_STAT
     always_comb begin
         automatic logic [0:0] next_c;
         automatic logic load_next_c;
@@ -7935,7 +7935,7 @@ module I3CCSR (
         end
     end
     assign hwif_out.I3C_EC.TTI.TARGET_ERR_INTR_STATUS.RI_UNSUPPORTED_ERR_STAT.value = field_storage.I3C_EC.TTI.TARGET_ERR_INTR_STATUS.RI_UNSUPPORTED_ERR_STAT.value;
-    // Field: I3CCSR.I3C_EC.TTI.TARGET_ERR_INTR_STATUS.RI_RX_FIFO_OVERFLOW_ERR_STAT
+    // Field: target_I3CCSR.I3C_EC.TTI.TARGET_ERR_INTR_STATUS.RI_RX_FIFO_OVERFLOW_ERR_STAT
     always_comb begin
         automatic logic [0:0] next_c;
         automatic logic load_next_c;
@@ -7961,7 +7961,7 @@ module I3CCSR (
         end
     end
     assign hwif_out.I3C_EC.TTI.TARGET_ERR_INTR_STATUS.RI_RX_FIFO_OVERFLOW_ERR_STAT.value = field_storage.I3C_EC.TTI.TARGET_ERR_INTR_STATUS.RI_RX_FIFO_OVERFLOW_ERR_STAT.value;
-    // Field: I3CCSR.I3C_EC.TTI.TARGET_ERR_INTR_STATUS.RI_INDIRECT_FIFO_OVERFLOW_ERR_STAT
+    // Field: target_I3CCSR.I3C_EC.TTI.TARGET_ERR_INTR_STATUS.RI_INDIRECT_FIFO_OVERFLOW_ERR_STAT
     always_comb begin
         automatic logic [0:0] next_c;
         automatic logic load_next_c;
@@ -7987,7 +7987,7 @@ module I3CCSR (
         end
     end
     assign hwif_out.I3C_EC.TTI.TARGET_ERR_INTR_STATUS.RI_INDIRECT_FIFO_OVERFLOW_ERR_STAT.value = field_storage.I3C_EC.TTI.TARGET_ERR_INTR_STATUS.RI_INDIRECT_FIFO_OVERFLOW_ERR_STAT.value;
-    // Field: I3CCSR.I3C_EC.TTI.TARGET_ERR_INTR_ENABLE.TE0_ERR_EN
+    // Field: target_I3CCSR.I3C_EC.TTI.TARGET_ERR_INTR_ENABLE.TE0_ERR_EN
     always_comb begin
         automatic logic [0:0] next_c;
         automatic logic load_next_c;
@@ -8010,7 +8010,7 @@ module I3CCSR (
         end
     end
     assign hwif_out.I3C_EC.TTI.TARGET_ERR_INTR_ENABLE.TE0_ERR_EN.value = field_storage.I3C_EC.TTI.TARGET_ERR_INTR_ENABLE.TE0_ERR_EN.value;
-    // Field: I3CCSR.I3C_EC.TTI.TARGET_ERR_INTR_ENABLE.TE1_ERR_EN
+    // Field: target_I3CCSR.I3C_EC.TTI.TARGET_ERR_INTR_ENABLE.TE1_ERR_EN
     always_comb begin
         automatic logic [0:0] next_c;
         automatic logic load_next_c;
@@ -8033,7 +8033,7 @@ module I3CCSR (
         end
     end
     assign hwif_out.I3C_EC.TTI.TARGET_ERR_INTR_ENABLE.TE1_ERR_EN.value = field_storage.I3C_EC.TTI.TARGET_ERR_INTR_ENABLE.TE1_ERR_EN.value;
-    // Field: I3CCSR.I3C_EC.TTI.TARGET_ERR_INTR_ENABLE.TE2_ERR_EN
+    // Field: target_I3CCSR.I3C_EC.TTI.TARGET_ERR_INTR_ENABLE.TE2_ERR_EN
     always_comb begin
         automatic logic [0:0] next_c;
         automatic logic load_next_c;
@@ -8056,7 +8056,7 @@ module I3CCSR (
         end
     end
     assign hwif_out.I3C_EC.TTI.TARGET_ERR_INTR_ENABLE.TE2_ERR_EN.value = field_storage.I3C_EC.TTI.TARGET_ERR_INTR_ENABLE.TE2_ERR_EN.value;
-    // Field: I3CCSR.I3C_EC.TTI.TARGET_ERR_INTR_ENABLE.TE3_ERR_EN
+    // Field: target_I3CCSR.I3C_EC.TTI.TARGET_ERR_INTR_ENABLE.TE3_ERR_EN
     always_comb begin
         automatic logic [0:0] next_c;
         automatic logic load_next_c;
@@ -8079,7 +8079,7 @@ module I3CCSR (
         end
     end
     assign hwif_out.I3C_EC.TTI.TARGET_ERR_INTR_ENABLE.TE3_ERR_EN.value = field_storage.I3C_EC.TTI.TARGET_ERR_INTR_ENABLE.TE3_ERR_EN.value;
-    // Field: I3CCSR.I3C_EC.TTI.TARGET_ERR_INTR_ENABLE.TE4_ERR_EN
+    // Field: target_I3CCSR.I3C_EC.TTI.TARGET_ERR_INTR_ENABLE.TE4_ERR_EN
     always_comb begin
         automatic logic [0:0] next_c;
         automatic logic load_next_c;
@@ -8102,7 +8102,7 @@ module I3CCSR (
         end
     end
     assign hwif_out.I3C_EC.TTI.TARGET_ERR_INTR_ENABLE.TE4_ERR_EN.value = field_storage.I3C_EC.TTI.TARGET_ERR_INTR_ENABLE.TE4_ERR_EN.value;
-    // Field: I3CCSR.I3C_EC.TTI.TARGET_ERR_INTR_ENABLE.TE5_ERR_EN
+    // Field: target_I3CCSR.I3C_EC.TTI.TARGET_ERR_INTR_ENABLE.TE5_ERR_EN
     always_comb begin
         automatic logic [0:0] next_c;
         automatic logic load_next_c;
@@ -8125,7 +8125,7 @@ module I3CCSR (
         end
     end
     assign hwif_out.I3C_EC.TTI.TARGET_ERR_INTR_ENABLE.TE5_ERR_EN.value = field_storage.I3C_EC.TTI.TARGET_ERR_INTR_ENABLE.TE5_ERR_EN.value;
-    // Field: I3CCSR.I3C_EC.TTI.TARGET_ERR_INTR_ENABLE.FRAMING_ERR_EN
+    // Field: target_I3CCSR.I3C_EC.TTI.TARGET_ERR_INTR_ENABLE.FRAMING_ERR_EN
     always_comb begin
         automatic logic [0:0] next_c;
         automatic logic load_next_c;
@@ -8148,7 +8148,7 @@ module I3CCSR (
         end
     end
     assign hwif_out.I3C_EC.TTI.TARGET_ERR_INTR_ENABLE.FRAMING_ERR_EN.value = field_storage.I3C_EC.TTI.TARGET_ERR_INTR_ENABLE.FRAMING_ERR_EN.value;
-    // Field: I3CCSR.I3C_EC.TTI.TARGET_ERR_INTR_ENABLE.RI_PEC_ERR_EN
+    // Field: target_I3CCSR.I3C_EC.TTI.TARGET_ERR_INTR_ENABLE.RI_PEC_ERR_EN
     always_comb begin
         automatic logic [0:0] next_c;
         automatic logic load_next_c;
@@ -8171,7 +8171,7 @@ module I3CCSR (
         end
     end
     assign hwif_out.I3C_EC.TTI.TARGET_ERR_INTR_ENABLE.RI_PEC_ERR_EN.value = field_storage.I3C_EC.TTI.TARGET_ERR_INTR_ENABLE.RI_PEC_ERR_EN.value;
-    // Field: I3CCSR.I3C_EC.TTI.TARGET_ERR_INTR_ENABLE.RI_LENGTH_ERR_EN
+    // Field: target_I3CCSR.I3C_EC.TTI.TARGET_ERR_INTR_ENABLE.RI_LENGTH_ERR_EN
     always_comb begin
         automatic logic [0:0] next_c;
         automatic logic load_next_c;
@@ -8194,7 +8194,7 @@ module I3CCSR (
         end
     end
     assign hwif_out.I3C_EC.TTI.TARGET_ERR_INTR_ENABLE.RI_LENGTH_ERR_EN.value = field_storage.I3C_EC.TTI.TARGET_ERR_INTR_ENABLE.RI_LENGTH_ERR_EN.value;
-    // Field: I3CCSR.I3C_EC.TTI.TARGET_ERR_INTR_ENABLE.RI_READONLY_ERR_EN
+    // Field: target_I3CCSR.I3C_EC.TTI.TARGET_ERR_INTR_ENABLE.RI_READONLY_ERR_EN
     always_comb begin
         automatic logic [0:0] next_c;
         automatic logic load_next_c;
@@ -8217,7 +8217,7 @@ module I3CCSR (
         end
     end
     assign hwif_out.I3C_EC.TTI.TARGET_ERR_INTR_ENABLE.RI_READONLY_ERR_EN.value = field_storage.I3C_EC.TTI.TARGET_ERR_INTR_ENABLE.RI_READONLY_ERR_EN.value;
-    // Field: I3CCSR.I3C_EC.TTI.TARGET_ERR_INTR_ENABLE.RI_UNSUPPORTED_ERR_EN
+    // Field: target_I3CCSR.I3C_EC.TTI.TARGET_ERR_INTR_ENABLE.RI_UNSUPPORTED_ERR_EN
     always_comb begin
         automatic logic [0:0] next_c;
         automatic logic load_next_c;
@@ -8240,7 +8240,7 @@ module I3CCSR (
         end
     end
     assign hwif_out.I3C_EC.TTI.TARGET_ERR_INTR_ENABLE.RI_UNSUPPORTED_ERR_EN.value = field_storage.I3C_EC.TTI.TARGET_ERR_INTR_ENABLE.RI_UNSUPPORTED_ERR_EN.value;
-    // Field: I3CCSR.I3C_EC.TTI.TARGET_ERR_INTR_ENABLE.RI_RX_FIFO_OVERFLOW_ERR_EN
+    // Field: target_I3CCSR.I3C_EC.TTI.TARGET_ERR_INTR_ENABLE.RI_RX_FIFO_OVERFLOW_ERR_EN
     always_comb begin
         automatic logic [0:0] next_c;
         automatic logic load_next_c;
@@ -8263,7 +8263,7 @@ module I3CCSR (
         end
     end
     assign hwif_out.I3C_EC.TTI.TARGET_ERR_INTR_ENABLE.RI_RX_FIFO_OVERFLOW_ERR_EN.value = field_storage.I3C_EC.TTI.TARGET_ERR_INTR_ENABLE.RI_RX_FIFO_OVERFLOW_ERR_EN.value;
-    // Field: I3CCSR.I3C_EC.TTI.TARGET_ERR_INTR_ENABLE.RI_INDIRECT_FIFO_OVERFLOW_ERR_EN
+    // Field: target_I3CCSR.I3C_EC.TTI.TARGET_ERR_INTR_ENABLE.RI_INDIRECT_FIFO_OVERFLOW_ERR_EN
     always_comb begin
         automatic logic [0:0] next_c;
         automatic logic load_next_c;
@@ -8286,7 +8286,7 @@ module I3CCSR (
         end
     end
     assign hwif_out.I3C_EC.TTI.TARGET_ERR_INTR_ENABLE.RI_INDIRECT_FIFO_OVERFLOW_ERR_EN.value = field_storage.I3C_EC.TTI.TARGET_ERR_INTR_ENABLE.RI_INDIRECT_FIFO_OVERFLOW_ERR_EN.value;
-    // Field: I3CCSR.I3C_EC.TTI.TARGET_ERR_INTR_FORCE.TE0_ERR_FORCE
+    // Field: target_I3CCSR.I3C_EC.TTI.TARGET_ERR_INTR_FORCE.TE0_ERR_FORCE
     always_comb begin
         automatic logic [0:0] next_c;
         automatic logic load_next_c;
@@ -8309,7 +8309,7 @@ module I3CCSR (
         end
     end
     assign hwif_out.I3C_EC.TTI.TARGET_ERR_INTR_FORCE.TE0_ERR_FORCE.value = field_storage.I3C_EC.TTI.TARGET_ERR_INTR_FORCE.TE0_ERR_FORCE.value;
-    // Field: I3CCSR.I3C_EC.TTI.TARGET_ERR_INTR_FORCE.TE1_ERR_FORCE
+    // Field: target_I3CCSR.I3C_EC.TTI.TARGET_ERR_INTR_FORCE.TE1_ERR_FORCE
     always_comb begin
         automatic logic [0:0] next_c;
         automatic logic load_next_c;
@@ -8332,7 +8332,7 @@ module I3CCSR (
         end
     end
     assign hwif_out.I3C_EC.TTI.TARGET_ERR_INTR_FORCE.TE1_ERR_FORCE.value = field_storage.I3C_EC.TTI.TARGET_ERR_INTR_FORCE.TE1_ERR_FORCE.value;
-    // Field: I3CCSR.I3C_EC.TTI.TARGET_ERR_INTR_FORCE.TE2_ERR_FORCE
+    // Field: target_I3CCSR.I3C_EC.TTI.TARGET_ERR_INTR_FORCE.TE2_ERR_FORCE
     always_comb begin
         automatic logic [0:0] next_c;
         automatic logic load_next_c;
@@ -8355,7 +8355,7 @@ module I3CCSR (
         end
     end
     assign hwif_out.I3C_EC.TTI.TARGET_ERR_INTR_FORCE.TE2_ERR_FORCE.value = field_storage.I3C_EC.TTI.TARGET_ERR_INTR_FORCE.TE2_ERR_FORCE.value;
-    // Field: I3CCSR.I3C_EC.TTI.TARGET_ERR_INTR_FORCE.TE3_ERR_FORCE
+    // Field: target_I3CCSR.I3C_EC.TTI.TARGET_ERR_INTR_FORCE.TE3_ERR_FORCE
     always_comb begin
         automatic logic [0:0] next_c;
         automatic logic load_next_c;
@@ -8378,7 +8378,7 @@ module I3CCSR (
         end
     end
     assign hwif_out.I3C_EC.TTI.TARGET_ERR_INTR_FORCE.TE3_ERR_FORCE.value = field_storage.I3C_EC.TTI.TARGET_ERR_INTR_FORCE.TE3_ERR_FORCE.value;
-    // Field: I3CCSR.I3C_EC.TTI.TARGET_ERR_INTR_FORCE.TE4_ERR_FORCE
+    // Field: target_I3CCSR.I3C_EC.TTI.TARGET_ERR_INTR_FORCE.TE4_ERR_FORCE
     always_comb begin
         automatic logic [0:0] next_c;
         automatic logic load_next_c;
@@ -8401,7 +8401,7 @@ module I3CCSR (
         end
     end
     assign hwif_out.I3C_EC.TTI.TARGET_ERR_INTR_FORCE.TE4_ERR_FORCE.value = field_storage.I3C_EC.TTI.TARGET_ERR_INTR_FORCE.TE4_ERR_FORCE.value;
-    // Field: I3CCSR.I3C_EC.TTI.TARGET_ERR_INTR_FORCE.TE5_ERR_FORCE
+    // Field: target_I3CCSR.I3C_EC.TTI.TARGET_ERR_INTR_FORCE.TE5_ERR_FORCE
     always_comb begin
         automatic logic [0:0] next_c;
         automatic logic load_next_c;
@@ -8424,7 +8424,7 @@ module I3CCSR (
         end
     end
     assign hwif_out.I3C_EC.TTI.TARGET_ERR_INTR_FORCE.TE5_ERR_FORCE.value = field_storage.I3C_EC.TTI.TARGET_ERR_INTR_FORCE.TE5_ERR_FORCE.value;
-    // Field: I3CCSR.I3C_EC.TTI.TARGET_ERR_INTR_FORCE.FRAMING_ERR_FORCE
+    // Field: target_I3CCSR.I3C_EC.TTI.TARGET_ERR_INTR_FORCE.FRAMING_ERR_FORCE
     always_comb begin
         automatic logic [0:0] next_c;
         automatic logic load_next_c;
@@ -8447,7 +8447,7 @@ module I3CCSR (
         end
     end
     assign hwif_out.I3C_EC.TTI.TARGET_ERR_INTR_FORCE.FRAMING_ERR_FORCE.value = field_storage.I3C_EC.TTI.TARGET_ERR_INTR_FORCE.FRAMING_ERR_FORCE.value;
-    // Field: I3CCSR.I3C_EC.TTI.TARGET_ERR_INTR_FORCE.RI_PEC_ERR_FORCE
+    // Field: target_I3CCSR.I3C_EC.TTI.TARGET_ERR_INTR_FORCE.RI_PEC_ERR_FORCE
     always_comb begin
         automatic logic [0:0] next_c;
         automatic logic load_next_c;
@@ -8470,7 +8470,7 @@ module I3CCSR (
         end
     end
     assign hwif_out.I3C_EC.TTI.TARGET_ERR_INTR_FORCE.RI_PEC_ERR_FORCE.value = field_storage.I3C_EC.TTI.TARGET_ERR_INTR_FORCE.RI_PEC_ERR_FORCE.value;
-    // Field: I3CCSR.I3C_EC.TTI.TARGET_ERR_INTR_FORCE.RI_LENGTH_ERR_FORCE
+    // Field: target_I3CCSR.I3C_EC.TTI.TARGET_ERR_INTR_FORCE.RI_LENGTH_ERR_FORCE
     always_comb begin
         automatic logic [0:0] next_c;
         automatic logic load_next_c;
@@ -8493,7 +8493,7 @@ module I3CCSR (
         end
     end
     assign hwif_out.I3C_EC.TTI.TARGET_ERR_INTR_FORCE.RI_LENGTH_ERR_FORCE.value = field_storage.I3C_EC.TTI.TARGET_ERR_INTR_FORCE.RI_LENGTH_ERR_FORCE.value;
-    // Field: I3CCSR.I3C_EC.TTI.TARGET_ERR_INTR_FORCE.RI_READONLY_ERR_FORCE
+    // Field: target_I3CCSR.I3C_EC.TTI.TARGET_ERR_INTR_FORCE.RI_READONLY_ERR_FORCE
     always_comb begin
         automatic logic [0:0] next_c;
         automatic logic load_next_c;
@@ -8516,7 +8516,7 @@ module I3CCSR (
         end
     end
     assign hwif_out.I3C_EC.TTI.TARGET_ERR_INTR_FORCE.RI_READONLY_ERR_FORCE.value = field_storage.I3C_EC.TTI.TARGET_ERR_INTR_FORCE.RI_READONLY_ERR_FORCE.value;
-    // Field: I3CCSR.I3C_EC.TTI.TARGET_ERR_INTR_FORCE.RI_UNSUPPORTED_ERR_FORCE
+    // Field: target_I3CCSR.I3C_EC.TTI.TARGET_ERR_INTR_FORCE.RI_UNSUPPORTED_ERR_FORCE
     always_comb begin
         automatic logic [0:0] next_c;
         automatic logic load_next_c;
@@ -8539,7 +8539,7 @@ module I3CCSR (
         end
     end
     assign hwif_out.I3C_EC.TTI.TARGET_ERR_INTR_FORCE.RI_UNSUPPORTED_ERR_FORCE.value = field_storage.I3C_EC.TTI.TARGET_ERR_INTR_FORCE.RI_UNSUPPORTED_ERR_FORCE.value;
-    // Field: I3CCSR.I3C_EC.TTI.TARGET_ERR_INTR_FORCE.RI_RX_FIFO_OVERFLOW_ERR_FORCE
+    // Field: target_I3CCSR.I3C_EC.TTI.TARGET_ERR_INTR_FORCE.RI_RX_FIFO_OVERFLOW_ERR_FORCE
     always_comb begin
         automatic logic [0:0] next_c;
         automatic logic load_next_c;
@@ -8562,7 +8562,7 @@ module I3CCSR (
         end
     end
     assign hwif_out.I3C_EC.TTI.TARGET_ERR_INTR_FORCE.RI_RX_FIFO_OVERFLOW_ERR_FORCE.value = field_storage.I3C_EC.TTI.TARGET_ERR_INTR_FORCE.RI_RX_FIFO_OVERFLOW_ERR_FORCE.value;
-    // Field: I3CCSR.I3C_EC.TTI.TARGET_ERR_INTR_FORCE.RI_INDIRECT_FIFO_OVERFLOW_ERR_FORCE
+    // Field: target_I3CCSR.I3C_EC.TTI.TARGET_ERR_INTR_FORCE.RI_INDIRECT_FIFO_OVERFLOW_ERR_FORCE
     always_comb begin
         automatic logic [0:0] next_c;
         automatic logic load_next_c;
@@ -8585,7 +8585,7 @@ module I3CCSR (
         end
     end
     assign hwif_out.I3C_EC.TTI.TARGET_ERR_INTR_FORCE.RI_INDIRECT_FIFO_OVERFLOW_ERR_FORCE.value = field_storage.I3C_EC.TTI.TARGET_ERR_INTR_FORCE.RI_INDIRECT_FIFO_OVERFLOW_ERR_FORCE.value;
-    // Field: I3CCSR.I3C_EC.TTI.TARGET_ERR_CNT_TE0.CNT
+    // Field: target_I3CCSR.I3C_EC.TTI.TARGET_ERR_CNT_TE0.CNT
     always_comb begin
         automatic logic [7:0] next_c;
         automatic logic load_next_c;
@@ -8611,7 +8611,7 @@ module I3CCSR (
         end
     end
     assign hwif_out.I3C_EC.TTI.TARGET_ERR_CNT_TE0.CNT.value = field_storage.I3C_EC.TTI.TARGET_ERR_CNT_TE0.CNT.value;
-    // Field: I3CCSR.I3C_EC.TTI.TARGET_ERR_CNT_TE1.CNT
+    // Field: target_I3CCSR.I3C_EC.TTI.TARGET_ERR_CNT_TE1.CNT
     always_comb begin
         automatic logic [7:0] next_c;
         automatic logic load_next_c;
@@ -8637,7 +8637,7 @@ module I3CCSR (
         end
     end
     assign hwif_out.I3C_EC.TTI.TARGET_ERR_CNT_TE1.CNT.value = field_storage.I3C_EC.TTI.TARGET_ERR_CNT_TE1.CNT.value;
-    // Field: I3CCSR.I3C_EC.TTI.TARGET_ERR_CNT_TE2.CNT
+    // Field: target_I3CCSR.I3C_EC.TTI.TARGET_ERR_CNT_TE2.CNT
     always_comb begin
         automatic logic [7:0] next_c;
         automatic logic load_next_c;
@@ -8663,7 +8663,7 @@ module I3CCSR (
         end
     end
     assign hwif_out.I3C_EC.TTI.TARGET_ERR_CNT_TE2.CNT.value = field_storage.I3C_EC.TTI.TARGET_ERR_CNT_TE2.CNT.value;
-    // Field: I3CCSR.I3C_EC.TTI.TARGET_ERR_CNT_TE3.CNT
+    // Field: target_I3CCSR.I3C_EC.TTI.TARGET_ERR_CNT_TE3.CNT
     always_comb begin
         automatic logic [7:0] next_c;
         automatic logic load_next_c;
@@ -8689,7 +8689,7 @@ module I3CCSR (
         end
     end
     assign hwif_out.I3C_EC.TTI.TARGET_ERR_CNT_TE3.CNT.value = field_storage.I3C_EC.TTI.TARGET_ERR_CNT_TE3.CNT.value;
-    // Field: I3CCSR.I3C_EC.TTI.TARGET_ERR_CNT_TE4.CNT
+    // Field: target_I3CCSR.I3C_EC.TTI.TARGET_ERR_CNT_TE4.CNT
     always_comb begin
         automatic logic [7:0] next_c;
         automatic logic load_next_c;
@@ -8715,7 +8715,7 @@ module I3CCSR (
         end
     end
     assign hwif_out.I3C_EC.TTI.TARGET_ERR_CNT_TE4.CNT.value = field_storage.I3C_EC.TTI.TARGET_ERR_CNT_TE4.CNT.value;
-    // Field: I3CCSR.I3C_EC.TTI.TARGET_ERR_CNT_TE5.CNT
+    // Field: target_I3CCSR.I3C_EC.TTI.TARGET_ERR_CNT_TE5.CNT
     always_comb begin
         automatic logic [7:0] next_c;
         automatic logic load_next_c;
@@ -8741,7 +8741,7 @@ module I3CCSR (
         end
     end
     assign hwif_out.I3C_EC.TTI.TARGET_ERR_CNT_TE5.CNT.value = field_storage.I3C_EC.TTI.TARGET_ERR_CNT_TE5.CNT.value;
-    // Field: I3CCSR.I3C_EC.TTI.TARGET_ERR_CNT_FRAMING.CNT
+    // Field: target_I3CCSR.I3C_EC.TTI.TARGET_ERR_CNT_FRAMING.CNT
     always_comb begin
         automatic logic [7:0] next_c;
         automatic logic load_next_c;
@@ -8767,7 +8767,7 @@ module I3CCSR (
         end
     end
     assign hwif_out.I3C_EC.TTI.TARGET_ERR_CNT_FRAMING.CNT.value = field_storage.I3C_EC.TTI.TARGET_ERR_CNT_FRAMING.CNT.value;
-    // Field: I3CCSR.I3C_EC.TTI.TARGET_ERR_CNT_RI_PEC.CNT
+    // Field: target_I3CCSR.I3C_EC.TTI.TARGET_ERR_CNT_RI_PEC.CNT
     always_comb begin
         automatic logic [7:0] next_c;
         automatic logic load_next_c;
@@ -8793,7 +8793,7 @@ module I3CCSR (
         end
     end
     assign hwif_out.I3C_EC.TTI.TARGET_ERR_CNT_RI_PEC.CNT.value = field_storage.I3C_EC.TTI.TARGET_ERR_CNT_RI_PEC.CNT.value;
-    // Field: I3CCSR.I3C_EC.TTI.TARGET_ERR_CNT_RI_LENGTH.CNT
+    // Field: target_I3CCSR.I3C_EC.TTI.TARGET_ERR_CNT_RI_LENGTH.CNT
     always_comb begin
         automatic logic [7:0] next_c;
         automatic logic load_next_c;
@@ -8819,7 +8819,7 @@ module I3CCSR (
         end
     end
     assign hwif_out.I3C_EC.TTI.TARGET_ERR_CNT_RI_LENGTH.CNT.value = field_storage.I3C_EC.TTI.TARGET_ERR_CNT_RI_LENGTH.CNT.value;
-    // Field: I3CCSR.I3C_EC.TTI.TARGET_ERR_CNT_RI_READONLY.CNT
+    // Field: target_I3CCSR.I3C_EC.TTI.TARGET_ERR_CNT_RI_READONLY.CNT
     always_comb begin
         automatic logic [7:0] next_c;
         automatic logic load_next_c;
@@ -8845,7 +8845,7 @@ module I3CCSR (
         end
     end
     assign hwif_out.I3C_EC.TTI.TARGET_ERR_CNT_RI_READONLY.CNT.value = field_storage.I3C_EC.TTI.TARGET_ERR_CNT_RI_READONLY.CNT.value;
-    // Field: I3CCSR.I3C_EC.TTI.TARGET_ERR_CNT_RI_UNSUPPORTED.CNT
+    // Field: target_I3CCSR.I3C_EC.TTI.TARGET_ERR_CNT_RI_UNSUPPORTED.CNT
     always_comb begin
         automatic logic [7:0] next_c;
         automatic logic load_next_c;
@@ -8871,7 +8871,7 @@ module I3CCSR (
         end
     end
     assign hwif_out.I3C_EC.TTI.TARGET_ERR_CNT_RI_UNSUPPORTED.CNT.value = field_storage.I3C_EC.TTI.TARGET_ERR_CNT_RI_UNSUPPORTED.CNT.value;
-    // Field: I3CCSR.I3C_EC.TTI.TARGET_ERR_CNT_RI_RX_FIFO_OVERFLOW.CNT
+    // Field: target_I3CCSR.I3C_EC.TTI.TARGET_ERR_CNT_RI_RX_FIFO_OVERFLOW.CNT
     always_comb begin
         automatic logic [7:0] next_c;
         automatic logic load_next_c;
@@ -8897,7 +8897,7 @@ module I3CCSR (
         end
     end
     assign hwif_out.I3C_EC.TTI.TARGET_ERR_CNT_RI_RX_FIFO_OVERFLOW.CNT.value = field_storage.I3C_EC.TTI.TARGET_ERR_CNT_RI_RX_FIFO_OVERFLOW.CNT.value;
-    // Field: I3CCSR.I3C_EC.TTI.TARGET_ERR_CNT_RI_INDIRECT_FIFO_OVERFLOW.CNT
+    // Field: target_I3CCSR.I3C_EC.TTI.TARGET_ERR_CNT_RI_INDIRECT_FIFO_OVERFLOW.CNT
     always_comb begin
         automatic logic [7:0] next_c;
         automatic logic load_next_c;
@@ -8949,7 +8949,7 @@ module I3CCSR (
     assign hwif_out.I3C_EC.TTI.QUEUE_SIZE.RX_DATA_BUFFER_SIZE.value = 8'h5;
     assign hwif_out.I3C_EC.TTI.QUEUE_SIZE.TX_DATA_BUFFER_SIZE.value = 8'h5;
     assign hwif_out.I3C_EC.TTI.IBI_QUEUE_SIZE.IBI_QUEUE_SIZE.value = 8'h5;
-    // Field: I3CCSR.I3C_EC.TTI.QUEUE_THLD_CTRL.TX_DESC_THLD
+    // Field: target_I3CCSR.I3C_EC.TTI.QUEUE_THLD_CTRL.TX_DESC_THLD
     always_comb begin
         automatic logic [7:0] next_c;
         automatic logic load_next_c;
@@ -8976,7 +8976,7 @@ module I3CCSR (
     end
     assign hwif_out.I3C_EC.TTI.QUEUE_THLD_CTRL.TX_DESC_THLD.value = field_storage.I3C_EC.TTI.QUEUE_THLD_CTRL.TX_DESC_THLD.value;
     assign hwif_out.I3C_EC.TTI.QUEUE_THLD_CTRL.TX_DESC_THLD.swmod = decoded_reg_strb.I3C_EC.TTI.QUEUE_THLD_CTRL && decoded_req_is_wr;
-    // Field: I3CCSR.I3C_EC.TTI.QUEUE_THLD_CTRL.RX_DESC_THLD
+    // Field: target_I3CCSR.I3C_EC.TTI.QUEUE_THLD_CTRL.RX_DESC_THLD
     always_comb begin
         automatic logic [7:0] next_c;
         automatic logic load_next_c;
@@ -9003,7 +9003,7 @@ module I3CCSR (
     end
     assign hwif_out.I3C_EC.TTI.QUEUE_THLD_CTRL.RX_DESC_THLD.value = field_storage.I3C_EC.TTI.QUEUE_THLD_CTRL.RX_DESC_THLD.value;
     assign hwif_out.I3C_EC.TTI.QUEUE_THLD_CTRL.RX_DESC_THLD.swmod = decoded_reg_strb.I3C_EC.TTI.QUEUE_THLD_CTRL && decoded_req_is_wr;
-    // Field: I3CCSR.I3C_EC.TTI.QUEUE_THLD_CTRL.IBI_THLD
+    // Field: target_I3CCSR.I3C_EC.TTI.QUEUE_THLD_CTRL.IBI_THLD
     always_comb begin
         automatic logic [7:0] next_c;
         automatic logic load_next_c;
@@ -9030,7 +9030,7 @@ module I3CCSR (
     end
     assign hwif_out.I3C_EC.TTI.QUEUE_THLD_CTRL.IBI_THLD.value = field_storage.I3C_EC.TTI.QUEUE_THLD_CTRL.IBI_THLD.value;
     assign hwif_out.I3C_EC.TTI.QUEUE_THLD_CTRL.IBI_THLD.swmod = decoded_reg_strb.I3C_EC.TTI.QUEUE_THLD_CTRL && decoded_req_is_wr;
-    // Field: I3CCSR.I3C_EC.TTI.DATA_BUFFER_THLD_CTRL.TX_DATA_THLD
+    // Field: target_I3CCSR.I3C_EC.TTI.DATA_BUFFER_THLD_CTRL.TX_DATA_THLD
     always_comb begin
         automatic logic [2:0] next_c;
         automatic logic load_next_c;
@@ -9053,7 +9053,7 @@ module I3CCSR (
         end
     end
     assign hwif_out.I3C_EC.TTI.DATA_BUFFER_THLD_CTRL.TX_DATA_THLD.value = field_storage.I3C_EC.TTI.DATA_BUFFER_THLD_CTRL.TX_DATA_THLD.value;
-    // Field: I3CCSR.I3C_EC.TTI.DATA_BUFFER_THLD_CTRL.RX_DATA_THLD
+    // Field: target_I3CCSR.I3C_EC.TTI.DATA_BUFFER_THLD_CTRL.RX_DATA_THLD
     always_comb begin
         automatic logic [2:0] next_c;
         automatic logic load_next_c;
@@ -9076,7 +9076,7 @@ module I3CCSR (
         end
     end
     assign hwif_out.I3C_EC.TTI.DATA_BUFFER_THLD_CTRL.RX_DATA_THLD.value = field_storage.I3C_EC.TTI.DATA_BUFFER_THLD_CTRL.RX_DATA_THLD.value;
-    // Field: I3CCSR.I3C_EC.TTI.DATA_BUFFER_THLD_CTRL.TX_START_THLD
+    // Field: target_I3CCSR.I3C_EC.TTI.DATA_BUFFER_THLD_CTRL.TX_START_THLD
     always_comb begin
         automatic logic [2:0] next_c;
         automatic logic load_next_c;
@@ -9099,7 +9099,7 @@ module I3CCSR (
         end
     end
     assign hwif_out.I3C_EC.TTI.DATA_BUFFER_THLD_CTRL.TX_START_THLD.value = field_storage.I3C_EC.TTI.DATA_BUFFER_THLD_CTRL.TX_START_THLD.value;
-    // Field: I3CCSR.I3C_EC.TTI.DATA_BUFFER_THLD_CTRL.RX_START_THLD
+    // Field: target_I3CCSR.I3C_EC.TTI.DATA_BUFFER_THLD_CTRL.RX_START_THLD
     always_comb begin
         automatic logic [2:0] next_c;
         automatic logic load_next_c;
@@ -9124,7 +9124,7 @@ module I3CCSR (
     assign hwif_out.I3C_EC.TTI.DATA_BUFFER_THLD_CTRL.RX_START_THLD.value = field_storage.I3C_EC.TTI.DATA_BUFFER_THLD_CTRL.RX_START_THLD.value;
     assign hwif_out.I3C_EC.SoCMgmtIf.EXTCAP_HEADER.CAP_ID.value = 8'hc1;
     assign hwif_out.I3C_EC.SoCMgmtIf.EXTCAP_HEADER.CAP_LENGTH.value = 16'h1a;
-    // Field: I3CCSR.I3C_EC.SoCMgmtIf.SOC_MGMT_CONTROL.PLACEHOLDER
+    // Field: target_I3CCSR.I3C_EC.SoCMgmtIf.SOC_MGMT_CONTROL.PLACEHOLDER
     always_comb begin
         automatic logic [31:0] next_c;
         automatic logic load_next_c;
@@ -9147,7 +9147,7 @@ module I3CCSR (
         end
     end
     assign hwif_out.I3C_EC.SoCMgmtIf.SOC_MGMT_CONTROL.PLACEHOLDER.value = field_storage.I3C_EC.SoCMgmtIf.SOC_MGMT_CONTROL.PLACEHOLDER.value;
-    // Field: I3CCSR.I3C_EC.SoCMgmtIf.SOC_MGMT_STATUS.PLACEHOLDER
+    // Field: target_I3CCSR.I3C_EC.SoCMgmtIf.SOC_MGMT_STATUS.PLACEHOLDER
     always_comb begin
         automatic logic [31:0] next_c;
         automatic logic load_next_c;
@@ -9170,7 +9170,7 @@ module I3CCSR (
         end
     end
     assign hwif_out.I3C_EC.SoCMgmtIf.SOC_MGMT_STATUS.PLACEHOLDER.value = field_storage.I3C_EC.SoCMgmtIf.SOC_MGMT_STATUS.PLACEHOLDER.value;
-    // Field: I3CCSR.I3C_EC.SoCMgmtIf.REC_INTF_CFG.REC_INTF_BYPASS
+    // Field: target_I3CCSR.I3C_EC.SoCMgmtIf.REC_INTF_CFG.REC_INTF_BYPASS
     always_comb begin
         automatic logic [0:0] next_c;
         automatic logic load_next_c;
@@ -9193,7 +9193,7 @@ module I3CCSR (
         end
     end
     assign hwif_out.I3C_EC.SoCMgmtIf.REC_INTF_CFG.REC_INTF_BYPASS.value = field_storage.I3C_EC.SoCMgmtIf.REC_INTF_CFG.REC_INTF_BYPASS.value;
-    // Field: I3CCSR.I3C_EC.SoCMgmtIf.REC_INTF_CFG.REC_PAYLOAD_DONE
+    // Field: target_I3CCSR.I3C_EC.SoCMgmtIf.REC_INTF_CFG.REC_PAYLOAD_DONE
     always_comb begin
         automatic logic [0:0] next_c;
         automatic logic load_next_c;
@@ -9219,7 +9219,7 @@ module I3CCSR (
         end
     end
     assign hwif_out.I3C_EC.SoCMgmtIf.REC_INTF_CFG.REC_PAYLOAD_DONE.value = field_storage.I3C_EC.SoCMgmtIf.REC_INTF_CFG.REC_PAYLOAD_DONE.value;
-    // Field: I3CCSR.I3C_EC.SoCMgmtIf.REC_INTF_REG_W1C_ACCESS.DEVICE_RESET_CTRL
+    // Field: target_I3CCSR.I3C_EC.SoCMgmtIf.REC_INTF_REG_W1C_ACCESS.DEVICE_RESET_CTRL
     always_comb begin
         automatic logic [7:0] next_c;
         automatic logic load_next_c;
@@ -9246,7 +9246,7 @@ module I3CCSR (
     end
     assign hwif_out.I3C_EC.SoCMgmtIf.REC_INTF_REG_W1C_ACCESS.DEVICE_RESET_CTRL.value = field_storage.I3C_EC.SoCMgmtIf.REC_INTF_REG_W1C_ACCESS.DEVICE_RESET_CTRL.value;
     assign hwif_out.I3C_EC.SoCMgmtIf.REC_INTF_REG_W1C_ACCESS.DEVICE_RESET_CTRL.swmod = decoded_reg_strb.I3C_EC.SoCMgmtIf.REC_INTF_REG_W1C_ACCESS && decoded_req_is_wr;
-    // Field: I3CCSR.I3C_EC.SoCMgmtIf.REC_INTF_REG_W1C_ACCESS.RECOVERY_CTRL_ACTIVATE_REC_IMG
+    // Field: target_I3CCSR.I3C_EC.SoCMgmtIf.REC_INTF_REG_W1C_ACCESS.RECOVERY_CTRL_ACTIVATE_REC_IMG
     always_comb begin
         automatic logic [7:0] next_c;
         automatic logic load_next_c;
@@ -9273,7 +9273,7 @@ module I3CCSR (
     end
     assign hwif_out.I3C_EC.SoCMgmtIf.REC_INTF_REG_W1C_ACCESS.RECOVERY_CTRL_ACTIVATE_REC_IMG.value = field_storage.I3C_EC.SoCMgmtIf.REC_INTF_REG_W1C_ACCESS.RECOVERY_CTRL_ACTIVATE_REC_IMG.value;
     assign hwif_out.I3C_EC.SoCMgmtIf.REC_INTF_REG_W1C_ACCESS.RECOVERY_CTRL_ACTIVATE_REC_IMG.swmod = decoded_reg_strb.I3C_EC.SoCMgmtIf.REC_INTF_REG_W1C_ACCESS && decoded_req_is_wr;
-    // Field: I3CCSR.I3C_EC.SoCMgmtIf.REC_INTF_REG_W1C_ACCESS.INDIRECT_FIFO_CTRL_RESET
+    // Field: target_I3CCSR.I3C_EC.SoCMgmtIf.REC_INTF_REG_W1C_ACCESS.INDIRECT_FIFO_CTRL_RESET
     always_comb begin
         automatic logic [7:0] next_c;
         automatic logic load_next_c;
@@ -9300,7 +9300,7 @@ module I3CCSR (
     end
     assign hwif_out.I3C_EC.SoCMgmtIf.REC_INTF_REG_W1C_ACCESS.INDIRECT_FIFO_CTRL_RESET.value = field_storage.I3C_EC.SoCMgmtIf.REC_INTF_REG_W1C_ACCESS.INDIRECT_FIFO_CTRL_RESET.value;
     assign hwif_out.I3C_EC.SoCMgmtIf.REC_INTF_REG_W1C_ACCESS.INDIRECT_FIFO_CTRL_RESET.swmod = decoded_reg_strb.I3C_EC.SoCMgmtIf.REC_INTF_REG_W1C_ACCESS && decoded_req_is_wr;
-    // Field: I3CCSR.I3C_EC.SoCMgmtIf.SOC_MGMT_RSVD_2.PLACEHOLDER
+    // Field: target_I3CCSR.I3C_EC.SoCMgmtIf.SOC_MGMT_RSVD_2.PLACEHOLDER
     always_comb begin
         automatic logic [31:0] next_c;
         automatic logic load_next_c;
@@ -9323,7 +9323,7 @@ module I3CCSR (
         end
     end
     assign hwif_out.I3C_EC.SoCMgmtIf.SOC_MGMT_RSVD_2.PLACEHOLDER.value = field_storage.I3C_EC.SoCMgmtIf.SOC_MGMT_RSVD_2.PLACEHOLDER.value;
-    // Field: I3CCSR.I3C_EC.SoCMgmtIf.SOC_MGMT_RSVD_3.PLACEHOLDER
+    // Field: target_I3CCSR.I3C_EC.SoCMgmtIf.SOC_MGMT_RSVD_3.PLACEHOLDER
     always_comb begin
         automatic logic [31:0] next_c;
         automatic logic load_next_c;
@@ -9346,7 +9346,7 @@ module I3CCSR (
         end
     end
     assign hwif_out.I3C_EC.SoCMgmtIf.SOC_MGMT_RSVD_3.PLACEHOLDER.value = field_storage.I3C_EC.SoCMgmtIf.SOC_MGMT_RSVD_3.PLACEHOLDER.value;
-    // Field: I3CCSR.I3C_EC.SoCMgmtIf.SOC_PAD_CONF.INPUT_ENABLE
+    // Field: target_I3CCSR.I3C_EC.SoCMgmtIf.SOC_PAD_CONF.INPUT_ENABLE
     always_comb begin
         automatic logic [0:0] next_c;
         automatic logic load_next_c;
@@ -9369,7 +9369,7 @@ module I3CCSR (
         end
     end
     assign hwif_out.I3C_EC.SoCMgmtIf.SOC_PAD_CONF.INPUT_ENABLE.value = field_storage.I3C_EC.SoCMgmtIf.SOC_PAD_CONF.INPUT_ENABLE.value;
-    // Field: I3CCSR.I3C_EC.SoCMgmtIf.SOC_PAD_CONF.SCHMITT_EN
+    // Field: target_I3CCSR.I3C_EC.SoCMgmtIf.SOC_PAD_CONF.SCHMITT_EN
     always_comb begin
         automatic logic [0:0] next_c;
         automatic logic load_next_c;
@@ -9392,7 +9392,7 @@ module I3CCSR (
         end
     end
     assign hwif_out.I3C_EC.SoCMgmtIf.SOC_PAD_CONF.SCHMITT_EN.value = field_storage.I3C_EC.SoCMgmtIf.SOC_PAD_CONF.SCHMITT_EN.value;
-    // Field: I3CCSR.I3C_EC.SoCMgmtIf.SOC_PAD_CONF.KEEPER_EN
+    // Field: target_I3CCSR.I3C_EC.SoCMgmtIf.SOC_PAD_CONF.KEEPER_EN
     always_comb begin
         automatic logic [0:0] next_c;
         automatic logic load_next_c;
@@ -9415,7 +9415,7 @@ module I3CCSR (
         end
     end
     assign hwif_out.I3C_EC.SoCMgmtIf.SOC_PAD_CONF.KEEPER_EN.value = field_storage.I3C_EC.SoCMgmtIf.SOC_PAD_CONF.KEEPER_EN.value;
-    // Field: I3CCSR.I3C_EC.SoCMgmtIf.SOC_PAD_CONF.PULL_DIR
+    // Field: target_I3CCSR.I3C_EC.SoCMgmtIf.SOC_PAD_CONF.PULL_DIR
     always_comb begin
         automatic logic [0:0] next_c;
         automatic logic load_next_c;
@@ -9438,7 +9438,7 @@ module I3CCSR (
         end
     end
     assign hwif_out.I3C_EC.SoCMgmtIf.SOC_PAD_CONF.PULL_DIR.value = field_storage.I3C_EC.SoCMgmtIf.SOC_PAD_CONF.PULL_DIR.value;
-    // Field: I3CCSR.I3C_EC.SoCMgmtIf.SOC_PAD_CONF.PULL_EN
+    // Field: target_I3CCSR.I3C_EC.SoCMgmtIf.SOC_PAD_CONF.PULL_EN
     always_comb begin
         automatic logic [0:0] next_c;
         automatic logic load_next_c;
@@ -9461,7 +9461,7 @@ module I3CCSR (
         end
     end
     assign hwif_out.I3C_EC.SoCMgmtIf.SOC_PAD_CONF.PULL_EN.value = field_storage.I3C_EC.SoCMgmtIf.SOC_PAD_CONF.PULL_EN.value;
-    // Field: I3CCSR.I3C_EC.SoCMgmtIf.SOC_PAD_CONF.IO_INVERSION
+    // Field: target_I3CCSR.I3C_EC.SoCMgmtIf.SOC_PAD_CONF.IO_INVERSION
     always_comb begin
         automatic logic [0:0] next_c;
         automatic logic load_next_c;
@@ -9484,7 +9484,7 @@ module I3CCSR (
         end
     end
     assign hwif_out.I3C_EC.SoCMgmtIf.SOC_PAD_CONF.IO_INVERSION.value = field_storage.I3C_EC.SoCMgmtIf.SOC_PAD_CONF.IO_INVERSION.value;
-    // Field: I3CCSR.I3C_EC.SoCMgmtIf.SOC_PAD_CONF.OD_EN
+    // Field: target_I3CCSR.I3C_EC.SoCMgmtIf.SOC_PAD_CONF.OD_EN
     always_comb begin
         automatic logic [0:0] next_c;
         automatic logic load_next_c;
@@ -9507,7 +9507,7 @@ module I3CCSR (
         end
     end
     assign hwif_out.I3C_EC.SoCMgmtIf.SOC_PAD_CONF.OD_EN.value = field_storage.I3C_EC.SoCMgmtIf.SOC_PAD_CONF.OD_EN.value;
-    // Field: I3CCSR.I3C_EC.SoCMgmtIf.SOC_PAD_CONF.VIRTUAL_OD_EN
+    // Field: target_I3CCSR.I3C_EC.SoCMgmtIf.SOC_PAD_CONF.VIRTUAL_OD_EN
     always_comb begin
         automatic logic [0:0] next_c;
         automatic logic load_next_c;
@@ -9530,7 +9530,7 @@ module I3CCSR (
         end
     end
     assign hwif_out.I3C_EC.SoCMgmtIf.SOC_PAD_CONF.VIRTUAL_OD_EN.value = field_storage.I3C_EC.SoCMgmtIf.SOC_PAD_CONF.VIRTUAL_OD_EN.value;
-    // Field: I3CCSR.I3C_EC.SoCMgmtIf.SOC_PAD_CONF.PAD_TYPE
+    // Field: target_I3CCSR.I3C_EC.SoCMgmtIf.SOC_PAD_CONF.PAD_TYPE
     always_comb begin
         automatic logic [7:0] next_c;
         automatic logic load_next_c;
@@ -9553,7 +9553,7 @@ module I3CCSR (
         end
     end
     assign hwif_out.I3C_EC.SoCMgmtIf.SOC_PAD_CONF.PAD_TYPE.value = field_storage.I3C_EC.SoCMgmtIf.SOC_PAD_CONF.PAD_TYPE.value;
-    // Field: I3CCSR.I3C_EC.SoCMgmtIf.SOC_PAD_ATTR.DRIVE_SLEW_RATE
+    // Field: target_I3CCSR.I3C_EC.SoCMgmtIf.SOC_PAD_ATTR.DRIVE_SLEW_RATE
     always_comb begin
         automatic logic [7:0] next_c;
         automatic logic load_next_c;
@@ -9576,7 +9576,7 @@ module I3CCSR (
         end
     end
     assign hwif_out.I3C_EC.SoCMgmtIf.SOC_PAD_ATTR.DRIVE_SLEW_RATE.value = field_storage.I3C_EC.SoCMgmtIf.SOC_PAD_ATTR.DRIVE_SLEW_RATE.value;
-    // Field: I3CCSR.I3C_EC.SoCMgmtIf.SOC_PAD_ATTR.DRIVE_STRENGTH
+    // Field: target_I3CCSR.I3C_EC.SoCMgmtIf.SOC_PAD_ATTR.DRIVE_STRENGTH
     always_comb begin
         automatic logic [7:0] next_c;
         automatic logic load_next_c;
@@ -9599,7 +9599,7 @@ module I3CCSR (
         end
     end
     assign hwif_out.I3C_EC.SoCMgmtIf.SOC_PAD_ATTR.DRIVE_STRENGTH.value = field_storage.I3C_EC.SoCMgmtIf.SOC_PAD_ATTR.DRIVE_STRENGTH.value;
-    // Field: I3CCSR.I3C_EC.SoCMgmtIf.SOC_MGMT_FEATURE_2.PLACEHOLDER
+    // Field: target_I3CCSR.I3C_EC.SoCMgmtIf.SOC_MGMT_FEATURE_2.PLACEHOLDER
     always_comb begin
         automatic logic [31:0] next_c;
         automatic logic load_next_c;
@@ -9622,7 +9622,7 @@ module I3CCSR (
         end
     end
     assign hwif_out.I3C_EC.SoCMgmtIf.SOC_MGMT_FEATURE_2.PLACEHOLDER.value = field_storage.I3C_EC.SoCMgmtIf.SOC_MGMT_FEATURE_2.PLACEHOLDER.value;
-    // Field: I3CCSR.I3C_EC.SoCMgmtIf.SOC_MGMT_FEATURE_3.PLACEHOLDER
+    // Field: target_I3CCSR.I3C_EC.SoCMgmtIf.SOC_MGMT_FEATURE_3.PLACEHOLDER
     always_comb begin
         automatic logic [31:0] next_c;
         automatic logic load_next_c;
@@ -9645,7 +9645,7 @@ module I3CCSR (
         end
     end
     assign hwif_out.I3C_EC.SoCMgmtIf.SOC_MGMT_FEATURE_3.PLACEHOLDER.value = field_storage.I3C_EC.SoCMgmtIf.SOC_MGMT_FEATURE_3.PLACEHOLDER.value;
-    // Field: I3CCSR.I3C_EC.SoCMgmtIf.T_R_REG.T_R
+    // Field: target_I3CCSR.I3C_EC.SoCMgmtIf.T_R_REG.T_R
     always_comb begin
         automatic logic [19:0] next_c;
         automatic logic load_next_c;
@@ -9668,7 +9668,7 @@ module I3CCSR (
         end
     end
     assign hwif_out.I3C_EC.SoCMgmtIf.T_R_REG.T_R.value = field_storage.I3C_EC.SoCMgmtIf.T_R_REG.T_R.value;
-    // Field: I3CCSR.I3C_EC.SoCMgmtIf.T_F_REG.T_F
+    // Field: target_I3CCSR.I3C_EC.SoCMgmtIf.T_F_REG.T_F
     always_comb begin
         automatic logic [19:0] next_c;
         automatic logic load_next_c;
@@ -9691,7 +9691,7 @@ module I3CCSR (
         end
     end
     assign hwif_out.I3C_EC.SoCMgmtIf.T_F_REG.T_F.value = field_storage.I3C_EC.SoCMgmtIf.T_F_REG.T_F.value;
-    // Field: I3CCSR.I3C_EC.SoCMgmtIf.T_SU_DAT_REG.T_SU_DAT
+    // Field: target_I3CCSR.I3C_EC.SoCMgmtIf.T_SU_DAT_REG.T_SU_DAT
     always_comb begin
         automatic logic [19:0] next_c;
         automatic logic load_next_c;
@@ -9714,7 +9714,7 @@ module I3CCSR (
         end
     end
     assign hwif_out.I3C_EC.SoCMgmtIf.T_SU_DAT_REG.T_SU_DAT.value = field_storage.I3C_EC.SoCMgmtIf.T_SU_DAT_REG.T_SU_DAT.value;
-    // Field: I3CCSR.I3C_EC.SoCMgmtIf.T_SU_DAT_I2C_REG.T_SU_DAT_I2C
+    // Field: target_I3CCSR.I3C_EC.SoCMgmtIf.T_SU_DAT_I2C_REG.T_SU_DAT_I2C
     always_comb begin
         automatic logic [19:0] next_c;
         automatic logic load_next_c;
@@ -9737,7 +9737,7 @@ module I3CCSR (
         end
     end
     assign hwif_out.I3C_EC.SoCMgmtIf.T_SU_DAT_I2C_REG.T_SU_DAT_I2C.value = field_storage.I3C_EC.SoCMgmtIf.T_SU_DAT_I2C_REG.T_SU_DAT_I2C.value;
-    // Field: I3CCSR.I3C_EC.SoCMgmtIf.T_HD_DAT_REG.T_HD_DAT
+    // Field: target_I3CCSR.I3C_EC.SoCMgmtIf.T_HD_DAT_REG.T_HD_DAT
     always_comb begin
         automatic logic [19:0] next_c;
         automatic logic load_next_c;
@@ -9760,7 +9760,7 @@ module I3CCSR (
         end
     end
     assign hwif_out.I3C_EC.SoCMgmtIf.T_HD_DAT_REG.T_HD_DAT.value = field_storage.I3C_EC.SoCMgmtIf.T_HD_DAT_REG.T_HD_DAT.value;
-    // Field: I3CCSR.I3C_EC.SoCMgmtIf.T_HIGH_REG.T_HIGH
+    // Field: target_I3CCSR.I3C_EC.SoCMgmtIf.T_HIGH_REG.T_HIGH
     always_comb begin
         automatic logic [19:0] next_c;
         automatic logic load_next_c;
@@ -9783,7 +9783,7 @@ module I3CCSR (
         end
     end
     assign hwif_out.I3C_EC.SoCMgmtIf.T_HIGH_REG.T_HIGH.value = field_storage.I3C_EC.SoCMgmtIf.T_HIGH_REG.T_HIGH.value;
-    // Field: I3CCSR.I3C_EC.SoCMgmtIf.T_HIGH_OD_REG.T_HIGH_OD
+    // Field: target_I3CCSR.I3C_EC.SoCMgmtIf.T_HIGH_OD_REG.T_HIGH_OD
     always_comb begin
         automatic logic [19:0] next_c;
         automatic logic load_next_c;
@@ -9806,7 +9806,7 @@ module I3CCSR (
         end
     end
     assign hwif_out.I3C_EC.SoCMgmtIf.T_HIGH_OD_REG.T_HIGH_OD.value = field_storage.I3C_EC.SoCMgmtIf.T_HIGH_OD_REG.T_HIGH_OD.value;
-    // Field: I3CCSR.I3C_EC.SoCMgmtIf.T_HIGH_INIT_OD_REG.T_HIGH_INIT_OD
+    // Field: target_I3CCSR.I3C_EC.SoCMgmtIf.T_HIGH_INIT_OD_REG.T_HIGH_INIT_OD
     always_comb begin
         automatic logic [19:0] next_c;
         automatic logic load_next_c;
@@ -9829,7 +9829,7 @@ module I3CCSR (
         end
     end
     assign hwif_out.I3C_EC.SoCMgmtIf.T_HIGH_INIT_OD_REG.T_HIGH_INIT_OD.value = field_storage.I3C_EC.SoCMgmtIf.T_HIGH_INIT_OD_REG.T_HIGH_INIT_OD.value;
-    // Field: I3CCSR.I3C_EC.SoCMgmtIf.T_HIGH_I2C_REG.T_HIGH_I2C
+    // Field: target_I3CCSR.I3C_EC.SoCMgmtIf.T_HIGH_I2C_REG.T_HIGH_I2C
     always_comb begin
         automatic logic [19:0] next_c;
         automatic logic load_next_c;
@@ -9852,7 +9852,7 @@ module I3CCSR (
         end
     end
     assign hwif_out.I3C_EC.SoCMgmtIf.T_HIGH_I2C_REG.T_HIGH_I2C.value = field_storage.I3C_EC.SoCMgmtIf.T_HIGH_I2C_REG.T_HIGH_I2C.value;
-    // Field: I3CCSR.I3C_EC.SoCMgmtIf.T_LOW_REG.T_LOW
+    // Field: target_I3CCSR.I3C_EC.SoCMgmtIf.T_LOW_REG.T_LOW
     always_comb begin
         automatic logic [19:0] next_c;
         automatic logic load_next_c;
@@ -9875,7 +9875,7 @@ module I3CCSR (
         end
     end
     assign hwif_out.I3C_EC.SoCMgmtIf.T_LOW_REG.T_LOW.value = field_storage.I3C_EC.SoCMgmtIf.T_LOW_REG.T_LOW.value;
-    // Field: I3CCSR.I3C_EC.SoCMgmtIf.T_LOW_OD_REG.T_LOW_OD
+    // Field: target_I3CCSR.I3C_EC.SoCMgmtIf.T_LOW_OD_REG.T_LOW_OD
     always_comb begin
         automatic logic [19:0] next_c;
         automatic logic load_next_c;
@@ -9898,7 +9898,7 @@ module I3CCSR (
         end
     end
     assign hwif_out.I3C_EC.SoCMgmtIf.T_LOW_OD_REG.T_LOW_OD.value = field_storage.I3C_EC.SoCMgmtIf.T_LOW_OD_REG.T_LOW_OD.value;
-    // Field: I3CCSR.I3C_EC.SoCMgmtIf.T_LOW_I2C_REG.T_LOW_I2C
+    // Field: target_I3CCSR.I3C_EC.SoCMgmtIf.T_LOW_I2C_REG.T_LOW_I2C
     always_comb begin
         automatic logic [19:0] next_c;
         automatic logic load_next_c;
@@ -9921,7 +9921,7 @@ module I3CCSR (
         end
     end
     assign hwif_out.I3C_EC.SoCMgmtIf.T_LOW_I2C_REG.T_LOW_I2C.value = field_storage.I3C_EC.SoCMgmtIf.T_LOW_I2C_REG.T_LOW_I2C.value;
-    // Field: I3CCSR.I3C_EC.SoCMgmtIf.T_HD_STA_REG.T_HD_STA
+    // Field: target_I3CCSR.I3C_EC.SoCMgmtIf.T_HD_STA_REG.T_HD_STA
     always_comb begin
         automatic logic [19:0] next_c;
         automatic logic load_next_c;
@@ -9944,7 +9944,7 @@ module I3CCSR (
         end
     end
     assign hwif_out.I3C_EC.SoCMgmtIf.T_HD_STA_REG.T_HD_STA.value = field_storage.I3C_EC.SoCMgmtIf.T_HD_STA_REG.T_HD_STA.value;
-    // Field: I3CCSR.I3C_EC.SoCMgmtIf.T_HD_STA_I2C_REG.T_HD_STA_I2C
+    // Field: target_I3CCSR.I3C_EC.SoCMgmtIf.T_HD_STA_I2C_REG.T_HD_STA_I2C
     always_comb begin
         automatic logic [19:0] next_c;
         automatic logic load_next_c;
@@ -9967,7 +9967,7 @@ module I3CCSR (
         end
     end
     assign hwif_out.I3C_EC.SoCMgmtIf.T_HD_STA_I2C_REG.T_HD_STA_I2C.value = field_storage.I3C_EC.SoCMgmtIf.T_HD_STA_I2C_REG.T_HD_STA_I2C.value;
-    // Field: I3CCSR.I3C_EC.SoCMgmtIf.T_HD_RSTA_REG.T_HD_RSTA
+    // Field: target_I3CCSR.I3C_EC.SoCMgmtIf.T_HD_RSTA_REG.T_HD_RSTA
     always_comb begin
         automatic logic [19:0] next_c;
         automatic logic load_next_c;
@@ -9990,7 +9990,7 @@ module I3CCSR (
         end
     end
     assign hwif_out.I3C_EC.SoCMgmtIf.T_HD_RSTA_REG.T_HD_RSTA.value = field_storage.I3C_EC.SoCMgmtIf.T_HD_RSTA_REG.T_HD_RSTA.value;
-    // Field: I3CCSR.I3C_EC.SoCMgmtIf.T_SU_STA_REG.T_SU_STA
+    // Field: target_I3CCSR.I3C_EC.SoCMgmtIf.T_SU_STA_REG.T_SU_STA
     always_comb begin
         automatic logic [19:0] next_c;
         automatic logic load_next_c;
@@ -10013,7 +10013,7 @@ module I3CCSR (
         end
     end
     assign hwif_out.I3C_EC.SoCMgmtIf.T_SU_STA_REG.T_SU_STA.value = field_storage.I3C_EC.SoCMgmtIf.T_SU_STA_REG.T_SU_STA.value;
-    // Field: I3CCSR.I3C_EC.SoCMgmtIf.T_SU_STA_I2C_REG.T_SU_STA_I2C
+    // Field: target_I3CCSR.I3C_EC.SoCMgmtIf.T_SU_STA_I2C_REG.T_SU_STA_I2C
     always_comb begin
         automatic logic [19:0] next_c;
         automatic logic load_next_c;
@@ -10036,7 +10036,7 @@ module I3CCSR (
         end
     end
     assign hwif_out.I3C_EC.SoCMgmtIf.T_SU_STA_I2C_REG.T_SU_STA_I2C.value = field_storage.I3C_EC.SoCMgmtIf.T_SU_STA_I2C_REG.T_SU_STA_I2C.value;
-    // Field: I3CCSR.I3C_EC.SoCMgmtIf.T_SU_STO_REG.T_SU_STO
+    // Field: target_I3CCSR.I3C_EC.SoCMgmtIf.T_SU_STO_REG.T_SU_STO
     always_comb begin
         automatic logic [19:0] next_c;
         automatic logic load_next_c;
@@ -10059,7 +10059,7 @@ module I3CCSR (
         end
     end
     assign hwif_out.I3C_EC.SoCMgmtIf.T_SU_STO_REG.T_SU_STO.value = field_storage.I3C_EC.SoCMgmtIf.T_SU_STO_REG.T_SU_STO.value;
-    // Field: I3CCSR.I3C_EC.SoCMgmtIf.T_SU_STO_I2C_REG.T_SU_STO_I2C
+    // Field: target_I3CCSR.I3C_EC.SoCMgmtIf.T_SU_STO_I2C_REG.T_SU_STO_I2C
     always_comb begin
         automatic logic [19:0] next_c;
         automatic logic load_next_c;
@@ -10082,7 +10082,7 @@ module I3CCSR (
         end
     end
     assign hwif_out.I3C_EC.SoCMgmtIf.T_SU_STO_I2C_REG.T_SU_STO_I2C.value = field_storage.I3C_EC.SoCMgmtIf.T_SU_STO_I2C_REG.T_SU_STO_I2C.value;
-    // Field: I3CCSR.I3C_EC.SoCMgmtIf.T_DS_OD_REG.T_DS_OD
+    // Field: target_I3CCSR.I3C_EC.SoCMgmtIf.T_DS_OD_REG.T_DS_OD
     always_comb begin
         automatic logic [19:0] next_c;
         automatic logic load_next_c;
@@ -10105,7 +10105,7 @@ module I3CCSR (
         end
     end
     assign hwif_out.I3C_EC.SoCMgmtIf.T_DS_OD_REG.T_DS_OD.value = field_storage.I3C_EC.SoCMgmtIf.T_DS_OD_REG.T_DS_OD.value;
-    // Field: I3CCSR.I3C_EC.SoCMgmtIf.T_FREE_REG.T_FREE
+    // Field: target_I3CCSR.I3C_EC.SoCMgmtIf.T_FREE_REG.T_FREE
     always_comb begin
         automatic logic [31:0] next_c;
         automatic logic load_next_c;
@@ -10128,7 +10128,7 @@ module I3CCSR (
         end
     end
     assign hwif_out.I3C_EC.SoCMgmtIf.T_FREE_REG.T_FREE.value = field_storage.I3C_EC.SoCMgmtIf.T_FREE_REG.T_FREE.value;
-    // Field: I3CCSR.I3C_EC.SoCMgmtIf.T_FREE_I2C_REG.T_FREE_I2C
+    // Field: target_I3CCSR.I3C_EC.SoCMgmtIf.T_FREE_I2C_REG.T_FREE_I2C
     always_comb begin
         automatic logic [31:0] next_c;
         automatic logic load_next_c;
@@ -10151,7 +10151,7 @@ module I3CCSR (
         end
     end
     assign hwif_out.I3C_EC.SoCMgmtIf.T_FREE_I2C_REG.T_FREE_I2C.value = field_storage.I3C_EC.SoCMgmtIf.T_FREE_I2C_REG.T_FREE_I2C.value;
-    // Field: I3CCSR.I3C_EC.SoCMgmtIf.T_AVAL_REG.T_AVAL
+    // Field: target_I3CCSR.I3C_EC.SoCMgmtIf.T_AVAL_REG.T_AVAL
     always_comb begin
         automatic logic [31:0] next_c;
         automatic logic load_next_c;
@@ -10174,7 +10174,7 @@ module I3CCSR (
         end
     end
     assign hwif_out.I3C_EC.SoCMgmtIf.T_AVAL_REG.T_AVAL.value = field_storage.I3C_EC.SoCMgmtIf.T_AVAL_REG.T_AVAL.value;
-    // Field: I3CCSR.I3C_EC.SoCMgmtIf.T_IDLE_REG.T_IDLE
+    // Field: target_I3CCSR.I3C_EC.SoCMgmtIf.T_IDLE_REG.T_IDLE
     always_comb begin
         automatic logic [31:0] next_c;
         automatic logic load_next_c;
@@ -10197,7 +10197,7 @@ module I3CCSR (
         end
     end
     assign hwif_out.I3C_EC.SoCMgmtIf.T_IDLE_REG.T_IDLE.value = field_storage.I3C_EC.SoCMgmtIf.T_IDLE_REG.T_IDLE.value;
-    // Field: I3CCSR.I3C_EC.SoCMgmtIf.HDR_TIMEOUT_EN_REG.HDR_TIMEOUT_EN
+    // Field: target_I3CCSR.I3C_EC.SoCMgmtIf.HDR_TIMEOUT_EN_REG.HDR_TIMEOUT_EN
     always_comb begin
         automatic logic [0:0] next_c;
         automatic logic load_next_c;
@@ -10220,7 +10220,7 @@ module I3CCSR (
         end
     end
     assign hwif_out.I3C_EC.SoCMgmtIf.HDR_TIMEOUT_EN_REG.HDR_TIMEOUT_EN.value = field_storage.I3C_EC.SoCMgmtIf.HDR_TIMEOUT_EN_REG.HDR_TIMEOUT_EN.value;
-    // Field: I3CCSR.I3C_EC.SoCMgmtIf.T_HDR_TIMEOUT_REG.T_HDR_TIMEOUT
+    // Field: target_I3CCSR.I3C_EC.SoCMgmtIf.T_HDR_TIMEOUT_REG.T_HDR_TIMEOUT
     always_comb begin
         automatic logic [19:0] next_c;
         automatic logic load_next_c;
@@ -10245,7 +10245,7 @@ module I3CCSR (
     assign hwif_out.I3C_EC.SoCMgmtIf.T_HDR_TIMEOUT_REG.T_HDR_TIMEOUT.value = field_storage.I3C_EC.SoCMgmtIf.T_HDR_TIMEOUT_REG.T_HDR_TIMEOUT.value;
     assign hwif_out.I3C_EC.CtrlCfg.EXTCAP_HEADER.CAP_ID.value = 8'h2;
     assign hwif_out.I3C_EC.CtrlCfg.EXTCAP_HEADER.CAP_LENGTH.value = 16'h2;
-    // Field: I3CCSR.I3C_EC.CtrlCfg.CONTROLLER_CONFIG.OPERATION_MODE
+    // Field: target_I3CCSR.I3C_EC.CtrlCfg.CONTROLLER_CONFIG.OPERATION_MODE
     always_comb begin
         automatic logic [1:0] next_c;
         automatic logic load_next_c;

@@ -12,11 +12,11 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-`ifndef I3CCSR_COVERGROUPS
-    `define I3CCSR_COVERGROUPS
+`ifndef target_I3CCSR_COVERGROUPS
+    `define target_I3CCSR_COVERGROUPS
     
-    /*----------------------- I3CCSR__I3C_EC__SECFWRECOVERYIF__EXTCAP_HEADER COVERGROUPS -----------------------*/
-    covergroup I3CCSR__I3C_EC__SecFwRecoveryIf__EXTCAP_HEADER_bit_cg with function sample(input bit reg_bit);
+    /*----------------------- target_I3CCSR__I3C_EC__SECFWRECOVERYIF__EXTCAP_HEADER COVERGROUPS -----------------------*/
+    covergroup target_I3CCSR__I3C_EC__SecFwRecoveryIf__EXTCAP_HEADER_bit_cg with function sample(input bit reg_bit);
         option.per_instance = 1;
         reg_bit_cp : coverpoint reg_bit {
             bins value[2] = {0,1};
@@ -27,7 +27,7 @@
         }
 
     endgroup
-    covergroup I3CCSR__I3C_EC__SecFwRecoveryIf__EXTCAP_HEADER_fld_cg with function sample(
+    covergroup target_I3CCSR__I3C_EC__SecFwRecoveryIf__EXTCAP_HEADER_fld_cg with function sample(
     input bit [8-1:0] CAP_ID,
     input bit [16-1:0] CAP_LENGTH
     );
@@ -37,8 +37,8 @@
 
     endgroup
 
-    /*----------------------- I3CCSR__I3C_EC__SECFWRECOVERYIF__PROT_CAP_0 COVERGROUPS -----------------------*/
-    covergroup I3CCSR__I3C_EC__SecFwRecoveryIf__PROT_CAP_0_bit_cg with function sample(input bit reg_bit);
+    /*----------------------- target_I3CCSR__I3C_EC__SECFWRECOVERYIF__PROT_CAP_0 COVERGROUPS -----------------------*/
+    covergroup target_I3CCSR__I3C_EC__SecFwRecoveryIf__PROT_CAP_0_bit_cg with function sample(input bit reg_bit);
         option.per_instance = 1;
         reg_bit_cp : coverpoint reg_bit {
             bins value[2] = {0,1};
@@ -49,7 +49,7 @@
         }
 
     endgroup
-    covergroup I3CCSR__I3C_EC__SecFwRecoveryIf__PROT_CAP_0_fld_cg with function sample(
+    covergroup target_I3CCSR__I3C_EC__SecFwRecoveryIf__PROT_CAP_0_fld_cg with function sample(
     input bit [32-1:0] REC_MAGIC_STRING_0
     );
         option.per_instance = 1;
@@ -57,8 +57,8 @@
 
     endgroup
 
-    /*----------------------- I3CCSR__I3C_EC__SECFWRECOVERYIF__PROT_CAP_1 COVERGROUPS -----------------------*/
-    covergroup I3CCSR__I3C_EC__SecFwRecoveryIf__PROT_CAP_1_bit_cg with function sample(input bit reg_bit);
+    /*----------------------- target_I3CCSR__I3C_EC__SECFWRECOVERYIF__PROT_CAP_1 COVERGROUPS -----------------------*/
+    covergroup target_I3CCSR__I3C_EC__SecFwRecoveryIf__PROT_CAP_1_bit_cg with function sample(input bit reg_bit);
         option.per_instance = 1;
         reg_bit_cp : coverpoint reg_bit {
             bins value[2] = {0,1};
@@ -69,7 +69,7 @@
         }
 
     endgroup
-    covergroup I3CCSR__I3C_EC__SecFwRecoveryIf__PROT_CAP_1_fld_cg with function sample(
+    covergroup target_I3CCSR__I3C_EC__SecFwRecoveryIf__PROT_CAP_1_fld_cg with function sample(
     input bit [32-1:0] REC_MAGIC_STRING_1
     );
         option.per_instance = 1;
@@ -77,8 +77,8 @@
 
     endgroup
 
-    /*----------------------- I3CCSR__I3C_EC__SECFWRECOVERYIF__PROT_CAP_2 COVERGROUPS -----------------------*/
-    covergroup I3CCSR__I3C_EC__SecFwRecoveryIf__PROT_CAP_2_bit_cg with function sample(input bit reg_bit);
+    /*----------------------- target_I3CCSR__I3C_EC__SECFWRECOVERYIF__PROT_CAP_2 COVERGROUPS -----------------------*/
+    covergroup target_I3CCSR__I3C_EC__SecFwRecoveryIf__PROT_CAP_2_bit_cg with function sample(input bit reg_bit);
         option.per_instance = 1;
         reg_bit_cp : coverpoint reg_bit {
             bins value[2] = {0,1};
@@ -89,7 +89,7 @@
         }
 
     endgroup
-    covergroup I3CCSR__I3C_EC__SecFwRecoveryIf__PROT_CAP_2_fld_cg with function sample(
+    covergroup target_I3CCSR__I3C_EC__SecFwRecoveryIf__PROT_CAP_2_fld_cg with function sample(
     input bit [16-1:0] REC_PROT_VERSION,
     input bit [16-1:0] AGENT_CAPS
     );
@@ -99,8 +99,8 @@
 
     endgroup
 
-    /*----------------------- I3CCSR__I3C_EC__SECFWRECOVERYIF__PROT_CAP_3 COVERGROUPS -----------------------*/
-    covergroup I3CCSR__I3C_EC__SecFwRecoveryIf__PROT_CAP_3_bit_cg with function sample(input bit reg_bit);
+    /*----------------------- target_I3CCSR__I3C_EC__SECFWRECOVERYIF__PROT_CAP_3 COVERGROUPS -----------------------*/
+    covergroup target_I3CCSR__I3C_EC__SecFwRecoveryIf__PROT_CAP_3_bit_cg with function sample(input bit reg_bit);
         option.per_instance = 1;
         reg_bit_cp : coverpoint reg_bit {
             bins value[2] = {0,1};
@@ -111,7 +111,7 @@
         }
 
     endgroup
-    covergroup I3CCSR__I3C_EC__SecFwRecoveryIf__PROT_CAP_3_fld_cg with function sample(
+    covergroup target_I3CCSR__I3C_EC__SecFwRecoveryIf__PROT_CAP_3_fld_cg with function sample(
     input bit [8-1:0] NUM_OF_CMS_REGIONS,
     input bit [8-1:0] MAX_RESP_TIME,
     input bit [8-1:0] HEARTBEAT_PERIOD
@@ -123,8 +123,8 @@
 
     endgroup
 
-    /*----------------------- I3CCSR__I3C_EC__SECFWRECOVERYIF__DEVICE_ID_0 COVERGROUPS -----------------------*/
-    covergroup I3CCSR__I3C_EC__SecFwRecoveryIf__DEVICE_ID_0_bit_cg with function sample(input bit reg_bit);
+    /*----------------------- target_I3CCSR__I3C_EC__SECFWRECOVERYIF__DEVICE_ID_0 COVERGROUPS -----------------------*/
+    covergroup target_I3CCSR__I3C_EC__SecFwRecoveryIf__DEVICE_ID_0_bit_cg with function sample(input bit reg_bit);
         option.per_instance = 1;
         reg_bit_cp : coverpoint reg_bit {
             bins value[2] = {0,1};
@@ -135,7 +135,7 @@
         }
 
     endgroup
-    covergroup I3CCSR__I3C_EC__SecFwRecoveryIf__DEVICE_ID_0_fld_cg with function sample(
+    covergroup target_I3CCSR__I3C_EC__SecFwRecoveryIf__DEVICE_ID_0_fld_cg with function sample(
     input bit [8-1:0] DESC_TYPE,
     input bit [8-1:0] VENDOR_SPECIFIC_STR_LENGTH,
     input bit [16-1:0] DATA
@@ -147,8 +147,8 @@
 
     endgroup
 
-    /*----------------------- I3CCSR__I3C_EC__SECFWRECOVERYIF__DEVICE_ID_1 COVERGROUPS -----------------------*/
-    covergroup I3CCSR__I3C_EC__SecFwRecoveryIf__DEVICE_ID_1_bit_cg with function sample(input bit reg_bit);
+    /*----------------------- target_I3CCSR__I3C_EC__SECFWRECOVERYIF__DEVICE_ID_1 COVERGROUPS -----------------------*/
+    covergroup target_I3CCSR__I3C_EC__SecFwRecoveryIf__DEVICE_ID_1_bit_cg with function sample(input bit reg_bit);
         option.per_instance = 1;
         reg_bit_cp : coverpoint reg_bit {
             bins value[2] = {0,1};
@@ -159,7 +159,7 @@
         }
 
     endgroup
-    covergroup I3CCSR__I3C_EC__SecFwRecoveryIf__DEVICE_ID_1_fld_cg with function sample(
+    covergroup target_I3CCSR__I3C_EC__SecFwRecoveryIf__DEVICE_ID_1_fld_cg with function sample(
     input bit [32-1:0] DATA
     );
         option.per_instance = 1;
@@ -167,8 +167,8 @@
 
     endgroup
 
-    /*----------------------- I3CCSR__I3C_EC__SECFWRECOVERYIF__DEVICE_ID_2 COVERGROUPS -----------------------*/
-    covergroup I3CCSR__I3C_EC__SecFwRecoveryIf__DEVICE_ID_2_bit_cg with function sample(input bit reg_bit);
+    /*----------------------- target_I3CCSR__I3C_EC__SECFWRECOVERYIF__DEVICE_ID_2 COVERGROUPS -----------------------*/
+    covergroup target_I3CCSR__I3C_EC__SecFwRecoveryIf__DEVICE_ID_2_bit_cg with function sample(input bit reg_bit);
         option.per_instance = 1;
         reg_bit_cp : coverpoint reg_bit {
             bins value[2] = {0,1};
@@ -179,7 +179,7 @@
         }
 
     endgroup
-    covergroup I3CCSR__I3C_EC__SecFwRecoveryIf__DEVICE_ID_2_fld_cg with function sample(
+    covergroup target_I3CCSR__I3C_EC__SecFwRecoveryIf__DEVICE_ID_2_fld_cg with function sample(
     input bit [32-1:0] DATA
     );
         option.per_instance = 1;
@@ -187,8 +187,8 @@
 
     endgroup
 
-    /*----------------------- I3CCSR__I3C_EC__SECFWRECOVERYIF__DEVICE_ID_3 COVERGROUPS -----------------------*/
-    covergroup I3CCSR__I3C_EC__SecFwRecoveryIf__DEVICE_ID_3_bit_cg with function sample(input bit reg_bit);
+    /*----------------------- target_I3CCSR__I3C_EC__SECFWRECOVERYIF__DEVICE_ID_3 COVERGROUPS -----------------------*/
+    covergroup target_I3CCSR__I3C_EC__SecFwRecoveryIf__DEVICE_ID_3_bit_cg with function sample(input bit reg_bit);
         option.per_instance = 1;
         reg_bit_cp : coverpoint reg_bit {
             bins value[2] = {0,1};
@@ -199,7 +199,7 @@
         }
 
     endgroup
-    covergroup I3CCSR__I3C_EC__SecFwRecoveryIf__DEVICE_ID_3_fld_cg with function sample(
+    covergroup target_I3CCSR__I3C_EC__SecFwRecoveryIf__DEVICE_ID_3_fld_cg with function sample(
     input bit [32-1:0] DATA
     );
         option.per_instance = 1;
@@ -207,8 +207,8 @@
 
     endgroup
 
-    /*----------------------- I3CCSR__I3C_EC__SECFWRECOVERYIF__DEVICE_ID_4 COVERGROUPS -----------------------*/
-    covergroup I3CCSR__I3C_EC__SecFwRecoveryIf__DEVICE_ID_4_bit_cg with function sample(input bit reg_bit);
+    /*----------------------- target_I3CCSR__I3C_EC__SECFWRECOVERYIF__DEVICE_ID_4 COVERGROUPS -----------------------*/
+    covergroup target_I3CCSR__I3C_EC__SecFwRecoveryIf__DEVICE_ID_4_bit_cg with function sample(input bit reg_bit);
         option.per_instance = 1;
         reg_bit_cp : coverpoint reg_bit {
             bins value[2] = {0,1};
@@ -219,7 +219,7 @@
         }
 
     endgroup
-    covergroup I3CCSR__I3C_EC__SecFwRecoveryIf__DEVICE_ID_4_fld_cg with function sample(
+    covergroup target_I3CCSR__I3C_EC__SecFwRecoveryIf__DEVICE_ID_4_fld_cg with function sample(
     input bit [32-1:0] DATA
     );
         option.per_instance = 1;
@@ -227,8 +227,8 @@
 
     endgroup
 
-    /*----------------------- I3CCSR__I3C_EC__SECFWRECOVERYIF__DEVICE_ID_5 COVERGROUPS -----------------------*/
-    covergroup I3CCSR__I3C_EC__SecFwRecoveryIf__DEVICE_ID_5_bit_cg with function sample(input bit reg_bit);
+    /*----------------------- target_I3CCSR__I3C_EC__SECFWRECOVERYIF__DEVICE_ID_5 COVERGROUPS -----------------------*/
+    covergroup target_I3CCSR__I3C_EC__SecFwRecoveryIf__DEVICE_ID_5_bit_cg with function sample(input bit reg_bit);
         option.per_instance = 1;
         reg_bit_cp : coverpoint reg_bit {
             bins value[2] = {0,1};
@@ -239,7 +239,7 @@
         }
 
     endgroup
-    covergroup I3CCSR__I3C_EC__SecFwRecoveryIf__DEVICE_ID_5_fld_cg with function sample(
+    covergroup target_I3CCSR__I3C_EC__SecFwRecoveryIf__DEVICE_ID_5_fld_cg with function sample(
     input bit [32-1:0] DATA
     );
         option.per_instance = 1;
@@ -247,8 +247,8 @@
 
     endgroup
 
-    /*----------------------- I3CCSR__I3C_EC__SECFWRECOVERYIF__DEVICE_ID_RESERVED COVERGROUPS -----------------------*/
-    covergroup I3CCSR__I3C_EC__SecFwRecoveryIf__DEVICE_ID_RESERVED_bit_cg with function sample(input bit reg_bit);
+    /*----------------------- target_I3CCSR__I3C_EC__SECFWRECOVERYIF__DEVICE_ID_RESERVED COVERGROUPS -----------------------*/
+    covergroup target_I3CCSR__I3C_EC__SecFwRecoveryIf__DEVICE_ID_RESERVED_bit_cg with function sample(input bit reg_bit);
         option.per_instance = 1;
         reg_bit_cp : coverpoint reg_bit {
             bins value[2] = {0,1};
@@ -259,7 +259,7 @@
         }
 
     endgroup
-    covergroup I3CCSR__I3C_EC__SecFwRecoveryIf__DEVICE_ID_RESERVED_fld_cg with function sample(
+    covergroup target_I3CCSR__I3C_EC__SecFwRecoveryIf__DEVICE_ID_RESERVED_fld_cg with function sample(
     input bit [32-1:0] DATA
     );
         option.per_instance = 1;
@@ -267,8 +267,8 @@
 
     endgroup
 
-    /*----------------------- I3CCSR__I3C_EC__SECFWRECOVERYIF__DEVICE_STATUS_0 COVERGROUPS -----------------------*/
-    covergroup I3CCSR__I3C_EC__SecFwRecoveryIf__DEVICE_STATUS_0_bit_cg with function sample(input bit reg_bit);
+    /*----------------------- target_I3CCSR__I3C_EC__SECFWRECOVERYIF__DEVICE_STATUS_0 COVERGROUPS -----------------------*/
+    covergroup target_I3CCSR__I3C_EC__SecFwRecoveryIf__DEVICE_STATUS_0_bit_cg with function sample(input bit reg_bit);
         option.per_instance = 1;
         reg_bit_cp : coverpoint reg_bit {
             bins value[2] = {0,1};
@@ -279,7 +279,7 @@
         }
 
     endgroup
-    covergroup I3CCSR__I3C_EC__SecFwRecoveryIf__DEVICE_STATUS_0_fld_cg with function sample(
+    covergroup target_I3CCSR__I3C_EC__SecFwRecoveryIf__DEVICE_STATUS_0_fld_cg with function sample(
     input bit [8-1:0] DEV_STATUS,
     input bit [8-1:0] PROT_ERROR,
     input bit [16-1:0] REC_REASON_CODE
@@ -291,8 +291,8 @@
 
     endgroup
 
-    /*----------------------- I3CCSR__I3C_EC__SECFWRECOVERYIF__DEVICE_STATUS_1 COVERGROUPS -----------------------*/
-    covergroup I3CCSR__I3C_EC__SecFwRecoveryIf__DEVICE_STATUS_1_bit_cg with function sample(input bit reg_bit);
+    /*----------------------- target_I3CCSR__I3C_EC__SECFWRECOVERYIF__DEVICE_STATUS_1 COVERGROUPS -----------------------*/
+    covergroup target_I3CCSR__I3C_EC__SecFwRecoveryIf__DEVICE_STATUS_1_bit_cg with function sample(input bit reg_bit);
         option.per_instance = 1;
         reg_bit_cp : coverpoint reg_bit {
             bins value[2] = {0,1};
@@ -303,7 +303,7 @@
         }
 
     endgroup
-    covergroup I3CCSR__I3C_EC__SecFwRecoveryIf__DEVICE_STATUS_1_fld_cg with function sample(
+    covergroup target_I3CCSR__I3C_EC__SecFwRecoveryIf__DEVICE_STATUS_1_fld_cg with function sample(
     input bit [16-1:0] HEARTBEAT,
     input bit [9-1:0] VENDOR_STATUS_LENGTH,
     input bit [7-1:0] VENDOR_STATUS
@@ -315,8 +315,8 @@
 
     endgroup
 
-    /*----------------------- I3CCSR__I3C_EC__SECFWRECOVERYIF__DEVICE_RESET COVERGROUPS -----------------------*/
-    covergroup I3CCSR__I3C_EC__SecFwRecoveryIf__DEVICE_RESET_bit_cg with function sample(input bit reg_bit);
+    /*----------------------- target_I3CCSR__I3C_EC__SECFWRECOVERYIF__DEVICE_RESET COVERGROUPS -----------------------*/
+    covergroup target_I3CCSR__I3C_EC__SecFwRecoveryIf__DEVICE_RESET_bit_cg with function sample(input bit reg_bit);
         option.per_instance = 1;
         reg_bit_cp : coverpoint reg_bit {
             bins value[2] = {0,1};
@@ -327,7 +327,7 @@
         }
 
     endgroup
-    covergroup I3CCSR__I3C_EC__SecFwRecoveryIf__DEVICE_RESET_fld_cg with function sample(
+    covergroup target_I3CCSR__I3C_EC__SecFwRecoveryIf__DEVICE_RESET_fld_cg with function sample(
     input bit [8-1:0] RESET_CTRL,
     input bit [8-1:0] FORCED_RECOVERY,
     input bit [8-1:0] IF_CTRL
@@ -339,8 +339,8 @@
 
     endgroup
 
-    /*----------------------- I3CCSR__I3C_EC__SECFWRECOVERYIF__RECOVERY_CTRL COVERGROUPS -----------------------*/
-    covergroup I3CCSR__I3C_EC__SecFwRecoveryIf__RECOVERY_CTRL_bit_cg with function sample(input bit reg_bit);
+    /*----------------------- target_I3CCSR__I3C_EC__SECFWRECOVERYIF__RECOVERY_CTRL COVERGROUPS -----------------------*/
+    covergroup target_I3CCSR__I3C_EC__SecFwRecoveryIf__RECOVERY_CTRL_bit_cg with function sample(input bit reg_bit);
         option.per_instance = 1;
         reg_bit_cp : coverpoint reg_bit {
             bins value[2] = {0,1};
@@ -351,7 +351,7 @@
         }
 
     endgroup
-    covergroup I3CCSR__I3C_EC__SecFwRecoveryIf__RECOVERY_CTRL_fld_cg with function sample(
+    covergroup target_I3CCSR__I3C_EC__SecFwRecoveryIf__RECOVERY_CTRL_fld_cg with function sample(
     input bit [8-1:0] CMS,
     input bit [8-1:0] REC_IMG_SEL,
     input bit [8-1:0] ACTIVATE_REC_IMG
@@ -363,8 +363,8 @@
 
     endgroup
 
-    /*----------------------- I3CCSR__I3C_EC__SECFWRECOVERYIF__RECOVERY_STATUS COVERGROUPS -----------------------*/
-    covergroup I3CCSR__I3C_EC__SecFwRecoveryIf__RECOVERY_STATUS_bit_cg with function sample(input bit reg_bit);
+    /*----------------------- target_I3CCSR__I3C_EC__SECFWRECOVERYIF__RECOVERY_STATUS COVERGROUPS -----------------------*/
+    covergroup target_I3CCSR__I3C_EC__SecFwRecoveryIf__RECOVERY_STATUS_bit_cg with function sample(input bit reg_bit);
         option.per_instance = 1;
         reg_bit_cp : coverpoint reg_bit {
             bins value[2] = {0,1};
@@ -375,7 +375,7 @@
         }
 
     endgroup
-    covergroup I3CCSR__I3C_EC__SecFwRecoveryIf__RECOVERY_STATUS_fld_cg with function sample(
+    covergroup target_I3CCSR__I3C_EC__SecFwRecoveryIf__RECOVERY_STATUS_fld_cg with function sample(
     input bit [4-1:0] DEV_REC_STATUS,
     input bit [4-1:0] REC_IMG_INDEX,
     input bit [8-1:0] VENDOR_SPECIFIC_STATUS
@@ -387,8 +387,8 @@
 
     endgroup
 
-    /*----------------------- I3CCSR__I3C_EC__SECFWRECOVERYIF__HW_STATUS COVERGROUPS -----------------------*/
-    covergroup I3CCSR__I3C_EC__SecFwRecoveryIf__HW_STATUS_bit_cg with function sample(input bit reg_bit);
+    /*----------------------- target_I3CCSR__I3C_EC__SECFWRECOVERYIF__HW_STATUS COVERGROUPS -----------------------*/
+    covergroup target_I3CCSR__I3C_EC__SecFwRecoveryIf__HW_STATUS_bit_cg with function sample(input bit reg_bit);
         option.per_instance = 1;
         reg_bit_cp : coverpoint reg_bit {
             bins value[2] = {0,1};
@@ -399,7 +399,7 @@
         }
 
     endgroup
-    covergroup I3CCSR__I3C_EC__SecFwRecoveryIf__HW_STATUS_fld_cg with function sample(
+    covergroup target_I3CCSR__I3C_EC__SecFwRecoveryIf__HW_STATUS_fld_cg with function sample(
     input bit [1-1:0] TEMP_CRITICAL,
     input bit [1-1:0] SOFT_ERR,
     input bit [1-1:0] FATAL_ERR,
@@ -419,8 +419,8 @@
 
     endgroup
 
-    /*----------------------- I3CCSR__I3C_EC__SECFWRECOVERYIF__INDIRECT_FIFO_CTRL_0 COVERGROUPS -----------------------*/
-    covergroup I3CCSR__I3C_EC__SecFwRecoveryIf__INDIRECT_FIFO_CTRL_0_bit_cg with function sample(input bit reg_bit);
+    /*----------------------- target_I3CCSR__I3C_EC__SECFWRECOVERYIF__INDIRECT_FIFO_CTRL_0 COVERGROUPS -----------------------*/
+    covergroup target_I3CCSR__I3C_EC__SecFwRecoveryIf__INDIRECT_FIFO_CTRL_0_bit_cg with function sample(input bit reg_bit);
         option.per_instance = 1;
         reg_bit_cp : coverpoint reg_bit {
             bins value[2] = {0,1};
@@ -431,7 +431,7 @@
         }
 
     endgroup
-    covergroup I3CCSR__I3C_EC__SecFwRecoveryIf__INDIRECT_FIFO_CTRL_0_fld_cg with function sample(
+    covergroup target_I3CCSR__I3C_EC__SecFwRecoveryIf__INDIRECT_FIFO_CTRL_0_fld_cg with function sample(
     input bit [8-1:0] CMS,
     input bit [8-1:0] RESET
     );
@@ -441,8 +441,8 @@
 
     endgroup
 
-    /*----------------------- I3CCSR__I3C_EC__SECFWRECOVERYIF__INDIRECT_FIFO_CTRL_1 COVERGROUPS -----------------------*/
-    covergroup I3CCSR__I3C_EC__SecFwRecoveryIf__INDIRECT_FIFO_CTRL_1_bit_cg with function sample(input bit reg_bit);
+    /*----------------------- target_I3CCSR__I3C_EC__SECFWRECOVERYIF__INDIRECT_FIFO_CTRL_1 COVERGROUPS -----------------------*/
+    covergroup target_I3CCSR__I3C_EC__SecFwRecoveryIf__INDIRECT_FIFO_CTRL_1_bit_cg with function sample(input bit reg_bit);
         option.per_instance = 1;
         reg_bit_cp : coverpoint reg_bit {
             bins value[2] = {0,1};
@@ -453,7 +453,7 @@
         }
 
     endgroup
-    covergroup I3CCSR__I3C_EC__SecFwRecoveryIf__INDIRECT_FIFO_CTRL_1_fld_cg with function sample(
+    covergroup target_I3CCSR__I3C_EC__SecFwRecoveryIf__INDIRECT_FIFO_CTRL_1_fld_cg with function sample(
     input bit [32-1:0] IMAGE_SIZE
     );
         option.per_instance = 1;
@@ -461,8 +461,8 @@
 
     endgroup
 
-    /*----------------------- I3CCSR__I3C_EC__SECFWRECOVERYIF__INDIRECT_FIFO_STATUS_0 COVERGROUPS -----------------------*/
-    covergroup I3CCSR__I3C_EC__SecFwRecoveryIf__INDIRECT_FIFO_STATUS_0_bit_cg with function sample(input bit reg_bit);
+    /*----------------------- target_I3CCSR__I3C_EC__SECFWRECOVERYIF__INDIRECT_FIFO_STATUS_0 COVERGROUPS -----------------------*/
+    covergroup target_I3CCSR__I3C_EC__SecFwRecoveryIf__INDIRECT_FIFO_STATUS_0_bit_cg with function sample(input bit reg_bit);
         option.per_instance = 1;
         reg_bit_cp : coverpoint reg_bit {
             bins value[2] = {0,1};
@@ -473,7 +473,7 @@
         }
 
     endgroup
-    covergroup I3CCSR__I3C_EC__SecFwRecoveryIf__INDIRECT_FIFO_STATUS_0_fld_cg with function sample(
+    covergroup target_I3CCSR__I3C_EC__SecFwRecoveryIf__INDIRECT_FIFO_STATUS_0_fld_cg with function sample(
     input bit [1-1:0] EMPTY,
     input bit [1-1:0] FULL,
     input bit [3-1:0] REGION_TYPE
@@ -485,8 +485,8 @@
 
     endgroup
 
-    /*----------------------- I3CCSR__I3C_EC__SECFWRECOVERYIF__INDIRECT_FIFO_STATUS_1 COVERGROUPS -----------------------*/
-    covergroup I3CCSR__I3C_EC__SecFwRecoveryIf__INDIRECT_FIFO_STATUS_1_bit_cg with function sample(input bit reg_bit);
+    /*----------------------- target_I3CCSR__I3C_EC__SECFWRECOVERYIF__INDIRECT_FIFO_STATUS_1 COVERGROUPS -----------------------*/
+    covergroup target_I3CCSR__I3C_EC__SecFwRecoveryIf__INDIRECT_FIFO_STATUS_1_bit_cg with function sample(input bit reg_bit);
         option.per_instance = 1;
         reg_bit_cp : coverpoint reg_bit {
             bins value[2] = {0,1};
@@ -497,7 +497,7 @@
         }
 
     endgroup
-    covergroup I3CCSR__I3C_EC__SecFwRecoveryIf__INDIRECT_FIFO_STATUS_1_fld_cg with function sample(
+    covergroup target_I3CCSR__I3C_EC__SecFwRecoveryIf__INDIRECT_FIFO_STATUS_1_fld_cg with function sample(
     input bit [32-1:0] WRITE_INDEX
     );
         option.per_instance = 1;
@@ -505,8 +505,8 @@
 
     endgroup
 
-    /*----------------------- I3CCSR__I3C_EC__SECFWRECOVERYIF__INDIRECT_FIFO_STATUS_2 COVERGROUPS -----------------------*/
-    covergroup I3CCSR__I3C_EC__SecFwRecoveryIf__INDIRECT_FIFO_STATUS_2_bit_cg with function sample(input bit reg_bit);
+    /*----------------------- target_I3CCSR__I3C_EC__SECFWRECOVERYIF__INDIRECT_FIFO_STATUS_2 COVERGROUPS -----------------------*/
+    covergroup target_I3CCSR__I3C_EC__SecFwRecoveryIf__INDIRECT_FIFO_STATUS_2_bit_cg with function sample(input bit reg_bit);
         option.per_instance = 1;
         reg_bit_cp : coverpoint reg_bit {
             bins value[2] = {0,1};
@@ -517,7 +517,7 @@
         }
 
     endgroup
-    covergroup I3CCSR__I3C_EC__SecFwRecoveryIf__INDIRECT_FIFO_STATUS_2_fld_cg with function sample(
+    covergroup target_I3CCSR__I3C_EC__SecFwRecoveryIf__INDIRECT_FIFO_STATUS_2_fld_cg with function sample(
     input bit [32-1:0] READ_INDEX
     );
         option.per_instance = 1;
@@ -525,8 +525,8 @@
 
     endgroup
 
-    /*----------------------- I3CCSR__I3C_EC__SECFWRECOVERYIF__INDIRECT_FIFO_STATUS_3 COVERGROUPS -----------------------*/
-    covergroup I3CCSR__I3C_EC__SecFwRecoveryIf__INDIRECT_FIFO_STATUS_3_bit_cg with function sample(input bit reg_bit);
+    /*----------------------- target_I3CCSR__I3C_EC__SECFWRECOVERYIF__INDIRECT_FIFO_STATUS_3 COVERGROUPS -----------------------*/
+    covergroup target_I3CCSR__I3C_EC__SecFwRecoveryIf__INDIRECT_FIFO_STATUS_3_bit_cg with function sample(input bit reg_bit);
         option.per_instance = 1;
         reg_bit_cp : coverpoint reg_bit {
             bins value[2] = {0,1};
@@ -537,7 +537,7 @@
         }
 
     endgroup
-    covergroup I3CCSR__I3C_EC__SecFwRecoveryIf__INDIRECT_FIFO_STATUS_3_fld_cg with function sample(
+    covergroup target_I3CCSR__I3C_EC__SecFwRecoveryIf__INDIRECT_FIFO_STATUS_3_fld_cg with function sample(
     input bit [32-1:0] FIFO_SIZE
     );
         option.per_instance = 1;
@@ -545,8 +545,8 @@
 
     endgroup
 
-    /*----------------------- I3CCSR__I3C_EC__SECFWRECOVERYIF__INDIRECT_FIFO_STATUS_4 COVERGROUPS -----------------------*/
-    covergroup I3CCSR__I3C_EC__SecFwRecoveryIf__INDIRECT_FIFO_STATUS_4_bit_cg with function sample(input bit reg_bit);
+    /*----------------------- target_I3CCSR__I3C_EC__SECFWRECOVERYIF__INDIRECT_FIFO_STATUS_4 COVERGROUPS -----------------------*/
+    covergroup target_I3CCSR__I3C_EC__SecFwRecoveryIf__INDIRECT_FIFO_STATUS_4_bit_cg with function sample(input bit reg_bit);
         option.per_instance = 1;
         reg_bit_cp : coverpoint reg_bit {
             bins value[2] = {0,1};
@@ -557,7 +557,7 @@
         }
 
     endgroup
-    covergroup I3CCSR__I3C_EC__SecFwRecoveryIf__INDIRECT_FIFO_STATUS_4_fld_cg with function sample(
+    covergroup target_I3CCSR__I3C_EC__SecFwRecoveryIf__INDIRECT_FIFO_STATUS_4_fld_cg with function sample(
     input bit [32-1:0] MAX_TRANSFER_SIZE
     );
         option.per_instance = 1;
@@ -565,8 +565,8 @@
 
     endgroup
 
-    /*----------------------- I3CCSR__I3C_EC__SECFWRECOVERYIF__INDIRECT_FIFO_RESERVED COVERGROUPS -----------------------*/
-    covergroup I3CCSR__I3C_EC__SecFwRecoveryIf__INDIRECT_FIFO_RESERVED_bit_cg with function sample(input bit reg_bit);
+    /*----------------------- target_I3CCSR__I3C_EC__SECFWRECOVERYIF__INDIRECT_FIFO_RESERVED COVERGROUPS -----------------------*/
+    covergroup target_I3CCSR__I3C_EC__SecFwRecoveryIf__INDIRECT_FIFO_RESERVED_bit_cg with function sample(input bit reg_bit);
         option.per_instance = 1;
         reg_bit_cp : coverpoint reg_bit {
             bins value[2] = {0,1};
@@ -577,7 +577,7 @@
         }
 
     endgroup
-    covergroup I3CCSR__I3C_EC__SecFwRecoveryIf__INDIRECT_FIFO_RESERVED_fld_cg with function sample(
+    covergroup target_I3CCSR__I3C_EC__SecFwRecoveryIf__INDIRECT_FIFO_RESERVED_fld_cg with function sample(
     input bit [32-1:0] DATA
     );
         option.per_instance = 1;
@@ -585,8 +585,8 @@
 
     endgroup
 
-    /*----------------------- I3CCSR__I3C_EC__SECFWRECOVERYIF__INDIRECT_FIFO_DATA COVERGROUPS -----------------------*/
-    covergroup I3CCSR__I3C_EC__SecFwRecoveryIf__INDIRECT_FIFO_DATA_bit_cg with function sample(input bit reg_bit);
+    /*----------------------- target_I3CCSR__I3C_EC__SECFWRECOVERYIF__INDIRECT_FIFO_DATA COVERGROUPS -----------------------*/
+    covergroup target_I3CCSR__I3C_EC__SecFwRecoveryIf__INDIRECT_FIFO_DATA_bit_cg with function sample(input bit reg_bit);
         option.per_instance = 1;
         reg_bit_cp : coverpoint reg_bit {
             bins value[2] = {0,1};
@@ -597,7 +597,7 @@
         }
 
     endgroup
-    covergroup I3CCSR__I3C_EC__SecFwRecoveryIf__INDIRECT_FIFO_DATA_fld_cg with function sample(
+    covergroup target_I3CCSR__I3C_EC__SecFwRecoveryIf__INDIRECT_FIFO_DATA_fld_cg with function sample(
     input bit [32-1:0] DATA
     );
         option.per_instance = 1;
@@ -605,8 +605,8 @@
 
     endgroup
 
-    /*----------------------- I3CCSR__I3C_EC__STDBYCTRLMODE__EXTCAP_HEADER COVERGROUPS -----------------------*/
-    covergroup I3CCSR__I3C_EC__StdbyCtrlMode__EXTCAP_HEADER_bit_cg with function sample(input bit reg_bit);
+    /*----------------------- target_I3CCSR__I3C_EC__STDBYCTRLMODE__EXTCAP_HEADER COVERGROUPS -----------------------*/
+    covergroup target_I3CCSR__I3C_EC__StdbyCtrlMode__EXTCAP_HEADER_bit_cg with function sample(input bit reg_bit);
         option.per_instance = 1;
         reg_bit_cp : coverpoint reg_bit {
             bins value[2] = {0,1};
@@ -617,7 +617,7 @@
         }
 
     endgroup
-    covergroup I3CCSR__I3C_EC__StdbyCtrlMode__EXTCAP_HEADER_fld_cg with function sample(
+    covergroup target_I3CCSR__I3C_EC__StdbyCtrlMode__EXTCAP_HEADER_fld_cg with function sample(
     input bit [8-1:0] CAP_ID,
     input bit [16-1:0] CAP_LENGTH
     );
@@ -627,8 +627,8 @@
 
     endgroup
 
-    /*----------------------- I3CCSR__I3C_EC__STDBYCTRLMODE__STBY_CR_CONTROL COVERGROUPS -----------------------*/
-    covergroup I3CCSR__I3C_EC__StdbyCtrlMode__STBY_CR_CONTROL_bit_cg with function sample(input bit reg_bit);
+    /*----------------------- target_I3CCSR__I3C_EC__STDBYCTRLMODE__STBY_CR_CONTROL COVERGROUPS -----------------------*/
+    covergroup target_I3CCSR__I3C_EC__StdbyCtrlMode__STBY_CR_CONTROL_bit_cg with function sample(input bit reg_bit);
         option.per_instance = 1;
         reg_bit_cp : coverpoint reg_bit {
             bins value[2] = {0,1};
@@ -639,7 +639,7 @@
         }
 
     endgroup
-    covergroup I3CCSR__I3C_EC__StdbyCtrlMode__STBY_CR_CONTROL_fld_cg with function sample(
+    covergroup target_I3CCSR__I3C_EC__StdbyCtrlMode__STBY_CR_CONTROL_fld_cg with function sample(
     input bit [1-1:0] PENDING_RX_NACK,
     input bit [1-1:0] HANDOFF_DELAY_NACK,
     input bit [1-1:0] ACR_FSM_OP_SELECT,
@@ -671,8 +671,8 @@
 
     endgroup
 
-    /*----------------------- I3CCSR__I3C_EC__STDBYCTRLMODE__STBY_CR_DEVICE_ADDR COVERGROUPS -----------------------*/
-    covergroup I3CCSR__I3C_EC__StdbyCtrlMode__STBY_CR_DEVICE_ADDR_bit_cg with function sample(input bit reg_bit);
+    /*----------------------- target_I3CCSR__I3C_EC__STDBYCTRLMODE__STBY_CR_DEVICE_ADDR COVERGROUPS -----------------------*/
+    covergroup target_I3CCSR__I3C_EC__StdbyCtrlMode__STBY_CR_DEVICE_ADDR_bit_cg with function sample(input bit reg_bit);
         option.per_instance = 1;
         reg_bit_cp : coverpoint reg_bit {
             bins value[2] = {0,1};
@@ -683,7 +683,7 @@
         }
 
     endgroup
-    covergroup I3CCSR__I3C_EC__StdbyCtrlMode__STBY_CR_DEVICE_ADDR_fld_cg with function sample(
+    covergroup target_I3CCSR__I3C_EC__StdbyCtrlMode__STBY_CR_DEVICE_ADDR_fld_cg with function sample(
     input bit [7-1:0] STATIC_ADDR,
     input bit [1-1:0] STATIC_ADDR_VALID,
     input bit [7-1:0] DYNAMIC_ADDR,
@@ -697,8 +697,8 @@
 
     endgroup
 
-    /*----------------------- I3CCSR__I3C_EC__STDBYCTRLMODE__STBY_CR_CAPABILITIES COVERGROUPS -----------------------*/
-    covergroup I3CCSR__I3C_EC__StdbyCtrlMode__STBY_CR_CAPABILITIES_bit_cg with function sample(input bit reg_bit);
+    /*----------------------- target_I3CCSR__I3C_EC__STDBYCTRLMODE__STBY_CR_CAPABILITIES COVERGROUPS -----------------------*/
+    covergroup target_I3CCSR__I3C_EC__StdbyCtrlMode__STBY_CR_CAPABILITIES_bit_cg with function sample(input bit reg_bit);
         option.per_instance = 1;
         reg_bit_cp : coverpoint reg_bit {
             bins value[2] = {0,1};
@@ -709,7 +709,7 @@
         }
 
     endgroup
-    covergroup I3CCSR__I3C_EC__StdbyCtrlMode__STBY_CR_CAPABILITIES_fld_cg with function sample(
+    covergroup target_I3CCSR__I3C_EC__StdbyCtrlMode__STBY_CR_CAPABILITIES_fld_cg with function sample(
     input bit [1-1:0] SIMPLE_CRR_SUPPORT,
     input bit [1-1:0] TARGET_XACT_SUPPORT,
     input bit [1-1:0] DAA_SETAASA_SUPPORT,
@@ -725,8 +725,8 @@
 
     endgroup
 
-    /*----------------------- I3CCSR__I3C_EC__STDBYCTRLMODE__STBY_CR_VIRTUAL_DEVICE_CHAR COVERGROUPS -----------------------*/
-    covergroup I3CCSR__I3C_EC__StdbyCtrlMode__STBY_CR_VIRTUAL_DEVICE_CHAR_bit_cg with function sample(input bit reg_bit);
+    /*----------------------- target_I3CCSR__I3C_EC__STDBYCTRLMODE__STBY_CR_VIRTUAL_DEVICE_CHAR COVERGROUPS -----------------------*/
+    covergroup target_I3CCSR__I3C_EC__StdbyCtrlMode__STBY_CR_VIRTUAL_DEVICE_CHAR_bit_cg with function sample(input bit reg_bit);
         option.per_instance = 1;
         reg_bit_cp : coverpoint reg_bit {
             bins value[2] = {0,1};
@@ -737,7 +737,7 @@
         }
 
     endgroup
-    covergroup I3CCSR__I3C_EC__StdbyCtrlMode__STBY_CR_VIRTUAL_DEVICE_CHAR_fld_cg with function sample(
+    covergroup target_I3CCSR__I3C_EC__StdbyCtrlMode__STBY_CR_VIRTUAL_DEVICE_CHAR_fld_cg with function sample(
     input bit [15-1:0] PID_HI,
     input bit [8-1:0] DCR,
     input bit [5-1:0] BCR_VAR,
@@ -751,8 +751,8 @@
 
     endgroup
 
-    /*----------------------- I3CCSR__I3C_EC__STDBYCTRLMODE__STBY_CR_STATUS COVERGROUPS -----------------------*/
-    covergroup I3CCSR__I3C_EC__StdbyCtrlMode__STBY_CR_STATUS_bit_cg with function sample(input bit reg_bit);
+    /*----------------------- target_I3CCSR__I3C_EC__STDBYCTRLMODE__STBY_CR_STATUS COVERGROUPS -----------------------*/
+    covergroup target_I3CCSR__I3C_EC__StdbyCtrlMode__STBY_CR_STATUS_bit_cg with function sample(input bit reg_bit);
         option.per_instance = 1;
         reg_bit_cp : coverpoint reg_bit {
             bins value[2] = {0,1};
@@ -763,7 +763,7 @@
         }
 
     endgroup
-    covergroup I3CCSR__I3C_EC__StdbyCtrlMode__STBY_CR_STATUS_fld_cg with function sample(
+    covergroup target_I3CCSR__I3C_EC__StdbyCtrlMode__STBY_CR_STATUS_fld_cg with function sample(
     input bit [1-1:0] AC_CURRENT_OWN,
     input bit [3-1:0] SIMPLE_CRR_STATUS,
     input bit [1-1:0] HJ_REQ_STATUS
@@ -775,8 +775,8 @@
 
     endgroup
 
-    /*----------------------- I3CCSR__I3C_EC__STDBYCTRLMODE__STBY_CR_DEVICE_CHAR COVERGROUPS -----------------------*/
-    covergroup I3CCSR__I3C_EC__StdbyCtrlMode__STBY_CR_DEVICE_CHAR_bit_cg with function sample(input bit reg_bit);
+    /*----------------------- target_I3CCSR__I3C_EC__STDBYCTRLMODE__STBY_CR_DEVICE_CHAR COVERGROUPS -----------------------*/
+    covergroup target_I3CCSR__I3C_EC__StdbyCtrlMode__STBY_CR_DEVICE_CHAR_bit_cg with function sample(input bit reg_bit);
         option.per_instance = 1;
         reg_bit_cp : coverpoint reg_bit {
             bins value[2] = {0,1};
@@ -787,7 +787,7 @@
         }
 
     endgroup
-    covergroup I3CCSR__I3C_EC__StdbyCtrlMode__STBY_CR_DEVICE_CHAR_fld_cg with function sample(
+    covergroup target_I3CCSR__I3C_EC__StdbyCtrlMode__STBY_CR_DEVICE_CHAR_fld_cg with function sample(
     input bit [15-1:0] PID_HI,
     input bit [8-1:0] DCR,
     input bit [5-1:0] BCR_VAR,
@@ -801,8 +801,8 @@
 
     endgroup
 
-    /*----------------------- I3CCSR__I3C_EC__STDBYCTRLMODE__STBY_CR_DEVICE_PID_LO COVERGROUPS -----------------------*/
-    covergroup I3CCSR__I3C_EC__StdbyCtrlMode__STBY_CR_DEVICE_PID_LO_bit_cg with function sample(input bit reg_bit);
+    /*----------------------- target_I3CCSR__I3C_EC__STDBYCTRLMODE__STBY_CR_DEVICE_PID_LO COVERGROUPS -----------------------*/
+    covergroup target_I3CCSR__I3C_EC__StdbyCtrlMode__STBY_CR_DEVICE_PID_LO_bit_cg with function sample(input bit reg_bit);
         option.per_instance = 1;
         reg_bit_cp : coverpoint reg_bit {
             bins value[2] = {0,1};
@@ -813,7 +813,7 @@
         }
 
     endgroup
-    covergroup I3CCSR__I3C_EC__StdbyCtrlMode__STBY_CR_DEVICE_PID_LO_fld_cg with function sample(
+    covergroup target_I3CCSR__I3C_EC__StdbyCtrlMode__STBY_CR_DEVICE_PID_LO_fld_cg with function sample(
     input bit [32-1:0] PID_LO
     );
         option.per_instance = 1;
@@ -821,8 +821,8 @@
 
     endgroup
 
-    /*----------------------- I3CCSR__I3C_EC__STDBYCTRLMODE__STBY_CR_INTR_STATUS COVERGROUPS -----------------------*/
-    covergroup I3CCSR__I3C_EC__StdbyCtrlMode__STBY_CR_INTR_STATUS_bit_cg with function sample(input bit reg_bit);
+    /*----------------------- target_I3CCSR__I3C_EC__STDBYCTRLMODE__STBY_CR_INTR_STATUS COVERGROUPS -----------------------*/
+    covergroup target_I3CCSR__I3C_EC__StdbyCtrlMode__STBY_CR_INTR_STATUS_bit_cg with function sample(input bit reg_bit);
         option.per_instance = 1;
         reg_bit_cp : coverpoint reg_bit {
             bins value[2] = {0,1};
@@ -833,7 +833,7 @@
         }
 
     endgroup
-    covergroup I3CCSR__I3C_EC__StdbyCtrlMode__STBY_CR_INTR_STATUS_fld_cg with function sample(
+    covergroup target_I3CCSR__I3C_EC__StdbyCtrlMode__STBY_CR_INTR_STATUS_fld_cg with function sample(
     input bit [1-1:0] ACR_HANDOFF_OK_REMAIN_STAT,
     input bit [1-1:0] ACR_HANDOFF_OK_PRIMED_STAT,
     input bit [1-1:0] ACR_HANDOFF_ERR_FAIL_STAT,
@@ -865,8 +865,8 @@
 
     endgroup
 
-    /*----------------------- I3CCSR__I3C_EC__STDBYCTRLMODE__STBY_CR_VIRTUAL_DEVICE_PID_LO COVERGROUPS -----------------------*/
-    covergroup I3CCSR__I3C_EC__StdbyCtrlMode__STBY_CR_VIRTUAL_DEVICE_PID_LO_bit_cg with function sample(input bit reg_bit);
+    /*----------------------- target_I3CCSR__I3C_EC__STDBYCTRLMODE__STBY_CR_VIRTUAL_DEVICE_PID_LO COVERGROUPS -----------------------*/
+    covergroup target_I3CCSR__I3C_EC__StdbyCtrlMode__STBY_CR_VIRTUAL_DEVICE_PID_LO_bit_cg with function sample(input bit reg_bit);
         option.per_instance = 1;
         reg_bit_cp : coverpoint reg_bit {
             bins value[2] = {0,1};
@@ -877,7 +877,7 @@
         }
 
     endgroup
-    covergroup I3CCSR__I3C_EC__StdbyCtrlMode__STBY_CR_VIRTUAL_DEVICE_PID_LO_fld_cg with function sample(
+    covergroup target_I3CCSR__I3C_EC__StdbyCtrlMode__STBY_CR_VIRTUAL_DEVICE_PID_LO_fld_cg with function sample(
     input bit [32-1:0] PID_LO
     );
         option.per_instance = 1;
@@ -885,8 +885,8 @@
 
     endgroup
 
-    /*----------------------- I3CCSR__I3C_EC__STDBYCTRLMODE__STBY_CR_INTR_SIGNAL_ENABLE COVERGROUPS -----------------------*/
-    covergroup I3CCSR__I3C_EC__StdbyCtrlMode__STBY_CR_INTR_SIGNAL_ENABLE_bit_cg with function sample(input bit reg_bit);
+    /*----------------------- target_I3CCSR__I3C_EC__STDBYCTRLMODE__STBY_CR_INTR_SIGNAL_ENABLE COVERGROUPS -----------------------*/
+    covergroup target_I3CCSR__I3C_EC__StdbyCtrlMode__STBY_CR_INTR_SIGNAL_ENABLE_bit_cg with function sample(input bit reg_bit);
         option.per_instance = 1;
         reg_bit_cp : coverpoint reg_bit {
             bins value[2] = {0,1};
@@ -897,7 +897,7 @@
         }
 
     endgroup
-    covergroup I3CCSR__I3C_EC__StdbyCtrlMode__STBY_CR_INTR_SIGNAL_ENABLE_fld_cg with function sample(
+    covergroup target_I3CCSR__I3C_EC__StdbyCtrlMode__STBY_CR_INTR_SIGNAL_ENABLE_fld_cg with function sample(
     input bit [1-1:0] ACR_HANDOFF_OK_REMAIN_SIGNAL_EN,
     input bit [1-1:0] ACR_HANDOFF_OK_PRIMED_SIGNAL_EN,
     input bit [1-1:0] ACR_HANDOFF_ERR_FAIL_SIGNAL_EN,
@@ -929,8 +929,8 @@
 
     endgroup
 
-    /*----------------------- I3CCSR__I3C_EC__STDBYCTRLMODE__STBY_CR_INTR_FORCE COVERGROUPS -----------------------*/
-    covergroup I3CCSR__I3C_EC__StdbyCtrlMode__STBY_CR_INTR_FORCE_bit_cg with function sample(input bit reg_bit);
+    /*----------------------- target_I3CCSR__I3C_EC__STDBYCTRLMODE__STBY_CR_INTR_FORCE COVERGROUPS -----------------------*/
+    covergroup target_I3CCSR__I3C_EC__StdbyCtrlMode__STBY_CR_INTR_FORCE_bit_cg with function sample(input bit reg_bit);
         option.per_instance = 1;
         reg_bit_cp : coverpoint reg_bit {
             bins value[2] = {0,1};
@@ -941,7 +941,7 @@
         }
 
     endgroup
-    covergroup I3CCSR__I3C_EC__StdbyCtrlMode__STBY_CR_INTR_FORCE_fld_cg with function sample(
+    covergroup target_I3CCSR__I3C_EC__StdbyCtrlMode__STBY_CR_INTR_FORCE_fld_cg with function sample(
     input bit [1-1:0] CRR_RESPONSE_FORCE,
     input bit [1-1:0] STBY_CR_DYN_ADDR_FORCE,
     input bit [1-1:0] STBY_CR_ACCEPT_NACKED_FORCE,
@@ -965,8 +965,8 @@
 
     endgroup
 
-    /*----------------------- I3CCSR__I3C_EC__STDBYCTRLMODE__STBY_CR_CCC_CONFIG_GETCAPS COVERGROUPS -----------------------*/
-    covergroup I3CCSR__I3C_EC__StdbyCtrlMode__STBY_CR_CCC_CONFIG_GETCAPS_bit_cg with function sample(input bit reg_bit);
+    /*----------------------- target_I3CCSR__I3C_EC__STDBYCTRLMODE__STBY_CR_CCC_CONFIG_GETCAPS COVERGROUPS -----------------------*/
+    covergroup target_I3CCSR__I3C_EC__StdbyCtrlMode__STBY_CR_CCC_CONFIG_GETCAPS_bit_cg with function sample(input bit reg_bit);
         option.per_instance = 1;
         reg_bit_cp : coverpoint reg_bit {
             bins value[2] = {0,1};
@@ -977,7 +977,7 @@
         }
 
     endgroup
-    covergroup I3CCSR__I3C_EC__StdbyCtrlMode__STBY_CR_CCC_CONFIG_GETCAPS_fld_cg with function sample(
+    covergroup target_I3CCSR__I3C_EC__StdbyCtrlMode__STBY_CR_CCC_CONFIG_GETCAPS_fld_cg with function sample(
     input bit [3-1:0] F2_CRCAP1_BUS_CONFIG,
     input bit [4-1:0] F2_CRCAP2_DEV_INTERACT
     );
@@ -987,8 +987,8 @@
 
     endgroup
 
-    /*----------------------- I3CCSR__I3C_EC__STDBYCTRLMODE__STBY_CR_CCC_CONFIG_RSTACT_PARAMS COVERGROUPS -----------------------*/
-    covergroup I3CCSR__I3C_EC__StdbyCtrlMode__STBY_CR_CCC_CONFIG_RSTACT_PARAMS_bit_cg with function sample(input bit reg_bit);
+    /*----------------------- target_I3CCSR__I3C_EC__STDBYCTRLMODE__STBY_CR_CCC_CONFIG_RSTACT_PARAMS COVERGROUPS -----------------------*/
+    covergroup target_I3CCSR__I3C_EC__StdbyCtrlMode__STBY_CR_CCC_CONFIG_RSTACT_PARAMS_bit_cg with function sample(input bit reg_bit);
         option.per_instance = 1;
         reg_bit_cp : coverpoint reg_bit {
             bins value[2] = {0,1};
@@ -999,7 +999,7 @@
         }
 
     endgroup
-    covergroup I3CCSR__I3C_EC__StdbyCtrlMode__STBY_CR_CCC_CONFIG_RSTACT_PARAMS_fld_cg with function sample(
+    covergroup target_I3CCSR__I3C_EC__StdbyCtrlMode__STBY_CR_CCC_CONFIG_RSTACT_PARAMS_fld_cg with function sample(
     input bit [8-1:0] RST_ACTION,
     input bit [8-1:0] RESET_TIME_PERIPHERAL,
     input bit [8-1:0] RESET_TIME_TARGET,
@@ -1013,8 +1013,8 @@
 
     endgroup
 
-    /*----------------------- I3CCSR__I3C_EC__STDBYCTRLMODE__STBY_CR_VIRT_DEVICE_ADDR COVERGROUPS -----------------------*/
-    covergroup I3CCSR__I3C_EC__StdbyCtrlMode__STBY_CR_VIRT_DEVICE_ADDR_bit_cg with function sample(input bit reg_bit);
+    /*----------------------- target_I3CCSR__I3C_EC__STDBYCTRLMODE__STBY_CR_VIRT_DEVICE_ADDR COVERGROUPS -----------------------*/
+    covergroup target_I3CCSR__I3C_EC__StdbyCtrlMode__STBY_CR_VIRT_DEVICE_ADDR_bit_cg with function sample(input bit reg_bit);
         option.per_instance = 1;
         reg_bit_cp : coverpoint reg_bit {
             bins value[2] = {0,1};
@@ -1025,7 +1025,7 @@
         }
 
     endgroup
-    covergroup I3CCSR__I3C_EC__StdbyCtrlMode__STBY_CR_VIRT_DEVICE_ADDR_fld_cg with function sample(
+    covergroup target_I3CCSR__I3C_EC__StdbyCtrlMode__STBY_CR_VIRT_DEVICE_ADDR_fld_cg with function sample(
     input bit [7-1:0] VIRT_STATIC_ADDR,
     input bit [1-1:0] VIRT_STATIC_ADDR_VALID,
     input bit [7-1:0] VIRT_DYNAMIC_ADDR,
@@ -1039,8 +1039,8 @@
 
     endgroup
 
-    /*----------------------- I3CCSR__I3C_EC__STDBYCTRLMODE__STBY_CR_MWL COVERGROUPS -----------------------*/
-    covergroup I3CCSR__I3C_EC__StdbyCtrlMode__STBY_CR_MWL_bit_cg with function sample(input bit reg_bit);
+    /*----------------------- target_I3CCSR__I3C_EC__STDBYCTRLMODE__STBY_CR_MWL COVERGROUPS -----------------------*/
+    covergroup target_I3CCSR__I3C_EC__StdbyCtrlMode__STBY_CR_MWL_bit_cg with function sample(input bit reg_bit);
         option.per_instance = 1;
         reg_bit_cp : coverpoint reg_bit {
             bins value[2] = {0,1};
@@ -1051,7 +1051,7 @@
         }
 
     endgroup
-    covergroup I3CCSR__I3C_EC__StdbyCtrlMode__STBY_CR_MWL_fld_cg with function sample(
+    covergroup target_I3CCSR__I3C_EC__StdbyCtrlMode__STBY_CR_MWL_fld_cg with function sample(
     input bit [16-1:0] MWL
     );
         option.per_instance = 1;
@@ -1059,8 +1059,8 @@
 
     endgroup
 
-    /*----------------------- I3CCSR__I3C_EC__STDBYCTRLMODE__STBY_CR_MRL COVERGROUPS -----------------------*/
-    covergroup I3CCSR__I3C_EC__StdbyCtrlMode__STBY_CR_MRL_bit_cg with function sample(input bit reg_bit);
+    /*----------------------- target_I3CCSR__I3C_EC__STDBYCTRLMODE__STBY_CR_MRL COVERGROUPS -----------------------*/
+    covergroup target_I3CCSR__I3C_EC__StdbyCtrlMode__STBY_CR_MRL_bit_cg with function sample(input bit reg_bit);
         option.per_instance = 1;
         reg_bit_cp : coverpoint reg_bit {
             bins value[2] = {0,1};
@@ -1071,7 +1071,7 @@
         }
 
     endgroup
-    covergroup I3CCSR__I3C_EC__StdbyCtrlMode__STBY_CR_MRL_fld_cg with function sample(
+    covergroup target_I3CCSR__I3C_EC__StdbyCtrlMode__STBY_CR_MRL_fld_cg with function sample(
     input bit [16-1:0] MRL,
     input bit [8-1:0] IBIL
     );
@@ -1081,8 +1081,8 @@
 
     endgroup
 
-    /*----------------------- I3CCSR__I3C_EC__TTI__EXTCAP_HEADER COVERGROUPS -----------------------*/
-    covergroup I3CCSR__I3C_EC__TTI__EXTCAP_HEADER_bit_cg with function sample(input bit reg_bit);
+    /*----------------------- target_I3CCSR__I3C_EC__TTI__EXTCAP_HEADER COVERGROUPS -----------------------*/
+    covergroup target_I3CCSR__I3C_EC__TTI__EXTCAP_HEADER_bit_cg with function sample(input bit reg_bit);
         option.per_instance = 1;
         reg_bit_cp : coverpoint reg_bit {
             bins value[2] = {0,1};
@@ -1093,7 +1093,7 @@
         }
 
     endgroup
-    covergroup I3CCSR__I3C_EC__TTI__EXTCAP_HEADER_fld_cg with function sample(
+    covergroup target_I3CCSR__I3C_EC__TTI__EXTCAP_HEADER_fld_cg with function sample(
     input bit [8-1:0] CAP_ID,
     input bit [16-1:0] CAP_LENGTH
     );
@@ -1103,8 +1103,8 @@
 
     endgroup
 
-    /*----------------------- I3CCSR__I3C_EC__TTI__CONTROL COVERGROUPS -----------------------*/
-    covergroup I3CCSR__I3C_EC__TTI__CONTROL_bit_cg with function sample(input bit reg_bit);
+    /*----------------------- target_I3CCSR__I3C_EC__TTI__CONTROL COVERGROUPS -----------------------*/
+    covergroup target_I3CCSR__I3C_EC__TTI__CONTROL_bit_cg with function sample(input bit reg_bit);
         option.per_instance = 1;
         reg_bit_cp : coverpoint reg_bit {
             bins value[2] = {0,1};
@@ -1115,7 +1115,7 @@
         }
 
     endgroup
-    covergroup I3CCSR__I3C_EC__TTI__CONTROL_fld_cg with function sample(
+    covergroup target_I3CCSR__I3C_EC__TTI__CONTROL_fld_cg with function sample(
     input bit [1-1:0] HJ_EN,
     input bit [1-1:0] CRR_EN,
     input bit [1-1:0] IBI_EN,
@@ -1129,8 +1129,8 @@
 
     endgroup
 
-    /*----------------------- I3CCSR__I3C_EC__TTI__STATUS COVERGROUPS -----------------------*/
-    covergroup I3CCSR__I3C_EC__TTI__STATUS_bit_cg with function sample(input bit reg_bit);
+    /*----------------------- target_I3CCSR__I3C_EC__TTI__STATUS COVERGROUPS -----------------------*/
+    covergroup target_I3CCSR__I3C_EC__TTI__STATUS_bit_cg with function sample(input bit reg_bit);
         option.per_instance = 1;
         reg_bit_cp : coverpoint reg_bit {
             bins value[2] = {0,1};
@@ -1141,7 +1141,7 @@
         }
 
     endgroup
-    covergroup I3CCSR__I3C_EC__TTI__STATUS_fld_cg with function sample(
+    covergroup target_I3CCSR__I3C_EC__TTI__STATUS_fld_cg with function sample(
     input bit [1-1:0] PROTOCOL_ERROR,
     input bit [3-1:0] LAST_IBI_STATUS
     );
@@ -1151,8 +1151,8 @@
 
     endgroup
 
-    /*----------------------- I3CCSR__I3C_EC__TTI__RESET_CONTROL COVERGROUPS -----------------------*/
-    covergroup I3CCSR__I3C_EC__TTI__RESET_CONTROL_bit_cg with function sample(input bit reg_bit);
+    /*----------------------- target_I3CCSR__I3C_EC__TTI__RESET_CONTROL COVERGROUPS -----------------------*/
+    covergroup target_I3CCSR__I3C_EC__TTI__RESET_CONTROL_bit_cg with function sample(input bit reg_bit);
         option.per_instance = 1;
         reg_bit_cp : coverpoint reg_bit {
             bins value[2] = {0,1};
@@ -1163,7 +1163,7 @@
         }
 
     endgroup
-    covergroup I3CCSR__I3C_EC__TTI__RESET_CONTROL_fld_cg with function sample(
+    covergroup target_I3CCSR__I3C_EC__TTI__RESET_CONTROL_fld_cg with function sample(
     input bit [1-1:0] SOFT_RST,
     input bit [1-1:0] TX_DESC_RST,
     input bit [1-1:0] RX_DESC_RST,
@@ -1183,8 +1183,8 @@
 
     endgroup
 
-    /*----------------------- I3CCSR__I3C_EC__TTI__QUEUE_STATUS COVERGROUPS -----------------------*/
-    covergroup I3CCSR__I3C_EC__TTI__QUEUE_STATUS_bit_cg with function sample(input bit reg_bit);
+    /*----------------------- target_I3CCSR__I3C_EC__TTI__QUEUE_STATUS COVERGROUPS -----------------------*/
+    covergroup target_I3CCSR__I3C_EC__TTI__QUEUE_STATUS_bit_cg with function sample(input bit reg_bit);
         option.per_instance = 1;
         reg_bit_cp : coverpoint reg_bit {
             bins value[2] = {0,1};
@@ -1195,7 +1195,7 @@
         }
 
     endgroup
-    covergroup I3CCSR__I3C_EC__TTI__QUEUE_STATUS_fld_cg with function sample(
+    covergroup target_I3CCSR__I3C_EC__TTI__QUEUE_STATUS_fld_cg with function sample(
     input bit [1-1:0] RX_DESC_QUEUE_FULL,
     input bit [1-1:0] RX_DESC_QUEUE_EMPTY,
     input bit [1-1:0] TX_DESC_QUEUE_FULL,
@@ -1221,8 +1221,8 @@
 
     endgroup
 
-    /*----------------------- I3CCSR__I3C_EC__TTI__DESC_QUEUE_DEPTH COVERGROUPS -----------------------*/
-    covergroup I3CCSR__I3C_EC__TTI__DESC_QUEUE_DEPTH_bit_cg with function sample(input bit reg_bit);
+    /*----------------------- target_I3CCSR__I3C_EC__TTI__DESC_QUEUE_DEPTH COVERGROUPS -----------------------*/
+    covergroup target_I3CCSR__I3C_EC__TTI__DESC_QUEUE_DEPTH_bit_cg with function sample(input bit reg_bit);
         option.per_instance = 1;
         reg_bit_cp : coverpoint reg_bit {
             bins value[2] = {0,1};
@@ -1233,7 +1233,7 @@
         }
 
     endgroup
-    covergroup I3CCSR__I3C_EC__TTI__DESC_QUEUE_DEPTH_fld_cg with function sample(
+    covergroup target_I3CCSR__I3C_EC__TTI__DESC_QUEUE_DEPTH_fld_cg with function sample(
     input bit [8-1:0] RX_DESC_QUEUE_DEPTH,
     input bit [8-1:0] TX_DESC_QUEUE_DEPTH
     );
@@ -1243,8 +1243,8 @@
 
     endgroup
 
-    /*----------------------- I3CCSR__I3C_EC__TTI__DATA_QUEUE_DEPTH COVERGROUPS -----------------------*/
-    covergroup I3CCSR__I3C_EC__TTI__DATA_QUEUE_DEPTH_bit_cg with function sample(input bit reg_bit);
+    /*----------------------- target_I3CCSR__I3C_EC__TTI__DATA_QUEUE_DEPTH COVERGROUPS -----------------------*/
+    covergroup target_I3CCSR__I3C_EC__TTI__DATA_QUEUE_DEPTH_bit_cg with function sample(input bit reg_bit);
         option.per_instance = 1;
         reg_bit_cp : coverpoint reg_bit {
             bins value[2] = {0,1};
@@ -1255,7 +1255,7 @@
         }
 
     endgroup
-    covergroup I3CCSR__I3C_EC__TTI__DATA_QUEUE_DEPTH_fld_cg with function sample(
+    covergroup target_I3CCSR__I3C_EC__TTI__DATA_QUEUE_DEPTH_fld_cg with function sample(
     input bit [8-1:0] RX_DATA_QUEUE_DEPTH,
     input bit [8-1:0] TX_DATA_QUEUE_DEPTH
     );
@@ -1265,8 +1265,8 @@
 
     endgroup
 
-    /*----------------------- I3CCSR__I3C_EC__TTI__IBI_QUEUE_DEPTH COVERGROUPS -----------------------*/
-    covergroup I3CCSR__I3C_EC__TTI__IBI_QUEUE_DEPTH_bit_cg with function sample(input bit reg_bit);
+    /*----------------------- target_I3CCSR__I3C_EC__TTI__IBI_QUEUE_DEPTH COVERGROUPS -----------------------*/
+    covergroup target_I3CCSR__I3C_EC__TTI__IBI_QUEUE_DEPTH_bit_cg with function sample(input bit reg_bit);
         option.per_instance = 1;
         reg_bit_cp : coverpoint reg_bit {
             bins value[2] = {0,1};
@@ -1277,7 +1277,7 @@
         }
 
     endgroup
-    covergroup I3CCSR__I3C_EC__TTI__IBI_QUEUE_DEPTH_fld_cg with function sample(
+    covergroup target_I3CCSR__I3C_EC__TTI__IBI_QUEUE_DEPTH_fld_cg with function sample(
     input bit [8-1:0] IBI_QUEUE_DEPTH
     );
         option.per_instance = 1;
@@ -1285,8 +1285,8 @@
 
     endgroup
 
-    /*----------------------- I3CCSR__I3C_EC__TTI__INTERRUPT_STATUS COVERGROUPS -----------------------*/
-    covergroup I3CCSR__I3C_EC__TTI__INTERRUPT_STATUS_bit_cg with function sample(input bit reg_bit);
+    /*----------------------- target_I3CCSR__I3C_EC__TTI__INTERRUPT_STATUS COVERGROUPS -----------------------*/
+    covergroup target_I3CCSR__I3C_EC__TTI__INTERRUPT_STATUS_bit_cg with function sample(input bit reg_bit);
         option.per_instance = 1;
         reg_bit_cp : coverpoint reg_bit {
             bins value[2] = {0,1};
@@ -1297,7 +1297,7 @@
         }
 
     endgroup
-    covergroup I3CCSR__I3C_EC__TTI__INTERRUPT_STATUS_fld_cg with function sample(
+    covergroup target_I3CCSR__I3C_EC__TTI__INTERRUPT_STATUS_fld_cg with function sample(
     input bit [1-1:0] RX_DESC_STAT,
     input bit [1-1:0] TX_DESC_STAT,
     input bit [1-1:0] RX_DESC_TIMEOUT,
@@ -1333,8 +1333,8 @@
 
     endgroup
 
-    /*----------------------- I3CCSR__I3C_EC__TTI__INTERRUPT_ENABLE COVERGROUPS -----------------------*/
-    covergroup I3CCSR__I3C_EC__TTI__INTERRUPT_ENABLE_bit_cg with function sample(input bit reg_bit);
+    /*----------------------- target_I3CCSR__I3C_EC__TTI__INTERRUPT_ENABLE COVERGROUPS -----------------------*/
+    covergroup target_I3CCSR__I3C_EC__TTI__INTERRUPT_ENABLE_bit_cg with function sample(input bit reg_bit);
         option.per_instance = 1;
         reg_bit_cp : coverpoint reg_bit {
             bins value[2] = {0,1};
@@ -1345,7 +1345,7 @@
         }
 
     endgroup
-    covergroup I3CCSR__I3C_EC__TTI__INTERRUPT_ENABLE_fld_cg with function sample(
+    covergroup target_I3CCSR__I3C_EC__TTI__INTERRUPT_ENABLE_fld_cg with function sample(
     input bit [1-1:0] RX_DESC_STAT_EN,
     input bit [1-1:0] TX_DESC_STAT_EN,
     input bit [1-1:0] RX_DESC_TIMEOUT_EN,
@@ -1377,8 +1377,8 @@
 
     endgroup
 
-    /*----------------------- I3CCSR__I3C_EC__TTI__INTERRUPT_FORCE COVERGROUPS -----------------------*/
-    covergroup I3CCSR__I3C_EC__TTI__INTERRUPT_FORCE_bit_cg with function sample(input bit reg_bit);
+    /*----------------------- target_I3CCSR__I3C_EC__TTI__INTERRUPT_FORCE COVERGROUPS -----------------------*/
+    covergroup target_I3CCSR__I3C_EC__TTI__INTERRUPT_FORCE_bit_cg with function sample(input bit reg_bit);
         option.per_instance = 1;
         reg_bit_cp : coverpoint reg_bit {
             bins value[2] = {0,1};
@@ -1389,7 +1389,7 @@
         }
 
     endgroup
-    covergroup I3CCSR__I3C_EC__TTI__INTERRUPT_FORCE_fld_cg with function sample(
+    covergroup target_I3CCSR__I3C_EC__TTI__INTERRUPT_FORCE_fld_cg with function sample(
     input bit [1-1:0] RX_DESC_STAT_FORCE,
     input bit [1-1:0] TX_DESC_STAT_FORCE,
     input bit [1-1:0] RX_DESC_TIMEOUT_FORCE,
@@ -1421,8 +1421,8 @@
 
     endgroup
 
-    /*----------------------- I3CCSR__I3C_EC__TTI__TARGET_ERR_CTRL COVERGROUPS -----------------------*/
-    covergroup I3CCSR__I3C_EC__TTI__TARGET_ERR_CTRL_bit_cg with function sample(input bit reg_bit);
+    /*----------------------- target_I3CCSR__I3C_EC__TTI__TARGET_ERR_CTRL COVERGROUPS -----------------------*/
+    covergroup target_I3CCSR__I3C_EC__TTI__TARGET_ERR_CTRL_bit_cg with function sample(input bit reg_bit);
         option.per_instance = 1;
         reg_bit_cp : coverpoint reg_bit {
             bins value[2] = {0,1};
@@ -1433,7 +1433,7 @@
         }
 
     endgroup
-    covergroup I3CCSR__I3C_EC__TTI__TARGET_ERR_CTRL_fld_cg with function sample(
+    covergroup target_I3CCSR__I3C_EC__TTI__TARGET_ERR_CTRL_fld_cg with function sample(
     input bit [1-1:0] TE0_ERR_DET_EN,
     input bit [1-1:0] TE1_ERR_DET_EN,
     input bit [1-1:0] TE2_ERR_DET_EN,
@@ -1465,8 +1465,8 @@
 
     endgroup
 
-    /*----------------------- I3CCSR__I3C_EC__TTI__TARGET_ERR_INTR_STATUS COVERGROUPS -----------------------*/
-    covergroup I3CCSR__I3C_EC__TTI__TARGET_ERR_INTR_STATUS_bit_cg with function sample(input bit reg_bit);
+    /*----------------------- target_I3CCSR__I3C_EC__TTI__TARGET_ERR_INTR_STATUS COVERGROUPS -----------------------*/
+    covergroup target_I3CCSR__I3C_EC__TTI__TARGET_ERR_INTR_STATUS_bit_cg with function sample(input bit reg_bit);
         option.per_instance = 1;
         reg_bit_cp : coverpoint reg_bit {
             bins value[2] = {0,1};
@@ -1477,7 +1477,7 @@
         }
 
     endgroup
-    covergroup I3CCSR__I3C_EC__TTI__TARGET_ERR_INTR_STATUS_fld_cg with function sample(
+    covergroup target_I3CCSR__I3C_EC__TTI__TARGET_ERR_INTR_STATUS_fld_cg with function sample(
     input bit [1-1:0] TE0_ERR_STAT,
     input bit [1-1:0] TE1_ERR_STAT,
     input bit [1-1:0] TE2_ERR_STAT,
@@ -1509,8 +1509,8 @@
 
     endgroup
 
-    /*----------------------- I3CCSR__I3C_EC__TTI__TARGET_ERR_INTR_ENABLE COVERGROUPS -----------------------*/
-    covergroup I3CCSR__I3C_EC__TTI__TARGET_ERR_INTR_ENABLE_bit_cg with function sample(input bit reg_bit);
+    /*----------------------- target_I3CCSR__I3C_EC__TTI__TARGET_ERR_INTR_ENABLE COVERGROUPS -----------------------*/
+    covergroup target_I3CCSR__I3C_EC__TTI__TARGET_ERR_INTR_ENABLE_bit_cg with function sample(input bit reg_bit);
         option.per_instance = 1;
         reg_bit_cp : coverpoint reg_bit {
             bins value[2] = {0,1};
@@ -1521,7 +1521,7 @@
         }
 
     endgroup
-    covergroup I3CCSR__I3C_EC__TTI__TARGET_ERR_INTR_ENABLE_fld_cg with function sample(
+    covergroup target_I3CCSR__I3C_EC__TTI__TARGET_ERR_INTR_ENABLE_fld_cg with function sample(
     input bit [1-1:0] TE0_ERR_EN,
     input bit [1-1:0] TE1_ERR_EN,
     input bit [1-1:0] TE2_ERR_EN,
@@ -1553,8 +1553,8 @@
 
     endgroup
 
-    /*----------------------- I3CCSR__I3C_EC__TTI__TARGET_ERR_INTR_FORCE COVERGROUPS -----------------------*/
-    covergroup I3CCSR__I3C_EC__TTI__TARGET_ERR_INTR_FORCE_bit_cg with function sample(input bit reg_bit);
+    /*----------------------- target_I3CCSR__I3C_EC__TTI__TARGET_ERR_INTR_FORCE COVERGROUPS -----------------------*/
+    covergroup target_I3CCSR__I3C_EC__TTI__TARGET_ERR_INTR_FORCE_bit_cg with function sample(input bit reg_bit);
         option.per_instance = 1;
         reg_bit_cp : coverpoint reg_bit {
             bins value[2] = {0,1};
@@ -1565,7 +1565,7 @@
         }
 
     endgroup
-    covergroup I3CCSR__I3C_EC__TTI__TARGET_ERR_INTR_FORCE_fld_cg with function sample(
+    covergroup target_I3CCSR__I3C_EC__TTI__TARGET_ERR_INTR_FORCE_fld_cg with function sample(
     input bit [1-1:0] TE0_ERR_FORCE,
     input bit [1-1:0] TE1_ERR_FORCE,
     input bit [1-1:0] TE2_ERR_FORCE,
@@ -1597,8 +1597,8 @@
 
     endgroup
 
-    /*----------------------- I3CCSR__I3C_EC__TTI__TARGET_ERR_CNT_TE0 COVERGROUPS -----------------------*/
-    covergroup I3CCSR__I3C_EC__TTI__TARGET_ERR_CNT_TE0_bit_cg with function sample(input bit reg_bit);
+    /*----------------------- target_I3CCSR__I3C_EC__TTI__TARGET_ERR_CNT_TE0 COVERGROUPS -----------------------*/
+    covergroup target_I3CCSR__I3C_EC__TTI__TARGET_ERR_CNT_TE0_bit_cg with function sample(input bit reg_bit);
         option.per_instance = 1;
         reg_bit_cp : coverpoint reg_bit {
             bins value[2] = {0,1};
@@ -1609,7 +1609,7 @@
         }
 
     endgroup
-    covergroup I3CCSR__I3C_EC__TTI__TARGET_ERR_CNT_TE0_fld_cg with function sample(
+    covergroup target_I3CCSR__I3C_EC__TTI__TARGET_ERR_CNT_TE0_fld_cg with function sample(
     input bit [8-1:0] CNT
     );
         option.per_instance = 1;
@@ -1617,8 +1617,8 @@
 
     endgroup
 
-    /*----------------------- I3CCSR__I3C_EC__TTI__TARGET_ERR_CNT_TE1 COVERGROUPS -----------------------*/
-    covergroup I3CCSR__I3C_EC__TTI__TARGET_ERR_CNT_TE1_bit_cg with function sample(input bit reg_bit);
+    /*----------------------- target_I3CCSR__I3C_EC__TTI__TARGET_ERR_CNT_TE1 COVERGROUPS -----------------------*/
+    covergroup target_I3CCSR__I3C_EC__TTI__TARGET_ERR_CNT_TE1_bit_cg with function sample(input bit reg_bit);
         option.per_instance = 1;
         reg_bit_cp : coverpoint reg_bit {
             bins value[2] = {0,1};
@@ -1629,7 +1629,7 @@
         }
 
     endgroup
-    covergroup I3CCSR__I3C_EC__TTI__TARGET_ERR_CNT_TE1_fld_cg with function sample(
+    covergroup target_I3CCSR__I3C_EC__TTI__TARGET_ERR_CNT_TE1_fld_cg with function sample(
     input bit [8-1:0] CNT
     );
         option.per_instance = 1;
@@ -1637,8 +1637,8 @@
 
     endgroup
 
-    /*----------------------- I3CCSR__I3C_EC__TTI__TARGET_ERR_CNT_TE2 COVERGROUPS -----------------------*/
-    covergroup I3CCSR__I3C_EC__TTI__TARGET_ERR_CNT_TE2_bit_cg with function sample(input bit reg_bit);
+    /*----------------------- target_I3CCSR__I3C_EC__TTI__TARGET_ERR_CNT_TE2 COVERGROUPS -----------------------*/
+    covergroup target_I3CCSR__I3C_EC__TTI__TARGET_ERR_CNT_TE2_bit_cg with function sample(input bit reg_bit);
         option.per_instance = 1;
         reg_bit_cp : coverpoint reg_bit {
             bins value[2] = {0,1};
@@ -1649,7 +1649,7 @@
         }
 
     endgroup
-    covergroup I3CCSR__I3C_EC__TTI__TARGET_ERR_CNT_TE2_fld_cg with function sample(
+    covergroup target_I3CCSR__I3C_EC__TTI__TARGET_ERR_CNT_TE2_fld_cg with function sample(
     input bit [8-1:0] CNT
     );
         option.per_instance = 1;
@@ -1657,8 +1657,8 @@
 
     endgroup
 
-    /*----------------------- I3CCSR__I3C_EC__TTI__TARGET_ERR_CNT_TE3 COVERGROUPS -----------------------*/
-    covergroup I3CCSR__I3C_EC__TTI__TARGET_ERR_CNT_TE3_bit_cg with function sample(input bit reg_bit);
+    /*----------------------- target_I3CCSR__I3C_EC__TTI__TARGET_ERR_CNT_TE3 COVERGROUPS -----------------------*/
+    covergroup target_I3CCSR__I3C_EC__TTI__TARGET_ERR_CNT_TE3_bit_cg with function sample(input bit reg_bit);
         option.per_instance = 1;
         reg_bit_cp : coverpoint reg_bit {
             bins value[2] = {0,1};
@@ -1669,7 +1669,7 @@
         }
 
     endgroup
-    covergroup I3CCSR__I3C_EC__TTI__TARGET_ERR_CNT_TE3_fld_cg with function sample(
+    covergroup target_I3CCSR__I3C_EC__TTI__TARGET_ERR_CNT_TE3_fld_cg with function sample(
     input bit [8-1:0] CNT
     );
         option.per_instance = 1;
@@ -1677,8 +1677,8 @@
 
     endgroup
 
-    /*----------------------- I3CCSR__I3C_EC__TTI__TARGET_ERR_CNT_TE4 COVERGROUPS -----------------------*/
-    covergroup I3CCSR__I3C_EC__TTI__TARGET_ERR_CNT_TE4_bit_cg with function sample(input bit reg_bit);
+    /*----------------------- target_I3CCSR__I3C_EC__TTI__TARGET_ERR_CNT_TE4 COVERGROUPS -----------------------*/
+    covergroup target_I3CCSR__I3C_EC__TTI__TARGET_ERR_CNT_TE4_bit_cg with function sample(input bit reg_bit);
         option.per_instance = 1;
         reg_bit_cp : coverpoint reg_bit {
             bins value[2] = {0,1};
@@ -1689,7 +1689,7 @@
         }
 
     endgroup
-    covergroup I3CCSR__I3C_EC__TTI__TARGET_ERR_CNT_TE4_fld_cg with function sample(
+    covergroup target_I3CCSR__I3C_EC__TTI__TARGET_ERR_CNT_TE4_fld_cg with function sample(
     input bit [8-1:0] CNT
     );
         option.per_instance = 1;
@@ -1697,8 +1697,8 @@
 
     endgroup
 
-    /*----------------------- I3CCSR__I3C_EC__TTI__TARGET_ERR_CNT_TE5 COVERGROUPS -----------------------*/
-    covergroup I3CCSR__I3C_EC__TTI__TARGET_ERR_CNT_TE5_bit_cg with function sample(input bit reg_bit);
+    /*----------------------- target_I3CCSR__I3C_EC__TTI__TARGET_ERR_CNT_TE5 COVERGROUPS -----------------------*/
+    covergroup target_I3CCSR__I3C_EC__TTI__TARGET_ERR_CNT_TE5_bit_cg with function sample(input bit reg_bit);
         option.per_instance = 1;
         reg_bit_cp : coverpoint reg_bit {
             bins value[2] = {0,1};
@@ -1709,7 +1709,7 @@
         }
 
     endgroup
-    covergroup I3CCSR__I3C_EC__TTI__TARGET_ERR_CNT_TE5_fld_cg with function sample(
+    covergroup target_I3CCSR__I3C_EC__TTI__TARGET_ERR_CNT_TE5_fld_cg with function sample(
     input bit [8-1:0] CNT
     );
         option.per_instance = 1;
@@ -1717,8 +1717,8 @@
 
     endgroup
 
-    /*----------------------- I3CCSR__I3C_EC__TTI__TARGET_ERR_CNT_FRAMING COVERGROUPS -----------------------*/
-    covergroup I3CCSR__I3C_EC__TTI__TARGET_ERR_CNT_FRAMING_bit_cg with function sample(input bit reg_bit);
+    /*----------------------- target_I3CCSR__I3C_EC__TTI__TARGET_ERR_CNT_FRAMING COVERGROUPS -----------------------*/
+    covergroup target_I3CCSR__I3C_EC__TTI__TARGET_ERR_CNT_FRAMING_bit_cg with function sample(input bit reg_bit);
         option.per_instance = 1;
         reg_bit_cp : coverpoint reg_bit {
             bins value[2] = {0,1};
@@ -1729,7 +1729,7 @@
         }
 
     endgroup
-    covergroup I3CCSR__I3C_EC__TTI__TARGET_ERR_CNT_FRAMING_fld_cg with function sample(
+    covergroup target_I3CCSR__I3C_EC__TTI__TARGET_ERR_CNT_FRAMING_fld_cg with function sample(
     input bit [8-1:0] CNT
     );
         option.per_instance = 1;
@@ -1737,8 +1737,8 @@
 
     endgroup
 
-    /*----------------------- I3CCSR__I3C_EC__TTI__TARGET_ERR_CNT_RI_PEC COVERGROUPS -----------------------*/
-    covergroup I3CCSR__I3C_EC__TTI__TARGET_ERR_CNT_RI_PEC_bit_cg with function sample(input bit reg_bit);
+    /*----------------------- target_I3CCSR__I3C_EC__TTI__TARGET_ERR_CNT_RI_PEC COVERGROUPS -----------------------*/
+    covergroup target_I3CCSR__I3C_EC__TTI__TARGET_ERR_CNT_RI_PEC_bit_cg with function sample(input bit reg_bit);
         option.per_instance = 1;
         reg_bit_cp : coverpoint reg_bit {
             bins value[2] = {0,1};
@@ -1749,7 +1749,7 @@
         }
 
     endgroup
-    covergroup I3CCSR__I3C_EC__TTI__TARGET_ERR_CNT_RI_PEC_fld_cg with function sample(
+    covergroup target_I3CCSR__I3C_EC__TTI__TARGET_ERR_CNT_RI_PEC_fld_cg with function sample(
     input bit [8-1:0] CNT
     );
         option.per_instance = 1;
@@ -1757,8 +1757,8 @@
 
     endgroup
 
-    /*----------------------- I3CCSR__I3C_EC__TTI__TARGET_ERR_CNT_RI_LENGTH COVERGROUPS -----------------------*/
-    covergroup I3CCSR__I3C_EC__TTI__TARGET_ERR_CNT_RI_LENGTH_bit_cg with function sample(input bit reg_bit);
+    /*----------------------- target_I3CCSR__I3C_EC__TTI__TARGET_ERR_CNT_RI_LENGTH COVERGROUPS -----------------------*/
+    covergroup target_I3CCSR__I3C_EC__TTI__TARGET_ERR_CNT_RI_LENGTH_bit_cg with function sample(input bit reg_bit);
         option.per_instance = 1;
         reg_bit_cp : coverpoint reg_bit {
             bins value[2] = {0,1};
@@ -1769,7 +1769,7 @@
         }
 
     endgroup
-    covergroup I3CCSR__I3C_EC__TTI__TARGET_ERR_CNT_RI_LENGTH_fld_cg with function sample(
+    covergroup target_I3CCSR__I3C_EC__TTI__TARGET_ERR_CNT_RI_LENGTH_fld_cg with function sample(
     input bit [8-1:0] CNT
     );
         option.per_instance = 1;
@@ -1777,8 +1777,8 @@
 
     endgroup
 
-    /*----------------------- I3CCSR__I3C_EC__TTI__TARGET_ERR_CNT_RI_READONLY COVERGROUPS -----------------------*/
-    covergroup I3CCSR__I3C_EC__TTI__TARGET_ERR_CNT_RI_READONLY_bit_cg with function sample(input bit reg_bit);
+    /*----------------------- target_I3CCSR__I3C_EC__TTI__TARGET_ERR_CNT_RI_READONLY COVERGROUPS -----------------------*/
+    covergroup target_I3CCSR__I3C_EC__TTI__TARGET_ERR_CNT_RI_READONLY_bit_cg with function sample(input bit reg_bit);
         option.per_instance = 1;
         reg_bit_cp : coverpoint reg_bit {
             bins value[2] = {0,1};
@@ -1789,7 +1789,7 @@
         }
 
     endgroup
-    covergroup I3CCSR__I3C_EC__TTI__TARGET_ERR_CNT_RI_READONLY_fld_cg with function sample(
+    covergroup target_I3CCSR__I3C_EC__TTI__TARGET_ERR_CNT_RI_READONLY_fld_cg with function sample(
     input bit [8-1:0] CNT
     );
         option.per_instance = 1;
@@ -1797,8 +1797,8 @@
 
     endgroup
 
-    /*----------------------- I3CCSR__I3C_EC__TTI__TARGET_ERR_CNT_RI_UNSUPPORTED COVERGROUPS -----------------------*/
-    covergroup I3CCSR__I3C_EC__TTI__TARGET_ERR_CNT_RI_UNSUPPORTED_bit_cg with function sample(input bit reg_bit);
+    /*----------------------- target_I3CCSR__I3C_EC__TTI__TARGET_ERR_CNT_RI_UNSUPPORTED COVERGROUPS -----------------------*/
+    covergroup target_I3CCSR__I3C_EC__TTI__TARGET_ERR_CNT_RI_UNSUPPORTED_bit_cg with function sample(input bit reg_bit);
         option.per_instance = 1;
         reg_bit_cp : coverpoint reg_bit {
             bins value[2] = {0,1};
@@ -1809,7 +1809,7 @@
         }
 
     endgroup
-    covergroup I3CCSR__I3C_EC__TTI__TARGET_ERR_CNT_RI_UNSUPPORTED_fld_cg with function sample(
+    covergroup target_I3CCSR__I3C_EC__TTI__TARGET_ERR_CNT_RI_UNSUPPORTED_fld_cg with function sample(
     input bit [8-1:0] CNT
     );
         option.per_instance = 1;
@@ -1817,8 +1817,8 @@
 
     endgroup
 
-    /*----------------------- I3CCSR__I3C_EC__TTI__TARGET_ERR_CNT_RI_RX_FIFO_OVERFLOW COVERGROUPS -----------------------*/
-    covergroup I3CCSR__I3C_EC__TTI__TARGET_ERR_CNT_RI_RX_FIFO_OVERFLOW_bit_cg with function sample(input bit reg_bit);
+    /*----------------------- target_I3CCSR__I3C_EC__TTI__TARGET_ERR_CNT_RI_RX_FIFO_OVERFLOW COVERGROUPS -----------------------*/
+    covergroup target_I3CCSR__I3C_EC__TTI__TARGET_ERR_CNT_RI_RX_FIFO_OVERFLOW_bit_cg with function sample(input bit reg_bit);
         option.per_instance = 1;
         reg_bit_cp : coverpoint reg_bit {
             bins value[2] = {0,1};
@@ -1829,7 +1829,7 @@
         }
 
     endgroup
-    covergroup I3CCSR__I3C_EC__TTI__TARGET_ERR_CNT_RI_RX_FIFO_OVERFLOW_fld_cg with function sample(
+    covergroup target_I3CCSR__I3C_EC__TTI__TARGET_ERR_CNT_RI_RX_FIFO_OVERFLOW_fld_cg with function sample(
     input bit [8-1:0] CNT
     );
         option.per_instance = 1;
@@ -1837,8 +1837,8 @@
 
     endgroup
 
-    /*----------------------- I3CCSR__I3C_EC__TTI__TARGET_ERR_CNT_RI_INDIRECT_FIFO_OVERFLOW COVERGROUPS -----------------------*/
-    covergroup I3CCSR__I3C_EC__TTI__TARGET_ERR_CNT_RI_INDIRECT_FIFO_OVERFLOW_bit_cg with function sample(input bit reg_bit);
+    /*----------------------- target_I3CCSR__I3C_EC__TTI__TARGET_ERR_CNT_RI_INDIRECT_FIFO_OVERFLOW COVERGROUPS -----------------------*/
+    covergroup target_I3CCSR__I3C_EC__TTI__TARGET_ERR_CNT_RI_INDIRECT_FIFO_OVERFLOW_bit_cg with function sample(input bit reg_bit);
         option.per_instance = 1;
         reg_bit_cp : coverpoint reg_bit {
             bins value[2] = {0,1};
@@ -1849,7 +1849,7 @@
         }
 
     endgroup
-    covergroup I3CCSR__I3C_EC__TTI__TARGET_ERR_CNT_RI_INDIRECT_FIFO_OVERFLOW_fld_cg with function sample(
+    covergroup target_I3CCSR__I3C_EC__TTI__TARGET_ERR_CNT_RI_INDIRECT_FIFO_OVERFLOW_fld_cg with function sample(
     input bit [8-1:0] CNT
     );
         option.per_instance = 1;
@@ -1857,8 +1857,8 @@
 
     endgroup
 
-    /*----------------------- I3CCSR__I3C_EC__TTI__RX_DESC_QUEUE_PORT COVERGROUPS -----------------------*/
-    covergroup I3CCSR__I3C_EC__TTI__RX_DESC_QUEUE_PORT_bit_cg with function sample(input bit reg_bit);
+    /*----------------------- target_I3CCSR__I3C_EC__TTI__RX_DESC_QUEUE_PORT COVERGROUPS -----------------------*/
+    covergroup target_I3CCSR__I3C_EC__TTI__RX_DESC_QUEUE_PORT_bit_cg with function sample(input bit reg_bit);
         option.per_instance = 1;
         reg_bit_cp : coverpoint reg_bit {
             bins value[2] = {0,1};
@@ -1869,7 +1869,7 @@
         }
 
     endgroup
-    covergroup I3CCSR__I3C_EC__TTI__RX_DESC_QUEUE_PORT_fld_cg with function sample(
+    covergroup target_I3CCSR__I3C_EC__TTI__RX_DESC_QUEUE_PORT_fld_cg with function sample(
     input bit [32-1:0] RX_DESC
     );
         option.per_instance = 1;
@@ -1877,8 +1877,8 @@
 
     endgroup
 
-    /*----------------------- I3CCSR__I3C_EC__TTI__RX_DATA_PORT COVERGROUPS -----------------------*/
-    covergroup I3CCSR__I3C_EC__TTI__RX_DATA_PORT_bit_cg with function sample(input bit reg_bit);
+    /*----------------------- target_I3CCSR__I3C_EC__TTI__RX_DATA_PORT COVERGROUPS -----------------------*/
+    covergroup target_I3CCSR__I3C_EC__TTI__RX_DATA_PORT_bit_cg with function sample(input bit reg_bit);
         option.per_instance = 1;
         reg_bit_cp : coverpoint reg_bit {
             bins value[2] = {0,1};
@@ -1889,7 +1889,7 @@
         }
 
     endgroup
-    covergroup I3CCSR__I3C_EC__TTI__RX_DATA_PORT_fld_cg with function sample(
+    covergroup target_I3CCSR__I3C_EC__TTI__RX_DATA_PORT_fld_cg with function sample(
     input bit [32-1:0] RX_DATA
     );
         option.per_instance = 1;
@@ -1897,8 +1897,8 @@
 
     endgroup
 
-    /*----------------------- I3CCSR__I3C_EC__TTI__TX_DESC_QUEUE_PORT COVERGROUPS -----------------------*/
-    covergroup I3CCSR__I3C_EC__TTI__TX_DESC_QUEUE_PORT_bit_cg with function sample(input bit reg_bit);
+    /*----------------------- target_I3CCSR__I3C_EC__TTI__TX_DESC_QUEUE_PORT COVERGROUPS -----------------------*/
+    covergroup target_I3CCSR__I3C_EC__TTI__TX_DESC_QUEUE_PORT_bit_cg with function sample(input bit reg_bit);
         option.per_instance = 1;
         reg_bit_cp : coverpoint reg_bit {
             bins value[2] = {0,1};
@@ -1909,7 +1909,7 @@
         }
 
     endgroup
-    covergroup I3CCSR__I3C_EC__TTI__TX_DESC_QUEUE_PORT_fld_cg with function sample(
+    covergroup target_I3CCSR__I3C_EC__TTI__TX_DESC_QUEUE_PORT_fld_cg with function sample(
     input bit [32-1:0] TX_DESC
     );
         option.per_instance = 1;
@@ -1917,8 +1917,8 @@
 
     endgroup
 
-    /*----------------------- I3CCSR__I3C_EC__TTI__TX_DATA_PORT COVERGROUPS -----------------------*/
-    covergroup I3CCSR__I3C_EC__TTI__TX_DATA_PORT_bit_cg with function sample(input bit reg_bit);
+    /*----------------------- target_I3CCSR__I3C_EC__TTI__TX_DATA_PORT COVERGROUPS -----------------------*/
+    covergroup target_I3CCSR__I3C_EC__TTI__TX_DATA_PORT_bit_cg with function sample(input bit reg_bit);
         option.per_instance = 1;
         reg_bit_cp : coverpoint reg_bit {
             bins value[2] = {0,1};
@@ -1929,7 +1929,7 @@
         }
 
     endgroup
-    covergroup I3CCSR__I3C_EC__TTI__TX_DATA_PORT_fld_cg with function sample(
+    covergroup target_I3CCSR__I3C_EC__TTI__TX_DATA_PORT_fld_cg with function sample(
     input bit [32-1:0] TX_DATA
     );
         option.per_instance = 1;
@@ -1937,8 +1937,8 @@
 
     endgroup
 
-    /*----------------------- I3CCSR__I3C_EC__TTI__IBI_PORT COVERGROUPS -----------------------*/
-    covergroup I3CCSR__I3C_EC__TTI__IBI_PORT_bit_cg with function sample(input bit reg_bit);
+    /*----------------------- target_I3CCSR__I3C_EC__TTI__IBI_PORT COVERGROUPS -----------------------*/
+    covergroup target_I3CCSR__I3C_EC__TTI__IBI_PORT_bit_cg with function sample(input bit reg_bit);
         option.per_instance = 1;
         reg_bit_cp : coverpoint reg_bit {
             bins value[2] = {0,1};
@@ -1949,7 +1949,7 @@
         }
 
     endgroup
-    covergroup I3CCSR__I3C_EC__TTI__IBI_PORT_fld_cg with function sample(
+    covergroup target_I3CCSR__I3C_EC__TTI__IBI_PORT_fld_cg with function sample(
     input bit [32-1:0] IBI_DATA
     );
         option.per_instance = 1;
@@ -1957,8 +1957,8 @@
 
     endgroup
 
-    /*----------------------- I3CCSR__I3C_EC__TTI__QUEUE_SIZE COVERGROUPS -----------------------*/
-    covergroup I3CCSR__I3C_EC__TTI__QUEUE_SIZE_bit_cg with function sample(input bit reg_bit);
+    /*----------------------- target_I3CCSR__I3C_EC__TTI__QUEUE_SIZE COVERGROUPS -----------------------*/
+    covergroup target_I3CCSR__I3C_EC__TTI__QUEUE_SIZE_bit_cg with function sample(input bit reg_bit);
         option.per_instance = 1;
         reg_bit_cp : coverpoint reg_bit {
             bins value[2] = {0,1};
@@ -1969,7 +1969,7 @@
         }
 
     endgroup
-    covergroup I3CCSR__I3C_EC__TTI__QUEUE_SIZE_fld_cg with function sample(
+    covergroup target_I3CCSR__I3C_EC__TTI__QUEUE_SIZE_fld_cg with function sample(
     input bit [8-1:0] RX_DESC_BUFFER_SIZE,
     input bit [8-1:0] TX_DESC_BUFFER_SIZE,
     input bit [8-1:0] RX_DATA_BUFFER_SIZE,
@@ -1983,8 +1983,8 @@
 
     endgroup
 
-    /*----------------------- I3CCSR__I3C_EC__TTI__IBI_QUEUE_SIZE COVERGROUPS -----------------------*/
-    covergroup I3CCSR__I3C_EC__TTI__IBI_QUEUE_SIZE_bit_cg with function sample(input bit reg_bit);
+    /*----------------------- target_I3CCSR__I3C_EC__TTI__IBI_QUEUE_SIZE COVERGROUPS -----------------------*/
+    covergroup target_I3CCSR__I3C_EC__TTI__IBI_QUEUE_SIZE_bit_cg with function sample(input bit reg_bit);
         option.per_instance = 1;
         reg_bit_cp : coverpoint reg_bit {
             bins value[2] = {0,1};
@@ -1995,7 +1995,7 @@
         }
 
     endgroup
-    covergroup I3CCSR__I3C_EC__TTI__IBI_QUEUE_SIZE_fld_cg with function sample(
+    covergroup target_I3CCSR__I3C_EC__TTI__IBI_QUEUE_SIZE_fld_cg with function sample(
     input bit [8-1:0] IBI_QUEUE_SIZE
     );
         option.per_instance = 1;
@@ -2003,8 +2003,8 @@
 
     endgroup
 
-    /*----------------------- I3CCSR__I3C_EC__TTI__QUEUE_THLD_CTRL COVERGROUPS -----------------------*/
-    covergroup I3CCSR__I3C_EC__TTI__QUEUE_THLD_CTRL_bit_cg with function sample(input bit reg_bit);
+    /*----------------------- target_I3CCSR__I3C_EC__TTI__QUEUE_THLD_CTRL COVERGROUPS -----------------------*/
+    covergroup target_I3CCSR__I3C_EC__TTI__QUEUE_THLD_CTRL_bit_cg with function sample(input bit reg_bit);
         option.per_instance = 1;
         reg_bit_cp : coverpoint reg_bit {
             bins value[2] = {0,1};
@@ -2015,7 +2015,7 @@
         }
 
     endgroup
-    covergroup I3CCSR__I3C_EC__TTI__QUEUE_THLD_CTRL_fld_cg with function sample(
+    covergroup target_I3CCSR__I3C_EC__TTI__QUEUE_THLD_CTRL_fld_cg with function sample(
     input bit [8-1:0] TX_DESC_THLD,
     input bit [8-1:0] RX_DESC_THLD,
     input bit [8-1:0] IBI_THLD
@@ -2027,8 +2027,8 @@
 
     endgroup
 
-    /*----------------------- I3CCSR__I3C_EC__TTI__DATA_BUFFER_THLD_CTRL COVERGROUPS -----------------------*/
-    covergroup I3CCSR__I3C_EC__TTI__DATA_BUFFER_THLD_CTRL_bit_cg with function sample(input bit reg_bit);
+    /*----------------------- target_I3CCSR__I3C_EC__TTI__DATA_BUFFER_THLD_CTRL COVERGROUPS -----------------------*/
+    covergroup target_I3CCSR__I3C_EC__TTI__DATA_BUFFER_THLD_CTRL_bit_cg with function sample(input bit reg_bit);
         option.per_instance = 1;
         reg_bit_cp : coverpoint reg_bit {
             bins value[2] = {0,1};
@@ -2039,7 +2039,7 @@
         }
 
     endgroup
-    covergroup I3CCSR__I3C_EC__TTI__DATA_BUFFER_THLD_CTRL_fld_cg with function sample(
+    covergroup target_I3CCSR__I3C_EC__TTI__DATA_BUFFER_THLD_CTRL_fld_cg with function sample(
     input bit [3-1:0] TX_DATA_THLD,
     input bit [3-1:0] RX_DATA_THLD,
     input bit [3-1:0] TX_START_THLD,
@@ -2053,8 +2053,8 @@
 
     endgroup
 
-    /*----------------------- I3CCSR__I3C_EC__SOCMGMTIF__EXTCAP_HEADER COVERGROUPS -----------------------*/
-    covergroup I3CCSR__I3C_EC__SoCMgmtIf__EXTCAP_HEADER_bit_cg with function sample(input bit reg_bit);
+    /*----------------------- target_I3CCSR__I3C_EC__SOCMGMTIF__EXTCAP_HEADER COVERGROUPS -----------------------*/
+    covergroup target_I3CCSR__I3C_EC__SoCMgmtIf__EXTCAP_HEADER_bit_cg with function sample(input bit reg_bit);
         option.per_instance = 1;
         reg_bit_cp : coverpoint reg_bit {
             bins value[2] = {0,1};
@@ -2065,7 +2065,7 @@
         }
 
     endgroup
-    covergroup I3CCSR__I3C_EC__SoCMgmtIf__EXTCAP_HEADER_fld_cg with function sample(
+    covergroup target_I3CCSR__I3C_EC__SoCMgmtIf__EXTCAP_HEADER_fld_cg with function sample(
     input bit [8-1:0] CAP_ID,
     input bit [16-1:0] CAP_LENGTH
     );
@@ -2075,8 +2075,8 @@
 
     endgroup
 
-    /*----------------------- I3CCSR__I3C_EC__SOCMGMTIF__SOC_MGMT_CONTROL COVERGROUPS -----------------------*/
-    covergroup I3CCSR__I3C_EC__SoCMgmtIf__SOC_MGMT_CONTROL_bit_cg with function sample(input bit reg_bit);
+    /*----------------------- target_I3CCSR__I3C_EC__SOCMGMTIF__SOC_MGMT_CONTROL COVERGROUPS -----------------------*/
+    covergroup target_I3CCSR__I3C_EC__SoCMgmtIf__SOC_MGMT_CONTROL_bit_cg with function sample(input bit reg_bit);
         option.per_instance = 1;
         reg_bit_cp : coverpoint reg_bit {
             bins value[2] = {0,1};
@@ -2087,7 +2087,7 @@
         }
 
     endgroup
-    covergroup I3CCSR__I3C_EC__SoCMgmtIf__SOC_MGMT_CONTROL_fld_cg with function sample(
+    covergroup target_I3CCSR__I3C_EC__SoCMgmtIf__SOC_MGMT_CONTROL_fld_cg with function sample(
     input bit [32-1:0] PLACEHOLDER
     );
         option.per_instance = 1;
@@ -2095,8 +2095,8 @@
 
     endgroup
 
-    /*----------------------- I3CCSR__I3C_EC__SOCMGMTIF__SOC_MGMT_STATUS COVERGROUPS -----------------------*/
-    covergroup I3CCSR__I3C_EC__SoCMgmtIf__SOC_MGMT_STATUS_bit_cg with function sample(input bit reg_bit);
+    /*----------------------- target_I3CCSR__I3C_EC__SOCMGMTIF__SOC_MGMT_STATUS COVERGROUPS -----------------------*/
+    covergroup target_I3CCSR__I3C_EC__SoCMgmtIf__SOC_MGMT_STATUS_bit_cg with function sample(input bit reg_bit);
         option.per_instance = 1;
         reg_bit_cp : coverpoint reg_bit {
             bins value[2] = {0,1};
@@ -2107,7 +2107,7 @@
         }
 
     endgroup
-    covergroup I3CCSR__I3C_EC__SoCMgmtIf__SOC_MGMT_STATUS_fld_cg with function sample(
+    covergroup target_I3CCSR__I3C_EC__SoCMgmtIf__SOC_MGMT_STATUS_fld_cg with function sample(
     input bit [32-1:0] PLACEHOLDER
     );
         option.per_instance = 1;
@@ -2115,8 +2115,8 @@
 
     endgroup
 
-    /*----------------------- I3CCSR__I3C_EC__SOCMGMTIF__REC_INTF_CFG COVERGROUPS -----------------------*/
-    covergroup I3CCSR__I3C_EC__SoCMgmtIf__REC_INTF_CFG_bit_cg with function sample(input bit reg_bit);
+    /*----------------------- target_I3CCSR__I3C_EC__SOCMGMTIF__REC_INTF_CFG COVERGROUPS -----------------------*/
+    covergroup target_I3CCSR__I3C_EC__SoCMgmtIf__REC_INTF_CFG_bit_cg with function sample(input bit reg_bit);
         option.per_instance = 1;
         reg_bit_cp : coverpoint reg_bit {
             bins value[2] = {0,1};
@@ -2127,7 +2127,7 @@
         }
 
     endgroup
-    covergroup I3CCSR__I3C_EC__SoCMgmtIf__REC_INTF_CFG_fld_cg with function sample(
+    covergroup target_I3CCSR__I3C_EC__SoCMgmtIf__REC_INTF_CFG_fld_cg with function sample(
     input bit [1-1:0] REC_INTF_BYPASS,
     input bit [1-1:0] REC_PAYLOAD_DONE
     );
@@ -2137,8 +2137,8 @@
 
     endgroup
 
-    /*----------------------- I3CCSR__I3C_EC__SOCMGMTIF__REC_INTF_REG_W1C_ACCESS COVERGROUPS -----------------------*/
-    covergroup I3CCSR__I3C_EC__SoCMgmtIf__REC_INTF_REG_W1C_ACCESS_bit_cg with function sample(input bit reg_bit);
+    /*----------------------- target_I3CCSR__I3C_EC__SOCMGMTIF__REC_INTF_REG_W1C_ACCESS COVERGROUPS -----------------------*/
+    covergroup target_I3CCSR__I3C_EC__SoCMgmtIf__REC_INTF_REG_W1C_ACCESS_bit_cg with function sample(input bit reg_bit);
         option.per_instance = 1;
         reg_bit_cp : coverpoint reg_bit {
             bins value[2] = {0,1};
@@ -2149,7 +2149,7 @@
         }
 
     endgroup
-    covergroup I3CCSR__I3C_EC__SoCMgmtIf__REC_INTF_REG_W1C_ACCESS_fld_cg with function sample(
+    covergroup target_I3CCSR__I3C_EC__SoCMgmtIf__REC_INTF_REG_W1C_ACCESS_fld_cg with function sample(
     input bit [8-1:0] DEVICE_RESET_CTRL,
     input bit [8-1:0] RECOVERY_CTRL_ACTIVATE_REC_IMG,
     input bit [8-1:0] INDIRECT_FIFO_CTRL_RESET
@@ -2161,8 +2161,8 @@
 
     endgroup
 
-    /*----------------------- I3CCSR__I3C_EC__SOCMGMTIF__SOC_MGMT_RSVD_2 COVERGROUPS -----------------------*/
-    covergroup I3CCSR__I3C_EC__SoCMgmtIf__SOC_MGMT_RSVD_2_bit_cg with function sample(input bit reg_bit);
+    /*----------------------- target_I3CCSR__I3C_EC__SOCMGMTIF__SOC_MGMT_RSVD_2 COVERGROUPS -----------------------*/
+    covergroup target_I3CCSR__I3C_EC__SoCMgmtIf__SOC_MGMT_RSVD_2_bit_cg with function sample(input bit reg_bit);
         option.per_instance = 1;
         reg_bit_cp : coverpoint reg_bit {
             bins value[2] = {0,1};
@@ -2173,7 +2173,7 @@
         }
 
     endgroup
-    covergroup I3CCSR__I3C_EC__SoCMgmtIf__SOC_MGMT_RSVD_2_fld_cg with function sample(
+    covergroup target_I3CCSR__I3C_EC__SoCMgmtIf__SOC_MGMT_RSVD_2_fld_cg with function sample(
     input bit [32-1:0] PLACEHOLDER
     );
         option.per_instance = 1;
@@ -2181,8 +2181,8 @@
 
     endgroup
 
-    /*----------------------- I3CCSR__I3C_EC__SOCMGMTIF__SOC_MGMT_RSVD_3 COVERGROUPS -----------------------*/
-    covergroup I3CCSR__I3C_EC__SoCMgmtIf__SOC_MGMT_RSVD_3_bit_cg with function sample(input bit reg_bit);
+    /*----------------------- target_I3CCSR__I3C_EC__SOCMGMTIF__SOC_MGMT_RSVD_3 COVERGROUPS -----------------------*/
+    covergroup target_I3CCSR__I3C_EC__SoCMgmtIf__SOC_MGMT_RSVD_3_bit_cg with function sample(input bit reg_bit);
         option.per_instance = 1;
         reg_bit_cp : coverpoint reg_bit {
             bins value[2] = {0,1};
@@ -2193,7 +2193,7 @@
         }
 
     endgroup
-    covergroup I3CCSR__I3C_EC__SoCMgmtIf__SOC_MGMT_RSVD_3_fld_cg with function sample(
+    covergroup target_I3CCSR__I3C_EC__SoCMgmtIf__SOC_MGMT_RSVD_3_fld_cg with function sample(
     input bit [32-1:0] PLACEHOLDER
     );
         option.per_instance = 1;
@@ -2201,8 +2201,8 @@
 
     endgroup
 
-    /*----------------------- I3CCSR__I3C_EC__SOCMGMTIF__SOC_PAD_CONF COVERGROUPS -----------------------*/
-    covergroup I3CCSR__I3C_EC__SoCMgmtIf__SOC_PAD_CONF_bit_cg with function sample(input bit reg_bit);
+    /*----------------------- target_I3CCSR__I3C_EC__SOCMGMTIF__SOC_PAD_CONF COVERGROUPS -----------------------*/
+    covergroup target_I3CCSR__I3C_EC__SoCMgmtIf__SOC_PAD_CONF_bit_cg with function sample(input bit reg_bit);
         option.per_instance = 1;
         reg_bit_cp : coverpoint reg_bit {
             bins value[2] = {0,1};
@@ -2213,7 +2213,7 @@
         }
 
     endgroup
-    covergroup I3CCSR__I3C_EC__SoCMgmtIf__SOC_PAD_CONF_fld_cg with function sample(
+    covergroup target_I3CCSR__I3C_EC__SoCMgmtIf__SOC_PAD_CONF_fld_cg with function sample(
     input bit [1-1:0] INPUT_ENABLE,
     input bit [1-1:0] SCHMITT_EN,
     input bit [1-1:0] KEEPER_EN,
@@ -2237,8 +2237,8 @@
 
     endgroup
 
-    /*----------------------- I3CCSR__I3C_EC__SOCMGMTIF__SOC_PAD_ATTR COVERGROUPS -----------------------*/
-    covergroup I3CCSR__I3C_EC__SoCMgmtIf__SOC_PAD_ATTR_bit_cg with function sample(input bit reg_bit);
+    /*----------------------- target_I3CCSR__I3C_EC__SOCMGMTIF__SOC_PAD_ATTR COVERGROUPS -----------------------*/
+    covergroup target_I3CCSR__I3C_EC__SoCMgmtIf__SOC_PAD_ATTR_bit_cg with function sample(input bit reg_bit);
         option.per_instance = 1;
         reg_bit_cp : coverpoint reg_bit {
             bins value[2] = {0,1};
@@ -2249,7 +2249,7 @@
         }
 
     endgroup
-    covergroup I3CCSR__I3C_EC__SoCMgmtIf__SOC_PAD_ATTR_fld_cg with function sample(
+    covergroup target_I3CCSR__I3C_EC__SoCMgmtIf__SOC_PAD_ATTR_fld_cg with function sample(
     input bit [8-1:0] DRIVE_SLEW_RATE,
     input bit [8-1:0] DRIVE_STRENGTH
     );
@@ -2259,8 +2259,8 @@
 
     endgroup
 
-    /*----------------------- I3CCSR__I3C_EC__SOCMGMTIF__SOC_MGMT_FEATURE_2 COVERGROUPS -----------------------*/
-    covergroup I3CCSR__I3C_EC__SoCMgmtIf__SOC_MGMT_FEATURE_2_bit_cg with function sample(input bit reg_bit);
+    /*----------------------- target_I3CCSR__I3C_EC__SOCMGMTIF__SOC_MGMT_FEATURE_2 COVERGROUPS -----------------------*/
+    covergroup target_I3CCSR__I3C_EC__SoCMgmtIf__SOC_MGMT_FEATURE_2_bit_cg with function sample(input bit reg_bit);
         option.per_instance = 1;
         reg_bit_cp : coverpoint reg_bit {
             bins value[2] = {0,1};
@@ -2271,7 +2271,7 @@
         }
 
     endgroup
-    covergroup I3CCSR__I3C_EC__SoCMgmtIf__SOC_MGMT_FEATURE_2_fld_cg with function sample(
+    covergroup target_I3CCSR__I3C_EC__SoCMgmtIf__SOC_MGMT_FEATURE_2_fld_cg with function sample(
     input bit [32-1:0] PLACEHOLDER
     );
         option.per_instance = 1;
@@ -2279,8 +2279,8 @@
 
     endgroup
 
-    /*----------------------- I3CCSR__I3C_EC__SOCMGMTIF__SOC_MGMT_FEATURE_3 COVERGROUPS -----------------------*/
-    covergroup I3CCSR__I3C_EC__SoCMgmtIf__SOC_MGMT_FEATURE_3_bit_cg with function sample(input bit reg_bit);
+    /*----------------------- target_I3CCSR__I3C_EC__SOCMGMTIF__SOC_MGMT_FEATURE_3 COVERGROUPS -----------------------*/
+    covergroup target_I3CCSR__I3C_EC__SoCMgmtIf__SOC_MGMT_FEATURE_3_bit_cg with function sample(input bit reg_bit);
         option.per_instance = 1;
         reg_bit_cp : coverpoint reg_bit {
             bins value[2] = {0,1};
@@ -2291,7 +2291,7 @@
         }
 
     endgroup
-    covergroup I3CCSR__I3C_EC__SoCMgmtIf__SOC_MGMT_FEATURE_3_fld_cg with function sample(
+    covergroup target_I3CCSR__I3C_EC__SoCMgmtIf__SOC_MGMT_FEATURE_3_fld_cg with function sample(
     input bit [32-1:0] PLACEHOLDER
     );
         option.per_instance = 1;
@@ -2299,8 +2299,8 @@
 
     endgroup
 
-    /*----------------------- I3CCSR__I3C_EC__SOCMGMTIF__T_R_REG COVERGROUPS -----------------------*/
-    covergroup I3CCSR__I3C_EC__SoCMgmtIf__T_R_REG_bit_cg with function sample(input bit reg_bit);
+    /*----------------------- target_I3CCSR__I3C_EC__SOCMGMTIF__T_R_REG COVERGROUPS -----------------------*/
+    covergroup target_I3CCSR__I3C_EC__SoCMgmtIf__T_R_REG_bit_cg with function sample(input bit reg_bit);
         option.per_instance = 1;
         reg_bit_cp : coverpoint reg_bit {
             bins value[2] = {0,1};
@@ -2311,7 +2311,7 @@
         }
 
     endgroup
-    covergroup I3CCSR__I3C_EC__SoCMgmtIf__T_R_REG_fld_cg with function sample(
+    covergroup target_I3CCSR__I3C_EC__SoCMgmtIf__T_R_REG_fld_cg with function sample(
     input bit [20-1:0] T_R
     );
         option.per_instance = 1;
@@ -2319,8 +2319,8 @@
 
     endgroup
 
-    /*----------------------- I3CCSR__I3C_EC__SOCMGMTIF__T_F_REG COVERGROUPS -----------------------*/
-    covergroup I3CCSR__I3C_EC__SoCMgmtIf__T_F_REG_bit_cg with function sample(input bit reg_bit);
+    /*----------------------- target_I3CCSR__I3C_EC__SOCMGMTIF__T_F_REG COVERGROUPS -----------------------*/
+    covergroup target_I3CCSR__I3C_EC__SoCMgmtIf__T_F_REG_bit_cg with function sample(input bit reg_bit);
         option.per_instance = 1;
         reg_bit_cp : coverpoint reg_bit {
             bins value[2] = {0,1};
@@ -2331,7 +2331,7 @@
         }
 
     endgroup
-    covergroup I3CCSR__I3C_EC__SoCMgmtIf__T_F_REG_fld_cg with function sample(
+    covergroup target_I3CCSR__I3C_EC__SoCMgmtIf__T_F_REG_fld_cg with function sample(
     input bit [20-1:0] T_F
     );
         option.per_instance = 1;
@@ -2339,8 +2339,8 @@
 
     endgroup
 
-    /*----------------------- I3CCSR__I3C_EC__SOCMGMTIF__T_SU_DAT_REG COVERGROUPS -----------------------*/
-    covergroup I3CCSR__I3C_EC__SoCMgmtIf__T_SU_DAT_REG_bit_cg with function sample(input bit reg_bit);
+    /*----------------------- target_I3CCSR__I3C_EC__SOCMGMTIF__T_SU_DAT_REG COVERGROUPS -----------------------*/
+    covergroup target_I3CCSR__I3C_EC__SoCMgmtIf__T_SU_DAT_REG_bit_cg with function sample(input bit reg_bit);
         option.per_instance = 1;
         reg_bit_cp : coverpoint reg_bit {
             bins value[2] = {0,1};
@@ -2351,7 +2351,7 @@
         }
 
     endgroup
-    covergroup I3CCSR__I3C_EC__SoCMgmtIf__T_SU_DAT_REG_fld_cg with function sample(
+    covergroup target_I3CCSR__I3C_EC__SoCMgmtIf__T_SU_DAT_REG_fld_cg with function sample(
     input bit [20-1:0] T_SU_DAT
     );
         option.per_instance = 1;
@@ -2359,8 +2359,8 @@
 
     endgroup
 
-    /*----------------------- I3CCSR__I3C_EC__SOCMGMTIF__T_SU_DAT_I2C_REG COVERGROUPS -----------------------*/
-    covergroup I3CCSR__I3C_EC__SoCMgmtIf__T_SU_DAT_I2C_REG_bit_cg with function sample(input bit reg_bit);
+    /*----------------------- target_I3CCSR__I3C_EC__SOCMGMTIF__T_SU_DAT_I2C_REG COVERGROUPS -----------------------*/
+    covergroup target_I3CCSR__I3C_EC__SoCMgmtIf__T_SU_DAT_I2C_REG_bit_cg with function sample(input bit reg_bit);
         option.per_instance = 1;
         reg_bit_cp : coverpoint reg_bit {
             bins value[2] = {0,1};
@@ -2371,7 +2371,7 @@
         }
 
     endgroup
-    covergroup I3CCSR__I3C_EC__SoCMgmtIf__T_SU_DAT_I2C_REG_fld_cg with function sample(
+    covergroup target_I3CCSR__I3C_EC__SoCMgmtIf__T_SU_DAT_I2C_REG_fld_cg with function sample(
     input bit [20-1:0] T_SU_DAT_I2C
     );
         option.per_instance = 1;
@@ -2379,8 +2379,8 @@
 
     endgroup
 
-    /*----------------------- I3CCSR__I3C_EC__SOCMGMTIF__T_HD_DAT_REG COVERGROUPS -----------------------*/
-    covergroup I3CCSR__I3C_EC__SoCMgmtIf__T_HD_DAT_REG_bit_cg with function sample(input bit reg_bit);
+    /*----------------------- target_I3CCSR__I3C_EC__SOCMGMTIF__T_HD_DAT_REG COVERGROUPS -----------------------*/
+    covergroup target_I3CCSR__I3C_EC__SoCMgmtIf__T_HD_DAT_REG_bit_cg with function sample(input bit reg_bit);
         option.per_instance = 1;
         reg_bit_cp : coverpoint reg_bit {
             bins value[2] = {0,1};
@@ -2391,7 +2391,7 @@
         }
 
     endgroup
-    covergroup I3CCSR__I3C_EC__SoCMgmtIf__T_HD_DAT_REG_fld_cg with function sample(
+    covergroup target_I3CCSR__I3C_EC__SoCMgmtIf__T_HD_DAT_REG_fld_cg with function sample(
     input bit [20-1:0] T_HD_DAT
     );
         option.per_instance = 1;
@@ -2399,8 +2399,8 @@
 
     endgroup
 
-    /*----------------------- I3CCSR__I3C_EC__SOCMGMTIF__T_HIGH_REG COVERGROUPS -----------------------*/
-    covergroup I3CCSR__I3C_EC__SoCMgmtIf__T_HIGH_REG_bit_cg with function sample(input bit reg_bit);
+    /*----------------------- target_I3CCSR__I3C_EC__SOCMGMTIF__T_HIGH_REG COVERGROUPS -----------------------*/
+    covergroup target_I3CCSR__I3C_EC__SoCMgmtIf__T_HIGH_REG_bit_cg with function sample(input bit reg_bit);
         option.per_instance = 1;
         reg_bit_cp : coverpoint reg_bit {
             bins value[2] = {0,1};
@@ -2411,7 +2411,7 @@
         }
 
     endgroup
-    covergroup I3CCSR__I3C_EC__SoCMgmtIf__T_HIGH_REG_fld_cg with function sample(
+    covergroup target_I3CCSR__I3C_EC__SoCMgmtIf__T_HIGH_REG_fld_cg with function sample(
     input bit [20-1:0] T_HIGH
     );
         option.per_instance = 1;
@@ -2419,8 +2419,8 @@
 
     endgroup
 
-    /*----------------------- I3CCSR__I3C_EC__SOCMGMTIF__T_HIGH_OD_REG COVERGROUPS -----------------------*/
-    covergroup I3CCSR__I3C_EC__SoCMgmtIf__T_HIGH_OD_REG_bit_cg with function sample(input bit reg_bit);
+    /*----------------------- target_I3CCSR__I3C_EC__SOCMGMTIF__T_HIGH_OD_REG COVERGROUPS -----------------------*/
+    covergroup target_I3CCSR__I3C_EC__SoCMgmtIf__T_HIGH_OD_REG_bit_cg with function sample(input bit reg_bit);
         option.per_instance = 1;
         reg_bit_cp : coverpoint reg_bit {
             bins value[2] = {0,1};
@@ -2431,7 +2431,7 @@
         }
 
     endgroup
-    covergroup I3CCSR__I3C_EC__SoCMgmtIf__T_HIGH_OD_REG_fld_cg with function sample(
+    covergroup target_I3CCSR__I3C_EC__SoCMgmtIf__T_HIGH_OD_REG_fld_cg with function sample(
     input bit [20-1:0] T_HIGH_OD
     );
         option.per_instance = 1;
@@ -2439,8 +2439,8 @@
 
     endgroup
 
-    /*----------------------- I3CCSR__I3C_EC__SOCMGMTIF__T_HIGH_INIT_OD_REG COVERGROUPS -----------------------*/
-    covergroup I3CCSR__I3C_EC__SoCMgmtIf__T_HIGH_INIT_OD_REG_bit_cg with function sample(input bit reg_bit);
+    /*----------------------- target_I3CCSR__I3C_EC__SOCMGMTIF__T_HIGH_INIT_OD_REG COVERGROUPS -----------------------*/
+    covergroup target_I3CCSR__I3C_EC__SoCMgmtIf__T_HIGH_INIT_OD_REG_bit_cg with function sample(input bit reg_bit);
         option.per_instance = 1;
         reg_bit_cp : coverpoint reg_bit {
             bins value[2] = {0,1};
@@ -2451,7 +2451,7 @@
         }
 
     endgroup
-    covergroup I3CCSR__I3C_EC__SoCMgmtIf__T_HIGH_INIT_OD_REG_fld_cg with function sample(
+    covergroup target_I3CCSR__I3C_EC__SoCMgmtIf__T_HIGH_INIT_OD_REG_fld_cg with function sample(
     input bit [20-1:0] T_HIGH_INIT_OD
     );
         option.per_instance = 1;
@@ -2459,8 +2459,8 @@
 
     endgroup
 
-    /*----------------------- I3CCSR__I3C_EC__SOCMGMTIF__T_HIGH_I2C_REG COVERGROUPS -----------------------*/
-    covergroup I3CCSR__I3C_EC__SoCMgmtIf__T_HIGH_I2C_REG_bit_cg with function sample(input bit reg_bit);
+    /*----------------------- target_I3CCSR__I3C_EC__SOCMGMTIF__T_HIGH_I2C_REG COVERGROUPS -----------------------*/
+    covergroup target_I3CCSR__I3C_EC__SoCMgmtIf__T_HIGH_I2C_REG_bit_cg with function sample(input bit reg_bit);
         option.per_instance = 1;
         reg_bit_cp : coverpoint reg_bit {
             bins value[2] = {0,1};
@@ -2471,7 +2471,7 @@
         }
 
     endgroup
-    covergroup I3CCSR__I3C_EC__SoCMgmtIf__T_HIGH_I2C_REG_fld_cg with function sample(
+    covergroup target_I3CCSR__I3C_EC__SoCMgmtIf__T_HIGH_I2C_REG_fld_cg with function sample(
     input bit [20-1:0] T_HIGH_I2C
     );
         option.per_instance = 1;
@@ -2479,8 +2479,8 @@
 
     endgroup
 
-    /*----------------------- I3CCSR__I3C_EC__SOCMGMTIF__T_LOW_REG COVERGROUPS -----------------------*/
-    covergroup I3CCSR__I3C_EC__SoCMgmtIf__T_LOW_REG_bit_cg with function sample(input bit reg_bit);
+    /*----------------------- target_I3CCSR__I3C_EC__SOCMGMTIF__T_LOW_REG COVERGROUPS -----------------------*/
+    covergroup target_I3CCSR__I3C_EC__SoCMgmtIf__T_LOW_REG_bit_cg with function sample(input bit reg_bit);
         option.per_instance = 1;
         reg_bit_cp : coverpoint reg_bit {
             bins value[2] = {0,1};
@@ -2491,7 +2491,7 @@
         }
 
     endgroup
-    covergroup I3CCSR__I3C_EC__SoCMgmtIf__T_LOW_REG_fld_cg with function sample(
+    covergroup target_I3CCSR__I3C_EC__SoCMgmtIf__T_LOW_REG_fld_cg with function sample(
     input bit [20-1:0] T_LOW
     );
         option.per_instance = 1;
@@ -2499,8 +2499,8 @@
 
     endgroup
 
-    /*----------------------- I3CCSR__I3C_EC__SOCMGMTIF__T_LOW_OD_REG COVERGROUPS -----------------------*/
-    covergroup I3CCSR__I3C_EC__SoCMgmtIf__T_LOW_OD_REG_bit_cg with function sample(input bit reg_bit);
+    /*----------------------- target_I3CCSR__I3C_EC__SOCMGMTIF__T_LOW_OD_REG COVERGROUPS -----------------------*/
+    covergroup target_I3CCSR__I3C_EC__SoCMgmtIf__T_LOW_OD_REG_bit_cg with function sample(input bit reg_bit);
         option.per_instance = 1;
         reg_bit_cp : coverpoint reg_bit {
             bins value[2] = {0,1};
@@ -2511,7 +2511,7 @@
         }
 
     endgroup
-    covergroup I3CCSR__I3C_EC__SoCMgmtIf__T_LOW_OD_REG_fld_cg with function sample(
+    covergroup target_I3CCSR__I3C_EC__SoCMgmtIf__T_LOW_OD_REG_fld_cg with function sample(
     input bit [20-1:0] T_LOW_OD
     );
         option.per_instance = 1;
@@ -2519,8 +2519,8 @@
 
     endgroup
 
-    /*----------------------- I3CCSR__I3C_EC__SOCMGMTIF__T_LOW_I2C_REG COVERGROUPS -----------------------*/
-    covergroup I3CCSR__I3C_EC__SoCMgmtIf__T_LOW_I2C_REG_bit_cg with function sample(input bit reg_bit);
+    /*----------------------- target_I3CCSR__I3C_EC__SOCMGMTIF__T_LOW_I2C_REG COVERGROUPS -----------------------*/
+    covergroup target_I3CCSR__I3C_EC__SoCMgmtIf__T_LOW_I2C_REG_bit_cg with function sample(input bit reg_bit);
         option.per_instance = 1;
         reg_bit_cp : coverpoint reg_bit {
             bins value[2] = {0,1};
@@ -2531,7 +2531,7 @@
         }
 
     endgroup
-    covergroup I3CCSR__I3C_EC__SoCMgmtIf__T_LOW_I2C_REG_fld_cg with function sample(
+    covergroup target_I3CCSR__I3C_EC__SoCMgmtIf__T_LOW_I2C_REG_fld_cg with function sample(
     input bit [20-1:0] T_LOW_I2C
     );
         option.per_instance = 1;
@@ -2539,8 +2539,8 @@
 
     endgroup
 
-    /*----------------------- I3CCSR__I3C_EC__SOCMGMTIF__T_HD_STA_REG COVERGROUPS -----------------------*/
-    covergroup I3CCSR__I3C_EC__SoCMgmtIf__T_HD_STA_REG_bit_cg with function sample(input bit reg_bit);
+    /*----------------------- target_I3CCSR__I3C_EC__SOCMGMTIF__T_HD_STA_REG COVERGROUPS -----------------------*/
+    covergroup target_I3CCSR__I3C_EC__SoCMgmtIf__T_HD_STA_REG_bit_cg with function sample(input bit reg_bit);
         option.per_instance = 1;
         reg_bit_cp : coverpoint reg_bit {
             bins value[2] = {0,1};
@@ -2551,7 +2551,7 @@
         }
 
     endgroup
-    covergroup I3CCSR__I3C_EC__SoCMgmtIf__T_HD_STA_REG_fld_cg with function sample(
+    covergroup target_I3CCSR__I3C_EC__SoCMgmtIf__T_HD_STA_REG_fld_cg with function sample(
     input bit [20-1:0] T_HD_STA
     );
         option.per_instance = 1;
@@ -2559,8 +2559,8 @@
 
     endgroup
 
-    /*----------------------- I3CCSR__I3C_EC__SOCMGMTIF__T_HD_STA_I2C_REG COVERGROUPS -----------------------*/
-    covergroup I3CCSR__I3C_EC__SoCMgmtIf__T_HD_STA_I2C_REG_bit_cg with function sample(input bit reg_bit);
+    /*----------------------- target_I3CCSR__I3C_EC__SOCMGMTIF__T_HD_STA_I2C_REG COVERGROUPS -----------------------*/
+    covergroup target_I3CCSR__I3C_EC__SoCMgmtIf__T_HD_STA_I2C_REG_bit_cg with function sample(input bit reg_bit);
         option.per_instance = 1;
         reg_bit_cp : coverpoint reg_bit {
             bins value[2] = {0,1};
@@ -2571,7 +2571,7 @@
         }
 
     endgroup
-    covergroup I3CCSR__I3C_EC__SoCMgmtIf__T_HD_STA_I2C_REG_fld_cg with function sample(
+    covergroup target_I3CCSR__I3C_EC__SoCMgmtIf__T_HD_STA_I2C_REG_fld_cg with function sample(
     input bit [20-1:0] T_HD_STA_I2C
     );
         option.per_instance = 1;
@@ -2579,8 +2579,8 @@
 
     endgroup
 
-    /*----------------------- I3CCSR__I3C_EC__SOCMGMTIF__T_HD_RSTA_REG COVERGROUPS -----------------------*/
-    covergroup I3CCSR__I3C_EC__SoCMgmtIf__T_HD_RSTA_REG_bit_cg with function sample(input bit reg_bit);
+    /*----------------------- target_I3CCSR__I3C_EC__SOCMGMTIF__T_HD_RSTA_REG COVERGROUPS -----------------------*/
+    covergroup target_I3CCSR__I3C_EC__SoCMgmtIf__T_HD_RSTA_REG_bit_cg with function sample(input bit reg_bit);
         option.per_instance = 1;
         reg_bit_cp : coverpoint reg_bit {
             bins value[2] = {0,1};
@@ -2591,7 +2591,7 @@
         }
 
     endgroup
-    covergroup I3CCSR__I3C_EC__SoCMgmtIf__T_HD_RSTA_REG_fld_cg with function sample(
+    covergroup target_I3CCSR__I3C_EC__SoCMgmtIf__T_HD_RSTA_REG_fld_cg with function sample(
     input bit [20-1:0] T_HD_RSTA
     );
         option.per_instance = 1;
@@ -2599,8 +2599,8 @@
 
     endgroup
 
-    /*----------------------- I3CCSR__I3C_EC__SOCMGMTIF__T_SU_STA_REG COVERGROUPS -----------------------*/
-    covergroup I3CCSR__I3C_EC__SoCMgmtIf__T_SU_STA_REG_bit_cg with function sample(input bit reg_bit);
+    /*----------------------- target_I3CCSR__I3C_EC__SOCMGMTIF__T_SU_STA_REG COVERGROUPS -----------------------*/
+    covergroup target_I3CCSR__I3C_EC__SoCMgmtIf__T_SU_STA_REG_bit_cg with function sample(input bit reg_bit);
         option.per_instance = 1;
         reg_bit_cp : coverpoint reg_bit {
             bins value[2] = {0,1};
@@ -2611,7 +2611,7 @@
         }
 
     endgroup
-    covergroup I3CCSR__I3C_EC__SoCMgmtIf__T_SU_STA_REG_fld_cg with function sample(
+    covergroup target_I3CCSR__I3C_EC__SoCMgmtIf__T_SU_STA_REG_fld_cg with function sample(
     input bit [20-1:0] T_SU_STA
     );
         option.per_instance = 1;
@@ -2619,8 +2619,8 @@
 
     endgroup
 
-    /*----------------------- I3CCSR__I3C_EC__SOCMGMTIF__T_SU_STA_I2C_REG COVERGROUPS -----------------------*/
-    covergroup I3CCSR__I3C_EC__SoCMgmtIf__T_SU_STA_I2C_REG_bit_cg with function sample(input bit reg_bit);
+    /*----------------------- target_I3CCSR__I3C_EC__SOCMGMTIF__T_SU_STA_I2C_REG COVERGROUPS -----------------------*/
+    covergroup target_I3CCSR__I3C_EC__SoCMgmtIf__T_SU_STA_I2C_REG_bit_cg with function sample(input bit reg_bit);
         option.per_instance = 1;
         reg_bit_cp : coverpoint reg_bit {
             bins value[2] = {0,1};
@@ -2631,7 +2631,7 @@
         }
 
     endgroup
-    covergroup I3CCSR__I3C_EC__SoCMgmtIf__T_SU_STA_I2C_REG_fld_cg with function sample(
+    covergroup target_I3CCSR__I3C_EC__SoCMgmtIf__T_SU_STA_I2C_REG_fld_cg with function sample(
     input bit [20-1:0] T_SU_STA_I2C
     );
         option.per_instance = 1;
@@ -2639,8 +2639,8 @@
 
     endgroup
 
-    /*----------------------- I3CCSR__I3C_EC__SOCMGMTIF__T_SU_STO_REG COVERGROUPS -----------------------*/
-    covergroup I3CCSR__I3C_EC__SoCMgmtIf__T_SU_STO_REG_bit_cg with function sample(input bit reg_bit);
+    /*----------------------- target_I3CCSR__I3C_EC__SOCMGMTIF__T_SU_STO_REG COVERGROUPS -----------------------*/
+    covergroup target_I3CCSR__I3C_EC__SoCMgmtIf__T_SU_STO_REG_bit_cg with function sample(input bit reg_bit);
         option.per_instance = 1;
         reg_bit_cp : coverpoint reg_bit {
             bins value[2] = {0,1};
@@ -2651,7 +2651,7 @@
         }
 
     endgroup
-    covergroup I3CCSR__I3C_EC__SoCMgmtIf__T_SU_STO_REG_fld_cg with function sample(
+    covergroup target_I3CCSR__I3C_EC__SoCMgmtIf__T_SU_STO_REG_fld_cg with function sample(
     input bit [20-1:0] T_SU_STO
     );
         option.per_instance = 1;
@@ -2659,8 +2659,8 @@
 
     endgroup
 
-    /*----------------------- I3CCSR__I3C_EC__SOCMGMTIF__T_SU_STO_I2C_REG COVERGROUPS -----------------------*/
-    covergroup I3CCSR__I3C_EC__SoCMgmtIf__T_SU_STO_I2C_REG_bit_cg with function sample(input bit reg_bit);
+    /*----------------------- target_I3CCSR__I3C_EC__SOCMGMTIF__T_SU_STO_I2C_REG COVERGROUPS -----------------------*/
+    covergroup target_I3CCSR__I3C_EC__SoCMgmtIf__T_SU_STO_I2C_REG_bit_cg with function sample(input bit reg_bit);
         option.per_instance = 1;
         reg_bit_cp : coverpoint reg_bit {
             bins value[2] = {0,1};
@@ -2671,7 +2671,7 @@
         }
 
     endgroup
-    covergroup I3CCSR__I3C_EC__SoCMgmtIf__T_SU_STO_I2C_REG_fld_cg with function sample(
+    covergroup target_I3CCSR__I3C_EC__SoCMgmtIf__T_SU_STO_I2C_REG_fld_cg with function sample(
     input bit [20-1:0] T_SU_STO_I2C
     );
         option.per_instance = 1;
@@ -2679,8 +2679,8 @@
 
     endgroup
 
-    /*----------------------- I3CCSR__I3C_EC__SOCMGMTIF__T_DS_OD_REG COVERGROUPS -----------------------*/
-    covergroup I3CCSR__I3C_EC__SoCMgmtIf__T_DS_OD_REG_bit_cg with function sample(input bit reg_bit);
+    /*----------------------- target_I3CCSR__I3C_EC__SOCMGMTIF__T_DS_OD_REG COVERGROUPS -----------------------*/
+    covergroup target_I3CCSR__I3C_EC__SoCMgmtIf__T_DS_OD_REG_bit_cg with function sample(input bit reg_bit);
         option.per_instance = 1;
         reg_bit_cp : coverpoint reg_bit {
             bins value[2] = {0,1};
@@ -2691,7 +2691,7 @@
         }
 
     endgroup
-    covergroup I3CCSR__I3C_EC__SoCMgmtIf__T_DS_OD_REG_fld_cg with function sample(
+    covergroup target_I3CCSR__I3C_EC__SoCMgmtIf__T_DS_OD_REG_fld_cg with function sample(
     input bit [20-1:0] T_DS_OD
     );
         option.per_instance = 1;
@@ -2699,8 +2699,8 @@
 
     endgroup
 
-    /*----------------------- I3CCSR__I3C_EC__SOCMGMTIF__T_FREE_REG COVERGROUPS -----------------------*/
-    covergroup I3CCSR__I3C_EC__SoCMgmtIf__T_FREE_REG_bit_cg with function sample(input bit reg_bit);
+    /*----------------------- target_I3CCSR__I3C_EC__SOCMGMTIF__T_FREE_REG COVERGROUPS -----------------------*/
+    covergroup target_I3CCSR__I3C_EC__SoCMgmtIf__T_FREE_REG_bit_cg with function sample(input bit reg_bit);
         option.per_instance = 1;
         reg_bit_cp : coverpoint reg_bit {
             bins value[2] = {0,1};
@@ -2711,7 +2711,7 @@
         }
 
     endgroup
-    covergroup I3CCSR__I3C_EC__SoCMgmtIf__T_FREE_REG_fld_cg with function sample(
+    covergroup target_I3CCSR__I3C_EC__SoCMgmtIf__T_FREE_REG_fld_cg with function sample(
     input bit [32-1:0] T_FREE
     );
         option.per_instance = 1;
@@ -2719,8 +2719,8 @@
 
     endgroup
 
-    /*----------------------- I3CCSR__I3C_EC__SOCMGMTIF__T_FREE_I2C_REG COVERGROUPS -----------------------*/
-    covergroup I3CCSR__I3C_EC__SoCMgmtIf__T_FREE_I2C_REG_bit_cg with function sample(input bit reg_bit);
+    /*----------------------- target_I3CCSR__I3C_EC__SOCMGMTIF__T_FREE_I2C_REG COVERGROUPS -----------------------*/
+    covergroup target_I3CCSR__I3C_EC__SoCMgmtIf__T_FREE_I2C_REG_bit_cg with function sample(input bit reg_bit);
         option.per_instance = 1;
         reg_bit_cp : coverpoint reg_bit {
             bins value[2] = {0,1};
@@ -2731,7 +2731,7 @@
         }
 
     endgroup
-    covergroup I3CCSR__I3C_EC__SoCMgmtIf__T_FREE_I2C_REG_fld_cg with function sample(
+    covergroup target_I3CCSR__I3C_EC__SoCMgmtIf__T_FREE_I2C_REG_fld_cg with function sample(
     input bit [32-1:0] T_FREE_I2C
     );
         option.per_instance = 1;
@@ -2739,8 +2739,8 @@
 
     endgroup
 
-    /*----------------------- I3CCSR__I3C_EC__SOCMGMTIF__T_AVAL_REG COVERGROUPS -----------------------*/
-    covergroup I3CCSR__I3C_EC__SoCMgmtIf__T_AVAL_REG_bit_cg with function sample(input bit reg_bit);
+    /*----------------------- target_I3CCSR__I3C_EC__SOCMGMTIF__T_AVAL_REG COVERGROUPS -----------------------*/
+    covergroup target_I3CCSR__I3C_EC__SoCMgmtIf__T_AVAL_REG_bit_cg with function sample(input bit reg_bit);
         option.per_instance = 1;
         reg_bit_cp : coverpoint reg_bit {
             bins value[2] = {0,1};
@@ -2751,7 +2751,7 @@
         }
 
     endgroup
-    covergroup I3CCSR__I3C_EC__SoCMgmtIf__T_AVAL_REG_fld_cg with function sample(
+    covergroup target_I3CCSR__I3C_EC__SoCMgmtIf__T_AVAL_REG_fld_cg with function sample(
     input bit [32-1:0] T_AVAL
     );
         option.per_instance = 1;
@@ -2759,8 +2759,8 @@
 
     endgroup
 
-    /*----------------------- I3CCSR__I3C_EC__SOCMGMTIF__T_IDLE_REG COVERGROUPS -----------------------*/
-    covergroup I3CCSR__I3C_EC__SoCMgmtIf__T_IDLE_REG_bit_cg with function sample(input bit reg_bit);
+    /*----------------------- target_I3CCSR__I3C_EC__SOCMGMTIF__T_IDLE_REG COVERGROUPS -----------------------*/
+    covergroup target_I3CCSR__I3C_EC__SoCMgmtIf__T_IDLE_REG_bit_cg with function sample(input bit reg_bit);
         option.per_instance = 1;
         reg_bit_cp : coverpoint reg_bit {
             bins value[2] = {0,1};
@@ -2771,7 +2771,7 @@
         }
 
     endgroup
-    covergroup I3CCSR__I3C_EC__SoCMgmtIf__T_IDLE_REG_fld_cg with function sample(
+    covergroup target_I3CCSR__I3C_EC__SoCMgmtIf__T_IDLE_REG_fld_cg with function sample(
     input bit [32-1:0] T_IDLE
     );
         option.per_instance = 1;
@@ -2779,8 +2779,8 @@
 
     endgroup
 
-    /*----------------------- I3CCSR__I3C_EC__SOCMGMTIF__HDR_TIMEOUT_EN_REG COVERGROUPS -----------------------*/
-    covergroup I3CCSR__I3C_EC__SoCMgmtIf__HDR_TIMEOUT_EN_REG_bit_cg with function sample(input bit reg_bit);
+    /*----------------------- target_I3CCSR__I3C_EC__SOCMGMTIF__HDR_TIMEOUT_EN_REG COVERGROUPS -----------------------*/
+    covergroup target_I3CCSR__I3C_EC__SoCMgmtIf__HDR_TIMEOUT_EN_REG_bit_cg with function sample(input bit reg_bit);
         option.per_instance = 1;
         reg_bit_cp : coverpoint reg_bit {
             bins value[2] = {0,1};
@@ -2791,7 +2791,7 @@
         }
 
     endgroup
-    covergroup I3CCSR__I3C_EC__SoCMgmtIf__HDR_TIMEOUT_EN_REG_fld_cg with function sample(
+    covergroup target_I3CCSR__I3C_EC__SoCMgmtIf__HDR_TIMEOUT_EN_REG_fld_cg with function sample(
     input bit [1-1:0] HDR_TIMEOUT_EN
     );
         option.per_instance = 1;
@@ -2799,8 +2799,8 @@
 
     endgroup
 
-    /*----------------------- I3CCSR__I3C_EC__SOCMGMTIF__T_HDR_TIMEOUT_REG COVERGROUPS -----------------------*/
-    covergroup I3CCSR__I3C_EC__SoCMgmtIf__T_HDR_TIMEOUT_REG_bit_cg with function sample(input bit reg_bit);
+    /*----------------------- target_I3CCSR__I3C_EC__SOCMGMTIF__T_HDR_TIMEOUT_REG COVERGROUPS -----------------------*/
+    covergroup target_I3CCSR__I3C_EC__SoCMgmtIf__T_HDR_TIMEOUT_REG_bit_cg with function sample(input bit reg_bit);
         option.per_instance = 1;
         reg_bit_cp : coverpoint reg_bit {
             bins value[2] = {0,1};
@@ -2811,7 +2811,7 @@
         }
 
     endgroup
-    covergroup I3CCSR__I3C_EC__SoCMgmtIf__T_HDR_TIMEOUT_REG_fld_cg with function sample(
+    covergroup target_I3CCSR__I3C_EC__SoCMgmtIf__T_HDR_TIMEOUT_REG_fld_cg with function sample(
     input bit [20-1:0] T_HDR_TIMEOUT
     );
         option.per_instance = 1;
@@ -2819,8 +2819,8 @@
 
     endgroup
 
-    /*----------------------- I3CCSR__I3C_EC__CTRLCFG__EXTCAP_HEADER COVERGROUPS -----------------------*/
-    covergroup I3CCSR__I3C_EC__CtrlCfg__EXTCAP_HEADER_bit_cg with function sample(input bit reg_bit);
+    /*----------------------- target_I3CCSR__I3C_EC__CTRLCFG__EXTCAP_HEADER COVERGROUPS -----------------------*/
+    covergroup target_I3CCSR__I3C_EC__CtrlCfg__EXTCAP_HEADER_bit_cg with function sample(input bit reg_bit);
         option.per_instance = 1;
         reg_bit_cp : coverpoint reg_bit {
             bins value[2] = {0,1};
@@ -2831,7 +2831,7 @@
         }
 
     endgroup
-    covergroup I3CCSR__I3C_EC__CtrlCfg__EXTCAP_HEADER_fld_cg with function sample(
+    covergroup target_I3CCSR__I3C_EC__CtrlCfg__EXTCAP_HEADER_fld_cg with function sample(
     input bit [8-1:0] CAP_ID,
     input bit [16-1:0] CAP_LENGTH
     );
@@ -2841,8 +2841,8 @@
 
     endgroup
 
-    /*----------------------- I3CCSR__I3C_EC__CTRLCFG__CONTROLLER_CONFIG COVERGROUPS -----------------------*/
-    covergroup I3CCSR__I3C_EC__CtrlCfg__CONTROLLER_CONFIG_bit_cg with function sample(input bit reg_bit);
+    /*----------------------- target_I3CCSR__I3C_EC__CTRLCFG__CONTROLLER_CONFIG COVERGROUPS -----------------------*/
+    covergroup target_I3CCSR__I3C_EC__CtrlCfg__CONTROLLER_CONFIG_bit_cg with function sample(input bit reg_bit);
         option.per_instance = 1;
         reg_bit_cp : coverpoint reg_bit {
             bins value[2] = {0,1};
@@ -2853,7 +2853,7 @@
         }
 
     endgroup
-    covergroup I3CCSR__I3C_EC__CtrlCfg__CONTROLLER_CONFIG_fld_cg with function sample(
+    covergroup target_I3CCSR__I3C_EC__CtrlCfg__CONTROLLER_CONFIG_fld_cg with function sample(
     input bit [2-1:0] OPERATION_MODE
     );
         option.per_instance = 1;
@@ -2861,8 +2861,8 @@
 
     endgroup
 
-    /*----------------------- I3CCSR__I3C_EC__TERMINATION_EXTCAP_HEADER COVERGROUPS -----------------------*/
-    covergroup I3CCSR__I3C_EC__TERMINATION_EXTCAP_HEADER_bit_cg with function sample(input bit reg_bit);
+    /*----------------------- target_I3CCSR__I3C_EC__TERMINATION_EXTCAP_HEADER COVERGROUPS -----------------------*/
+    covergroup target_I3CCSR__I3C_EC__TERMINATION_EXTCAP_HEADER_bit_cg with function sample(input bit reg_bit);
         option.per_instance = 1;
         reg_bit_cp : coverpoint reg_bit {
             bins value[2] = {0,1};
@@ -2873,7 +2873,7 @@
         }
 
     endgroup
-    covergroup I3CCSR__I3C_EC__TERMINATION_EXTCAP_HEADER_fld_cg with function sample(
+    covergroup target_I3CCSR__I3C_EC__TERMINATION_EXTCAP_HEADER_fld_cg with function sample(
     input bit [8-1:0] CAP_ID,
     input bit [16-1:0] CAP_LENGTH
     );

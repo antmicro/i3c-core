@@ -309,9 +309,7 @@ module i3c
     assign hci_resp_ready_thld      = '0;
     assign hci_resp_ready_thld_trig = '0;
     assign hci_resp_empty           = '0;
-    assign hci_resp_wvalid          = '0;
     assign hci_resp_wready          = '0;
-    assign hci_resp_wdata           = '0;
 
     // Command queue
     assign hci_cmd_full             = '0;
@@ -320,7 +318,6 @@ module i3c
     assign hci_cmd_ready_thld_trig  = '0;
     assign hci_cmd_empty            = '0;
     assign hci_cmd_rvalid           = '0;
-    assign hci_cmd_rready           = '0;
     assign hci_cmd_rdata            = '0;
 
     // RX queue
@@ -331,9 +328,7 @@ module i3c
     assign hci_rx_ready_thld        = '0;
     assign hci_rx_ready_thld_trig   = '0;
     assign hci_rx_empty             = '0;
-    assign hci_rx_wvalid            = '0;
     assign hci_rx_wready            = '0;
-    assign hci_rx_wdata             = '0;
 
     // TX queue
     assign hci_tx_full              = '0;
@@ -344,7 +339,6 @@ module i3c
     assign hci_tx_ready_thld_trig   = '0;
     assign hci_tx_empty             = '0;
     assign hci_tx_rvalid            = '0;
-    assign hci_tx_rready            = '0;
     assign hci_tx_rdata             = '0;
 
     // IBI queue
@@ -353,20 +347,12 @@ module i3c
     assign hci_ibi_ready_thld       = '0;
     assign hci_ibi_ready_thld_trig  = '0;
     assign hci_ibi_empty            = '0;
-    assign hci_ibi_wvalid           = '0;
     assign hci_ibi_wready           = '0;
-    assign hci_ibi_wdata            = '0;
 
     // DAT <-> Controller interface
-    assign dat_read_valid_hw        = '0;
-    assign dat_index_hw             = '0;
     assign dat_rdata_hw             = '0;
 
     // DCT <-> Controller interface
-    assign dct_write_valid_hw       = '0;
-    assign dct_read_valid_hw        = '0;
-    assign dct_index_hw             = '0;
-    assign dct_wdata_hw             = '0;
     assign dct_rdata_hw             = '0;
   end
 
@@ -442,7 +428,6 @@ module i3c
     assign tti_tx_desc_ready_thld_trig = '0;
     assign tti_tx_desc_empty           = '0;
     assign tti_tx_desc_rvalid          = '0;
-    assign tti_tx_desc_rready          = '0;
     assign tti_tx_desc_rdata           = '0;
 
     // TTI TX descriptors queue (Note: Signal names use rx_desc)
@@ -451,9 +436,7 @@ module i3c
     assign tti_rx_desc_ready_thld      = '0;
     assign tti_rx_desc_ready_thld_trig = '0;
     assign tti_rx_desc_empty           = '0;
-    assign tti_rx_desc_wvalid          = '0;
     assign tti_rx_desc_wready          = '0;
-    assign tti_rx_desc_wdata           = '0;
 
     // TTI RX queue
     assign tti_rx_full                 = '0;
@@ -463,11 +446,7 @@ module i3c
     assign tti_rx_ready_thld           = '0;
     assign tti_rx_ready_thld_trig      = '0;
     assign tti_rx_empty                = '0;
-    assign tti_rx_wvalid               = '0;
     assign tti_rx_wready               = '0;
-    assign tti_rx_wdata                = '0;
-    assign tti_rx_flush                = '0;
-    assign tti_rx_wlast                = '0;
 
     // TTI TX queue
     assign tti_tx_full                 = '0;
@@ -478,13 +457,7 @@ module i3c
     assign tti_tx_ready_thld_trig      = '0;
     assign tti_tx_empty                = '0;
     assign tti_tx_rvalid               = '0;
-    assign tti_tx_rready               = '0;
     assign tti_tx_rdata                = '0;
-    assign tti_tx_flush                = '0;
-
-    assign tti_tx_host_nack            = '0;
-    assign tti_tx_pr_end               = '0;
-    assign tti_tx_pr_start             = '0;
 
     // In-band Interrupt queue
     assign tti_ibi_full                = '0;
@@ -493,7 +466,6 @@ module i3c
     assign tti_ibi_ready_thld_trig     = '0;
     assign tti_ibi_empty               = '0;
     assign tti_ibi_rvalid              = '0;
-    assign tti_ibi_rready              = '0;
     assign tti_ibi_rdata               = '0;
     assign csr_tti_ibi_reg_rst         = '0;
   end
@@ -715,13 +687,10 @@ module i3c
   // tieoff unused signals
   if (TargetEn == 1'b0) begin : gen_target_tieoff_unused_csr_interfaces
     // Target Transaction CSR Interface
-    assign hwif_tti_out     = '0;
     assign hwif_tti_inp     = '0;
 
-    assign hwif_socmgmt_out = '0;
     assign hwif_socmgmt_inp = '0;
 
-    assign hwif_rec_out     = '0;
     assign hwif_rec_inp     = '0;
   end
 
@@ -744,20 +713,16 @@ module i3c
   // tieoff unused signals
   if (ControllerEn == 1'b0) begin : gen_controller_tieoff_unused_csr_interfaces
     // PIO CONTROL CSR interface
-    assign hwif_pio_control_in  = '0;
-    assign hwif_pio_control_out = '0;
+    assign hwif_pio_control_in = '0;
 
     // I3C BASE CSR interface
-    assign hwif_base_in         = '0;
-    assign hwif_base_out        = '0;
+    assign hwif_base_in        = '0;
 
     // DAT CSR interface
-    assign dat_in               = '0;
-    assign dat_out              = '0;
+    assign dat_in              = '0;
 
     // DCT CSR interface
-    assign dct_in               = '0;
-    assign dct_out              = '0;
+    assign dct_in              = '0;
   end
 
   csr_cfg_t::hwif_out_t hwif_out;
@@ -1185,63 +1150,6 @@ module i3c
   logic [   TtiIbiThldWidth-1:0] csr_tti_ibi_ready_thld;
   logic                          csr_tti_ibi_reg_rst_we;
   logic                          csr_tti_ibi_reg_rst_data;
-
-  // tieoff unused signals
-  if (TargetEn == 1'b0) begin : gen_controller_tieoff_unused_csr_tti_signals
-    // TTI RX Descriptor queue
-    assign csr_tti_rx_desc_req          = '0;
-    assign csr_tti_rx_desc_ack          = '0;
-    assign csr_tti_rx_desc_data         = '0;
-    assign csr_tti_rx_desc_ready_thld_i = '0;
-    assign csr_tti_rx_desc_ready_thld_o = '0;
-    assign csr_tti_rx_desc_ready_trig   = '0;
-    assign csr_tti_rx_desc_reg_rst      = '0;
-    assign csr_tti_rx_desc_reg_rst_we   = '0;
-    assign csr_tti_rx_desc_reg_rst_data = '0;
-
-    // TTI TX Descriptor queue
-    assign csr_tti_tx_desc_req          = '0;
-    assign csr_tti_tx_desc_ack          = '0;
-    assign csr_tti_tx_desc_data         = '0;
-    assign csr_tti_tx_desc_ready_thld_i = '0;
-    assign csr_tti_tx_desc_ready_thld_o = '0;
-    assign csr_tti_tx_desc_reg_rst      = '0;
-    assign csr_tti_tx_desc_reg_rst_we   = '0;
-    assign csr_tti_tx_desc_reg_rst_data = '0;
-    assign csr_tti_tx_desc_full         = '0;
-
-    // TTI RX data queue
-    assign csr_tti_rx_data_req          = '0;
-    assign csr_tti_rx_data_ack          = '0;
-    assign csr_tti_rx_data_data         = '0;
-    assign csr_tti_rx_data_start_thld   = '0;
-    assign csr_tti_rx_data_ready_thld_i = '0;
-    assign csr_tti_rx_data_ready_thld_o = '0;
-    assign csr_tti_rx_data_ready_trig   = '0;
-    assign csr_tti_rx_data_reg_rst      = '0;
-    assign csr_tti_rx_data_reg_rst_we   = '0;
-    assign csr_tti_rx_data_reg_rst_data = '0;
-
-    // TTI TX data queue
-    assign csr_tti_tx_data_req          = '0;
-    assign csr_tti_tx_data_ack          = '0;
-    assign csr_tti_tx_data_data         = '0;
-    assign csr_tti_tx_data_start_thld   = '0;
-    assign csr_tti_tx_data_ready_thld_i = '0;
-    assign csr_tti_tx_data_ready_thld_o = '0;
-    assign csr_tti_tx_data_reg_rst      = '0;
-    assign csr_tti_tx_data_reg_rst_we   = '0;
-    assign csr_tti_tx_data_reg_rst_data = '0;
-    assign csr_tti_tx_data_full         = '0;
-
-    // TTI In-band Interrupt (IBI) queue
-    assign csr_tti_ibi_req              = '0;
-    assign csr_tti_ibi_ack              = '0;
-    assign csr_tti_ibi_data             = '0;
-    assign csr_tti_ibi_ready_thld       = '0;
-    assign csr_tti_ibi_reg_rst_we       = '0;
-    assign csr_tti_ibi_reg_rst_data     = '0;
-  end
 
   if (TargetEn) begin : gen_target_tti
     tti #(

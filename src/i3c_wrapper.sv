@@ -148,12 +148,10 @@ module i3c_wrapper #(
   // tieoff unused signals
   if (ControllerEn == 1'b0) begin : gen_target_tieoff_unused_mem_interfaces
     // DAT memory export interface
-    assign dat_mem_src  = '0;
-    assign dat_mem_sink = '0;
+    assign dat_mem_src = '0;
 
     // DCT memory export interface
-    assign dct_mem_src  = '0;
-    assign dct_mem_sink = '0;
+    assign dct_mem_src = '0;
   end
   if (ControllerEn && TargetEn) begin : gen_controller_and_target_config
     i3c #(

@@ -380,7 +380,6 @@ module i3c_controller_fsm
         bus_rx_req_bit = bus_rx_req_bit_q;
         if (bus_rx_done & bus_rx_req_bit_q) begin
           bus_rx_req_bit_d = 1'b0;
-          bus_rx_req_byte = 1'b1;
           fmt_flag_read_valid_o = 1'b1;  // Signals that fmt_byte_o and fmt_bit_o are valid
           fmt_bit_o = bus_rx_data[0];
           if (fmt_flag_stop_after_i) begin  // abort the read by driving TX bit low
@@ -394,7 +393,6 @@ module i3c_controller_fsm
             ctrl_sda_o = 1'b0;
           end
           bus_rx_req_bit_d = 1'b1;
-          bus_rx_req_byte = 1'b0;
           rx_byte_d = bus_rx_data;
         end
         if (stop_next_q) begin  // abort the read by driving TX bit low

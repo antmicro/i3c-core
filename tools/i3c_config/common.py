@@ -29,6 +29,10 @@ class I3CGenericConfig:
                 continue
             setattr(self, n, value)
 
+        assert any(
+            [dict_cfg["ControllerSupport"], dict_cfg["TargetSupport"]]
+        ), "I3C requires at least one of [ControllerSupport, TargetSupport] option to function"
+
     def items(self):
         return self.__dict__.items()
 
@@ -101,11 +105,13 @@ class I3CCoreConfig:
     def _py_to_sv_type(self, element: any, name: str) -> int | str:
         match element:
             case bool():
+                if name in ["ControllerSupport", "TargetSupport"]:
+                    return 1 if element else 0
                 return 1 if element else None
             case str():  # Ensure the resulting definition contains ""
                 return f'"{element}"'
             case list():  # Run recursively on each element & return a string
-                return "{" + ", ".join([self._py_to_sv_type(e) for e in element]) + "}"
+                return "{" + ", ".join([str(self._py_to_sv_type(e, name)) for e in element]) + "}"
             case int():  # TODO: Maybe could also handle widths?
                 return element
             case _:  # Should've been reported when validating against schema

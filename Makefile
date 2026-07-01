@@ -75,7 +75,7 @@ CFG_GEN   = $(TOOL_DIR)/i3c_config/i3c_core_config.py
 ## YAML file holding valid configuration sets for the I3C RTL
 CFG_FILE ?= $(I3C_ROOT_DIR)/i3c_core_configs.yaml
 ## Selected configuration to use from CFG_FILE
-CFG_NAME ?= ahb
+CFG_NAME ?= ahb_target_only
 
 config: config-rtl config-rdl ## Generate RDL and RTL configuration files
 
@@ -166,36 +166,39 @@ test-s: config
 	$(NOX) -f $(COCOTB_NOXFILE) -s $(TEST)
 
 tests-axi_controller: ## Run all verification/cocotb/* RTL tests for the controller only configuration without coverage
-	$(MAKE) config CFG_NAME=axi_large_ttirx_fifo # this configuration is used for some controller mode tests
+	$(MAKE) config CFG_NAME=axi_controller_only_sim # this configuration is used for some controller mode tests
 	export DUT_CONFIG=controller_only && \
 	cd $(COCOTB_VERIF_DIR) && $(PYTHON) -m nox -R -t "controller" --no-venv --forcecolor
 
 tests-axi_controller_and_target: ## Run all verification/cocotb/* RTL tests for the controller and target configuration without coverage
-	$(MAKE) config CFG_NAME=axi_large_ttirx_fifo # this configuration is used for some controller mode tests
+	$(MAKE) config CFG_NAME=axi_controller_and_target_sim # this configuration is used for some controller mode tests
 	export DUT_CONFIG=controller_and_target && \
 	cd $(COCOTB_VERIF_DIR) && $(PYTHON) -m nox -R -t "controller" --no-venv --forcecolor
 
 tests: tests-axi tests-ahb ## Run all verification/cocotb/* RTL tests fro AHB and AXI bus configurations without coverage
 
 tests-axi: ## Run all verification/cocotb/* RTL tests for AXI bus configuration without coverage
-	export DUT_CONFIG=target_only
-	$(MAKE) config CFG_NAME=axi
+	$(MAKE) config CFG_NAME=axi_bypass
+	export DUT_CONFIG=target_only && \
 	$(NOX) -f $(COCOTB_NOXFILE) -t "axi"
 
 tests-axi-fast: ## Run all verification/cocotb/top/* RTL tests for AXI bus configuration without coverage
-	$(MAKE) config CFG_NAME=axi
+	$(MAKE) config CFG_NAME=axi_bypass
+	export DUT_CONFIG=target_only && \
 	$(NOX) -f $(COCOTB_NOXFILE) -t "axi_fast"
 
 tests-axi-block: ## Run all verification/cocotb/block/* RTL tests for AXI bus configuration without coverage
-	$(MAKE) config CFG_NAME=axi
+	$(MAKE) config CFG_NAME=axi_target_only
+	export DUT_CONFIG=target_only && \
 	$(NOX) -f $(COCOTB_NOXFILE) -t "axi_block"
 
 tests-ahb: ## Run all verification/cocotb/* RTL tests for AHB bus configuration without coverage
-	$(MAKE) config CFG_NAME=ahb
+	$(MAKE) config CFG_NAME=ahb_target_only
+	export DUT_CONFIG=target_only && \
 	$(NOX) -f $(COCOTB_NOXFILE) -t "ahb"
 
 tests-i2c: ## Run all I2C tests without coverage
-	$(MAKE) config CFG_NAME=ahb
+	$(MAKE) config CFG_NAME=ahb_target_only
 	$(NOX) -f $(COCOTB_NOXFILE) -t "i2c"
 
 # TODO: Enable full coverage flow

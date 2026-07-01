@@ -4,7 +4,7 @@
 # * SUPPORTED I3C CORE CONFIGURATIONS *
 # =====================================
 
-ahb:
+ahb_target_only:
   CmdFifoDepth: 64
   RxFifoDepth: 64
   TxFifoDepth: 64
@@ -18,8 +18,11 @@ ahb:
   FrontendBusAddrWidth: 18
   FrontendBusDataWidth: 64
   DisableInputFF: False
+  ControllerSupport: False
+  TargetSupport: True
 
-axi:
+
+axi_target_only:
   CmdFifoDepth: 64
   RxFifoDepth: 64
   TxFifoDepth: 64
@@ -38,8 +41,54 @@ axi:
   NumPrivIds: 4
   DisableInputFF: False
   DisableLoopback: True
+  ControllerSupport: False
+  TargetSupport: True
 
-axi_large_ttirx_fifo:
+axi_controller_only:
+  CmdFifoDepth: 64
+  RxFifoDepth: 64
+  TxFifoDepth: 64
+  RespFifoDepth: 64
+  IbiFifoDepth: 64
+  IbiFifoExtSize: False
+  IbiBufferDepth: 8
+  DatDepth: 32
+  DctDepth: 32
+  FrontendBusInterface: "AXI"
+  FrontendBusAddrWidth: 12
+  FrontendBusDataWidth: 32
+  FrontendBusUserWidth: 32
+  FrontendBusIdWidth: 8
+  FrontendBusIdFiltering: True
+  NumPrivIds: 4
+  DisableInputFF: False
+  DisableLoopback: True
+  ControllerSupport: True
+  TargetSupport: False
+
+axi_controller_and_target:
+  CmdFifoDepth: 64
+  RxFifoDepth: 64
+  TxFifoDepth: 64
+  RespFifoDepth: 64
+  IbiFifoDepth: 64
+  IbiFifoExtSize: False
+  IbiBufferDepth: 8
+  DatDepth: 32
+  DctDepth: 32
+  FrontendBusInterface: "AXI"
+  FrontendBusAddrWidth: 12
+  FrontendBusDataWidth: 32
+  FrontendBusUserWidth: 32
+  FrontendBusIdWidth: 8
+  FrontendBusIdFiltering: True
+  NumPrivIds: 4
+  DisableInputFF: False
+  DisableLoopback: True
+  ControllerSupport: True
+  TargetSupport: True
+
+axi_controller_only_sim:
   CmdFifoDepth: 64
   RxFifoDepth: 64
   TxFifoDepth: 64
@@ -59,6 +108,32 @@ axi_large_ttirx_fifo:
   NumPrivIds: 4
   DisableInputFF: False
   DisableLoopback: True
+  ControllerSupport: True
+  TargetSupport: False
+
+axi_controller_and_target_sim:
+  CmdFifoDepth: 64
+  RxFifoDepth: 64
+  TxFifoDepth: 64
+  TtiRxFifoDepth: 255
+  RespFifoDepth: 64
+  IbiFifoDepth: 64
+  IbiFifoExtSize: False
+  IbiBufferDepth: 8
+  DatDepth: 32
+  DctDepth: 32
+  FrontendBusInterface: "AXI"
+  FrontendBusAddrWidth: 12
+  FrontendBusDataWidth: 32
+  FrontendBusUserWidth: 32
+  FrontendBusIdWidth: 8
+  FrontendBusIdFiltering: True
+  NumPrivIds: 4
+  DisableInputFF: False
+  DisableLoopback: True
+  ControllerSupport: True
+  TargetSupport: True
+
 
 axi_bypass:
   CmdFifoDepth: 64
@@ -78,4 +153,6 @@ axi_bypass:
   FrontendBusIdFiltering: True
   NumPrivIds: 4
   DisableInputFF: False
+  ControllerSupport: False
+  TargetSupport: True
 

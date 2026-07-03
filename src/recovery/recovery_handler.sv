@@ -26,6 +26,11 @@ module recovery_handler
 #(
 
     parameter type csr_cfg_t = target_csr_t,
+
+    parameter type secfwrecoveryif_out_t = csr_cfg_extractor#(csr_cfg_t)::secfwrecoveryif_out_t,
+    parameter type secfwrecoveryif_in_t = csr_cfg_extractor#(csr_cfg_t)::secfwrecoveryif_in_t,
+    parameter type socmgmt_out_t = csr_cfg_extractor#(csr_cfg_t)::socmgmt_out_t,
+    parameter type socmgmt_in_t = csr_cfg_extractor#(csr_cfg_t)::socmgmt_in_t,
     parameter int unsigned TtiRxDescDataWidth = 32,
     parameter int unsigned TtiRxDescThldWidth = 8,
     parameter int unsigned TtiRxDescFifoDepth = 64,
@@ -190,12 +195,12 @@ module recovery_handler
 
     // ....................................................
     // SoC Managment CSR interface
-    input  csr_cfg_t::socmgmt_out_t hwif_socmgmt_i,
-    output csr_cfg_t::socmgmt_in_t  hwif_socmgmt_o,
+    input  socmgmt_out_t hwif_socmgmt_i,
+    output socmgmt_in_t  hwif_socmgmt_o,
 
     // Recovery CSR interface
-    input  csr_cfg_t::secfwrecoveryif_out_t hwif_rec_i,
-    output csr_cfg_t::secfwrecoveryif_in_t  hwif_rec_o,
+    input  secfwrecoveryif_out_t hwif_rec_i,
+    output secfwrecoveryif_in_t  hwif_rec_o,
 
     input logic bypass_i3c_core_i,
 

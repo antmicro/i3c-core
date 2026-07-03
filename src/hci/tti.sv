@@ -5,6 +5,9 @@ module tti
   import i3c_pkg::*;
 #(
     parameter type csr_cfg_t = target_csr_t,
+
+    parameter type tti_in_t = csr_cfg_extractor#(csr_cfg_t)::tti_in_t,
+    parameter type tti_out_t = csr_cfg_extractor#(csr_cfg_t)::tti_out_t,
     parameter int unsigned CsrDataWidth = 32,
 
     parameter int unsigned RxDescDataWidth = 32,
@@ -23,8 +26,8 @@ module tti
     input rst_ni, // active low reset
 
     // I3C CSR access interface
-    input  csr_cfg_t::tti_out_t hwif_tti_i,
-    output csr_cfg_t::tti_in_t  hwif_tti_o,
+    input  tti_out_t hwif_tti_i,
+    output tti_in_t  hwif_tti_o,
 
     // RX descriptors queue
     output logic                       rx_desc_queue_req_o,

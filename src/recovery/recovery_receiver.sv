@@ -95,12 +95,17 @@ module recovery_receiver
   import target_I3CCSR_pkg::*;
   import controller_and_target_I3CCSR_pkg::*;
 #(
-    parameter type         csr_cfg_t          = target_csr_t,
+    parameter type csr_cfg_t = target_csr_t,
+
+    parameter type secfwrecoveryif_out_t = csr_cfg_extractor#(csr_cfg_t)::secfwrecoveryif_out_t,
+    parameter type secfwrecoveryif_in_t = csr_cfg_extractor#(csr_cfg_t)::secfwrecoveryif_in_t,
+    parameter type socmgmt_out_t = csr_cfg_extractor#(csr_cfg_t)::socmgmt_out_t,
+    parameter type socmgmt_in_t = csr_cfg_extractor#(csr_cfg_t)::socmgmt_in_t,
     parameter int unsigned TtiRxDescDataWidth = 32,
     parameter int unsigned TtiTxDescDataWidth = 32,
     parameter int unsigned TtiRxDataDataWidth = 32,
-    parameter int unsigned CsrDataWidth       = 32,
-    parameter int unsigned IndirectFifoDepth  = 64
+    parameter int unsigned CsrDataWidth = 32,
+    parameter int unsigned IndirectFifoDepth = 64
 ) (
     //--------------------------------------------------------------------------
     // Clock and Reset
@@ -235,14 +240,14 @@ module recovery_receiver
     //--------------------------------------------------------------------------
     // Recovery CSR Interface
     //--------------------------------------------------------------------------
-    input  csr_cfg_t::secfwrecoveryif_out_t hwif_rec_i,
-    output csr_cfg_t::secfwrecoveryif_in_t  hwif_rec_o,
+    input  secfwrecoveryif_out_t hwif_rec_i,
+    output secfwrecoveryif_in_t  hwif_rec_o,
 
     //--------------------------------------------------------------------------
     // SoC Management CSR Interface (Bypass Mode)
     //--------------------------------------------------------------------------
-    input  csr_cfg_t::socmgmt_out_t hwif_socmgmt_i,
-    output csr_cfg_t::socmgmt_in_t  hwif_socmgmt_o
+    input  socmgmt_out_t hwif_socmgmt_i,
+    output socmgmt_in_t  hwif_socmgmt_o
 );
 
   //============================================================================

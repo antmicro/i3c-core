@@ -10,12 +10,14 @@
 module configuration #(
     parameter bit ControllerEn = 1'b0,
     parameter bit TargetEn = 1'b1,
-    parameter type csr_cfg_t = i3c_pkg::target_csr_t
+    parameter type csr_cfg_t = i3c_pkg::target_csr_t,
+
+    parameter type hwif_out_t = i3c_pkg::csr_cfg_extractor#(csr_cfg_t)::hwif_out_t
 ) (
     input logic clk_i,
     input logic rst_ni,
 
-    input csr_cfg_t::hwif_out_t hwif_out_i,
+    input hwif_out_t hwif_out_i,
 
     output logic phy_en_o,
     output logic [1:0] phy_mux_select_o,

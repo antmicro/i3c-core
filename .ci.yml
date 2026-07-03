@@ -156,27 +156,27 @@ lint-testplans:
 tests-ahb:
   extends: .test-job-base
   variables:
-    CFG_NAME: "ahb"
+    CFG_NAME: "ahb_target_only"
     BUS_TAG: "ahb"
 
 tests-axi:
   extends: .test-job-base
   variables:
-    CFG_NAME: "axi"
+    CFG_NAME: "axi_target_only"
     BUS_TAG: "axi"
 
 tests-axi_controller_and_target:
   extends: .test-job-base
   variables:
     DUT_CONFIG: "controller_and_target"
-    CFG_NAME: "axi_large_ttirx_fifo"
+    CFG_NAME: "axi_controller_and_target_sim"
     BUS_TAG: "controller" 
 
 tests-axi_controller:
   extends: .test-job-base
   variables:
     DUT_CONFIG: "controller_only"
-    CFG_NAME: "axi_large_ttirx_fifo"
+    CFG_NAME: "axi_controller_only_sim"
     BUS_TAG: "controller" 
 
 

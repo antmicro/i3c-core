@@ -14,7 +14,7 @@ override PLUSARGS := $(strip +FrontendBusInterface=AHB $(PLUSARGS))
 
 MODULE      ?= $(subst $(space),$(comma),$(subst .py,,$(TEST_FILES)))
 TOPLEVEL     = ahb_if_wrapper
-CFG_NAME     = ahb
+CFG_NAME     = ahb_target_only
 
 VERILOG_SOURCES  = \
     $(SRC_DIR)/i3c_pkg.sv \

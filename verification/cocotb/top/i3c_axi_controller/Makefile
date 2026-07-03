@@ -12,7 +12,6 @@ TEST_FILES   = $(sort $(wildcard test_*.py))
 
 MODULE      ?= $(subst $(space),$(comma),$(subst .py,,$(TEST_FILES)))
 TOPLEVEL     = i3c_controller_test_wrapper
-override CFG_NAME := axi_large_ttirx_fifo
 
 
 # Set appropriate bus interface via Cocotb's PLUSARGS:

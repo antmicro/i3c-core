@@ -21,6 +21,8 @@
   `define AXI_ID_FILTERING       1
   `define NUM_PRIV_IDS           4
   `define DISABLE_LOOPBACK       1
+  `define CONTROLLER_SUPPORT     0
+  `define TARGET_SUPPORT         1
   `define TTI_TX_DESC_FIFO_DEPTH 64
   `define TTI_RX_DESC_FIFO_DEPTH 64
   `define TTI_RX_FIFO_DEPTH      64

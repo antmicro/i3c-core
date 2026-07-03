@@ -555,7 +555,7 @@ def i3c_axi_fast_verify(session, test_group, test_name, coverage, simulator):
 @nox.parametrize("test_name", ["test_i3c_target", "test_empty_queue_read"])
 @nox.parametrize("coverage", coverage_types)
 @nox.parametrize("simulator", simulators)
-def i3c_axi_target_verify(session, test_group, test_name, coverage, simulator):
+def i3c_axi_fast_target_verify(session, test_group, test_name, coverage, simulator):
     verify_top(session, test_group, test_name, coverage, simulator)
 
 
@@ -564,5 +564,5 @@ def i3c_axi_target_verify(session, test_group, test_name, coverage, simulator):
 @nox.parametrize("test_name", ["test_recovery"])
 @nox.parametrize("coverage", coverage_types)
 @nox.parametrize("simulator", simulators)
-def i3c_axi_recovery_verify(session, test_group, test_name, coverage, simulator):
+def i3c_axi_fast_recovery_verify(session, test_group, test_name, coverage, simulator):
     verify_top(session, test_group, test_name, coverage, simulator)

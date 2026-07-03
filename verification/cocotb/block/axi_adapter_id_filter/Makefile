@@ -14,7 +14,7 @@ override PLUSARGS := $(strip +FrontendBusInterface=AXI $(PLUSARGS))
 
 MODULE  ?= $(subst $(space),$(comma),$(subst .py,,$(TEST_FILES)))
 TOPLEVEL = axi_adapter_wrapper
-CFG_NAME = axi
+CFG_NAME = axi_target_only
 
 include $(TEST_DIR)/../../caliptra_common.mk
 

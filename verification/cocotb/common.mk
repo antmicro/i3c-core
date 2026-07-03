@@ -23,13 +23,6 @@ $(info VERILOG_SOURCES = $(VERILOG_SOURCES))
 TGT_FLAG = +TargetSupport
 CTRL_FLAG = +ControllerSupport
 DUT_CONFIG ?= 
-# TODO: remove this
-ifeq ($(findstring $(TGT_FLAG),$(PLUSARGS)),$(TGT_FLAG))
-    VERILOG_SOURCES := $(VERILOG_SOURCES) $(VERILOG_TARGET_SOURCES)
-endif
-ifeq ($(findstring $(CTRL_FLAG),$(PLUSARGS)),$(CTRL_FLAG))
-    VERILOG_SOURCES := $(VERILOG_SOURCES) $(VERILOG_CONTROLLER_SOURCES)
-endif
 
 # None of the plusargs has been specified, add all sources to ensure proper execution
 ifneq ($(findstring $(TGT_FLAG),$(PLUSARGS)),$(TGT_FLAG))
@@ -70,13 +63,13 @@ ifeq ($(SIM), verilator)
     EXTRA_ARGS += -Wno-DECLFILENAME -Wno-TIMESCALEMOD
 endif
 ifeq ($(DUT_CONFIG), controller_only)
-    COMPILE_ARGS += -GControllerEn=1 -GTargetEn=0
+		CFG_NAME ?= axi_controller_only_sim
     export I3C_DUT_CONFIG = controller
 else ifeq ($(DUT_CONFIG), controller_and_target)
-    COMPILE_ARGS += -GControllerEn=1 -GTargetEn=1
+		CFG_NAME ?= axi_controller_and_target_sim
     export I3C_DUT_CONFIG = controller_and_target
 else ifeq ($(DUT_CONFIG), target_only)
-    COMPILE_ARGS += -GControllerEn=0 -GTargetEn=1
+		CFG_NAME ?= axi_target_only
     export I3C_DUT_CONFIG = target
 endif
 
@@ -172,7 +165,7 @@ endif
 endif
 
 CFG_FILE ?= $(I3C_ROOT_DIR)/i3c_core_configs.yaml## Path: YAML file holding configuration of the I3C RTL
-CFG_NAME ?= axi_large_ttirx_fifo ## Valid configuration name from the YAML configuration file this config is used for simulation
+CFG_NAME ?= axi_target_only ## Valid configuration name from the YAML configuration file this config is used for simulation
 
 $(TEST_DIR)/sim_build/i3c_config.vh:
 	pushd $(I3C_ROOT_DIR) && CFG_FILE=$(CFG_FILE) CFG_NAME=$(CFG_NAME) make config && popd

@@ -11,8 +11,8 @@
 */
 
 module i3c_controller_test_wrapper #(
-    parameter bit ControllerEn = 0,  // enables host controller configuration
-    parameter bit TargetEn = 1,  // enables target configuration
+    parameter bit ControllerEn = `CONTROLLER_SUPPORT,  // enables host controller configuration
+    parameter bit TargetEn = `TARGET_SUPPORT,  // enables target configuration
 `ifdef I3C_USE_AHB
     parameter int unsigned AhbDataWidth = `AHB_DATA_WIDTH,
     parameter int unsigned AhbAddrWidth = `AHB_ADDR_WIDTH,

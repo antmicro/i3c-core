@@ -1,16 +1,17 @@
 // SPDX-License-Identifier: Apache-2.0
 `include "i3c_defines.svh"
-import i3c_pkg::*;
 
-module i3c_wrapper #(
+module i3c_wrapper
+  import i3c_pkg::*;
+#(
     // The i3c core supports 3 configurations which can be configured using
     // the ControllerEn and TargetEn parameters. The following configurations
     // are supported:
     // 1. Target Only (Used in Caliptra)
     // 2. Controller Only
     // 3. Controller and Target
-    parameter bit ControllerEn = 0,  // enables host controller configuration
-    parameter bit TargetEn = 1,  // enables target configuration
+    parameter bit ControllerEn = `CONTROLLER_SUPPORT,  // enables host controller configuration
+    parameter bit TargetEn = `TARGET_SUPPORT,  // enables target configuration
 `ifdef I3C_USE_AHB
     parameter int unsigned AhbDataWidth = `AHB_DATA_WIDTH,
     parameter int unsigned AhbAddrWidth = `AHB_ADDR_WIDTH,

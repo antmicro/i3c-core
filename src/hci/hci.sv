@@ -4,6 +4,15 @@ module hci
   import i3c_pkg::*;
 #(
     parameter type csr_cfg_t = target_csr_t,
+
+    parameter type base_out_t = csr_cfg_extractor#(csr_cfg_t)::base_out_t,
+    parameter type base_in_t = csr_cfg_extractor#(csr_cfg_t)::base_in_t,
+    parameter type pio_out_t = csr_cfg_extractor#(csr_cfg_t)::pio_out_t,
+    parameter type pio_in_t = csr_cfg_extractor#(csr_cfg_t)::pio_in_t,
+    parameter type dat_out_t = csr_cfg_extractor#(csr_cfg_t)::dat_out_t,
+    parameter type dat_in_t = csr_cfg_extractor#(csr_cfg_t)::dat_in_t,
+    parameter type dct_out_t = csr_cfg_extractor#(csr_cfg_t)::dct_out_t,
+    parameter type dct_in_t = csr_cfg_extractor#(csr_cfg_t)::dct_in_t,
     parameter int unsigned DatAw = 7,
     parameter int unsigned DctAw = 7,
 
@@ -112,20 +121,20 @@ module hci
     input logic [HciIbiDataWidth-1:0] hci_ibi_wdata_i,
 
     // PIO CONTROL CSR interface
-    input  csr_cfg_t::pio_out_t hwif_pio_control_i,
-    output csr_cfg_t::pio_in_t  hwif_pio_control_o,
+    input  pio_out_t hwif_pio_control_i,
+    output pio_in_t  hwif_pio_control_o,
 
     // I3C BASE CSR interface
-    input  csr_cfg_t::base_out_t hwif_base_i,
-    output csr_cfg_t::base_in_t  hwif_base_o,
+    input  base_out_t hwif_base_i,
+    output base_in_t  hwif_base_o,
 
     // DAT CSR interface
-    input  csr_cfg_t::dat_out_t dat_i,
-    output csr_cfg_t::dat_in_t  dat_o,
+    input  dat_out_t dat_i,
+    output dat_in_t  dat_o,
 
     // DCT CSR interface
-    input  csr_cfg_t::dct_out_t dct_i,
-    output csr_cfg_t::dct_in_t  dct_o,
+    input  dct_out_t dct_i,
+    output dct_in_t  dct_o,
 
     // Error Interface from flow_active
     input i3c_irq_t ctrl_int_stat_i

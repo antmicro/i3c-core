@@ -25,6 +25,22 @@ module i3c
     parameter bit ControllerEn = 0,
     parameter bit TargetEn = 1,
     parameter type csr_cfg_t = target_csr_t,
+
+    parameter type hwif_out_t = csr_cfg_extractor#(csr_cfg_t)::hwif_out_t,
+    parameter type base_out_t = csr_cfg_extractor#(csr_cfg_t)::base_out_t,
+    parameter type base_in_t = csr_cfg_extractor#(csr_cfg_t)::base_in_t,
+    parameter type pio_out_t = csr_cfg_extractor#(csr_cfg_t)::pio_out_t,
+    parameter type pio_in_t = csr_cfg_extractor#(csr_cfg_t)::pio_in_t,
+    parameter type secfwrecoveryif_out_t = csr_cfg_extractor#(csr_cfg_t)::secfwrecoveryif_out_t,
+    parameter type secfwrecoveryif_in_t = csr_cfg_extractor#(csr_cfg_t)::secfwrecoveryif_in_t,
+    parameter type socmgmt_out_t = csr_cfg_extractor#(csr_cfg_t)::socmgmt_out_t,
+    parameter type socmgmt_in_t = csr_cfg_extractor#(csr_cfg_t)::socmgmt_in_t,
+    parameter type tti_in_t = csr_cfg_extractor#(csr_cfg_t)::tti_in_t,
+    parameter type tti_out_t = csr_cfg_extractor#(csr_cfg_t)::tti_out_t,
+    parameter type dat_out_t = csr_cfg_extractor#(csr_cfg_t)::dat_out_t,
+    parameter type dat_in_t = csr_cfg_extractor#(csr_cfg_t)::dat_in_t,
+    parameter type dct_out_t = csr_cfg_extractor#(csr_cfg_t)::dct_out_t,
+    parameter type dct_in_t = csr_cfg_extractor#(csr_cfg_t)::dct_in_t,
 `ifdef I3C_USE_AHB
     parameter int unsigned AhbDataWidth = `AHB_DATA_WIDTH,
     parameter int unsigned AhbAddrWidth = `AHB_ADDR_WIDTH,
@@ -675,14 +691,14 @@ module i3c
 
   // CSR Interface
   // Target Transaction CSR Interface
-  csr_cfg_t::tti_out_t hwif_tti_out;
-  csr_cfg_t::tti_in_t hwif_tti_inp;
+  tti_out_t hwif_tti_out;
+  tti_in_t hwif_tti_inp;
 
-  csr_cfg_t::socmgmt_out_t hwif_socmgmt_out;
-  csr_cfg_t::socmgmt_in_t hwif_socmgmt_inp;
+  socmgmt_out_t hwif_socmgmt_out;
+  socmgmt_in_t hwif_socmgmt_inp;
 
-  csr_cfg_t::secfwrecoveryif_out_t hwif_rec_out;
-  csr_cfg_t::secfwrecoveryif_in_t hwif_rec_inp;
+  secfwrecoveryif_out_t hwif_rec_out;
+  secfwrecoveryif_in_t hwif_rec_inp;
 
   // tieoff unused signals
   if (TargetEn == 1'b0) begin : gen_target_tieoff_unused_csr_interfaces
@@ -695,20 +711,20 @@ module i3c
   end
 
   // PIO CONTROL CSR interface
-  csr_cfg_t::pio_in_t   hwif_pio_control_in;
-  csr_cfg_t::pio_out_t  hwif_pio_control_out;
+  pio_in_t   hwif_pio_control_in;
+  pio_out_t  hwif_pio_control_out;
 
   // I3C BASE CSR interface
-  csr_cfg_t::base_in_t  hwif_base_in;
-  csr_cfg_t::base_out_t hwif_base_out;
+  base_in_t  hwif_base_in;
+  base_out_t hwif_base_out;
 
   // DAT CSR interface
-  csr_cfg_t::dat_in_t   dat_in;
-  csr_cfg_t::dat_out_t  dat_out;
+  dat_in_t   dat_in;
+  dat_out_t  dat_out;
 
   // DCT CSR interface
-  csr_cfg_t::dct_in_t   dct_in;
-  csr_cfg_t::dct_out_t  dct_out;
+  dct_in_t   dct_in;
+  dct_out_t  dct_out;
 
   // tieoff unused signals
   if (ControllerEn == 1'b0) begin : gen_controller_tieoff_unused_csr_interfaces
@@ -725,7 +741,7 @@ module i3c
     assign dct_in              = '0;
   end
 
-  csr_cfg_t::hwif_out_t hwif_out;
+  hwif_out_t hwif_out;
 
   logic bypass_i3c_core;
 `ifndef DISABLE_LOOPBACK

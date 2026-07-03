@@ -4,6 +4,23 @@ module csri
     parameter bit ControllerEn = 0,
     parameter bit TargetEn = 1,
     parameter type csr_cfg_t = target_csr_t,
+
+    parameter type hwif_out_t = csr_cfg_extractor#(csr_cfg_t)::hwif_out_t,
+    parameter type hwif_in_t = csr_cfg_extractor#(csr_cfg_t)::hwif_in_t,
+    parameter type base_out_t = csr_cfg_extractor#(csr_cfg_t)::base_out_t,
+    parameter type base_in_t = csr_cfg_extractor#(csr_cfg_t)::base_in_t,
+    parameter type pio_out_t = csr_cfg_extractor#(csr_cfg_t)::pio_out_t,
+    parameter type pio_in_t = csr_cfg_extractor#(csr_cfg_t)::pio_in_t,
+    parameter type secfwrecoveryif_out_t = csr_cfg_extractor#(csr_cfg_t)::secfwrecoveryif_out_t,
+    parameter type secfwrecoveryif_in_t = csr_cfg_extractor#(csr_cfg_t)::secfwrecoveryif_in_t,
+    parameter type socmgmt_out_t = csr_cfg_extractor#(csr_cfg_t)::socmgmt_out_t,
+    parameter type socmgmt_in_t = csr_cfg_extractor#(csr_cfg_t)::socmgmt_in_t,
+    parameter type tti_in_t = csr_cfg_extractor#(csr_cfg_t)::tti_in_t,
+    parameter type tti_out_t = csr_cfg_extractor#(csr_cfg_t)::tti_out_t,
+    parameter type dat_out_t = csr_cfg_extractor#(csr_cfg_t)::dat_out_t,
+    parameter type dat_in_t = csr_cfg_extractor#(csr_cfg_t)::dat_in_t,
+    parameter type dct_out_t = csr_cfg_extractor#(csr_cfg_t)::dct_out_t,
+    parameter type dct_in_t = csr_cfg_extractor#(csr_cfg_t)::dct_in_t,
     parameter int unsigned CsrDataWidth = 32,
     parameter int unsigned CsrAddrWidth = 12
 ) (
@@ -11,34 +28,34 @@ module csri
     input rst_ni, // active low reset
 
     // Target Transaction Interface CSRs
-    input  csr_cfg_t::tti_in_t  hwif_tti_i,
-    output csr_cfg_t::tti_out_t hwif_tti_o,
+    input  tti_in_t  hwif_tti_i,
+    output tti_out_t hwif_tti_o,
 
     // Recovery interface CSRs
-    input  csr_cfg_t::secfwrecoveryif_in_t  hwif_rec_i,
-    output csr_cfg_t::secfwrecoveryif_out_t hwif_rec_o,
+    input  secfwrecoveryif_in_t  hwif_rec_i,
+    output secfwrecoveryif_out_t hwif_rec_o,
 
     // SoC Management CSR Interface
-    input  csr_cfg_t::socmgmt_in_t  hwif_socmgmt_i,
-    output csr_cfg_t::socmgmt_out_t hwif_socmgmt_o,
+    input  socmgmt_in_t  hwif_socmgmt_i,
+    output socmgmt_out_t hwif_socmgmt_o,
 
     // PIO CONTROL CSR interface
-    input  csr_cfg_t::pio_in_t  hwif_pio_control_i,
-    output csr_cfg_t::pio_out_t hwif_pio_control_o,
+    input  pio_in_t  hwif_pio_control_i,
+    output pio_out_t hwif_pio_control_o,
 
     // I3C BASE CSR interface
-    input  csr_cfg_t::base_in_t  hwif_base_i,
-    output csr_cfg_t::base_out_t hwif_base_o,
+    input  base_in_t  hwif_base_i,
+    output base_out_t hwif_base_o,
 
     // DAT CSR interface
-    input  csr_cfg_t::dat_in_t  dat_i,
-    output csr_cfg_t::dat_out_t dat_o,
+    input  dat_in_t  dat_i,
+    output dat_out_t dat_o,
 
     // DCT CSR interface
-    input  csr_cfg_t::dct_in_t  dct_i,
-    output csr_cfg_t::dct_out_t dct_o,
+    input  dct_in_t  dct_i,
+    output dct_out_t dct_o,
 
-    output csr_cfg_t::hwif_out_t hwif_out_o,
+    output hwif_out_t hwif_out_o,
 
     // I3C SW CSR access interface
     input  logic                    s_cpuif_req,
@@ -77,7 +94,7 @@ module csri
     input logic rst_action_valid_i
 );
 
-  csr_cfg_t::hwif_in_t hwif_in;
+  hwif_in_t hwif_in;
 
   // Propagate reset to CSRs
   assign hwif_in.rst_ni = rst_ni;

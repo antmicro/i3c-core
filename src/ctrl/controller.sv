@@ -12,6 +12,9 @@ module controller
     parameter bit ControllerEn = 0,
     parameter bit TargetEn = 1,
     parameter type csr_cfg_t = target_csr_t,
+    parameter type hwif_out_t = csr_cfg_extractor#(csr_cfg_t)::hwif_out_t,
+    parameter type secfwrecoveryif_out_t = csr_cfg_extractor#(csr_cfg_t)::secfwrecoveryif_out_t,
+
     parameter int unsigned DatAw = i3c_pkg::DatAw,
     parameter int unsigned DctAw = i3c_pkg::DctAw,
 
@@ -219,8 +222,8 @@ module controller
     output logic ctrl_irq_o,
 
     // Controller configuration
-    input csr_cfg_t::hwif_out_t hwif_out_i,
-    input csr_cfg_t::secfwrecoveryif_out_t hwif_rec_i,
+    input hwif_out_t hwif_out_i,
+    input secfwrecoveryif_out_t hwif_rec_i,
 
     // Status update signals
     output ibi_status_e ibi_status_o,

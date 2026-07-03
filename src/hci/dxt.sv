@@ -7,6 +7,11 @@ module dxt
   import i3c_pkg::*;
 #(
     parameter type csr_cfg_t = target_csr_t,
+
+    parameter type dat_out_t = csr_cfg_extractor#(csr_cfg_t)::dat_out_t,
+    parameter type dat_in_t = csr_cfg_extractor#(csr_cfg_t)::dat_in_t,
+    parameter type dct_out_t = csr_cfg_extractor#(csr_cfg_t)::dct_out_t,
+    parameter type dct_in_t = csr_cfg_extractor#(csr_cfg_t)::dct_in_t,
     parameter int unsigned DatAw = 7,
     parameter int unsigned DctAw = 7
 ) (
@@ -26,12 +31,12 @@ module dxt
     output logic [    127:0] dct_rdata_hw_o,
 
     // DAT CSR interface
-    input  csr_cfg_t::dat_out_t csr_dat_hwif_i,
-    output csr_cfg_t::dat_in_t  csr_dat_hwif_o,
+    input  dat_out_t csr_dat_hwif_i,
+    output dat_in_t  csr_dat_hwif_o,
 
     // DCT CSR interface
-    input  csr_cfg_t::dct_out_t csr_dct_hwif_i,
-    output csr_cfg_t::dct_in_t  csr_dct_hwif_o,
+    input  dct_out_t csr_dct_hwif_i,
+    output dct_in_t  csr_dct_hwif_o,
 
     // DAT memory export interface
     input  dat_mem_src_t  dat_mem_src_i,

@@ -542,13 +542,13 @@ module i3c_controller_fsm
   // Read Bus
 
   bus_rx_req_t bus_rx_req;
-  bus_rx_rsp_t bus_rx_rsp;
+  bus_rx_rsp_t bus_rx_rsp_d, bus_rx_rsp_q;
   always_comb begin : bus_rx_flow_assignment
     bus_rx_req  = '{req_byte: bus_rx_req_byte, req_bit: bus_rx_req_bit};
 
-    bus_rx_idle = bus_rx_rsp.idle;
-    bus_rx_done = bus_rx_rsp.done;
-    bus_rx_data = 8'(bus_rx_rsp.data);
+    bus_rx_idle = bus_rx_rsp_q.idle;
+    bus_rx_done = bus_rx_rsp_q.done;
+    bus_rx_data = 8'(bus_rx_rsp_q.data);
   end
 
   bus_rx_flow xbus_rx_flow (
@@ -560,7 +560,7 @@ module i3c_controller_fsm
       .sda_i            (ctrl_sda_i),
 
       .rx_req_i(bus_rx_req),
-      .rx_rsp_o(bus_rx_rsp)
+      .rx_rsp_o(bus_rx_rsp_d)
   );
 
 
@@ -620,8 +620,10 @@ module i3c_controller_fsm
   // Store bus_tx_done signal
   always_ff @(posedge clk_i or negedge rst_ni) begin
     if (~rst_ni) begin
+      bus_rx_rsp_q <= '0;
       bus_tx_done_raw_q <= 1'b0;
     end else begin
+      bus_rx_rsp_q <= bus_rx_rsp_d;
       bus_tx_done_raw_q <= bus_tx_done_raw_d;
     end
   end

@@ -10,9 +10,10 @@
 #   2. generate-matrix: Uses nox's JSON output to discover test sessions
 #   3. tests-ahb: Runs all AHB-tagged tests in parallel (one job per test)
 #   4. tests-axi: Runs all AXI-tagged tests in parallel (one job per test)
-#   5. tests-axi-controller: Runs all AXI-Controller tests in parallel
-#   6. test-results: Aggregates results from all test jobs
-#   7. docs-build: Builds and deploys documentation (only after tests pass)
+#   5. tests-axi-controller-and-target: Runs all AXI-Controller tests in parallel
+#   6. tests-axi-controller-only: Runs all AXI-Controller only tests in parallel
+#   7. test-results: Aggregates results from all test jobs
+#   8. docs-build: Builds and deploys documentation (only after tests pass)
 #
 # Optional: Long-running tests (i3c_ahb_verify, i3c_axi_verify) can be split
 # into individual parametrized runs by enabling SPLIT_TESTS in generate-matrix.
@@ -30,7 +31,7 @@ permissions:
 
 env:
   DEBIAN_FRONTEND: "noninteractive"
-  VERILATOR_VERSION: "v5.046"
+  VERILATOR_VERSION: "v5.050"
   WAVES: "0"
 
 jobs:
@@ -89,7 +90,8 @@ jobs:
     outputs:
       ahb-matrix: ${{ steps.gen.outputs.ahb_matrix }}
       axi-matrix: ${{ steps.gen.outputs.axi_matrix }}
-      axi-controller-matrix: ${{ steps.gen.outputs.axi_controller_matrix }}
+      axi-controller-and-target-matrix: ${{ steps.gen.outputs.axi_controller_and_target_matrix }}
+      axi-controller-only-matrix: ${{ steps.gen.outputs.axi_controller_only_matrix }}
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
@@ -117,11 +119,16 @@ jobs:
           # Long-running tests that should be split into individual parametrized runs
           SPLIT_TESTS = {"i3c_ahb_verify", "i3c_axi_verify"}
 
-          # Use nox's native JSON output to list all sessions
+          # We set DUT_CONFIG to controller_and_target to force nox to
+          # expose all tests, so we can route them ourselves based on tags.
           result = subprocess.run(
               ["nox", "-l", "--json", "-f", "noxfile.py"],
               capture_output=True, text=True,
-              env={**os.environ, "PYTHONDONTWRITEBYTECODE": "1"}
+              env={
+                  **os.environ, 
+                  "PYTHONDONTWRITEBYTECODE": "1",
+                  "DUT_CONFIG": "controller_and_target"
+              }
           )
 
           if result.returncode != 0:
@@ -142,45 +149,59 @@ jobs:
 
           ahb_tests = set()
           axi_tests = set()
-          axi_controller_tests = set()
+          axi_controller_and_target_tests = set()
+          axi_controller_only_tests = set()
 
           for session in sessions:
               tags = session.get("tags", [])
 
-              # Only process test sessions (tagged with 'tests')
               if "tests" not in tags:
                   continue
 
               name = session["name"]
-              has_ahb = "ahb" in tags
-              has_axi = "axi" in tags
-              has_axi_controller = "axi-controller" in tags  # Or "axi_controller" if your nox tags use underscores
-
+              
               if name in SPLIT_TESTS:
                   session_id = session["session"]
               else:
                   session_id = name
 
-              # Categorize tests by bus configuration
+              # Check for specific role/bus tags
+              has_ahb = "ahb" in tags
+              has_axi = "axi" in tags
+              has_controller = "controller" in tags
+              has_target = "target" in tags
+
               if has_ahb:
                   ahb_tests.add(session_id)
+              
               if has_axi:
-                  axi_tests.add(session_id)
-              if has_axi_controller:
-                  axi_controller_tests.add(session_id)
+                  if has_controller:
+                      # If it has a controller tag, it always runs in the combined job
+                      axi_controller_and_target_tests.add(session_id)
+                      
+                      # Exclude tests that also require a target from the controller_only job
+                      if not has_target:
+                          axi_controller_only_tests.add(session_id)
+                  else:
+                      # Standard AXI tests (target-only, no controller tag)
+                      axi_tests.add(session_id)
 
           # Sort for consistent ordering
           ahb_tests = sorted(ahb_tests)
           axi_tests = sorted(axi_tests)
-          axi_controller_tests = sorted(axi_controller_tests)
+          axi_controller_and_target_tests = sorted(axi_controller_and_target_tests)
+          axi_controller_only_tests = sorted(axi_controller_only_tests)
 
-          print(f"Discovered {len(ahb_tests)} AHB tests, {len(axi_tests)} AXI tests, and {len(axi_controller_tests)} AXI-Controller tests")
+          print(f"Discovered {len(ahb_tests)} AHB tests")
+          print(f"Discovered {len(axi_tests)} AXI (Target-Only) tests")
+          print(f"Discovered {len(axi_controller_and_target_tests)} AXI-Controller+Target tests")
+          print(f"Discovered {len(axi_controller_only_tests)} AXI-Controller-Only tests")
 
-          # Output matrices for subsequent jobs
           with open(os.environ['GITHUB_OUTPUT'], 'a') as f:
               f.write(f"ahb_matrix={json.dumps(ahb_tests)}\n")
               f.write(f"axi_matrix={json.dumps(axi_tests)}\n")
-              f.write(f"axi_controller_matrix={json.dumps(axi_controller_tests)}\n")
+              f.write(f"axi_controller_and_target_matrix={json.dumps(axi_controller_and_target_tests)}\n")
+              f.write(f"axi_controller_only_matrix={json.dumps(axi_controller_only_tests)}\n")
           EOF
 
   lint-testplans:
@@ -256,7 +277,7 @@ jobs:
           TEST_SESSION: ${{ matrix.test }}
         run: |
           source activate.sh
-          make config CFG_NAME=ahb
+          make config CFG_NAME=ahb_target_only
           cd verification/cocotb && python -m nox -R -s "$TEST_SESSION" --no-venv --forcecolor
 
       - name: Display test logs on failure
@@ -339,7 +360,7 @@ jobs:
           TEST_SESSION: ${{ matrix.test }}
         run: |
           source activate.sh
-          make config CFG_NAME=axi
+          make config CFG_NAME=axi_target_only
           cd verification/cocotb && python -m nox -R -s "$TEST_SESSION" --no-venv --forcecolor
 
       - name: Display test logs on failure
@@ -367,16 +388,16 @@ jobs:
             verification/cocotb/**/*.log
 
   # ===========================================================================
-  # Job: Run AXI-Controller Tests (Parallel)
+  # Job: Run AXI-Controller and Target Tests (Parallel)
   # ===========================================================================
-  tests-axi-controller:
-    name: "AXI-Ctrl: ${{ matrix.test }}"
+  tests-axi-controller-and-target:
+    name: "AXI-Ctrl+Target: ${{ matrix.test }}"
     needs: [generate-matrix, lint-testplans]
     runs-on: ubuntu-latest
     strategy:
       fail-fast: false
       matrix:
-        test: ${{ fromJson(needs.generate-matrix.outputs.axi-controller-matrix) }}
+        test: ${{ fromJson(needs.generate-matrix.outputs.axi-controller-and-target-matrix) }}
     steps:
       - name: Install system dependencies
         run: |
@@ -422,11 +443,12 @@ jobs:
           TEST_SESSION: ${{ matrix.test }}
           CONTROLLER_SUPPORT: "1"
           TARGET_SUPPORT: "1"
-          CFG_NAME: "axi-controller"
+          DUT_CONFIG: "controller_and_target"
+          CFG_NAME: "axi_controller_and_target_sim"
           I3C_ROOT_DIR: ${{ github.workspace }}
         run: |
           source activate.sh
-          make config CFG_NAME=axi-controller
+          make config CFG_NAME=axi_controller_and_target_sim
           cd verification/cocotb && python -m nox -R -s "$TEST_SESSION" --no-venv --forcecolor
 
       - name: Display test logs on failure
@@ -448,7 +470,100 @@ jobs:
         if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: test-results-axi-controller-${{ steps.sanitize.outputs.name }}
+          name: test-results-axi-controller-and-target-${{ steps.sanitize.outputs.name }}
+          path: |
+            verification/cocotb/**/*.xml
+            verification/cocotb/**/*.log
+
+  # ===========================================================================
+  # Job: Run AXI-Controller Only Tests (Parallel)
+  # ===========================================================================
+  tests-axi-controller-only:
+    name: "AXI-Ctrl Only: ${{ matrix.test }}"
+    needs: [generate-matrix, lint-testplans]
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        test: ${{ fromJson(needs.generate-matrix.outputs.axi-controller-only-matrix) }}
+    steps:
+      - name: Install system dependencies
+        run: |
+          sudo apt -qqy update
+          sudo apt -qqy --no-install-recommends install \
+            help2man libfl-dev make g++ git bison flex gperf \
+            libreadline-dev libbz2-dev autoconf
+
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Initialize submodules
+        run: git submodule update --init --recursive
+
+      - name: Cache Verilator installation
+        id: cache-verilator
+        uses: actions/cache@v4
+        with:
+          path: ~/verilator-install
+          key: verilator-install-${{ env.VERILATOR_VERSION }}-${{ runner.os }}
+
+      - name: Build Verilator (if not cached)
+        if: steps.cache-verilator.outputs.cache-hit != 'true'
+        run: |
+          git clone https://github.com/verilator/verilator -b ${{ env.VERILATOR_VERSION }}
+          cd verilator
+          autoconf
+          ./configure --prefix=$HOME/verilator-install
+          make -j$(nproc)
+          make install
+
+      - name: Add Verilator to PATH
+        run: |
+          echo "$HOME/verilator-install/bin" >> $GITHUB_PATH
+          echo "VERILATOR_ROOT=$HOME/verilator-install/share/verilator" >> $GITHUB_ENV
+
+      - name: Setup Python environment (pyenv + dependencies)
+        run: ./install.sh
+
+      - name: Configure RTL and run test
+        id: run-test
+        env:
+          TEST_SESSION: ${{ matrix.test }}
+          CONTROLLER_SUPPORT: "1"
+          TARGET_SUPPORT: "0"
+          DUT_CONFIG: "controller_only"
+          CFG_NAME: "axi_controller_only_sim"
+          I3C_ROOT_DIR: ${{ github.workspace }}
+        run: |
+          source activate.sh
+          make config CFG_NAME=axi_controller_only_sim
+          cd verification/cocotb && python -m nox -R -s "$TEST_SESSION" --no-venv --forcecolor
+
+      - name: Display test logs on failure
+        if: failure() && steps.run-test.outcome == 'failure'
+        run: |
+          echo "=== Test failed - displaying log files ==="
+          find verification/cocotb -name "*.log" -type f -exec sh -c \
+            'echo ""; echo "========================================"; echo "=== {} ==="; echo "========================================"; cat "{}"' \;
+
+      - name: Rename XML results to avoid collisions
+        if: always()
+        run: |
+          find verification/cocotb -name "*.xml" -exec sh -c 'mv "$1" "${1%.xml}_ctrl_only.xml"' _ {} \;
+
+      - name: Sanitize artifact name
+        if: always()
+        id: sanitize
+        run: |
+          NAME='${{ matrix.test }}'
+          SANITIZED=$(echo "$NAME" | sed "s/[()='\" ,]/_/g" | sed 's/__*/_/g' | sed 's/_$//')
+          echo "name=$SANITIZED" >> $GITHUB_OUTPUT
+
+      - name: Upload test artifacts
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: test-results-axi-controller-only-${{ steps.sanitize.outputs.name }}
           path: |
             verification/cocotb/**/*.xml
             verification/cocotb/**/*.log
@@ -458,7 +573,7 @@ jobs:
   # ===========================================================================
   test-results:
     name: Aggregate test results
-    needs: [tests-ahb, tests-axi, tests-axi-controller]
+    needs: [tests-ahb, tests-axi, tests-axi-controller-and-target, tests-axi-controller-only]
     if: always()
     runs-on: ubuntu-latest
     steps:
@@ -487,11 +602,13 @@ jobs:
         run: |
           if [ "${{ needs.tests-ahb.result }}" != "success" ] || \
              [ "${{ needs.tests-axi.result }}" != "success" ] || \
-             [ "${{ needs.tests-axi-controller.result }}" != "success" ]; then
+             [ "${{ needs.tests-axi-controller-and-target.result }}" != "success" ] || \
+             [ "${{ needs.tests-axi-controller-only.result }}" != "success" ]; then
             echo "❌ Some tests failed!"
             echo "   AHB tests: ${{ needs.tests-ahb.result }}"
             echo "   AXI tests: ${{ needs.tests-axi.result }}"
-            echo "   AXI-Ctrl tests: ${{ needs.tests-axi-controller.result }}"
+            echo "   AXI-Ctrl and Target tests: ${{ needs.tests-axi-controller-and-target.result }}"
+            echo "   AXI-Ctrl only tests: ${{ needs.tests-axi-controller-only.result }}"
             exit 1
           fi
           echo "✅ All tests passed!"
@@ -555,7 +672,11 @@ jobs:
           else
             echo "WARNING: No test results found to copy!"
           fi
-          echo "=== XML files in verification/cocotb ==="
+          echo "Filtering out controller_only test results from documentation generation..."
+          find verification/cocotb -name "*_ctrl_only.xml" -type f -delete
+          find verification/cocotb -name "*_ctrl_only.log" -type f -delete
+          
+          echo "=== Surviving XML files in verification/cocotb ==="
           find verification/cocotb -name "*.xml" -type f | head -10
           
           XML_COUNT=$(find verification/cocotb -name "*.xml" -type f | wc -l)

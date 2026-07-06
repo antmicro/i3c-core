@@ -808,6 +808,29 @@ module controller
       ctrl_sda_o[3] = 1'b1;
       ctrl_sel_od_pp_i[2] = 1'b0;
       ctrl_sel_od_pp_i[3] = 1'b0;
+      ctrl_sda_oe_o[2] = 1'b0;
+      ctrl_sda_oe_o[3] = 1'b0;
+
+      in_hdr_mode_o = 1'b0;
+      set_mwl = 1'b0;
+      set_mrl = 1'b0;
+      set_ibil = 1'b0;
+      rst_action_valid_o = 1'b0;
+      set_dasa_valid_o = 1'b0;
+      set_dasa_virtual_device_o = 1'b0;
+      set_aasa_o = 1'b0;
+      set_aasa_virt_o = 1'b0;
+      set_newda_o = 1'b0;
+      set_newda_virtual_device_o = 1'b0;
+      rstdaa_o = 1'b0;
+      peripheral_reset_o = 1'b0;
+      escalated_reset_o = 1'b0;
+      mrl = '0;
+      mwl = '0;
+      rst_action_o = '0;
+      ibil = 8'b0;
+      newda_o = '0;
+      set_dasa_o = '0;
     end
   end
 endmodule

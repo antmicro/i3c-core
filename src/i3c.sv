@@ -1516,6 +1516,8 @@ module i3c
     );
   end else begin : gen_controller_tieoff_recovery_irq
     assign recovery_irq = '0;
+    assign recovery_payload_available_o = 1'b0;
+    assign recovery_image_activated_o = 1'b0;
   end
   // I3C PHY
   i3c_phy xphy (

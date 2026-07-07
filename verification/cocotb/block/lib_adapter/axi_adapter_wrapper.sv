@@ -9,6 +9,8 @@ module axi_adapter_wrapper
     parameter type csr_cfg_t = target_csr_t,
     parameter bit ControllerEn = 0,  // enables host controller configuration
     parameter bit TargetEn = 1,  // enables target configuration
+    parameter type hwif_out_t = csr_cfg_extractor#(csr_cfg_t)::hwif_out_t,
+    parameter type hwif_in_t = csr_cfg_extractor#(csr_cfg_t)::hwif_in_t,
     parameter int unsigned CsrAddrWidth = (ControllerEn && TargetEn) ? controller_and_target_I3CCSR_pkg::controller_and_target_I3CCSR_MIN_ADDR_WIDTH :
                                (ControllerEn)             ? controller_I3CCSR_pkg::controller_I3CCSR_MIN_ADDR_WIDTH :
                                                             target_I3CCSR_pkg::target_I3CCSR_MIN_ADDR_WIDTH,
@@ -166,8 +168,8 @@ module axi_adapter_wrapper
       .s_cpuif_wr_err(s_cpuif_wr_err)
   );
 
-  csr_cfg_t::hwif_in_t  hwif_in;
-  csr_cfg_t::hwif_out_t hwif_out;
+  hwif_in_t  hwif_in;
+  hwif_out_t hwif_out;
 
   assign hwif_in.rst_ni = areset_n;
 

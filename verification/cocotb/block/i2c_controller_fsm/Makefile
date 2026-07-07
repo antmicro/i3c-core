@@ -14,6 +14,12 @@ TOPLEVEL     = i2c_controller_fsm
 
 VERILOG_SOURCES  = \
 		$(SRC_DIR)/i3c_pkg.sv \
+    $(SRC_DIR)/csr/controller_I3CCSR_pkg.sv \
+    $(SRC_DIR)/csr/controller_I3CCSR.sv \
+    $(SRC_DIR)/csr/target_I3CCSR_pkg.sv \
+    $(SRC_DIR)/csr/target_I3CCSR.sv \
+    $(SRC_DIR)/csr/controller_and_target_I3CCSR_pkg.sv \
+    $(SRC_DIR)/csr/controller_and_target_I3CCSR.sv \
     ${CALIPTRA_ROOT}/src/libs/rtl/caliptra_sva.svh \
     ${CALIPTRA_ROOT}/src/caliptra_prim/rtl/caliptra_prim_assert.sv \
     $(SRC_DIR)/ctrl/controller_pkg.sv \

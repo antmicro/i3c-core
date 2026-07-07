@@ -31,13 +31,17 @@ VERILOG_SOURCES  += \
     $(SRC_DIR)/libs/mem/prim_ram_1p_adv.sv \
     $(SRC_DIR)/libs/mem/prim_ram_1p.sv \
     $(SRC_DIR)/libs/mem/prim_ram_2p.sv \
-    $(SRC_DIR)/csr/I3CCSR_pkg.sv \
+    $(SRC_DIR)/csr/controller_I3CCSR_pkg.sv \
+    $(SRC_DIR)/csr/controller_I3CCSR.sv \
+    $(SRC_DIR)/csr/target_I3CCSR_pkg.sv \
+    $(SRC_DIR)/csr/target_I3CCSR.sv \
+    $(SRC_DIR)/csr/controller_and_target_I3CCSR_pkg.sv \
+    $(SRC_DIR)/csr/controller_and_target_I3CCSR.sv \
     $(SRC_DIR)/ctrl/controller_pkg.sv \
     $(SRC_DIR)/i3c_pkg.sv \
     $(SRC_DIR)/phy/buf_pp.sv \
     $(SRC_DIR)/phy/bufs.sv \
     $(SRC_DIR)/phy/i3c_phy.sv \
-    $(SRC_DIR)/csr/I3CCSR.sv \
     ${SRC_DIR}/hci/queues/read_queue.sv \
     ${SRC_DIR}/hci/queues/write_queue.sv \
     ${SRC_DIR}/hci/ahb_if.sv \

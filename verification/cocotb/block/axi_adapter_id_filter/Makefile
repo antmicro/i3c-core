@@ -28,8 +28,12 @@ VERILOG_SOURCES  += \
     $(SRC_DIR)/libs/axi_sub/i3c_axi_sub_arb.sv \
     $(SRC_DIR)/libs/axi_sub/i3c_axi_sub_rd.sv \
     $(SRC_DIR)/libs/axi_sub/i3c_axi_sub.sv \
-    $(SRC_DIR)/csr/*_I3CCSR_pkg.sv \
-    $(SRC_DIR)/csr/*_I3CCSR.sv \
+    $(SRC_DIR)/csr/controller_I3CCSR_pkg.sv \
+    $(SRC_DIR)/csr/controller_I3CCSR.sv \
+    $(SRC_DIR)/csr/target_I3CCSR_pkg.sv \
+    $(SRC_DIR)/csr/target_I3CCSR.sv \
+    $(SRC_DIR)/csr/controller_and_target_I3CCSR_pkg.sv \
+    $(SRC_DIR)/csr/controller_and_target_I3CCSR.sv \
     $(SRC_DIR)/hci/axi_adapter.sv \
     $(TEST_DIR)/../lib_adapter/axi_adapter_wrapper.sv
 

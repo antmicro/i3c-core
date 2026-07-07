@@ -19,6 +19,12 @@ CFG_NAME = axi_target_only
 include $(TEST_DIR)/../../caliptra_common.mk
 
 VERILOG_SOURCES  += \
+    $(SRC_DIR)/csr/controller_I3CCSR_pkg.sv \
+    $(SRC_DIR)/csr/controller_I3CCSR.sv \
+    $(SRC_DIR)/csr/target_I3CCSR_pkg.sv \
+    $(SRC_DIR)/csr/target_I3CCSR.sv \
+    $(SRC_DIR)/csr/controller_and_target_I3CCSR_pkg.sv \
+    $(SRC_DIR)/csr/controller_and_target_I3CCSR.sv \
     $(SRC_DIR)/i3c_pkg.sv \
     $(CALIPTRA_ROOT)/src/axi/rtl/axi_pkg.sv \
     $(CALIPTRA_ROOT)/src/axi/rtl/axi_if.sv \
@@ -28,12 +34,6 @@ VERILOG_SOURCES  += \
     $(SRC_DIR)/libs/axi_sub/i3c_axi_sub_arb.sv \
     $(SRC_DIR)/libs/axi_sub/i3c_axi_sub_rd.sv \
     $(SRC_DIR)/libs/axi_sub/i3c_axi_sub.sv \
-    $(SRC_DIR)/csr/controller_I3CCSR_pkg.sv \
-    $(SRC_DIR)/csr/controller_I3CCSR.sv \
-    $(SRC_DIR)/csr/target_I3CCSR_pkg.sv \
-    $(SRC_DIR)/csr/target_I3CCSR.sv \
-    $(SRC_DIR)/csr/controller_and_target_I3CCSR_pkg.sv \
-    $(SRC_DIR)/csr/controller_and_target_I3CCSR.sv \
     $(SRC_DIR)/hci/axi_adapter.sv \
     $(TEST_DIR)/../lib_adapter/axi_adapter_wrapper.sv
 

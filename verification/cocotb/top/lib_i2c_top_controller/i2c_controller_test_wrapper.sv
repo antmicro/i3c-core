@@ -431,7 +431,4 @@ module i2c_controller_test_wrapper
        1      |   1    ||   1    |    1
 */
 
-  assign sda_oe = sel_od_pp_o || !sda_o;
-  assign scl_oe = 1'b0;
-
 endmodule

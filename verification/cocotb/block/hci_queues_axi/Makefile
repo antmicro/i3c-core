@@ -21,13 +21,13 @@ COMPILE_ARGS += +define+I3C_USE_AXI
 include $(TEST_DIR)/../../caliptra_common.mk
 
 VERILOG_SOURCES += \
-    $(SRC_DIR)/i3c_pkg.sv \
     $(SRC_DIR)/csr/controller_I3CCSR_pkg.sv \
     $(SRC_DIR)/csr/controller_I3CCSR.sv \
     $(SRC_DIR)/csr/target_I3CCSR_pkg.sv \
     $(SRC_DIR)/csr/target_I3CCSR.sv \
     $(SRC_DIR)/csr/controller_and_target_I3CCSR_pkg.sv \
     $(SRC_DIR)/csr/controller_and_target_I3CCSR.sv \
+    $(SRC_DIR)/i3c_pkg.sv \
     ${SRC_DIR}/interrupt.sv \
     $(CALIPTRA_ROOT)/src/axi/rtl/axi_pkg.sv \
     $(CALIPTRA_ROOT)/src/axi/rtl/axi_if.sv \

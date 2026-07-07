@@ -18,13 +18,13 @@ override PLUSARGS := $(strip +FrontendBusInterface=AXI $(PLUSARGS))
 COMPILE_ARGS += +define+I3C_USE_AXI
 
 VERILOG_SOURCES += \
-    $(SRC_DIR)/i3c_pkg.sv \
     $(SRC_DIR)/csr/controller_I3CCSR_pkg.sv \
     $(SRC_DIR)/csr/controller_I3CCSR.sv \
     $(SRC_DIR)/csr/target_I3CCSR_pkg.sv \
     $(SRC_DIR)/csr/target_I3CCSR.sv \
     $(SRC_DIR)/csr/controller_and_target_I3CCSR_pkg.sv \
     $(SRC_DIR)/csr/controller_and_target_I3CCSR.sv \
+    $(SRC_DIR)/i3c_pkg.sv \
     $(SRC_DIR)/ctrl/controller_pkg.sv \
     $(CALIPTRA_ROOT)/src/caliptra_prim/rtl/caliptra_prim_count_pkg.sv \
     $(CALIPTRA_ROOT)/src/caliptra_prim/rtl/caliptra_prim_util_pkg.sv \

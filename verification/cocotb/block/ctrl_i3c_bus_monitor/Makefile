@@ -13,13 +13,13 @@ MODULE      ?= $(subst $(space),$(comma),$(subst .py,,$(TEST_FILES)))
 TOPLEVEL     = i3c_bus_monitor_wrapper
 
 VERILOG_SOURCES  = \
-    $(SRC_DIR)/i3c_pkg.sv \
     $(SRC_DIR)/csr/controller_I3CCSR_pkg.sv \
     $(SRC_DIR)/csr/controller_I3CCSR.sv \
     $(SRC_DIR)/csr/target_I3CCSR_pkg.sv \
     $(SRC_DIR)/csr/target_I3CCSR.sv \
     $(SRC_DIR)/csr/controller_and_target_I3CCSR_pkg.sv \
     $(SRC_DIR)/csr/controller_and_target_I3CCSR.sv \
+    $(SRC_DIR)/i3c_pkg.sv \
     $(SRC_DIR)/ctrl/controller_pkg.sv \
     $(SRC_DIR)/ctrl/edge_detector.sv \
     $(SRC_DIR)/ctrl/stable_high_detector.sv \

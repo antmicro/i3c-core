@@ -13,13 +13,13 @@ MODULE      ?= $(subst $(space),$(comma),$(subst .py,,$(TEST_FILES)))
 TOPLEVEL     = descriptor_tx
 
 VERILOG_SOURCES  = \
-    $(SRC_DIR)/i3c_pkg.sv \
     $(SRC_DIR)/csr/controller_I3CCSR_pkg.sv \
     $(SRC_DIR)/csr/controller_I3CCSR.sv \
     $(SRC_DIR)/csr/target_I3CCSR_pkg.sv \
     $(SRC_DIR)/csr/target_I3CCSR.sv \
     $(SRC_DIR)/csr/controller_and_target_I3CCSR_pkg.sv \
     $(SRC_DIR)/csr/controller_and_target_I3CCSR.sv \
+    $(SRC_DIR)/i3c_pkg.sv \
     $(SRC_DIR)/ctrl/descriptor_tx.sv
 
 include $(TEST_DIR)/../block_common.mk

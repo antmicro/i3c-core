@@ -13,13 +13,13 @@ MODULE      ?= $(subst $(space),$(comma),$(subst .py,,$(TEST_FILES)))
 TOPLEVEL     = i3c_target_fsm_test_wrapper
 
 VERILOG_SOURCES  = \
-    $(SRC_DIR)/i3c_pkg.sv \
     $(SRC_DIR)/csr/controller_I3CCSR_pkg.sv \
     $(SRC_DIR)/csr/controller_I3CCSR.sv \
     $(SRC_DIR)/csr/target_I3CCSR_pkg.sv \
     $(SRC_DIR)/csr/target_I3CCSR.sv \
     $(SRC_DIR)/csr/controller_and_target_I3CCSR_pkg.sv \
     $(SRC_DIR)/csr/controller_and_target_I3CCSR.sv \
+    $(SRC_DIR)/i3c_pkg.sv \
     $(SRC_DIR)/ctrl/controller_pkg.sv \
     $(SRC_DIR)/ctrl/i3c_target_fsm.sv \
     $(TEST_DIR)/i3c_target_fsm_test_wrapper.sv

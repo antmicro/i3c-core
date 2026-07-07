@@ -19,14 +19,14 @@ override PLUSARGS := $(strip +FrontendBusInterface=AHB $(PLUSARGS))
 include $(TEST_DIR)/../../caliptra_common.mk
 
 VERILOG_SOURCES += \
-    $(CALIPTRA_ROOT)/src/libs/rtl/ahb_defines_pkg.sv \
-    $(SRC_DIR)/i3c_pkg.sv \
     $(SRC_DIR)/csr/controller_I3CCSR_pkg.sv \
     $(SRC_DIR)/csr/controller_I3CCSR.sv \
     $(SRC_DIR)/csr/target_I3CCSR_pkg.sv \
     $(SRC_DIR)/csr/target_I3CCSR.sv \
     $(SRC_DIR)/csr/controller_and_target_I3CCSR_pkg.sv \
     $(SRC_DIR)/csr/controller_and_target_I3CCSR.sv \
+    $(CALIPTRA_ROOT)/src/libs/rtl/ahb_defines_pkg.sv \
+    $(SRC_DIR)/i3c_pkg.sv \
     $(SRC_DIR)/hci/ahb_if.sv \
     $(SRC_DIR)/hci/queues/write_queue.sv \
     $(SRC_DIR)/hci/queues/read_queue.sv \

@@ -23,7 +23,7 @@ from interface import I3CTopTestInterface
 import cocotb
 from cocotb.result import SimTimeoutError
 from cocotb.triggers import ClockCycles, Combine, RisingEdge, Timer
-from common import timeout_task, log_seed
+from common import timeout_task, log_seed, resolve_path
 
 STATIC_ADDR = 0x5A
 VIRT_STATIC_ADDR = 0x5B
@@ -335,7 +335,7 @@ async def test_concurrent_recovery_xfer_and_rx_desc_read(dut):
 
     async def axi_read_rx_desc():
         # Wait for recovery_pending to actually assert (I3C address phase must complete first)
-        recovery_pending = dut.xi3c_wrapper.gen_target_config.i3c.gen_target_recovery_handler.xrecovery_handler.recovery_pending
+        recovery_pending = resolve_path(dut.xi3c_wrapper, "gen_target_config.i3c.gen_target_recovery_handler.xrecovery_handler.recovery_pending")
         dut._log.info("[AXI] Waiting for recovery_pending to assert...")
         await RisingEdge(recovery_pending)
         dut._log.info("[AXI] recovery_pending is HIGH -- issuing AXI read")
@@ -374,7 +374,7 @@ async def test_concurrent_recovery_xfer_and_tx_desc_write(dut):
         dut._log.info(f"[I3C] PROT_CAP read done, pec_ok={pec_ok}")
 
     async def axi_write_tx_desc():
-        recovery_pending = dut.xi3c_wrapper.gen_target_config.i3c.gen_target_recovery_handler.xrecovery_handler.recovery_pending
+        recovery_pending = resolve_path(dut.xi3c_wrapper, "gen_target_config.i3c.gen_target_recovery_handler.xrecovery_handler.recovery_pending")
         dut._log.info("[AXI] Waiting for recovery_pending to assert...")
         await RisingEdge(recovery_pending)
         dut._log.info("[AXI] recovery_pending is HIGH -- issuing AXI write")
@@ -414,7 +414,7 @@ async def test_concurrent_recovery_xfer_and_all_queue_access(dut):
         dut._log.info(f"[I3C] PROT_CAP read done, pec_ok={pec_ok}")
 
     async def axi_queue_access():
-        recovery_pending = dut.xi3c_wrapper.gen_target_config.i3c.gen_target_recovery_handler.xrecovery_handler.recovery_pending
+        recovery_pending = resolve_path(dut.xi3c_wrapper, "gen_target_config.i3c.gen_target_recovery_handler.xrecovery_handler.recovery_pending")
         dut._log.info("[AXI] Waiting for recovery_pending to assert...")
         await RisingEdge(recovery_pending)
         dut._log.info("[AXI] recovery_pending is HIGH -- issuing AXI accesses")
@@ -474,8 +474,8 @@ async def test_recovery_write_rx_data_observation(dut):
     async def rx_data_monitor():
         """Watch tti_rx_depth; on >=1 DWORD, read RX_DATA_PORT via AXI."""
         nonlocal monitor_done
-        rx_depth = dut.xi3c_wrapper.gen_target_config.i3c.tti_rx_depth
-        rx_empty = dut.xi3c_wrapper.gen_target_config.i3c.tti_rx_empty
+        rx_depth = resolve_path(dut.xi3c_wrapper, "gen_target_config.i3c.tti_rx_depth")
+        rx_empty = resolve_path(dut.xi3c_wrapper, "gen_target_config.i3c.tti_rx_empty")
 
         dut._log.info("[MONITOR] Starting RX data queue monitor")
         dut._log.info(f"[MONITOR] Initial tti_rx_depth={int(rx_depth)}, tti_rx_empty={int(rx_empty)}")

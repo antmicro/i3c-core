@@ -24,7 +24,7 @@ import cocotb
 from cocotb.regression import TestFactory
 from cocotb.result import SimTimeoutError
 from cocotb.triggers import ClockCycles, RisingEdge, Timer, with_timeout
-from common import timeout_task, log_seed
+from common import timeout_task, log_seed, resolve_path
 
 # =============================================================================
 # Constants
@@ -1568,12 +1568,7 @@ async def test_ibi_flush_from_idle_interrupt_flood(dut):
     await init_ibi(i3c_controller, tb, retry_num=0)
 
     # Internal signal handles
-    standby = (
-        dut.xi3c_wrapper.gen_target_config
-        .i3c.xcontroller.gen_target_controller_standby
-        .xcontroller_standby
-        .xcontroller_standby_i3c
-    )
+    standby = (resolve_path(dut.xi3c_wrapper, "gen_target_config.i3c.xcontroller.gen_target_controller_standby.xcontroller_standby.xcontroller_standby_i3c"))
     fsm = standby.xi3c_target_fsm
     desc_ibi = standby.u_descriptor_ibi
 
@@ -1997,7 +1992,7 @@ async def test_descriptor_ibi_flush_one_word(dut):
 
     try:
         # Internal signal handles
-        standby = dut.xi3c_wrapper.gen_target_config.i3c.xcontroller.xcontroller_standby.xcontroller_standby_i3c
+        standby = resolve_path(dut.xi3c_wrapper, "gen_target_config.i3c.xcontroller.xcontroller_standby.xcontroller_standby_i3c")
         desc_ibi = standby.u_descriptor_ibi
 
         dut._log.info("Phase 1: Queue an IBI with 1 word of data (e.g. 2 bytes)")
@@ -2037,7 +2032,7 @@ async def test_descriptor_ibi_flush_no_data(dut):
 
     try:
         # Internal signal handles
-        standby = dut.xi3c_wrapper.gen_target_config.i3c.xcontroller.xcontroller_standby.xcontroller_standby_i3c
+        standby = resolve_path(dut.xi3c_wrapper, "gen_target_config.i3c.xcontroller.xcontroller_standby.xcontroller_standby_i3c")
         desc_ibi = standby.u_descriptor_ibi
 
         dut._log.info("Phase 1: Queue an IBI with 0 words of data")
@@ -2077,7 +2072,7 @@ async def test_descriptor_ibi_flush_max_word(dut):
 
     try:
         # Internal signal handles
-        standby = dut.xi3c_wrapper.gen_target_config.i3c.xcontroller.xcontroller_standby.xcontroller_standby_i3c
+        standby = resolve_path(dut.xi3c_wrapper, "gen_target_config.i3c.xcontroller.xcontroller_standby.xcontroller_standby_i3c")
         desc_ibi = standby.u_descriptor_ibi
 
         dut._log.info("Phase 1: Queue a standard IBI")

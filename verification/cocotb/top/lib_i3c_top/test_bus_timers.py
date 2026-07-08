@@ -20,7 +20,7 @@ from interface import I3CTopTestInterface
 import cocotb
 from cocotb.triggers import ClockCycles, FallingEdge, ReadOnly, RisingEdge, Timer
 
-from common import VALID_I3C_ADDRESSES, log_seed
+from common import VALID_I3C_ADDRESSES, log_seed, resolve_path
 
 # =============================================================================
 # Constants
@@ -336,7 +336,7 @@ async def test_bus_edge_detectors(dut):
 
     i3c_controller, tb = await test_setup(dut)
 
-    SIG_STATE = dut.xi3c_wrapper.gen_target_config.i3c.xcontroller.xbus_monitor
+    SIG_STATE = resolve_path(dut.xi3c_wrapper, "gen_target_config.i3c.xcontroller.xbus_monitor")
     await i3c_controller.take_bus_control()
 
     async def check_edge_occurred(edge, timing):

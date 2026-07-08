@@ -19,7 +19,7 @@ from cocotb.regression import TestFactory
 
 from common import (
     VALID_I3C_ADDRESSES, log_seed, build_ccc_stress_table,
-    do_getbcr, do_enec_direct,
+    do_getbcr, do_enec_direct, resolve_path
 )
 
 TGT_ADR = 0x5A
@@ -925,7 +925,7 @@ async def test_ccc_setmwl_direct(dut):
             ccc=command_set, directed_data=[(tgt_addr, [mwl_msb, mwl_lsb])])
 
         # Check CSR value
-        sig = dut.xi3c_wrapper.gen_target_config.i3c.xcontroller.xconfiguration.get_mwl_o.value
+        sig = resolve_path(dut.xi3c_wrapper, "gen_target_config.i3c.xcontroller.xconfiguration.get_mwl_o.value")
         assert mwl_val == int(sig), \
             f"SETMWL CSR mismatch: expected 0x{mwl_val:04X}, got 0x{int(sig):04X}"
 
@@ -974,7 +974,7 @@ async def test_ccc_setmrl_direct(dut):
             ccc=command_set, directed_data=[(tgt_addr, [mrl_msb, mrl_lsb, ibil])])
 
         # Check CSR value
-        sig = dut.xi3c_wrapper.gen_target_config.i3c.xcontroller.xconfiguration.get_mrl_o.value
+        sig = resolve_path(dut.xi3c_wrapper, "gen_target_config.i3c.xcontroller.xconfiguration.get_mrl_o.value")
         assert mrl_val == int(sig), \
             f"SETMRL CSR mismatch: expected 0x{mrl_val:04X}, got 0x{int(sig):04X}"
 
@@ -1029,7 +1029,7 @@ async def test_ccc_setmwl_bcast(dut):
     await i3c_controller.i3c_ccc_write(ccc=command, broadcast_data=[mwl_msb, mwl_lsb])
 
     # Check if MWL got written
-    sig = dut.xi3c_wrapper.gen_target_config.i3c.xcontroller.xconfiguration.get_mwl_o.value
+    sig = resolve_path(dut.xi3c_wrapper, "gen_target_config.i3c.xcontroller.xconfiguration.get_mwl_o.value")
     mwl = (mwl_msb << 8) | mwl_lsb
     assert mwl == int(sig), f"SETMWL register mismatch: CCC sent={mwl} RTL={int(sig)}"
 
@@ -1061,7 +1061,7 @@ async def test_ccc_setmrl_bcast(dut):
     await i3c_controller.i3c_ccc_write(ccc=command, broadcast_data=[mrl_msb, mrl_lsb, ibil])
 
     # Check if MRL got written
-    sig = dut.xi3c_wrapper.gen_target_config.i3c.xcontroller.xconfiguration.get_mrl_o.value
+    sig = resolve_path(dut.xi3c_wrapper, "gen_target_config.i3c.xcontroller.xconfiguration.get_mrl_o.value")
     mrl = (mrl_msb << 8) | mrl_lsb
     assert mrl == int(sig), f"SETMRL register mismatch: CCC sent={mrl} RTL={int(sig)}"
 
@@ -1124,7 +1124,7 @@ async def test_ccc_rstact(dut, type, rstact):
     )
 
     # Check if reset action got stored correctly in the logic after RSTACT CCC
-    sig = dut.xi3c_wrapper.gen_target_config.i3c.xcontroller.gen_target_controller_standby.xcontroller_standby.xcontroller_standby_i3c.rst_action_o
+    sig = resolve_path(dut.xi3c_wrapper, "gen_target_config.i3c.xcontroller.gen_target_controller_standby.xcontroller_standby.xcontroller_standby_i3c.rst_action_o")
     assert rst_action == int(sig), f"Expected rst_action_o={rst_action}, got {int(sig)}"
 
     # Check if RST_ACTION field in STBY_CR_CCC_CONFIG_RSTACT_PARAMS CSR was updated
@@ -1325,7 +1325,7 @@ async def test_ccc_direct_multiple_wr(dut):
         result = False
 
     # Check if MWL got written
-    sig = dut.xi3c_wrapper.gen_target_config.i3c.xcontroller.xconfiguration.get_mwl_o.value
+    sig = resolve_path(dut.xi3c_wrapper, "gen_target_config.i3c.xcontroller.xconfiguration.get_mwl_o.value")
     mwl = 0xA2
     if mwl != int(sig):
         dut._log.error(f"Written MWL mismatch ({mwl} vs. {int(sig)})")
@@ -1488,7 +1488,7 @@ async def test_ccc_rstact_read_action(dut):
         dynamic_addr=DYNAMIC_ADDR, virtual_dynamic_addr=VIRT_DYNAMIC_ADDR)
     await ClockCycles(tb.clk, 50)
 
-    rst_action_sig = dut.xi3c_wrapper.gen_target_config.i3c.xcontroller.gen_target_controller_standby.xcontroller_standby.xcontroller_standby_i3c.rst_action_o
+    rst_action_sig = resolve_path(dut.xi3c_wrapper, "gen_target_config.i3c.xcontroller.gen_target_controller_standby.xcontroller_standby.xcontroller_standby_i3c.rst_action_o")
 
     for tgt_addr in [DYNAMIC_ADDR, VIRT_DYNAMIC_ADDR]:
         # Arm peripheral reset (DB=0x01), check internal signal
@@ -1619,7 +1619,7 @@ async def test_ccc_rstact_arm_clear_on_start(dut):
     await i3c_controller.i3c_ccc_write(
         ccc=CCC.BCAST.RSTACT, defining_byte=0x02, stop=True)
 
-    rst_action_sig = dut.xi3c_wrapper.gen_target_config.i3c.xcontroller.gen_target_controller_standby.xcontroller_standby.xcontroller_standby_i3c.rst_action_o
+    rst_action_sig = resolve_path(dut.xi3c_wrapper, "gen_target_config.i3c.xcontroller.gen_target_controller_standby.xcontroller_standby.xcontroller_standby_i3c.rst_action_o")
 
     # Issue a private read (START + addr/R + data + STOP) — START clears arm
     responses = await i3c_controller.i3c_ccc_read(
@@ -1772,8 +1772,8 @@ async def test_ccc_chain_bcast(dut):
         broadcast_data=[(mrl_val >> 8) & 0xFF, mrl_val & 0xFF, ibil_val])
 
     # Verify both took effect
-    sig_mwl = int(dut.xi3c_wrapper.gen_target_config.i3c.xcontroller.xconfiguration.get_mwl_o.value)
-    sig_mrl = int(dut.xi3c_wrapper.gen_target_config.i3c.xcontroller.xconfiguration.get_mrl_o.value)
+    sig_mwl = int(resolve_path(dut.xi3c_wrapper, "gen_target_config.i3c.xcontroller.xconfiguration.get_mwl_o.value"))
+    sig_mrl = int(resolve_path(dut.xi3c_wrapper, "gen_target_config.i3c.xcontroller.xconfiguration.get_mrl_o.value"))
     assert sig_mwl == mwl_val, f"Chained SETMWL: expected 0x{mwl_val:04X}, got 0x{sig_mwl:04X}"
     assert sig_mrl == mrl_val, f"Chained SETMRL: expected 0x{mrl_val:04X}, got 0x{sig_mrl:04X}"
 
@@ -1802,7 +1802,7 @@ async def test_ccc_chain_direct(dut):
             (VIRT_DYNAMIC_ADDR, [(mwl_val >> 8) & 0xFF, mwl_val & 0xFF]),
         ])
 
-    sig_mwl = int(dut.xi3c_wrapper.gen_target_config.i3c.xcontroller.xconfiguration.get_mwl_o.value)
+    sig_mwl = int(resolve_path(dut.xi3c_wrapper, "gen_target_config.i3c.xcontroller.xconfiguration.get_mwl_o.value"))
     assert sig_mwl == mwl_val, f"Chained direct SETMWL: expected 0x{mwl_val:04X}, got 0x{sig_mwl:04X}"
 
     await tb.teardown()
@@ -2108,7 +2108,7 @@ async def test_ccc_abort_bcast_stop(dut):
         ccc=CCC.DIRECT.SETMWL,
         directed_data=[(DYNAMIC_ADDR, [(mwl_val >> 8) & 0xFF, mwl_val & 0xFF])])
 
-    sig_mwl = int(dut.xi3c_wrapper.gen_target_config.i3c.xcontroller.xconfiguration.get_mwl_o.value)
+    sig_mwl = int(resolve_path(dut.xi3c_wrapper, "gen_target_config.i3c.xcontroller.xconfiguration.get_mwl_o.value"))
     assert sig_mwl == mwl_val, \
         f"Recovery SETMWL: expected 0x{mwl_val:04X}, got 0x{sig_mwl:04X}"
 
@@ -2806,7 +2806,7 @@ async def test_ccc_entdaa_arb_lost(dut):
     await ClockCycles(tb.clk, 50)
 
     # Get handle to the arbitration_lost_i signal inside ccc_entdaa
-    entdaa_path = dut.xi3c_wrapper.gen_target_config.i3c.xcontroller.gen_target_controller_standby.xcontroller_standby.xcontroller_standby_i3c.xccc.xccc_entdaa
+    entdaa_path = resolve_path(dut.xi3c_wrapper, "gen_target_config.i3c.xcontroller.gen_target_controller_standby.xcontroller_standby.xcontroller_standby_i3c.xccc.xccc_entdaa")
     arb_lost_sig = entdaa_path.arbitration_lost_i
     state_sig = entdaa_path.state_q
 
@@ -2906,7 +2906,7 @@ async def test_ccc_getstatus_sr_abort_clears_protocol_err(dut):
         dynamic_addr=DYNAMIC_ADDR, virtual_dynamic_addr=VIRT_DYNAMIC_ADDR)
     await ClockCycles(tb.clk, 50)
 
-    err_o_sig = dut.xi3c_wrapper.gen_target_config.i3c.xcontroller.gen_target_controller_standby.xcontroller_standby.err_o
+    err_o_sig = resolve_path(dut.xi3c_wrapper, "gen_target_config.i3c.xcontroller.gen_target_controller_standby.xcontroller_standby.err_o")
 
     # Step 1: Trigger a Protocol Error via TE2 (bad T-bit on CCC defining byte)
     log.info("Step 1: Triggering TE2 error to set Protocol Error")
@@ -2985,10 +2985,9 @@ async def test_ccc_getstatus_sr_abort_done_assert(dut):
         dut, STATIC_ADDR, VIRT_STATIC_ADDR,
         dynamic_addr=DYNAMIC_ADDR, virtual_dynamic_addr=VIRT_DYNAMIC_ADDR)
 
-    err_o_sig = dut.xi3c_wrapper.gen_target_config.i3c.xcontroller.gen_target_controller_standby.xcontroller_standby.err_o
+    err_o_sig = resolve_path(dut.xi3c_wrapper, "gen_target_config.i3c.xcontroller.gen_target_controller_standby.xcontroller_standby.err_o")
     get_status_done_sig = (
-        dut.xi3c_wrapper.gen_target_config.i3c.xcontroller.gen_target_controller_standby.xcontroller_standby
-        .xcontroller_standby_i3c.xccc.get_status_done_o
+        resolve_path(dut.xi3c_wrapper, "gen_target_config.i3c.xcontroller.gen_target_controller_standby.xcontroller_standby.xcontroller_standby_i3c.xccc.get_status_done_o") 
     )
 
     # Step 1: Trigger a Protocol Error via TE2 to set err_o
@@ -3081,7 +3080,7 @@ async def test_ccc_setmwl_sr_abort_during_data(dut):
         dynamic_addr=DYNAMIC_ADDR, virtual_dynamic_addr=VIRT_DYNAMIC_ADDR)
     await ClockCycles(tb.clk, 50)
 
-    mwl_sig = dut.xi3c_wrapper.gen_target_config.i3c.xcontroller.xconfiguration.get_mwl_o
+    mwl_sig = resolve_path(dut.xi3c_wrapper, "gen_target_config.i3c.xcontroller.xconfiguration.get_mwl_o")
 
     # Step 1: Set MWL to a known value via normal SETMWL
     known_mwl = 0x0100
@@ -3185,8 +3184,8 @@ async def test_ccc_getstatus_abort_then_chain_setmwl(dut):
         dynamic_addr=DYNAMIC_ADDR, virtual_dynamic_addr=VIRT_DYNAMIC_ADDR)
     await ClockCycles(tb.clk, 50)
 
-    err_o_sig = dut.xi3c_wrapper.gen_target_config.i3c.xcontroller.gen_target_controller_standby.xcontroller_standby.err_o
-    mwl_sig = dut.xi3c_wrapper.gen_target_config.i3c.xcontroller.xconfiguration.get_mwl_o
+    err_o_sig = resolve_path(dut.xi3c_wrapper, "gen_target_config.i3c.xcontroller.gen_target_controller_standby.xcontroller_standby.err_o")
+    mwl_sig = resolve_path(dut.xi3c_wrapper, "gen_target_config.i3c.xcontroller.xconfiguration.get_mwl_o")
 
     # Step 1: Trigger a Protocol Error via TE2
     log.info("Step 1: Triggering TE2 error to set Protocol Error")

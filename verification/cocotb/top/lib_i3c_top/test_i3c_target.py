@@ -14,7 +14,7 @@ from utils import format_ibi_data, get_interrupt_status
 import cocotb
 from cocotb.triggers import ClockCycles, FallingEdge, RisingEdge, Timer
 from cocotbext_i3c.common import I3cState
-from common import VALID_I3C_ADDRESSES, timeout_task, log_seed
+from common import VALID_I3C_ADDRESSES, timeout_task, log_seed, resolve_path
 
 TARGET_ADDRESS = 0x5A
 
@@ -107,7 +107,7 @@ async def rx_agent(tb, data_transfers):
     for i, tx_length in enumerate(data_transfers):
 
         # Wait for the interrupt signal to go high
-        irq = tb.dut.xi3c_wrapper.gen_target_config.i3c.irq_o
+        irq = resolve_path(tb.dut.xi3c_wrapper, "gen_target_config.i3c.irq_o")
         if irq.value == 0:
             await RisingEdge(irq)
 
@@ -129,7 +129,7 @@ async def rx_agent(tb, data_transfers):
         assert err_stat == 0, "Unexpected error detected"
 
         # Wait for the interrupt signal to go low
-        irq = tb.dut.xi3c_wrapper.gen_target_config.i3c.irq_o
+        irq = resolve_path(tb.dut.xi3c_wrapper, "gen_target_config.i3c.irq_o")
         if irq.value != 0:
             await FallingEdge(irq)
 

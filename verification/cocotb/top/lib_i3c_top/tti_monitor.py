@@ -13,6 +13,7 @@ on violation to fail the test.
 
 import cocotb
 from cocotb.triggers import RisingEdge, First
+from common import resolve_path
 
 
 class TtiQueueMonitor:
@@ -33,8 +34,8 @@ class TtiQueueMonitor:
         self._running = False
 
         # Resolve signal handles once
-        tti = getattr(dut, "xi3c_wrapper").gen_target_config.i3c.gen_target_tti.xtti
-        rec = getattr(dut, "xi3c_wrapper").gen_target_config.i3c.gen_target_recovery_handler.xrecovery_handler
+        tti = resolve_path(dut.xi3c_wrapper, "gen_target_config.i3c.gen_target_tti.xtti")
+        rec = resolve_path(dut.xi3c_wrapper, "gen_target_config.i3c.gen_target_recovery_handler.xrecovery_handler")
         self._rx_desc_write_r = tti.rx_desc_queue_write_r
         self._rx_data_write_r = tti.rx_data_queue_write_r
         self._recovery_pending = rec.recovery_pending

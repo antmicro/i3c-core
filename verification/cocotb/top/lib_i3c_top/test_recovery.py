@@ -21,7 +21,7 @@ VIRT_STATIC_ADDR = 0x5B
 DYNAMIC_ADDR = 0x52
 VIRT_DYNAMIC_ADDR = 0x53
 
-from common import VALID_I3C_ADDRESSES, timeout_task, log_seed
+from common import VALID_I3C_ADDRESSES, timeout_task, log_seed, resolve_path
 
 ocp_magic_string_as_bytes = [
     0x4F,  # 'O'
@@ -7956,7 +7956,7 @@ async def test_recovery_hdr_abort_per_state(dut):
 
     # Get reference to recovery receiver state_q signal
     try:
-        recovery_rx = dut.xi3c_wrapper.gen_target_config.i3c.xrecovery_handler.xrecovery_receiver
+        recovery_rx = resolve_path(dut.xi3c_wrapper, "gen_target_config.i3c.xrecovery_handler.xrecovery_receiver")
         state_sig = recovery_rx.state_q
     except AttributeError:
         dut._log.warning("Cannot access recovery_receiver.state_q -- skipping per-state test")

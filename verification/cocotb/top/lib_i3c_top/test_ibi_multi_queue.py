@@ -29,7 +29,7 @@ import cocotb
 from cocotb.handle import Force, Release
 from cocotb.result import SimTimeoutError
 from cocotb.triggers import ClockCycles, RisingEdge, Timer, with_timeout
-from common import timeout_task, log_seed
+from common import timeout_task, log_seed, resolve_path
 
 # =============================================================================
 # Constants
@@ -536,7 +536,7 @@ async def test_ibi_multi_queue_flush_large_payload(dut):
     await init_ibi(i3c_controller, tb)
 
     # Internal signal handles for coverage injection
-    standby = dut.xi3c_wrapper.gen_target_config.i3c.xcontroller.gen_target_controller_standby.xcontroller_standby.xcontroller_standby_i3c
+    standby = resolve_path(dut.xi3c_wrapper, "gen_target_config.i3c.xcontroller.gen_target_controller_standby.xcontroller_standby.xcontroller_standby_i3c")
     desc_ibi = standby.u_descriptor_ibi
 
     # IBI #0 has 20 bytes payload (will be truncated to 4)

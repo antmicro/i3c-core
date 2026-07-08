@@ -32,6 +32,40 @@ def log_seed(dut):
     seed = cocotb.plusargs.get("seed", None)
     dut._log.info(f"Random seed: {seed or 'unknown (set via RANDOM_SEED plusarg)'}")
 
+def resolve_path(parent, path_string):
+    """
+    Dynamically walks a hierarchical path string, automatically healing 
+    VCS squashed generate-block scopes.
+    
+    Usage:
+        sig = resolve_path(dut.xi3c_wrapper, "gen_target_config.i3c.xcontroller")
+    """
+    parts = path_string.split('.')
+    current = parent
+    
+    i = 0
+    while i < len(parts):
+        part = parts[i]
+        try:
+            # 1. Try standard IEEE traversal (Verilator / Normal hierarchy)
+            current = getattr(current, part)
+            i += 1
+        except AttributeError:
+            # 2. VCS Flattening Detected!
+            # If getattr fails, VCS likely squashed this scope with the next one.
+            if i + 1 < len(parts):
+                next_part = parts[i + 1]
+                # Try to fetch the combined "squashed" name using cocotb's native _id()
+                current = current._id(f"{part}.{next_part}", extended=False)
+                i += 2  # We successfully consumed two parts of the path, skip ahead!
+            else:
+                # We hit a genuine missing signal at the end of the path
+                raise AttributeError(
+                    f"VCS/VPI Error: Cannot resolve '{part}' inside '{current._name}'"
+                )
+                
+    return current
+
 
 # =============================================================================
 # CCC helpers

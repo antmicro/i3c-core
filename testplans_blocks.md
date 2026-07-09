@@ -7,18 +7,7 @@
 ### `axi_filtering_disabled`
 
 Tests:
-- [read_hci_version_csr_id_filter_off](https://github.com/antmicro/i3c-core/tree/main//verification/cocotb/block/axi_adapter_id_filter/test_seq_csr_access.py#L43)
-- [read_pio_section_offset_filter_off](https://github.com/antmicro/i3c-core/tree/main//verification/cocotb/block/axi_adapter_id_filter/test_seq_csr_access.py#L75)
-- [write_to_controller_device_addr_filter_off](https://github.com/antmicro/i3c-core/tree/main//verification/cocotb/block/axi_adapter_id_filter/test_seq_csr_access.py#L113)
-- [write_should_not_affect_ro_csr_filter_off](https://github.com/antmicro/i3c-core/tree/main//verification/cocotb/block/axi_adapter_id_filter/test_seq_csr_access.py#L150)
-- [sequence_csr_read_filter_off](https://github.com/antmicro/i3c-core/tree/main//verification/cocotb/block/axi_adapter_id_filter/test_seq_csr_access.py#L203)
-- [sequence_csr_write_filter_off](https://github.com/antmicro/i3c-core/tree/main//verification/cocotb/block/axi_adapter_id_filter/test_seq_csr_access.py#L265)
-- [collision_with_write_id_filter_off](https://github.com/antmicro/i3c-core/tree/main//verification/cocotb/block/axi_adapter_id_filter/test_bus_stress.py#L77)
-- [collision_with_read_id_filter_off](https://github.com/antmicro/i3c-core/tree/main//verification/cocotb/block/axi_adapter_id_filter/test_bus_stress.py#L143)
-- [write_read_burst_id_filter_off](https://github.com/antmicro/i3c-core/tree/main//verification/cocotb/block/axi_adapter_id_filter/test_bus_stress.py#L184)
-- [write_burst_collision_with_read_id_filter_off](https://github.com/antmicro/i3c-core/tree/main//verification/cocotb/block/axi_adapter_id_filter/test_bus_stress.py#L235)
-- [read_burst_collision_with_write_id_filter_off](https://github.com/antmicro/i3c-core/tree/main//verification/cocotb/block/axi_adapter_id_filter/test_bus_stress.py#L296)
-
+- [read_hci_version_csr_id_filter_off](https://github.com/antmicro/i3c-core/tree/main//verification/cocotb/block/axi_adapter_id_filter/test_seq_csr_access.py)- [read_pio_section_offset_filter_off](https://github.com/antmicro/i3c-core/tree/main//verification/cocotb/block/axi_adapter_id_filter/test_seq_csr_access.py)- [write_to_controller_device_addr_filter_off](https://github.com/antmicro/i3c-core/tree/main//verification/cocotb/block/axi_adapter_id_filter/test_seq_csr_access.py)- [write_should_not_affect_ro_csr_filter_off](https://github.com/antmicro/i3c-core/tree/main//verification/cocotb/block/axi_adapter_id_filter/test_seq_csr_access.py)- [sequence_csr_read_filter_off](https://github.com/antmicro/i3c-core/tree/main//verification/cocotb/block/axi_adapter_id_filter/test_seq_csr_access.py)- [sequence_csr_write_filter_off](https://github.com/antmicro/i3c-core/tree/main//verification/cocotb/block/axi_adapter_id_filter/test_seq_csr_access.py)- [collision_with_write_id_filter_off](https://github.com/antmicro/i3c-core/tree/main//verification/cocotb/block/axi_adapter_id_filter/test_bus_stress.py)- [collision_with_read_id_filter_off](https://github.com/antmicro/i3c-core/tree/main//verification/cocotb/block/axi_adapter_id_filter/test_bus_stress.py)- [write_read_burst_id_filter_off](https://github.com/antmicro/i3c-core/tree/main//verification/cocotb/block/axi_adapter_id_filter/test_bus_stress.py)- [write_burst_collision_with_read_id_filter_off](https://github.com/antmicro/i3c-core/tree/main//verification/cocotb/block/axi_adapter_id_filter/test_bus_stress.py)- [read_burst_collision_with_write_id_filter_off](https://github.com/antmicro/i3c-core/tree/main//verification/cocotb/block/axi_adapter_id_filter/test_bus_stress.py)
 
 Verifies CSR access is granted when the AXI filtering feature is disabled.
 Verifies transaction response and contents.
@@ -26,18 +15,7 @@ Verifies transaction response and contents.
 ### `axi_filtering_priv`
 
 Tests:
-- [read_hci_version_csr_id_filter_on_priv](https://github.com/antmicro/i3c-core/tree/main//verification/cocotb/block/axi_adapter_id_filter/test_seq_csr_access.py#L48)
-- [read_pio_section_offset_filter_on_priv](https://github.com/antmicro/i3c-core/tree/main//verification/cocotb/block/axi_adapter_id_filter/test_seq_csr_access.py#L80)
-- [write_to_controller_device_addr_filter_on_priv](https://github.com/antmicro/i3c-core/tree/main//verification/cocotb/block/axi_adapter_id_filter/test_seq_csr_access.py#L118)
-- [write_should_not_affect_ro_csr_filter_on_priv](https://github.com/antmicro/i3c-core/tree/main//verification/cocotb/block/axi_adapter_id_filter/test_seq_csr_access.py#L155)
-- [sequence_csr_read_filter_on_priv](https://github.com/antmicro/i3c-core/tree/main//verification/cocotb/block/axi_adapter_id_filter/test_seq_csr_access.py#L208)
-- [sequence_csr_write_filter_on_priv](https://github.com/antmicro/i3c-core/tree/main//verification/cocotb/block/axi_adapter_id_filter/test_seq_csr_access.py#L270)
-- [collision_with_write_id_filter_on_priv](https://github.com/antmicro/i3c-core/tree/main//verification/cocotb/block/axi_adapter_id_filter/test_bus_stress.py#L82)
-- [collision_with_read_id_filter_on_priv](https://github.com/antmicro/i3c-core/tree/main//verification/cocotb/block/axi_adapter_id_filter/test_bus_stress.py#L148)
-- [write_read_burst_id_filter_on_priv](https://github.com/antmicro/i3c-core/tree/main//verification/cocotb/block/axi_adapter_id_filter/test_bus_stress.py#L189)
-- [write_burst_collision_with_read_id_filter_on_priv](https://github.com/antmicro/i3c-core/tree/main//verification/cocotb/block/axi_adapter_id_filter/test_bus_stress.py#L240)
-- [read_burst_collision_with_write_id_filter_on_priv](https://github.com/antmicro/i3c-core/tree/main//verification/cocotb/block/axi_adapter_id_filter/test_bus_stress.py#L301)
-
+- [read_hci_version_csr_id_filter_on_priv](https://github.com/antmicro/i3c-core/tree/main//verification/cocotb/block/axi_adapter_id_filter/test_seq_csr_access.py)- [read_pio_section_offset_filter_on_priv](https://github.com/antmicro/i3c-core/tree/main//verification/cocotb/block/axi_adapter_id_filter/test_seq_csr_access.py)- [write_to_controller_device_addr_filter_on_priv](https://github.com/antmicro/i3c-core/tree/main//verification/cocotb/block/axi_adapter_id_filter/test_seq_csr_access.py)- [write_should_not_affect_ro_csr_filter_on_priv](https://github.com/antmicro/i3c-core/tree/main//verification/cocotb/block/axi_adapter_id_filter/test_seq_csr_access.py)- [sequence_csr_read_filter_on_priv](https://github.com/antmicro/i3c-core/tree/main//verification/cocotb/block/axi_adapter_id_filter/test_seq_csr_access.py)- [sequence_csr_write_filter_on_priv](https://github.com/antmicro/i3c-core/tree/main//verification/cocotb/block/axi_adapter_id_filter/test_seq_csr_access.py)- [collision_with_write_id_filter_on_priv](https://github.com/antmicro/i3c-core/tree/main//verification/cocotb/block/axi_adapter_id_filter/test_bus_stress.py)- [collision_with_read_id_filter_on_priv](https://github.com/antmicro/i3c-core/tree/main//verification/cocotb/block/axi_adapter_id_filter/test_bus_stress.py)- [write_read_burst_id_filter_on_priv](https://github.com/antmicro/i3c-core/tree/main//verification/cocotb/block/axi_adapter_id_filter/test_bus_stress.py)- [write_burst_collision_with_read_id_filter_on_priv](https://github.com/antmicro/i3c-core/tree/main//verification/cocotb/block/axi_adapter_id_filter/test_bus_stress.py)- [read_burst_collision_with_write_id_filter_on_priv](https://github.com/antmicro/i3c-core/tree/main//verification/cocotb/block/axi_adapter_id_filter/test_bus_stress.py)
 
 Verifies CSR access is granted when the AXI filtering is enabled
 and the transaction has a privileged ID.
@@ -46,18 +24,7 @@ Verifies transaction response and contents.
 ### `axi_filtering_non_priv`
 
 Tests:
-- [read_hci_version_csr_id_filter_on_non_priv](https://github.com/antmicro/i3c-core/tree/main//verification/cocotb/block/axi_adapter_id_filter/test_seq_csr_access.py#L54)
-- [read_pio_section_offset_filter_on_non_priv](https://github.com/antmicro/i3c-core/tree/main//verification/cocotb/block/axi_adapter_id_filter/test_seq_csr_access.py#L87)
-- [write_to_controller_device_addr_filter_on_non_priv](https://github.com/antmicro/i3c-core/tree/main//verification/cocotb/block/axi_adapter_id_filter/test_seq_csr_access.py#L125)
-- [write_should_not_affect_ro_csr_filter_on_non_priv](https://github.com/antmicro/i3c-core/tree/main//verification/cocotb/block/axi_adapter_id_filter/test_seq_csr_access.py#L162)
-- [sequence_csr_read_filter_on_non_priv](https://github.com/antmicro/i3c-core/tree/main//verification/cocotb/block/axi_adapter_id_filter/test_seq_csr_access.py#L215)
-- [sequence_csr_write_filter_on_non_priv](https://github.com/antmicro/i3c-core/tree/main//verification/cocotb/block/axi_adapter_id_filter/test_seq_csr_access.py#L277)
-- [collision_with_write_id_filter_on_non_priv](https://github.com/antmicro/i3c-core/tree/main//verification/cocotb/block/axi_adapter_id_filter/test_bus_stress.py#L87)
-- [collision_with_read_id_filter_on_non_priv](https://github.com/antmicro/i3c-core/tree/main//verification/cocotb/block/axi_adapter_id_filter/test_bus_stress.py#L153)
-- [write_read_burst_id_filter_on_non_priv](https://github.com/antmicro/i3c-core/tree/main//verification/cocotb/block/axi_adapter_id_filter/test_bus_stress.py#L194)
-- [write_burst_collision_with_read_id_filter_on_non_priv](https://github.com/antmicro/i3c-core/tree/main//verification/cocotb/block/axi_adapter_id_filter/test_bus_stress.py#L245)
-- [read_burst_collision_with_write_id_filter_on_non_priv](https://github.com/antmicro/i3c-core/tree/main//verification/cocotb/block/axi_adapter_id_filter/test_bus_stress.py#L306)
-
+- [read_hci_version_csr_id_filter_on_non_priv](https://github.com/antmicro/i3c-core/tree/main//verification/cocotb/block/axi_adapter_id_filter/test_seq_csr_access.py)- [read_pio_section_offset_filter_on_non_priv](https://github.com/antmicro/i3c-core/tree/main//verification/cocotb/block/axi_adapter_id_filter/test_seq_csr_access.py)- [write_to_controller_device_addr_filter_on_non_priv](https://github.com/antmicro/i3c-core/tree/main//verification/cocotb/block/axi_adapter_id_filter/test_seq_csr_access.py)- [write_should_not_affect_ro_csr_filter_on_non_priv](https://github.com/antmicro/i3c-core/tree/main//verification/cocotb/block/axi_adapter_id_filter/test_seq_csr_access.py)- [sequence_csr_read_filter_on_non_priv](https://github.com/antmicro/i3c-core/tree/main//verification/cocotb/block/axi_adapter_id_filter/test_seq_csr_access.py)- [sequence_csr_write_filter_on_non_priv](https://github.com/antmicro/i3c-core/tree/main//verification/cocotb/block/axi_adapter_id_filter/test_seq_csr_access.py)- [collision_with_write_id_filter_on_non_priv](https://github.com/antmicro/i3c-core/tree/main//verification/cocotb/block/axi_adapter_id_filter/test_bus_stress.py)- [collision_with_read_id_filter_on_non_priv](https://github.com/antmicro/i3c-core/tree/main//verification/cocotb/block/axi_adapter_id_filter/test_bus_stress.py)- [write_read_burst_id_filter_on_non_priv](https://github.com/antmicro/i3c-core/tree/main//verification/cocotb/block/axi_adapter_id_filter/test_bus_stress.py)- [write_burst_collision_with_read_id_filter_on_non_priv](https://github.com/antmicro/i3c-core/tree/main//verification/cocotb/block/axi_adapter_id_filter/test_bus_stress.py)- [read_burst_collision_with_write_id_filter_on_non_priv](https://github.com/antmicro/i3c-core/tree/main//verification/cocotb/block/axi_adapter_id_filter/test_bus_stress.py)
 
 Verifies CSR access is denied when the AXI filtering feature is enabled
 and the transaction ID doesn't match any of the privileged IDs.
@@ -65,20 +32,28 @@ and the transaction ID doesn't match any of the privileged IDs.
 ### `axi_filtering_mixed_priv`
 
 Tests:
-- [collision_with_write_id_filter_on_mixed](https://github.com/antmicro/i3c-core/tree/main//verification/cocotb/block/axi_adapter_id_filter/test_bus_stress.py#L92)
-- [collision_with_read_id_filter_on_mixed](https://github.com/antmicro/i3c-core/tree/main//verification/cocotb/block/axi_adapter_id_filter/test_bus_stress.py#L158)
-- [collision_with_write_mixed_priv](https://github.com/antmicro/i3c-core/tree/main//verification/cocotb/block/axi_adapter_id_filter/test_bus_stress.py#L311)
-- [collision_with_read_mixed_priv](https://github.com/antmicro/i3c-core/tree/main//verification/cocotb/block/axi_adapter_id_filter/test_bus_stress.py#L348)
-
+- [collision_with_write_id_filter_on_mixed](https://github.com/antmicro/i3c-core/tree/main//verification/cocotb/block/axi_adapter_id_filter/test_bus_stress.py)- [collision_with_read_id_filter_on_mixed](https://github.com/antmicro/i3c-core/tree/main//verification/cocotb/block/axi_adapter_id_filter/test_bus_stress.py)- [collision_with_write_mixed_priv](https://github.com/antmicro/i3c-core/tree/main//verification/cocotb/block/axi_adapter_id_filter/test_bus_stress.py)- [collision_with_read_mixed_priv](https://github.com/antmicro/i3c-core/tree/main//verification/cocotb/block/axi_adapter_id_filter/test_bus_stress.py)
 
 Issues an ID-randomized colliding read and write transactions sequence.
 Verifies AXI CSR access response for each separate transaction.
 Ensures that access errors are raised only for unprivileged transactions.
 
+### `bus_stress`
+
+Tests:
+- [collision_with_read](https://github.com/antmicro/i3c-core/tree/main//verification/cocotb/block/axi_adapter/test_bus_stress.py)- [collision_with_write](https://github.com/antmicro/i3c-core/tree/main//verification/cocotb/block/axi_adapter/test_bus_stress.py)- [write_read_burst](https://github.com/antmicro/i3c-core/tree/main//verification/cocotb/block/axi_adapter/test_bus_stress.py)- [read_burst_collision_with_write](https://github.com/antmicro/i3c-core/tree/main//verification/cocotb/block/axi_adapter/test_bus_stress.py)- [write_burst_collision_with_read](https://github.com/antmicro/i3c-core/tree/main//verification/cocotb/block/axi_adapter/test_bus_stress.py)
+
+TODO: add proper description
+
+### `priv_id`
+
+Tests:
+- [priv_id_variation](https://github.com/antmicro/i3c-core/tree/main//verification/cocotb/block/axi_adapter_id_filter/test_priv_id_variation.py)- randomized_id_configuration_swap- swap_priv_ids_mid_read- swap_priv_ids_mid_write- toggle_filtering_mid_read- toggle_filtering_mid_write
+
+TODO: add proper description
+
 
 # bus_monitor
-
-[Source file](https://github.com/antmicro/i3c-core/tree/main//verification/cocotb/block/ctrl_bus_monitor/test_bus_monitor.py)
 
 [Test results](./sim-results/bus_monitor.html){.external}
 
@@ -86,7 +61,7 @@ Ensures that access errors are raised only for unprivileged transactions.
 
 ### `bus_monitor`
 
-Test: [bus_monitor](https://github.com/antmicro/i3c-core/tree/main//verification/cocotb/block/ctrl_bus_monitor/test_bus_monitor.py#L46)
+Test: [bus_monitor](https://github.com/antmicro/i3c-core/tree/main//verification/cocotb/block/ctrl_bus_monitor/test_bus_monitor.py)
 
 Tests operation of the bus_monitor module along with its sub-modules.
 Performs a number of I3C transactions between a simulated controller
@@ -96,15 +71,13 @@ reported by bus_monitor. Verifies that the counts match what's expected.
 
 # bus_rx_flow
 
-[Source file](https://github.com/antmicro/i3c-core/tree/main//verification/cocotb/block/bus_rx_flow/test_bus_rx_flow.py)
-
 [Test results](./sim-results/bus_rx_flow.html){.external}
 
 ## Testpoints
 
 ### `multiple_bit_reads`
 
-Test: [multiple_bit_reads](https://github.com/antmicro/i3c-core/tree/main//verification/cocotb/block/bus_rx_flow/test_bus_rx_flow.py#L57)
+Test: [multiple_bit_reads](https://github.com/antmicro/i3c-core/tree/main//verification/cocotb/block/bus_rx_flow/test_bus_rx_flow.py)
 
 Drives SCL line with a steady clock, issues multiple bit read
 requests, verifies that the module returns correct data sampled
@@ -112,16 +85,14 @@ from the SDA line.
 
 ### `multiple_byte_reads`
 
-Test: [multiple_byte_reads](https://github.com/antmicro/i3c-core/tree/main//verification/cocotb/block/bus_rx_flow/test_bus_rx_flow.py#L88)
+Test: [multiple_byte_reads](https://github.com/antmicro/i3c-core/tree/main//verification/cocotb/block/bus_rx_flow/test_bus_rx_flow.py)
 
 Drives SCL line with a steady clock, issues multiple byte read
 requests, verifies that the module returns correct data sampled
 from the SDA line.
 
 
-# bus_timers
-
-[Source file](https://github.com/antmicro/i3c-core/tree/main//verification/cocotb/block/ctrl_bus_timers/test_bus_timers.py)
+# Bus timers block-level
 
 [Test results](./sim-results/bus_timers.html){.external}
 
@@ -129,7 +100,7 @@ from the SDA line.
 
 ### `get_status`
 
-Test: [bus_timers](https://github.com/antmicro/i3c-core/tree/main//verification/cocotb/block/ctrl_bus_timers/test_bus_timers.py#L24)
+Test: [ctrl_bus_timers](https://github.com/antmicro/i3c-core/tree/main//verification/cocotb/block/ctrl_bus_timers/test_ctrl_bus_timers.py)
 
 Tests the bus_timers module responsible for tracking bus free,
 idle and available states. Triggers the module and verifies if
@@ -137,54 +108,7 @@ the signals corresponding to bus states get asserted after the
 required time period.
 
 
-# bus_tx
-
-[Source file](https://github.com/antmicro/i3c-core/tree/main//verification/cocotb/block/bus_tx/test_bus_tx.py)
-
-[Test results](./sim-results/bus_tx.html){.external}
-
-## Testpoints
-
-### `bit_tx_negedge`
-
-Test: bit_tx_negedge
-
-Requests the bus_tx module to drive SDA right after SCL falling
-edge. Checks if the requested bit value is driven correctly.
-
-### `bit_tx_pre_posedge`
-
-Test: bit_tx_pre_posedge
-
-Requests the bus_tx module to drive SDA just before SCL rising
-edge. Checks if the requested bit value is driven correctly.
-
-### `bit_tx_high_level`
-
-Test: bit_tx_high_level
-
-Requests the bus_tx module to drive SDA just before SCL falling
-edge. Checks if the requested bit value is driven correctly.
-
-### `bit_tx_low_level`
-
-Test: bit_tx_low_level
-
-Requests the bus_tx module to drive SDA when SCL in in stable
-low state. Checks if the requested bit value is driven correctly.
-
-### `byte_tx`
-
-Test: [byte_tx](https://github.com/antmicro/i3c-core/tree/main//verification/cocotb/block/bus_tx/test_bus_tx.py#L214)
-
-Drives controls of the bus_tx module in a sequence which sends
-a data byte plus T bit to the I3C bus. For each bit sent checks
-if SDA is driven correctly and bus timings are met.
-
-
 # bus_tx_flow
-
-[Source file](https://github.com/antmicro/i3c-core/tree/main//verification/cocotb/block/bus_tx_flow/test_bus_tx_flow.py)
 
 [Test results](./sim-results/bus_tx_flow.html){.external}
 
@@ -192,35 +116,35 @@ if SDA is driven correctly and bus timings are met.
 
 ### `bit_tx_negedge`
 
-Test: bit_tx_negedge
+Test: [bit_tx_negedge](https://github.com/antmicro/i3c-core/tree/main//verification/cocotb/block/bus_tx_flow/test_bus_tx_flow.py)
 
 Requests the bus_tx_flow module to drive SDA right after SCL falling
 edge. Checks if the requested bit value is driven correctly.
 
 ### `bit_tx_pre_posedge`
 
-Test: bit_tx_pre_posedge
+Test: [bit_tx_pre_posedge](https://github.com/antmicro/i3c-core/tree/main//verification/cocotb/block/bus_tx_flow/test_bus_tx_flow.py)
 
 Requests the bus_tx_flow module to drive SDA just before SCL rising
 edge. Checks if the requested bit value is driven correctly.
 
 ### `bit_tx_high_level`
 
-Test: bit_tx_high_level
+Test: [bit_tx_high_level](https://github.com/antmicro/i3c-core/tree/main//verification/cocotb/block/bus_tx_flow/test_bus_tx_flow.py)
 
 Requests the bus_tx_flow module to drive SDA just before SCL falling
 edge. Checks if the requested bit value is driven correctly.
 
 ### `bit_tx_low_level`
 
-Test: bit_tx_low_level
+Test: [bit_tx_low_level](https://github.com/antmicro/i3c-core/tree/main//verification/cocotb/block/bus_tx_flow/test_bus_tx_flow.py)
 
 Requests the bus_tx_flow module to drive SDA when SCL in in stable
 low state. Checks if the requested bit value is driven correctly.
 
 ### `byte_tx`
 
-Test: [byte_tx](https://github.com/antmicro/i3c-core/tree/main//verification/cocotb/block/bus_tx/test_bus_tx.py#L214)
+Test: [byte_tx](https://github.com/antmicro/i3c-core/tree/main//verification/cocotb/block/bus_tx_flow/test_bus_tx_flow.py)
 
 Requests the bus_tx_flow module to transmit a data byte along with
 T-bit. While the transmission is in progress samples SDA on rising
@@ -230,15 +154,13 @@ with what was requested to be sent.
 
 # ccc
 
-[Source file](https://github.com/antmicro/i3c-core/tree/main//verification/cocotb/block/ccc/test_ccc.py)
-
 [Test results](./sim-results/ccc.html){.external}
 
 ## Testpoints
 
 ### `ccc`
 
-Test: [ccc](https://github.com/antmicro/i3c-core/tree/main//verification/cocotb/block/ccc/test_ccc.py#L132)
+Test: [ccc](https://github.com/antmicro/i3c-core/tree/main//verification/cocotb/block/ccc/test_ccc.py)
 
 Instructs the ccc module to begin servicing GETSTATUS CCC. Feeds
 data bytes and bits to the module via its bus_tx/bus_rx interfaces
@@ -246,9 +168,46 @@ to mimic actual I3C transaction. Checks if data bytes received
 correspond to correct GETSTATUS CCC response.
 
 
-# csr_sw_access
+# flow_active
 
-[Source file](https://github.com/antmicro/i3c-core/tree/main//verification/cocotb/block/lib_adapter/test_csr_sw_access.py)
+[Test results](./sim-results/controller_flow_active.html){.external}
+
+## Testpoints
+
+### `immediate_write`
+
+Test: [immediate_write](https://github.com/antmicro/i3c-core/tree/main//verification/cocotb/block/flow_active/test_flow_active_immediate_write.py)
+
+Testbench:
+flow_active_wrapper (DUT) -> flow_active golden model
+
+Intent:
+Verify Private Write with Immediate Data Transfer Command Descriptor (7.2.2.1 TCRI Spec) to an individual I3C Target Device with known static address
+
+Stimulus:
+ - create a 64b CMD descriptor as per Table 16 7.2.2.1 TCRI Spec. With:
+    - CMD_ATTR = 0x5 // ImmediateDataTransfer in Direct Format
+    - TID: random transaction ID
+    - I2C = 0x0 // I3C device
+    - CMD: random this field is disregarded
+    - CP = 0x0 // CMD field is not valid
+    - DEV_ADDRESS: random allowed I3C address 
+    - DTT: number of bytes to be transferred
+    - MODE = 0x0 // standard I3C SDR Speed
+    - RNW = 0x0 // Write transfer
+    - WROC: random 
+    - TOC: random
+    - DATA_BYTES: random data to be sent
+- split the 64b descriptor into 2 32b words (DWORD) and first write the lower DWORD into the COMMAND_PORT PIO reg followed by the upper DWORD.
+
+Check:
+    - correct start/restart fmt_flag is generated 
+    - first fmt_byte is DEV_ADDRESS
+    - following DTT fmt_bytes are DATA_BYTES
+    - correct stop fmt_flag is generated
+
+
+# csr_sw_access
 
 [Test results](./sim-results/csr_sw_access.html){.external}
 
@@ -256,45 +215,43 @@ correspond to correct GETSTATUS CCC response.
 
 ### `read_hci_version_csr`
 
-Test: [read_hci_version_csr](https://github.com/antmicro/i3c-core/tree/main//verification/cocotb/block/lib_adapter/test_csr_sw_access.py#L74)
+Test: [read_hci_version_csr](https://github.com/antmicro/i3c-core/tree/main//verification/cocotb/block/lib_adapter/test_csr_sw_access.py)
 
 Reads the HCI version CSR and verifies its content.
 
 ### `read_pio_section_offset`
 
-Test: [read_pio_section_offset](https://github.com/antmicro/i3c-core/tree/main//verification/cocotb/block/lib_adapter/test_csr_sw_access.py#L87)
+Test: [read_pio_section_offset](https://github.com/antmicro/i3c-core/tree/main//verification/cocotb/block/lib_adapter/test_csr_sw_access.py)
 
 Reads the PIO_SECTION_OFFSET CSR and verifies its content.
 
 ### `write_to_controller_device_addr`
 
-Test: [write_to_controller_device_addr](https://github.com/antmicro/i3c-core/tree/main//verification/cocotb/block/lib_adapter/test_csr_sw_access.py#L97)
+Test: [write_to_controller_device_addr](https://github.com/antmicro/i3c-core/tree/main//verification/cocotb/block/lib_adapter/test_csr_sw_access.py)
 
 Writes to the CONTROLLER_DEVICE_ADDR CSR and verifies if the write was successful.
 
 ### `write_should_not_affect_ro_csr`
 
-Test: [write_should_not_affect_ro_csr](https://github.com/antmicro/i3c-core/tree/main//verification/cocotb/block/lib_adapter/test_csr_sw_access.py#L111)
+Test: [write_should_not_affect_ro_csr](https://github.com/antmicro/i3c-core/tree/main//verification/cocotb/block/lib_adapter/test_csr_sw_access.py)
 
 Writes to the HC_CAPABILITIES CSR which is read-only for software.
 Verifies that the write did not succeed.
 
 ### `sequence_csr_read`
 
-Test: [sequence_csr_read](https://github.com/antmicro/i3c-core/tree/main//verification/cocotb/block/lib_adapter/test_csr_sw_access.py#L127)
+Test: [sequence_csr_read](https://github.com/antmicro/i3c-core/tree/main//verification/cocotb/block/lib_adapter/test_csr_sw_access.py)
 
 Performs a sequence of CSR reads. Verifies that each one succeeds.
 
 ### `sequence_csr_write`
 
-Test: [sequence_csr_write](https://github.com/antmicro/i3c-core/tree/main//verification/cocotb/block/lib_adapter/test_csr_sw_access.py#L162)
+Test: [sequence_csr_write](https://github.com/antmicro/i3c-core/tree/main//verification/cocotb/block/lib_adapter/test_csr_sw_access.py)
 
 Performs a sequence of CSR writes. Verifies that each one succeeds.
 
 
 # descriptor_rx
-
-[Source file](https://github.com/antmicro/i3c-core/tree/main//verification/cocotb/block/ctrl_descriptor_rx/test_descriptor_rx.py)
 
 [Test results](./sim-results/descriptor_rx.html){.external}
 
@@ -302,7 +259,7 @@ Performs a sequence of CSR writes. Verifies that each one succeeds.
 
 ### `descriptor_rx`
 
-Test: descriptor_rx
+Test: [descriptor_rx](https://github.com/antmicro/i3c-core/tree/main//verification/cocotb/block/ctrl_descriptor_rx/test_descriptor_rx.py)
 
 Tests the descriptor_rx module responsible for generating TTI RX
 descriptors. The test sends N bytes to the module and verifies
@@ -311,15 +268,13 @@ that it emits a valid descriptor with data length set to N.
 
 # descriptor_tx
 
-[Source file](https://github.com/antmicro/i3c-core/tree/main//verification/cocotb/block/ctrl_descriptor_tx/test_descriptor_tx.py)
-
 [Test results](./sim-results/descriptor_tx.html){.external}
 
 ## Testpoints
 
 ### `descriptor_tx`
 
-Test: descriptor_tx
+Test: [descriptor_tx](https://github.com/antmicro/i3c-core/tree/main//verification/cocotb/block/ctrl_descriptor_tx/test_descriptor_tx.py)
 
 Tests the descriptor_tx module responsible for processing TTI TX
 descriptors and controlling TTI data flow during I3C private
@@ -336,7 +291,7 @@ and allowed the right amount of data bytes to pass through it.
 
 ### `test_drivers`
 
-Test: drivers
+No Tests Implemented
 
 Tests the I3C PHY module. Loops through all possible states of
 SDA/SCL for OD and PP mode. Checks if driven data matches the
@@ -345,15 +300,13 @@ bus state.
 
 # edge_detector
 
-[Source file](https://github.com/antmicro/i3c-core/tree/main//verification/cocotb/block/ctrl_edge_detector/test_edge_detector.py)
-
 [Test results](./sim-results/edge_detector.html){.external}
 
 ## Testpoints
 
 ### `pretrigger_with_delay`
 
-Test: [pretrigger_with_delay](https://github.com/antmicro/i3c-core/tree/main//verification/cocotb/block/ctrl_edge_detector/test_edge_detector.py#L49)
+Test: [pretrigger_with_delay](https://github.com/antmicro/i3c-core/tree/main//verification/cocotb/block/ctrl_edge_detector/test_edge_detector.py)
 
 Triggers the edge_detector module before an edge on a bus line,
 emits the edge and counts clock cycles it takes the detector
@@ -362,7 +315,7 @@ equal to the programmed delay.
 
 ### `posttrigger_with_delay`
 
-Test: [posttrigger_with_delay](https://github.com/antmicro/i3c-core/tree/main//verification/cocotb/block/ctrl_edge_detector/test_edge_detector.py#L72)
+Test: [posttrigger_with_delay](https://github.com/antmicro/i3c-core/tree/main//verification/cocotb/block/ctrl_edge_detector/test_edge_detector.py)
 
 Emits an edge on the bus, triggers the edge_detector module after
 the edge when the bus line is high. Counts clock cycles it takes
@@ -374,7 +327,7 @@ delay.
 
 ### `trigger_with_delay`
 
-Test: [trigger_with_delay](https://github.com/antmicro/i3c-core/tree/main//verification/cocotb/block/ctrl_edge_detector/test_edge_detector.py#L97)
+Test: [trigger_with_delay](https://github.com/antmicro/i3c-core/tree/main//verification/cocotb/block/ctrl_edge_detector/test_edge_detector.py)
 
 Triggers the edge detector and emits a rising edge on a bus line
 simultaneously. Counts clock cycles it takes the detector
@@ -383,7 +336,7 @@ equal to the programmed delay.
 
 ### `pretrigger_no_delay`
 
-Test: [pretrigger_no_delay](https://github.com/antmicro/i3c-core/tree/main//verification/cocotb/block/ctrl_edge_detector/test_edge_detector.py#L121)
+Test: [pretrigger_no_delay](https://github.com/antmicro/i3c-core/tree/main//verification/cocotb/block/ctrl_edge_detector/test_edge_detector.py)
 
 Triggers the edge_detector module before an edge on a bus line,
 emits the edge and counts clock cycles it takes the detector
@@ -392,7 +345,7 @@ zero as the configured delay is also set to 0.
 
 ### `posttrigger_no_delay`
 
-Test: [posttrigger_no_delay](https://github.com/antmicro/i3c-core/tree/main//verification/cocotb/block/ctrl_edge_detector/test_edge_detector.py#L144)
+Test: [posttrigger_no_delay](https://github.com/antmicro/i3c-core/tree/main//verification/cocotb/block/ctrl_edge_detector/test_edge_detector.py)
 
 Triggers the edge_detector module when a bus line is high which
 is after an edge. Counts clock cycles it takes the detector
@@ -401,17 +354,24 @@ zero as the configured delay is also set to 0.
 
 ### `trigger_no_delay`
 
-Test: [trigger_no_delay](https://github.com/antmicro/i3c-core/tree/main//verification/cocotb/block/ctrl_edge_detector/test_edge_detector.py#L170)
+Test: [trigger_no_delay](https://github.com/antmicro/i3c-core/tree/main//verification/cocotb/block/ctrl_edge_detector/test_edge_detector.py)
 
 Triggers the edge detector and emits a rising edge on a bus line
 simultaneously. Counts clock cycles it takes the detector
 to report the presence of the edge. Verifies that the count is
 zero as the configured delay is also set to 0.
 
+### `falling_before_delay`
+
+Test: [falling_before_delay](https://github.com/antmicro/i3c-core/tree/main//verification/cocotb/block/ctrl_edge_detector/test_edge_detector.py)
+
+Triggers the edge detector and emits a rising edge on a bus line
+simultaneously. After half of the programmed delay passed the line
+falls back to low. Verifies that the edge was not reported in this
+scenario.
+
 
 # flow_standby_i3c
-
-[Source file](https://github.com/antmicro/i3c-core/tree/main//verification/cocotb/block/flow_standby_i3c/test_flow_standby_i3c.py)
 
 [Test results](./sim-results/flow_standby_i3c.html){.external}
 
@@ -426,6 +386,19 @@ instantiates two tasks serving as BFMs for RX and TX queues.
 Then it simulates bus start condition followed by data reception
 ended by bus stop condition.
 
+### `flow_standby_i2c`
+
+Tests:
+- detect_data- reset- detect_nack- detect_restart- detect_start- detect_stop
+
+Tests basic operation of the flow_standby_i2c module.
+
+### `i3c_target_fsm`
+
+Test: i3c_target_fsm
+
+Tests basic operation of the i3c_target_fsm module.
+
 
 # hci_queues
 
@@ -435,7 +408,7 @@ ended by bus stop condition.
 
 ### `clear_on_nonempty_resp_queue`
 
-Test: clear_on_nonempty_resp_queue
+Test: [clear_on_nonempty_resp_queue](https://github.com/antmicro/i3c-core/tree/main//verification/cocotb/block/lib_hci_queues/test_clear.py)
 
 Writes to the HCI queue RESET_CONTROL CSR bit which causes HCI
 command response queue to be cleared. Then, polls the CSR until the
@@ -445,7 +418,7 @@ should be the same descriptor.
 
 ### `clear_on_nonempty_cmd_queue`
 
-Test: clear_on_nonempty_cmd_queue
+Test: [clear_on_nonempty_cmd_queue](https://github.com/antmicro/i3c-core/tree/main//verification/cocotb/block/lib_hci_queues/test_clear.py)
 
 Puts a command descriptor to the HCI command queue. Writes to the
 RESET_CONTROL CSR to the bit responsible for clearing the queue,
@@ -455,7 +428,7 @@ from the queue.
 
 ### `clear_on_nonempty_rx_queue`
 
-Test: clear_on_nonempty_rx_queue
+Test: [clear_on_nonempty_rx_queue](https://github.com/antmicro/i3c-core/tree/main//verification/cocotb/block/lib_hci_queues/test_clear.py)
 
 Puts 10 data words to the HCI RX data queue. Writes to the
 RESET_CONTROL CSR to the bit responsible for clearing the queue,
@@ -464,7 +437,7 @@ gets another data word from the queue to check if it was cleared.
 
 ### `clear_on_nonempty_tx_queue`
 
-Test: clear_on_nonempty_tx_queue
+Test: [clear_on_nonempty_tx_queue](https://github.com/antmicro/i3c-core/tree/main//verification/cocotb/block/lib_hci_queues/test_clear.py)
 
 Puts 10 data words to the HCI TX data queue. Writes to the
 RESET_CONTROL CSR to the bit responsible for clearing the queue,
@@ -473,7 +446,7 @@ gets another data word from the queue to check if it was cleared.
 
 ### `clear_on_nonempty_ibi_queue`
 
-Test: clear_on_nonempty_ibi_queue
+Test: [clear_on_nonempty_ibi_queue](https://github.com/antmicro/i3c-core/tree/main//verification/cocotb/block/lib_hci_queues/test_clear.py)
 
 Puts 10 data words to the HCI IBI queue. Writes to the
 RESET_CONTROL CSR to the bit responsible for clearing the queue,
@@ -482,42 +455,42 @@ gets another data word from the queue to check if it was cleared.
 
 ### `cmd_capacity_status`
 
-Test: cmd_capacity_status
+Test: [cmd_capacity_status](https://github.com/antmicro/i3c-core/tree/main//verification/cocotb/block/lib_hci_queues/test_empty.py)
 
 Resets the HCI command queue and verifies that it is empty
 afterwards.
 
 ### `resp_capacity_status`
 
-Test: resp_capacity_status
+Test: [resp_capacity_status](https://github.com/antmicro/i3c-core/tree/main//verification/cocotb/block/lib_hci_queues/test_empty.py)
 
 Resets the HCI response queue and verifies that it is empty
 afterwards.
 
 ### `rx_capacity_status`
 
-Test: rx_capacity_status
+Test: [rx_capacity_status](https://github.com/antmicro/i3c-core/tree/main//verification/cocotb/block/lib_hci_queues/test_empty.py)
 
 Resets the HCI RX queue and verifies that it is empty
 afterwards.
 
 ### `tx_capacity_status`
 
-Test: tx_capacity_status
+Test: [tx_capacity_status](https://github.com/antmicro/i3c-core/tree/main//verification/cocotb/block/lib_hci_queues/test_empty.py)
 
 Resets the HCI TX queue and verifies that it is empty
 afterwards.
 
 ### `ibi_capacity_status`
 
-Test: ibi_capacity_status
+Test: [ibi_capacity_status](https://github.com/antmicro/i3c-core/tree/main//verification/cocotb/block/lib_hci_queues/test_empty.py)
 
 Resets the HCI IBI queue and verifies that it is empty
 afterwards.
 
 ### `cmd_setup_threshold`
 
-Test: cmd_setup_threshold
+Test: [cmd_setup_threshold](https://github.com/antmicro/i3c-core/tree/main//verification/cocotb/block/lib_hci_queues/test_threshold.py)
 
 Writes the threshold to appropriate register for the HCI command
 queue (QUEUE_THLD_CTRL or DATA_BUFFER_THLD_CTRL).
@@ -526,7 +499,7 @@ Verifies the threshold signal assumes the correct value.
 
 ### `resp_setup_threshold`
 
-Test: resp_setup_threshold
+Test: [resp_setup_threshold](https://github.com/antmicro/i3c-core/tree/main//verification/cocotb/block/lib_hci_queues/test_threshold.py)
 
 Writes the threshold to appropriate register for the HCI response
 queue (QUEUE_THLD_CTRL or DATA_BUFFER_THLD_CTRL).
@@ -535,7 +508,7 @@ Verifies the threshold signal assumes the correct value.
 
 ### `rx_setup_threshold`
 
-Test: rx_setup_threshold
+Test: [rx_setup_threshold](https://github.com/antmicro/i3c-core/tree/main//verification/cocotb/block/lib_hci_queues/test_threshold.py)
 
 Writes the threshold to appropriate register for the HCI data RX
 queue (QUEUE_THLD_CTRL or DATA_BUFFER_THLD_CTRL).
@@ -544,7 +517,7 @@ Verifies the threshold signal assumes the correct value.
 
 ### `tx_setup_threshold`
 
-Test: tx_setup_threshold
+Test: [tx_setup_threshold](https://github.com/antmicro/i3c-core/tree/main//verification/cocotb/block/lib_hci_queues/test_threshold.py)
 
 Writes the threshold to appropriate register for the HCI data TX
 queue (QUEUE_THLD_CTRL or DATA_BUFFER_THLD_CTRL).
@@ -553,7 +526,7 @@ Verifies the threshold signal assumes the correct value.
 
 ### `ibi_setup_threshold`
 
-Test: ibi_setup_threshold
+Test: [ibi_setup_threshold](https://github.com/antmicro/i3c-core/tree/main//verification/cocotb/block/lib_hci_queues/test_threshold.py)
 
 Writes the threshold to appropriate register for the HCI IBI
 queue (QUEUE_THLD_CTRL or DATA_BUFFER_THLD_CTRL).
@@ -562,7 +535,7 @@ Verifies the threshold signal assumes the correct value.
 
 ### `resp_should_raise_thld_trig`
 
-Test: resp_should_raise_thld_trig
+Test: [resp_should_raise_thld_trig](https://github.com/antmicro/i3c-core/tree/main//verification/cocotb/block/lib_hci_queues/test_threshold.py)
 
 Sets up a ready threshold of the read queue and checks whether the
 trigger signal is properly asserted at different levels of the
@@ -570,7 +543,7 @@ queue fill.
 
 ### `rx_should_raise_thld_trig`
 
-Test: rx_should_raise_thld_trig
+Test: [rx_should_raise_thld_trig](https://github.com/antmicro/i3c-core/tree/main//verification/cocotb/block/lib_hci_queues/test_threshold.py)
 
 Sets up a ready and start thresholds of the read queue and checks
 whether the trigger signals are properly asserted at different
@@ -578,7 +551,7 @@ levels of the queue fill.
 
 ### `ibi_should_raise_thld_trig`
 
-Test: ibi_should_raise_thld_trig
+Test: [ibi_should_raise_thld_trig](https://github.com/antmicro/i3c-core/tree/main//verification/cocotb/block/lib_hci_queues/test_threshold.py)
 
 Sets up a ready threshold of the read queue and checks whether the
 trigger signal is properly asserted at different levels of the
@@ -586,7 +559,7 @@ queue fill.
 
 ### `cmd_should_raise_thld_trig`
 
-Test: cmd_should_raise_thld_trig
+Test: [cmd_should_raise_thld_trig](https://github.com/antmicro/i3c-core/tree/main//verification/cocotb/block/lib_hci_queues/test_threshold.py)
 
 Sets up a ready threshold of the write queue and checks whether
 the trigger is properly asserted at different levels of the queue
@@ -594,16 +567,45 @@ fill.
 
 ### `tx_should_raise_thld_trig`
 
-Test: tx_should_raise_thld_trig
+Test: [tx_should_raise_thld_trig](https://github.com/antmicro/i3c-core/tree/main//verification/cocotb/block/lib_hci_queues/test_threshold.py)
 
 Sets up a ready and start threshold of the write queue and checks
 whether the trigger is properly asserted at different levels of
 the queue fill.
 
 
-# i3c_bus_monitor
+# i2c
 
-[Source file](https://github.com/antmicro/i3c-core/tree/main//verification/cocotb/block/ctrl_i3c_bus_monitor/test_i3c_bus_monitor.py)
+[Test results](./sim-results/i2c.html){.external}
+
+## Testpoints
+
+### `mem_r`
+
+Test: mem_r
+
+TODO: add description
+
+### `mem_rw`
+
+Test: mem_rw
+
+TODO: add description
+
+### `mem_w`
+
+Test: mem_w
+
+TODO: add description
+
+### `wr_restart_rd`
+
+Test: wr_restart_rd
+
+TODO: add description
+
+
+# i3c_bus_monitor
 
 [Test results](./sim-results/i3c_bus_monitor.html){.external}
 
@@ -611,7 +613,7 @@ the queue fill.
 
 ### `bus_monitor_hdr_exit`
 
-Test: [bus_monitor_hdr_exit](https://github.com/antmicro/i3c-core/tree/main//verification/cocotb/block/ctrl_i3c_bus_monitor/test_i3c_bus_monitor.py#L48)
+Test: [bus_monitor_hdr_exit](https://github.com/antmicro/i3c-core/tree/main//verification/cocotb/block/ctrl_i3c_bus_monitor/test_i3c_bus_monitor.py)
 
 Verifies that the i3c_bus_monitor module correctly detects HDR
 exit pattern. Sends the HDR exit pattern and verifies that the
@@ -622,7 +624,7 @@ exit. Checks if it reported exactly one HDR exit event.
 
 ### `target_reset_detection`
 
-Test: [target_reset_detection](https://github.com/antmicro/i3c-core/tree/main//verification/cocotb/block/ctrl_i3c_bus_monitor/test_i3c_bus_monitor.py#L94)
+Test: [target_reset_detection](https://github.com/antmicro/i3c-core/tree/main//verification/cocotb/block/ctrl_i3c_bus_monitor/test_i3c_bus_monitor.py)
 
 Issues a target reset pattern to the I3C bus, verifies that the
 i3c_bus_monitor correctly report it detected.
@@ -630,15 +632,13 @@ i3c_bus_monitor correctly report it detected.
 
 # pec
 
-[Source file](https://github.com/antmicro/i3c-core/tree/main//verification/cocotb/block/recovery_pec/test_pec.py)
-
 [Test results](./sim-results/pec.html){.external}
 
 ## Testpoints
 
 ### `pec`
 
-Test: [pec](https://github.com/antmicro/i3c-core/tree/main//verification/cocotb/block/recovery_pec/test_pec.py#L13)
+Test: [pec](https://github.com/antmicro/i3c-core/tree/main//verification/cocotb/block/recovery_pec/test_pec.py)
 
 Pushes random bytes through the recovery_pec module, compares
 its computed checksum with its correspondent computed in software.
@@ -652,35 +652,35 @@ its computed checksum with its correspondent computed in software.
 
 ### `tti_tx_capacity_status`
 
-Test: [tti_tx_capacity_status](https://github.com/antmicro/i3c-core/tree/main//verification/cocotb/block/lib_hci_queues/test_empty_tti.py#L24)
+Test: [tti_tx_capacity_status](https://github.com/antmicro/i3c-core/tree/main//verification/cocotb/block/lib_hci_queues/test_empty.py)
 
 Resets the TTI TX queue and verifies that it is empty
 afterwards.
 
 ### `tti_tx_desc_capacity_status`
 
-Test: [tti_tx_desc_capacity_status](https://github.com/antmicro/i3c-core/tree/main//verification/cocotb/block/lib_hci_queues/test_empty_tti.py#L9)
+Test: [tti_tx_desc_capacity_status](https://github.com/antmicro/i3c-core/tree/main//verification/cocotb/block/lib_hci_queues/test_empty.py)
 
 Resets the TTI TX descriptor queue and verifies that it is empty
 afterwards.
 
 ### `tti_rx_capacity_status`
 
-Test: [tti_rx_capacity_status](https://github.com/antmicro/i3c-core/tree/main//verification/cocotb/block/lib_hci_queues/test_empty_tti.py#L14)
+Test: [tti_rx_capacity_status](https://github.com/antmicro/i3c-core/tree/main//verification/cocotb/block/lib_hci_queues/test_empty.py)
 
 Resets the TTI RX queue and verifies that it is empty
 afterwards.
 
 ### `tti_rx_desc_capacity_status`
 
-Test: [tti_rx_desc_capacity_status](https://github.com/antmicro/i3c-core/tree/main//verification/cocotb/block/lib_hci_queues/test_empty_tti.py#L19)
+Test: [tti_rx_desc_capacity_status](https://github.com/antmicro/i3c-core/tree/main//verification/cocotb/block/lib_hci_queues/test_empty.py)
 
 Resets the TTI RX descriptor queue and verifies that it is empty
 afterwards.
 
 ### `tti_tx_setup_threshold`
 
-Test: [tti_tx_setup_threshold](https://github.com/antmicro/i3c-core/tree/main//verification/cocotb/block/lib_hci_queues/test_threshold_tti.py#L35)
+Test: [tti_tx_setup_threshold](https://github.com/antmicro/i3c-core/tree/main//verification/cocotb/block/lib_hci_queues/test_threshold.py)
 
 Writes the threshold to appropriate register for the TTI data TX
 queue (QUEUE_THLD_CTRL or DATA_BUFFER_THLD_CTRL).
@@ -689,7 +689,7 @@ Verifies the threshold signal assumes the correct value.
 
 ### `tti_tx_desc_setup_threshold`
 
-Test: [tti_tx_desc_setup_threshold](https://github.com/antmicro/i3c-core/tree/main//verification/cocotb/block/lib_hci_queues/test_threshold_tti.py#L21)
+Test: [tti_tx_desc_setup_threshold](https://github.com/antmicro/i3c-core/tree/main//verification/cocotb/block/lib_hci_queues/test_threshold.py)
 
 Writes the threshold to appropriate register for the TTI descriptor TX
 queue (QUEUE_THLD_CTRL or DATA_BUFFER_THLD_CTRL).
@@ -698,7 +698,7 @@ Verifies the threshold signal assumes the correct value.
 
 ### `tti_rx_setup_threshold`
 
-Test: [tti_rx_setup_threshold](https://github.com/antmicro/i3c-core/tree/main//verification/cocotb/block/lib_hci_queues/test_threshold_tti.py#L27)
+Test: [tti_rx_setup_threshold](https://github.com/antmicro/i3c-core/tree/main//verification/cocotb/block/lib_hci_queues/test_threshold.py)
 
 Writes the threshold to appropriate register for the TTI data RX
 queue (QUEUE_THLD_CTRL or DATA_BUFFER_THLD_CTRL).
@@ -707,7 +707,7 @@ Verifies the threshold signal assumes the correct value.
 
 ### `tti_rx_desc_setup_threshold`
 
-Test: [tti_rx_desc_setup_threshold](https://github.com/antmicro/i3c-core/tree/main//verification/cocotb/block/lib_hci_queues/test_threshold_tti.py#L43)
+Test: [tti_rx_desc_setup_threshold](https://github.com/antmicro/i3c-core/tree/main//verification/cocotb/block/lib_hci_queues/test_threshold.py)
 
 Writes the threshold to appropriate register for the TTI descriptor RX
 queue (QUEUE_THLD_CTRL or DATA_BUFFER_THLD_CTRL).
@@ -716,7 +716,7 @@ Verifies the threshold signal assumes the correct value.
 
 ### `tti_ibi_setup_threshold`
 
-Test: [tti_ibi_setup_threshold](https://github.com/antmicro/i3c-core/tree/main//verification/cocotb/block/lib_hci_queues/test_threshold_tti.py#L49)
+Test: [tti_ibi_setup_threshold](https://github.com/antmicro/i3c-core/tree/main//verification/cocotb/block/lib_hci_queues/test_threshold.py)
 
 Writes the threshold to appropriate register for the TTI IBI
 queue (QUEUE_THLD_CTRL or DATA_BUFFER_THLD_CTRL).
@@ -725,7 +725,7 @@ Verifies the threshold signal assumes the correct value.
 
 ### `tti_ibi_should_raise_thld_trig`
 
-Test: [tti_ibi_should_raise_thld_trig](https://github.com/antmicro/i3c-core/tree/main//verification/cocotb/block/lib_hci_queues/test_threshold_tti.py#L87)
+Test: [tti_ibi_should_raise_thld_trig](https://github.com/antmicro/i3c-core/tree/main//verification/cocotb/block/lib_hci_queues/test_threshold.py)
 
 Sets up a ready threshold of the TTI queue and checks whether the
 trigger signal is properly asserted at different levels of the
@@ -733,7 +733,7 @@ queue fill.
 
 ### `tti_rx_desc_should_raise_thld_trig`
 
-Test: [tti_rx_desc_should_raise_thld_trig](https://github.com/antmicro/i3c-core/tree/main//verification/cocotb/block/lib_hci_queues/test_threshold_tti.py#L55)
+Test: [tti_rx_desc_should_raise_thld_trig](https://github.com/antmicro/i3c-core/tree/main//verification/cocotb/block/lib_hci_queues/test_threshold.py)
 
 Sets up a ready threshold of the read queue and checks whether the
 trigger signal is properly asserted at different levels of the
@@ -741,7 +741,7 @@ queue fill.
 
 ### `rx_should_raise_thld_trig`
 
-Test: rx_should_raise_thld_trig
+Test: [rx_should_raise_thld_trig](https://github.com/antmicro/i3c-core/tree/main//verification/cocotb/block/lib_hci_queues/test_threshold.py)
 
 Sets up a ready and start thresholds of the read queue and checks
 whether the trigger signals are properly asserted at different
@@ -749,7 +749,7 @@ levels of the queue fill.
 
 ### `tx_desc_should_raise_thld_trig`
 
-Test: [tti_tx_desc_should_raise_thld_trig](https://github.com/antmicro/i3c-core/tree/main//verification/cocotb/block/lib_hci_queues/test_threshold_tti.py#L69)
+Test: [tti_tx_desc_should_raise_thld_trig](https://github.com/antmicro/i3c-core/tree/main//verification/cocotb/block/lib_hci_queues/test_threshold.py)
 
 Sets up a ready and start threshold of the write queue and checks
 whether the trigger is properly asserted at different levels of
@@ -757,7 +757,7 @@ the queue fill.
 
 ### `tx_should_raise_thld_trig`
 
-Test: tx_should_raise_thld_trig
+Test: [tx_should_raise_thld_trig](https://github.com/antmicro/i3c-core/tree/main//verification/cocotb/block/lib_hci_queues/test_threshold.py)
 
 Sets up a ready and start threshold of the write queue and checks
 whether the trigger is properly asserted at different levels of
@@ -765,7 +765,23 @@ the queue fill.
 
 ### `ibi_should_raise_thld_trig`
 
-Test: ibi_should_raise_thld_trig
+Test: [ibi_should_raise_thld_trig](https://github.com/antmicro/i3c-core/tree/main//verification/cocotb/block/lib_hci_queues/test_threshold.py)
+
+Sets up a ready and start threshold of the write queue and checks
+whether the trigger is properly asserted at different levels of
+the queue fill.
+
+### `tti_rx_should_raise_thld_trig`
+
+Test: [tti_rx_should_raise_thld_trig](https://github.com/antmicro/i3c-core/tree/main//verification/cocotb/block/lib_hci_queues/test_threshold.py)
+
+Sets up a ready and start threshold of the write queue and checks
+whether the trigger is properly asserted at different levels of
+the queue fill.
+
+### `tti_tx_should_raise_thld_trig`
+
+Test: [tti_tx_should_raise_thld_trig](https://github.com/antmicro/i3c-core/tree/main//verification/cocotb/block/lib_hci_queues/test_threshold.py)
 
 Sets up a ready and start threshold of the write queue and checks
 whether the trigger is properly asserted at different levels of
@@ -773,7 +789,7 @@ the queue fill.
 
 ### `tti_ibi_capacity_status`
 
-Test: [tti_ibi_capacity_status](https://github.com/antmicro/i3c-core/tree/main//verification/cocotb/block/lib_hci_queues/test_empty_tti.py#L29)
+Test: [tti_ibi_capacity_status](https://github.com/antmicro/i3c-core/tree/main//verification/cocotb/block/lib_hci_queues/test_empty.py)
 
 Resets the TTI TX IBI queue and verifies that it is empty
 afterwards.
@@ -787,7 +803,7 @@ afterwards.
 
 ### `converter`
 
-Test: [width_converter_8ton_converter](https://github.com/antmicro/i3c-core/tree/main//verification/cocotb/block/width_converter_8toN/test_converter.py#L56)
+Test: [width_converter_8ton_converter](https://github.com/antmicro/i3c-core/tree/main//verification/cocotb/block/width_converter_8toN/test_converter.py)
 
 Pushes random byte stream to the converter module. After each
 byte waits at random. Simultaneously receives N-bit data words
@@ -796,7 +812,7 @@ the output data matches the input.
 
 ### `flush`
 
-Test: [width_converter_8ton_flush](https://github.com/antmicro/i3c-core/tree/main//verification/cocotb/block/width_converter_8toN/test_flush.py#L60)
+Test: [width_converter_8ton_flush](https://github.com/antmicro/i3c-core/tree/main//verification/cocotb/block/width_converter_8toN/test_flush.py)
 
 Feeds M bytes to the module where M is in [1, 2, 3]. Asserts the
 sink_flush_i signal, receives the output word and checks if it
@@ -811,7 +827,7 @@ matches the input data.
 
 ### `converter`
 
-Test: [width_converter_nto8_converter](https://github.com/antmicro/i3c-core/tree/main//verification/cocotb/block/width_converter_Nto8/test_converter.py#L56)
+Test: [width_converter_nto8_converter](https://github.com/antmicro/i3c-core/tree/main//verification/cocotb/block/width_converter_Nto8/test_converter.py)
 
 Pushes random N-bit word stream to the converter module. After each
 word waits at random. Simultaneously receives bytes and generates
@@ -820,7 +836,7 @@ matches the input.
 
 ### `flush`
 
-Test: [width_converter_nto8_flush](https://github.com/antmicro/i3c-core/tree/main//verification/cocotb/block/width_converter_Nto8/test_flush.py#L54)
+Test: [width_converter_nto8_flush](https://github.com/antmicro/i3c-core/tree/main//verification/cocotb/block/width_converter_Nto8/test_flush.py)
 
 Feeds an N-bit word to the module. Receives M bytes where M is in
 [1, 2, 3] and asserts source_flush_i. Verifies that the module

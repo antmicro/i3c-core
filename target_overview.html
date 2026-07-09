@@ -13,7 +13,7 @@
     
     
       
-        <title>I3C core overview - CHIPS Alliance Caliptra Open Source I3C core</title>
+        <title>I3C Target overview - CHIPS Alliance Caliptra Open Source I3C core</title>
       
     
     
@@ -87,7 +87,7 @@
         <div class="md-header__topic" data-md-component="header-topic">
           <span class="md-ellipsis">
             
-              I3C core overview
+              I3C Target overview
             
           </span>
         </div>
@@ -231,12 +231,12 @@
       <input class="md-nav__toggle md-toggle" data-md-toggle="toc" type="checkbox" id="__toc">
       
         <label class="md-nav__link md-nav__link--active" for="__toc">
-          <span class="md-ellipsis">I3C core overview</span>
+          <span class="md-ellipsis">I3C Target overview</span>
           <span class="md-nav__icon md-icon"></span>
         </label>
       
       <a href="#" class="md-nav__link md-nav__link--active">
-        <span class="md-ellipsis">I3C core overview</span>
+        <span class="md-ellipsis">I3C Target overview</span>
       </a>
       
         
@@ -296,6 +296,40 @@
 </li>
       
         <li class="md-nav__item">
+  <a href="#address-behavior" class="md-nav__link">
+    <span class="md-ellipsis">Address Behavior</span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Address Behavior">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#dynamic-and-static-address-priority" class="md-nav__link">
+    <span class="md-ellipsis">Dynamic and Static Address Priority</span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#ibi-address" class="md-nav__link">
+    <span class="md-ellipsis">IBI Address</span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#virtual-target-addressing" class="md-nav__link">
+    <span class="md-ellipsis">Virtual Target Addressing</span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#private-reads-and-writes" class="md-nav__link">
     <span class="md-ellipsis">Private reads and writes</span>
   </a>
@@ -313,26 +347,6 @@
   <a href="#i3c-common-command-codes-ccc" class="md-nav__link">
     <span class="md-ellipsis">I3C Common Command Codes <wbr>(CCC)</span>
   </a>
-  
-    <nav class="md-nav" aria-label="I3C Common Command Codes (CCC)">
-      <ul class="md-nav__list">
-        
-          <li class="md-nav__item">
-  <a href="#broadcast-cccs" class="md-nav__link">
-    <span class="md-ellipsis">Broadcast CCCs</span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#direct-cccs" class="md-nav__link">
-    <span class="md-ellipsis">Direct CCCs</span>
-  </a>
-  
-</li>
-        
-      </ul>
-    </nav>
   
 </li>
       
@@ -360,8 +374,72 @@
   
   
     <li class="md-nav__item">
+      <a href="controller_overview.html" class="md-nav__link">
+        <span class="md-ellipsis">I3C Controller overview</span>
+      </a>
+    </li>
+  
+
+    
+      
+      
+      
+
+  
+  
+  
+  
+    <li class="md-nav__item">
       <a href="phy.html" class="md-nav__link">
         <span class="md-ellipsis">Physical Layer</span>
+      </a>
+    </li>
+  
+
+    
+      
+      
+      
+
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="ccc.html" class="md-nav__link">
+        <span class="md-ellipsis">I3C Common Command Codes <wbr>(CCC)</span>
+      </a>
+    </li>
+  
+
+    
+      
+      
+      
+
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="error_handling.html" class="md-nav__link">
+        <span class="md-ellipsis">Error Detection and Recovery</span>
+      </a>
+    </li>
+  
+
+    
+      
+      
+      
+
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="firmware_guide.html" class="md-nav__link">
+        <span class="md-ellipsis">Firmware Integration Guide</span>
       </a>
     </li>
   
@@ -441,7 +519,7 @@
   
     <li class="md-nav__item">
       <a href="axi_recovery_flow.html" class="md-nav__link">
-        <span class="md-ellipsis">AXI driven Caliptra recovery flow</span>
+        <span class="md-ellipsis">AXI Recovery Flow</span>
       </a>
     </li>
   
@@ -463,6 +541,22 @@
   
 
     
+      
+      
+      
+
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="timing_csr.html" class="md-nav__link">
+        <span class="md-ellipsis">I3C Timing Register Configurations</span>
+      </a>
+    </li>
+  
+
+    
   </ul>
 </nav>
                   </div>
@@ -477,7 +571,7 @@
                   
 
 
-<h1 id="i3c-core-overview">I3C core overview<a class="headerlink" href="#i3c-core-overview" title="Link to this heading">¶</a></h1>
+<h1 id="i3c-target-overview">I3C Target overview<a class="headerlink" href="#i3c-target-overview" title="Link to this heading">¶</a></h1>
 <p>This chapter provides a high level overview of the I3C target functionalities implemented in the core.</p>
 <h2 id="configuration-script">Configuration script<a class="headerlink" href="#configuration-script" title="Link to this heading">¶</a></h2>
 <p>The I3C Core is configured with the <a class="reference external" href="https://github.com/chipsalliance/i3c-core/blob/main/tools/i3c_config/i3c_core_config.py">i3c_core_config</a> Python script, which reads configurations from the <code class="docutils literal notranslate"><span class="pre">i3c_core_configs.yaml</span></code> YAML file.</p>
@@ -526,6 +620,37 @@ The auto-generated descriptions are included in the <a class="reference internal
 </ul>
 </li>
 </ul>
+<h2 id="address-behavior">Address Behavior<a class="headerlink" href="#address-behavior" title="Link to this heading">¶</a></h2>
+<h3 id="dynamic-and-static-address-priority">Dynamic and Static Address Priority<a class="headerlink" href="#dynamic-and-static-address-priority" title="Link to this heading">¶</a></h3>
+<p>Per the I3C specification, once a Target has been assigned a Dynamic Address (via ENTDAA,
+SETDASA, SETAASA, or SETNEWDA), it shall stop responding to its Static Address. The
+core implements this as follows:</p>
+<ul class="simple">
+<li><p>If <code class="docutils literal notranslate"><span class="pre">DYNAMIC_ADDR_VALID</span> <span class="pre">=</span> <span class="pre">1</span></code>, the Target matches only on <code class="docutils literal notranslate"><span class="pre">DYNAMIC_ADDR</span></code></p></li>
+<li><p>If <code class="docutils literal notranslate"><span class="pre">DYNAMIC_ADDR_VALID</span> <span class="pre">=</span> <span class="pre">0</span></code> and <code class="docutils literal notranslate"><span class="pre">STATIC_ADDR_VALID</span> <span class="pre">=</span> <span class="pre">1</span></code>, the Target matches on <code class="docutils literal notranslate"><span class="pre">STATIC_ADDR</span></code></p></li>
+</ul>
+<p>This rule applies independently to both the main target and the virtual target.</p>
+<h3 id="ibi-address">IBI Address<a class="headerlink" href="#ibi-address" title="Link to this heading">¶</a></h3>
+<p>When sending In-Band Interrupts, the Target uses a separate IBI address derived from the
+main (non-virtual) target’s address with dynamic-over-static priority:</p>
+<ul class="simple">
+<li><p>If the Dynamic Address is valid, the IBI address is the Dynamic Address.</p></li>
+<li><p>Otherwise, the IBI address falls back to the Static Address.</p></li>
+</ul>
+<p>This is implemented in <code class="docutils literal notranslate"><span class="pre">configuration.sv</span></code>:</p>
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span><code>assign target_ibi_addr_o = target_dyn_addr_valid_o ? target_dyn_addr_o : target_sta_addr_o;
+assign target_ibi_addr_valid_o = target_sta_addr_valid_o || target_dyn_addr_valid_o;
+</code></pre></div>
+</div>
+<p>IBI transmission is gated on <code class="docutils literal notranslate"><span class="pre">target_ibi_addr_valid</span></code>. If neither address is valid,
+<code class="docutils literal notranslate"><span class="pre">target_ibi_addr_valid</span></code> is deasserted and any pending IBI requests are effectively masked
+(the <code class="docutils literal notranslate"><span class="pre">ibi_pending</span></code> signal in <code class="docutils literal notranslate"><span class="pre">i3c_target_fsm.sv</span></code> requires <code class="docutils literal notranslate"><span class="pre">target_ibi_addr_valid_i</span></code>).</p>
+<h3 id="virtual-target-addressing">Virtual Target Addressing<a class="headerlink" href="#virtual-target-addressing" title="Link to this heading">¶</a></h3>
+<p>The virtual target (used for recovery) has its own independent address pair
+(<code class="docutils literal notranslate"><span class="pre">VIRT_STATIC_ADDR</span></code>, <code class="docutils literal notranslate"><span class="pre">VIRT_DYNAMIC_ADDR</span></code>) with the same dynamic-over-static priority rule.
+Both the main and virtual target addresses are checked in parallel on every incoming
+transaction. When the virtual target address matches, the <code class="docutils literal notranslate"><span class="pre">virtual_device_sel</span></code> signal
+routes the data path to the recovery handler, and TTI queue interrupts are gated.</p>
 <h2 id="private-reads-and-writes">Private reads and writes<a class="headerlink" href="#private-reads-and-writes" title="Link to this heading">¶</a></h2>
 <ul class="simple">
 <li><p>The core handles I3C private reads and writes</p>
@@ -554,35 +679,9 @@ Optional IBI data immediately follows the descriptor in the same queue.</p>
 Once a descriptor is written, the core peeks it and waits until the defined count of data words is written to the queue.
 Finally, the core outputs the Mandatory Data Byte (MDB) and the data as 8-bit words.</p>
 <h2 id="i3c-common-command-codes-ccc">I3C Common Command Codes (CCC)<a class="headerlink" href="#i3c-common-command-codes-ccc" title="Link to this heading">¶</a></h2>
-<p>The I3C core supports all CCCs required by the I3C Basic spec, please see “Table 16 I3C Common Command Codes” for a full reference.</p>
-<p>All CCCs are exercised with Cocotb tests.</p>
-<h3 id="broadcast-cccs">Broadcast CCCs<a class="headerlink" href="#broadcast-cccs" title="Link to this heading">¶</a></h3>
-<p>The following Broadcast CCCs are currently supported by the core (all required Broadcast CCCs as per the errata, and one optional Broadcast CCC):</p>
-<ul class="simple">
-<li><p>ENEC (R) - Enable Events Command</p></li>
-<li><p>DISEC (R) - Disable Events Command</p></li>
-<li><p>SETMWL (R) - Set Max Write Length</p></li>
-<li><p>SETMRL (R) - Set Max Read Length</p></li>
-<li><p>SETAASA (O) - Set All Addresses to Static Adresses</p></li>
-<li><p>RSTACT (R) - Target Reset Action</p></li>
-</ul>
-<h3 id="direct-cccs">Direct CCCs<a class="headerlink" href="#direct-cccs" title="Link to this heading">¶</a></h3>
-<p>The following Direct CCCs are currently supported by the core (all required Direct CCCs, plus several optional/conditional ones):</p>
-<ul class="simple">
-<li><p>ENEC (R) - Enable Events Command</p></li>
-<li><p>DISEC (R) - Disable Events Command</p></li>
-<li><p>RSTDAA (R) - Direct Reset Dynamic Address Assignment - this direct CCC is deprecated, the core NACKs this command as per the spec</p></li>
-<li><p>SETDASA (O) - Set Dynamic Address from Static Address</p></li>
-<li><p>SETMWL (R) - Set Max Write Length</p></li>
-<li><p>SETMRL (R) - Set Max Read Length</p></li>
-<li><p>GETMWL (R) - Get Max Write Length</p></li>
-<li><p>GETMRL (R) - Set Max Read Length</p></li>
-<li><p>GETPID (C) - Get Provisioned ID</p></li>
-<li><p>GETBCR (C) - Get Bus Characteristics Register</p></li>
-<li><p>GETDCR (C) - Get Device Characteristics Register</p></li>
-<li><p>GETSTATUS (R) - Get Device Status</p></li>
-<li><p>RSTACT (R) - Target Reset Action</p></li>
-</ul>
+<p>The I3C core supports all CCCs required by the I3C Basic spec.
+See <a class="reference internal" href="ccc.html"><span class="doc">I3C Common Command Codes (CCC)</span></a> for the full list of supported CCCs, CCCs that update registers
+without firmware notification, and CCC error handling.</p>
 <h2 id="other-features">Other features<a class="headerlink" href="#other-features" title="Link to this heading">¶</a></h2>
 <ul class="simple">
 <li><p>Target Reset Pattern is detected and causes assertion of output pins, based on the action selected with RSTACT:</p>
@@ -592,6 +691,8 @@ Finally, the core outputs the Mandatory Data Byte (MDB) and the data as 8-bit wo
 </ul>
 </li>
 <li><p>The core correctly detects HDR-Exit Pattern</p></li>
+<li><p>Optional 60 us HDR error recovery timer for TE0/TE1 error recovery (see <a class="reference internal" href="error_handling.html"><span class="doc">Error Detection and Recovery</span></a>)</p></li>
+<li><p>Target error detection (TE0-TE5) with interrupt reporting and saturating counters (see <a class="reference internal" href="error_handling.html"><span class="doc">Error Detection and Recovery</span></a>)</p></li>
 </ul>
 
 
@@ -600,7 +701,7 @@ Finally, the core outputs the Mandatory Data Byte (MDB) and the data as 8-bit wo
   <small>
     
       Last update:
-      2025-12-22
+      2026-07-09
     
   </small>
 </div>
@@ -640,13 +741,13 @@ Finally, the core outputs the Mandatory Data Byte (MDB) and the data as 8-bit wo
       
       
         
-        <a href="phy.html" class="md-footer__link md-footer__link--next" aria-label="Next: Physical Layer" rel="next">
+        <a href="controller_overview.html" class="md-footer__link md-footer__link--next" aria-label="Next: I3C Controller overview" rel="next">
           <div class="md-footer__title">
             <div class="md-ellipsis">
               <span class="md-footer__direction">
                 Next
               </span>
-              Physical Layer
+              I3C Controller overview
             </div>
           </div>
           <div class="md-footer__button md-icon">
@@ -664,7 +765,7 @@ Finally, the core outputs the Mandatory Data Byte (MDB) and the data as 8-bit wo
       <div class="md-copyright">
   
     <div class="md-footer-copyright__highlight">
-        Copyright &#169; Antmicro, 2025.
+        Copyright &#169; Antmicro, 2026.
         
     </div>
   

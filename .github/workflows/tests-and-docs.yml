@@ -287,6 +287,11 @@ jobs:
           find verification/cocotb -name "*.log" -type f -exec sh -c \
             'echo ""; echo "========================================"; echo "=== {} ==="; echo "========================================"; cat "{}"' \;
 
+      - name: Rename XML results to avoid collisions
+        if: always()
+        run: |
+          find verification/cocotb -name "*.xml" -exec sh -c 'mv "$1" "${1%.xml}_target_only_ahb.xml"' _ {} \;
+
       - name: Sanitize artifact name
         if: always()
         id: sanitize

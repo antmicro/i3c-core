@@ -34,7 +34,7 @@ permissions:
 
 env:
   DEBIAN_FRONTEND: "noninteractive"
-  VERILATOR_VERSION: "v5.050"
+  VERILATOR_VERSION: "f149dd304c8ed3cdd1bfa34b6f31fca664440420"  # v5.051-devel
   WAVES: "0"
 
 jobs:
@@ -278,8 +278,9 @@ jobs:
       - name: Build Verilator (if not cached)
         if: steps.cache-verilator.outputs.cache-hit != 'true'
         run: |
-          git clone https://github.com/verilator/verilator -b ${{ env.VERILATOR_VERSION }}
+          git clone https://github.com/verilator/verilator
           cd verilator
+          git checkout ${{ env.VERILATOR_VERSION }}
           autoconf
           ./configure --prefix=$HOME/verilator-install
           make -j$(nproc)
@@ -366,8 +367,9 @@ jobs:
       - name: Build Verilator (if not cached)
         if: steps.cache-verilator.outputs.cache-hit != 'true'
         run: |
-          git clone https://github.com/verilator/verilator -b ${{ env.VERILATOR_VERSION }}
+          git clone https://github.com/verilator/verilator
           cd verilator
+          git checkout ${{ env.VERILATOR_VERSION }}
           autoconf
           ./configure --prefix=$HOME/verilator-install
           make -j$(nproc)
@@ -454,8 +456,9 @@ jobs:
       - name: Build Verilator (if not cached)
         if: steps.cache-verilator.outputs.cache-hit != 'true'
         run: |
-          git clone https://github.com/verilator/verilator -b ${{ env.VERILATOR_VERSION }}
+          git clone https://github.com/verilator/verilator
           cd verilator
+          git checkout ${{ env.VERILATOR_VERSION }}
           autoconf
           ./configure --prefix=$HOME/verilator-install
           make -j$(nproc)
@@ -547,8 +550,9 @@ jobs:
       - name: Build Verilator (if not cached)
         if: steps.cache-verilator.outputs.cache-hit != 'true'
         run: |
-          git clone https://github.com/verilator/verilator -b ${{ env.VERILATOR_VERSION }}
+          git clone https://github.com/verilator/verilator
           cd verilator
+          git checkout ${{ env.VERILATOR_VERSION }}
           autoconf
           ./configure --prefix=$HOME/verilator-install
           make -j$(nproc)
@@ -630,8 +634,9 @@ jobs:
       - name: Build Verilator (if not cached)
         if: steps.cache-verilator.outputs.cache-hit != 'true'
         run: |
-          git clone https://github.com/verilator/verilator -b ${{ env.VERILATOR_VERSION }}
+          git clone https://github.com/verilator/verilator
           cd verilator
+          git checkout ${{ env.VERILATOR_VERSION }}
           autoconf
           ./configure --prefix=$HOME/verilator-install
           make -j$(nproc)
@@ -718,8 +723,9 @@ jobs:
       - name: Build Verilator (if not cached)
         if: steps.cache-verilator.outputs.cache-hit != 'true'
         run: |
-          git clone https://github.com/verilator/verilator -b ${{ env.VERILATOR_VERSION }}
+          git clone https://github.com/verilator/verilator
           cd verilator
+          git checkout ${{ env.VERILATOR_VERSION }}
           autoconf
           ./configure --prefix=$HOME/verilator-install
           make -j$(nproc)

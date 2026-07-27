@@ -14,7 +14,7 @@ import random
 
 from boot import boot_init
 from bus2csr import dword2int, int2dword
-from i3c_controller_fixed import I3cControllerFixed as I3cController
+from cocotbext_i3c.i3c_controller import I3cController
 from cocotbext_i3c.i3c_target import I3CTarget
 from interface import I3CTopTestInterface
 
@@ -153,11 +153,11 @@ async def hold_bus_high(i3c_controller, i3c_target, tb, cycles):
 
 
 # =============================================================================
-# Helpers: TE0/TE1 error injection (delegates to I3cControllerFixed)
+# Helpers: TE0/TE1 error injection (delegates to I3cController)
 # =============================================================================
 
 async def trigger_te0_error(i3c_controller):
-    """Trigger a TE0 error. See I3cControllerFixed.send_te0_error()."""
+    """Trigger a TE0 error. See I3cController.send_te0_error()."""
     await i3c_controller.send_te0_error()
 
 

@@ -6,7 +6,7 @@ import random
 from boot import boot_init
 from bus2csr import bytes2int, compare_values, dword2int, int2dword
 from ccc import CCC
-from i3c_controller_fixed import I3cControllerFixed as I3cController
+from cocotbext_i3c.i3c_controller import I3cController
 from cocotbext_i3c.i3c_recovery_interface import I3cRecoveryException
 from i3c_recovery_interface_fixed import I3cRecoveryInterfaceFixed as I3cRecoveryInterface
 from cocotbext_i3c.i3c_target import I3CTarget

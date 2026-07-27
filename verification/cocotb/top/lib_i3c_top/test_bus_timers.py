@@ -14,7 +14,7 @@ import random
 
 from boot import boot_init
 from bus2csr import int2dword
-from i3c_controller_fixed import I3cControllerFixed as I3cController
+from cocotbext_i3c.i3c_controller import I3cController
 from interface import I3CTopTestInterface
 
 import cocotb

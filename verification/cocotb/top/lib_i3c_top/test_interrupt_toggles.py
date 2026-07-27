@@ -7,7 +7,7 @@ from cocotb.triggers import ClockCycles, RisingEdge
 from cocotb.triggers import ClockCycles, RisingEdge, Timer
 from boot import boot_init
 from bus2csr import dword2int, int2dword
-from i3c_controller_fixed import I3cControllerFixed as I3cController
+from cocotbext_i3c.i3c_controller import I3cController
 from cocotbext_i3c.i3c_target import I3CTarget
 from interface import I3CTopTestInterface
 from common import timeout_task, log_seed

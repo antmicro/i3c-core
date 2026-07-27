@@ -9,7 +9,7 @@ from utils import format_ibi_data
 from ccc import CCC
 from ccc import RSTACT_DEF_BYTE
 from cocotbext_i3c.common import I3cTargetResetAction
-from i3c_controller_fixed import I3cControllerFixed as I3cController
+from cocotbext_i3c.i3c_controller import I3cController
 from interface import I3CTopTestInterface
 
 import cocotb

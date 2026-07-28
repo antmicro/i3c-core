@@ -16,7 +16,7 @@ from boot import boot_init
 from bus2csr import dword2int, int2dword
 from ccc import CCC
 from cocotbext_i3c.i3c_controller import I3cController
-from i3c_recovery_interface_fixed import I3cRecoveryInterfaceFixed as I3cRecoveryInterface
+from cocotbext_i3c.i3c_recovery_interface import I3cRecoveryInterface
 from cocotbext_i3c.i3c_target import I3CTarget
 from interface import I3CTopTestInterface
 

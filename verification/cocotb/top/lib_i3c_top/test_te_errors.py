@@ -22,7 +22,7 @@ from boot import boot_init
 from bus2csr import dword2int, int2dword
 from ccc import CCC
 from cocotbext_i3c.i3c_controller import I3cController
-from i3c_recovery_interface_fixed import I3cRecoveryInterfaceFixed as I3cRecoveryInterface
+from cocotbext_i3c.i3c_recovery_interface import I3cRecoveryInterface
 from cocotbext_i3c.i3c_target import I3CTarget
 from interface import I3CTopTestInterface
 
@@ -1599,7 +1599,7 @@ async def test_ri_length_counter_saturation(dut):
     await tb.write_csr(ri_length_reg.base_addr, int2dword(0xFE), 4)
 
     # Inject LENGTH error: claim 100 bytes but send only 1
-    await recovery.command_write_wrong_length(
+    await recovery.command_write(
         VIRT_DYNAMIC_ADDR,
         I3cRecoveryInterface.Command.DEVICE_RESET,
         data=[0xAA],
@@ -1609,7 +1609,7 @@ async def test_ri_length_counter_saturation(dut):
 
     await _clear_ri_error_state(tb)
 
-    await recovery.command_write_wrong_length(
+    await recovery.command_write(
         VIRT_DYNAMIC_ADDR,
         I3cRecoveryInterface.Command.DEVICE_RESET,
         data=[0xAA],
@@ -1692,14 +1692,14 @@ async def test_ri_unsupported_counter_saturation(dut):
     await tb.write_csr(ri_unsupported_reg.base_addr, int2dword(0xFE), 4)
 
     # Inject UNSUPPORTED error: command code 0xFF is not in the supported set
-    await recovery.command_write_invalid_command(
+    await recovery.command_write(
         VIRT_DYNAMIC_ADDR, 0xFF, [0x12, 0x34])
     cnt = dword2int(await tb.read_csr(ri_unsupported_reg.base_addr, 4)) & 0xFF
     assert cnt == 0xFF, f"RI_UNSUPPORTED counter should reach 0xFF at saturation, got {cnt}"
 
     await _clear_ri_error_state(tb)
 
-    await recovery.command_write_invalid_command(
+    await recovery.command_write(
         VIRT_DYNAMIC_ADDR, 0xFF, [0x12, 0x34])
     cnt = dword2int(await tb.read_csr(ri_unsupported_reg.base_addr, 4)) & 0xFF
     assert cnt == 0xFF, f"RI_UNSUPPORTED counter should remain 0xFF after saturation, got {cnt}"

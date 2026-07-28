@@ -7,8 +7,7 @@ from boot import boot_init
 from bus2csr import bytes2int, compare_values, dword2int, int2dword
 from ccc import CCC
 from cocotbext_i3c.i3c_controller import I3cController
-from cocotbext_i3c.i3c_recovery_interface import I3cRecoveryException
-from i3c_recovery_interface_fixed import I3cRecoveryInterfaceFixed as I3cRecoveryInterface
+from cocotbext_i3c.i3c_recovery_interface import I3cRecoveryException, I3cRecoveryInterface
 from cocotbext_i3c.i3c_target import I3CTarget
 from interface import I3CTopTestInterface
 
@@ -1048,11 +1047,11 @@ async def test_ri_error_injection_stress(dut):
     # =========================================================================
     await run_scenario(
         "Scenario 1: ABORT after command byte",
-        recovery.command_write_abort,
+        recovery.command_write,
         VIRT_DYNAMIC_ADDR,
         I3cRecoveryInterface.Command.RECOVERY_CTRL,
         [0x11, 0x22, 0x33],
-        1  # Just command byte
+        abort_after_bytes=1  # Just command byte
     )
 
     # =========================================================================
@@ -1060,11 +1059,11 @@ async def test_ri_error_injection_stress(dut):
     # =========================================================================
     await run_scenario(
         "Scenario 2: ABORT after partial data",
-        recovery.command_write_abort,
+        recovery.command_write,
         VIRT_DYNAMIC_ADDR,
         I3cRecoveryInterface.Command.INDIRECT_FIFO_DATA,
         [0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07, 0x08],
-        8  # CMD(1) + LenL(1) + LenH(1) + 5 data bytes
+        abort_after_bytes=8  # CMD(1) + LenL(1) + LenH(1) + 5 data bytes
     )
 
     # =========================================================================
@@ -1073,11 +1072,11 @@ async def test_ri_error_injection_stress(dut):
     tb.te_error_monitor.expect_error(2)
     await run_scenario(
         "Scenario 3: T-bit error on command",
-        recovery.command_write_tbit_error,
+        recovery.command_write,
         VIRT_DYNAMIC_ADDR,
         I3cRecoveryInterface.Command.RECOVERY_CTRL,
         [0xAA, 0xBB, 0xCC],
-        0  # Command byte
+        error_byte_index=0  # Command byte
     )
 
     # =========================================================================
@@ -1085,11 +1084,11 @@ async def test_ri_error_injection_stress(dut):
     # =========================================================================
     await run_scenario(
         "Scenario 4: T-bit error on data byte",
-        recovery.command_write_tbit_error,
+        recovery.command_write,
         VIRT_DYNAMIC_ADDR,
         I3cRecoveryInterface.Command.INDIRECT_FIFO_DATA,
         [0x10, 0x20, 0x30, 0x40],
-        5  # 4th data byte (CMD=0, LenL=1, LenH=2, D0=3, D1=4, D2=5)
+        error_byte_index=5  # 4th data byte (CMD=0, LenL=1, LenH=2, D0=3, D1=4, D2=5)
     )
 
     tb.te_error_monitor.clear_expectations()
@@ -1111,11 +1110,11 @@ async def test_ri_error_injection_stress(dut):
     # =========================================================================
     await run_scenario(
         "Scenario 6: Truncated write (no PEC)",
-        recovery.command_write_truncated,
+        recovery.command_write,
         VIRT_DYNAMIC_ADDR,
         I3cRecoveryInterface.Command.RECOVERY_CTRL,
         [0xDD, 0xEE, 0xFF],
-        True  # truncate_before_pec
+        skip_pec=True
     )
 
     # =========================================================================
@@ -1123,11 +1122,11 @@ async def test_ri_error_injection_stress(dut):
     # =========================================================================
     await run_scenario(
         "Scenario 7: Wrong length (claims 10, sends 4)",
-        recovery.command_write_wrong_length,
+        recovery.command_write,
         VIRT_DYNAMIC_ADDR,
         I3cRecoveryInterface.Command.INDIRECT_FIFO_DATA,
         [0xA1, 0xB2, 0xC3, 0xD4],
-        10  # claimed_length
+        claimed_length=10
     )
 
     # =========================================================================
@@ -1135,11 +1134,11 @@ async def test_ri_error_injection_stress(dut):
     # =========================================================================
     await run_scenario(
         "Scenario 8: Wrong length (claims 2, sends 8)",
-        recovery.command_write_wrong_length,
+        recovery.command_write,
         VIRT_DYNAMIC_ADDR,
         I3cRecoveryInterface.Command.INDIRECT_FIFO_DATA,
         [0x11, 0x22, 0x33, 0x44, 0x55, 0x66, 0x77, 0x88],
-        2  # claimed_length
+        claimed_length=2
     )
 
     # =========================================================================
@@ -1147,7 +1146,7 @@ async def test_ri_error_injection_stress(dut):
     # =========================================================================
     await run_scenario(
         "Scenario 9: Invalid command 0x00",
-        recovery.command_write_invalid_command,
+        recovery.command_write,
         VIRT_DYNAMIC_ADDR,
         0x00,
         [0x12, 0x34]
@@ -1158,7 +1157,7 @@ async def test_ri_error_injection_stress(dut):
     # =========================================================================
     await run_scenario(
         "Scenario 10: Invalid command 0xFF",
-        recovery.command_write_invalid_command,
+        recovery.command_write,
         VIRT_DYNAMIC_ADDR,
         0xFF,
         [0xAB, 0xCD]
@@ -1169,7 +1168,7 @@ async def test_ri_error_injection_stress(dut):
     # =========================================================================
     await run_scenario(
         "Scenario 11: Invalid command 0x20",
-        recovery.command_write_invalid_command,
+        recovery.command_write,
         VIRT_DYNAMIC_ADDR,
         0x20,
         []
@@ -1180,18 +1179,18 @@ async def test_ri_error_injection_stress(dut):
     # =========================================================================
     await run_scenario(
         "Scenario 12: ABORT during read",
-        recovery.command_read_abort,
+        recovery.command_read,
         VIRT_DYNAMIC_ADDR,
         I3cRecoveryInterface.Command.PROT_CAP,
-        3  # Read length (2 bytes) + 1 data byte, then abort
+        abort_after_bytes=3  # Read length (2 bytes) + 1 data byte, then abort
     )
 
     # =========================================================================
     # Scenario 13: Partial frame - address only, no command data
     # =========================================================================
     async def partial_frame_scenario():
-        ack = await recovery.send_repeated_start_only(VIRT_DYNAMIC_ADDR)
-        if not ack:
+        res = await i3c_controller.i3c_write(VIRT_DYNAMIC_ADDR, [])
+        if res.nack:
             raise Exception("Virtual device should ACK its address")
     await run_scenario("Scenario 13: Partial frame (addr only)", partial_frame_scenario)
 
@@ -1199,8 +1198,8 @@ async def test_ri_error_injection_stress(dut):
     # Scenario 14: Address NACK - wrong address
     # =========================================================================
     async def nack_scenario():
-        ack = await recovery.send_address_only_nack(0x3F)
-        if ack:
+        res = await i3c_controller.i3c_write(0x3F, [])
+        if not res.nack:
             raise Exception("Wrong address should be NACKed")
     await run_scenario("Scenario 14: Address NACK", nack_scenario)
 
@@ -1209,7 +1208,7 @@ async def test_ri_error_injection_stress(dut):
     # =========================================================================
     async def rapid_fire_scenario():
         for i in range(5):
-            await recovery.command_write_abort(
+            await recovery.command_write(
                 VIRT_DYNAMIC_ADDR,
                 I3cRecoveryInterface.Command.RECOVERY_CTRL,
                 data=[i, i+1, i+2],
@@ -1234,12 +1233,12 @@ async def test_ri_error_injection_stress(dut):
         )
 
         tb.te_error_monitor.expect_error(2)
-        await recovery.command_write_tbit_error(
+        await recovery.command_write(
             VIRT_DYNAMIC_ADDR,
             I3cRecoveryInterface.Command.RECOVERY_CTRL,
             [0xAA, 0xBB, 0xCC],
-            2,  # Length MSB byte
-            end_with_rstart=True
+            error_byte_index=2,  # Length MSB byte
+            rstart=True
         )
         tb.te_error_monitor.clear_expectations()
 
@@ -3419,7 +3418,7 @@ async def test_ri_comprehensive_stress(dut):
         # Use _i3c_recovery_read directly to just send Sr + Addr+R
         nack_received = False
         try:
-            result = await recovery._i3c_recovery_read(VIRT_DYNAMIC_ADDR, stop=True)
+            result = await recovery._i3c_recovery_read(VIRT_DYNAMIC_ADDR, send_stop=True)
             # If we get here without exception, check for NACK indication
             if result is None or (isinstance(result, tuple) and result[0] is None):
                 dut._log.info("  Target correctly NACKed Sr+Read after full Write (returned None)")
@@ -5849,7 +5848,7 @@ async def test_parity_error_isolation(dut):
     # xfer: [CMD(0), LEN_L(1), LEN_H(2), DATA0(3), DATA1(4), DATA2(5), PEC(6)]
     write_data_p1 = [0xDE, 0xAD, 0xFF]
     pec_byte_index = 3 + len(write_data_p1)  # = 6
-    await recovery.command_write_tbit_error(
+    await recovery.command_write(
         VIRT_DYNAMIC_ADDR, I3cRecoveryInterface.Command.DEVICE_RESET,
         write_data_p1, error_byte_index=pec_byte_index
     )
@@ -5875,7 +5874,7 @@ async def test_parity_error_isolation(dut):
     # xfer layout: [CMD(0), LEN_L(1), LEN_H(2), DATA0(3), DATA1(4), DATA2(5), PEC(6)]
     last_data_byte_index = 2 + len(write_data)  # 3 header bytes + data_len - 1 = index 5
 
-    await recovery.command_write_tbit_error(
+    await recovery.command_write(
         VIRT_DYNAMIC_ADDR, I3cRecoveryInterface.Command.DEVICE_RESET,
         write_data, error_byte_index=last_data_byte_index
     )
@@ -5953,7 +5952,7 @@ async def test_parity_error_isolation(dut):
     await ClockCycles(tb.clk, 20)
 
     # Now attempt a read with T-bit error on the PEC byte (index 1)
-    result = await recovery.command_read_tbit_error(
+    result = await recovery.command_read(
         VIRT_DYNAMIC_ADDR, I3cRecoveryInterface.Command.DEVICE_RESET,
         error_byte_index=1,
     )
@@ -6210,7 +6209,7 @@ async def test_recovery_read_write_phase_parity(dut):
     # T-bit error triggers TE2 on the target -- tell the monitor to expect it
     tb.te_error_monitor.expect_error(2)
 
-    result = await recovery.command_read_tbit_error(
+    result = await recovery.command_read(
         VIRT_DYNAMIC_ADDR,
         I3cRecoveryInterface.Command.PROT_CAP,
         error_byte_index=1,  # PEC byte
@@ -6250,7 +6249,7 @@ async def test_recovery_read_write_phase_parity(dut):
 
     tb.te_error_monitor.expect_error(2)
 
-    result = await recovery.command_read_tbit_error(
+    result = await recovery.command_read(
         VIRT_DYNAMIC_ADDR,
         I3cRecoveryInterface.Command.PROT_CAP,
         error_byte_index=1,
@@ -6346,7 +6345,7 @@ async def test_recovery_write_pec_tbit_error(dut):
     tb.te_error_monitor.expect_error(2)
 
     # DEVICE_RESET expects exactly 3 data bytes to avoid csr_length_err
-    await recovery.command_write_tbit_error(
+    await recovery.command_write(
         VIRT_DYNAMIC_ADDR,
         I3cRecoveryInterface.Command.DEVICE_RESET,
         data=[0xAA, 0xBB, 0xCC],
@@ -6387,7 +6386,7 @@ async def test_recovery_write_pec_tbit_error(dut):
 
     tb.te_error_monitor.expect_error(2)
 
-    await recovery.command_write_tbit_error(
+    await recovery.command_write(
         VIRT_DYNAMIC_ADDR,
         I3cRecoveryInterface.Command.DEVICE_RESET,
         data=[0xBB, 0xCC, 0xDD],
@@ -6474,7 +6473,7 @@ async def test_recovery_write_pec_overflow(dut):
 
     await set_err_ctrl(baseline_ctrl | (1 << 8))
 
-    await recovery.command_write_pec_overflow(
+    await recovery.command_write(
         VIRT_DYNAMIC_ADDR,
         I3cRecoveryInterface.Command.DEVICE_RESET,
         data=[random.randint(0, 0xFF) for _ in range(3)],
@@ -6496,7 +6495,7 @@ async def test_recovery_write_pec_overflow(dut):
 
     await set_err_ctrl(baseline_ctrl & ~(1 << 8))
 
-    await recovery.command_write_pec_overflow(
+    await recovery.command_write(
         VIRT_DYNAMIC_ADDR,
         I3cRecoveryInterface.Command.DEVICE_RESET,
         data=[random.randint(0, 0xFF) for _ in range(3)],
@@ -6583,7 +6582,7 @@ async def test_recovery_all_det_en_toggle(dut):
         )
 
     async def trigger_length_error():
-        await recovery.command_write_wrong_length(
+        await recovery.command_write(
             VIRT_DYNAMIC_ADDR,
             I3cRecoveryInterface.Command.DEVICE_RESET,
             data=[0xAA],
@@ -6599,7 +6598,7 @@ async def test_recovery_all_det_en_toggle(dut):
         )
 
     async def trigger_unsupported_error():
-        await recovery.command_write_invalid_command(
+        await recovery.command_write(
             VIRT_DYNAMIC_ADDR,
             0xFF,
             [0x12, 0x34],
@@ -6678,7 +6677,7 @@ async def test_recovery_read_abort_at_len(dut):
     - FSM 6.2 (TxLenL/TxLenH -> Done)
 
     Aborts a recovery READ at different points in the response length
-    transmission using command_read_abort.
+    transmission.
     """
     i3c_controller, i3c_target, tb, recovery = await initialize(dut, timeout=500)
 
@@ -6695,13 +6694,13 @@ async def test_recovery_read_abort_at_len(dut):
 
     # =========================================================================
     # Part 1: Abort after 1 byte (LEN_L read) -- target moves to TxLenH
-    # command_read_abort(abort_after_bytes=1): reads LEN_L, then T-bit abort
+    # command_read(abort_after_bytes=1): reads LEN_L, then T-bit abort
     # sends Sr. FSM should be in TxLenH -> Done.
     # =========================================================================
     dut._log.info("Part 1: Read abort after 1 byte (TxLenH -> Done)")
     await clear_device_status()
 
-    await recovery.command_read_abort(
+    await recovery.command_read(
         VIRT_DYNAMIC_ADDR,
         I3cRecoveryInterface.Command.PROT_CAP,
         abort_after_bytes=1,
@@ -6722,7 +6721,7 @@ async def test_recovery_read_abort_at_len(dut):
     dut._log.info("Part 2: Read abort after 2 bytes (TxData -> Done)")
     await clear_device_status()
 
-    await recovery.command_read_abort(
+    await recovery.command_read(
         VIRT_DYNAMIC_ADDR,
         I3cRecoveryInterface.Command.PROT_CAP,
         abort_after_bytes=2,
@@ -6742,7 +6741,7 @@ async def test_recovery_read_abort_at_len(dut):
     dut._log.info("Part 3: Read abort after 3 bytes (mid TxData)")
     await clear_device_status()
 
-    await recovery.command_read_abort(
+    await recovery.command_read(
         VIRT_DYNAMIC_ADDR,
         I3cRecoveryInterface.Command.PROT_CAP,
         abort_after_bytes=3,
@@ -7178,7 +7177,7 @@ async def test_recovery_length_det_en_toggle(dut):
 
     # DEVICE_RESET expects 3 bytes; send 1 with claimed_length=1
     # This creates a csr_length_err since 1 != 3 (expected CSR length)
-    await recovery.command_write_wrong_length(
+    await recovery.command_write(
         VIRT_DYNAMIC_ADDR,
         I3cRecoveryInterface.Command.DEVICE_RESET,
         data=[0xAA],
@@ -7200,7 +7199,7 @@ async def test_recovery_length_det_en_toggle(dut):
     # Enable length detection
     await set_err_ctrl(baseline_ctrl | (1 << 8))
 
-    await recovery.command_write_wrong_length(
+    await recovery.command_write(
         VIRT_DYNAMIC_ADDR,
         I3cRecoveryInterface.Command.DEVICE_RESET,
         data=[0xBB],
@@ -7409,14 +7408,14 @@ async def test_recovery_write_premature_stop_in_data(dut):
     # Part 1: STOP during RxData (data underrun)
     # Send: S + 0x7E + Sr + Addr+W + CMD + LEN_L(3) + LEN_H(0) + DATA(1) + P
     # Claim 3 data bytes, send only 1, then STOP -> underrun in RxData
-    # Use command_write_abort with abort_after_bytes=4
+    # Use command_write with abort_after_bytes=4
     # xfer = [CMD(0), LEN_L(1), LEN_H(2), DATA0(3)] -> abort after 4 bytes
     # =========================================================================
     dut._log.info("Part 1: Premature STOP in RxData (data underrun)")
     await clear_device_status()
 
     # abort_after_bytes=4 sends CMD + LEN_L + LEN_H + 1 data byte, then stops
-    await recovery.command_write_abort(
+    await recovery.command_write(
         VIRT_DYNAMIC_ADDR,
         I3cRecoveryInterface.Command.DEVICE_RESET,
         data=[0xAA, 0xBB, 0xCC],
@@ -7434,16 +7433,15 @@ async def test_recovery_write_premature_stop_in_data(dut):
     # =========================================================================
     # Part 2: STOP after all data, before PEC (truncated PEC)
     # Send all 3 data bytes for DEVICE_RESET but skip PEC
-    # command_write_truncated sends all data but no PEC
     # =========================================================================
     dut._log.info("Part 2: Premature STOP before PEC (truncated)")
     await clear_device_status()
 
-    await recovery.command_write_truncated(
+    await recovery.command_write(
         VIRT_DYNAMIC_ADDR,
         I3cRecoveryInterface.Command.DEVICE_RESET,
         data=[0x11, 0x22, 0x33],
-        truncate_before_pec=True,
+        skip_pec=True,
     )
     await ClockCycles(tb.clk, 30)
 
@@ -7499,7 +7497,7 @@ async def test_recovery_read_premature_start_in_pec(dut):
     dut._log.info("Issuing PROT_CAP read abort after all data bytes (Sr in TxPec)")
     await clear_device_status()
 
-    await recovery.command_read_abort(
+    await recovery.command_read(
         VIRT_DYNAMIC_ADDR,
         I3cRecoveryInterface.Command.PROT_CAP,
         abort_after_bytes=2 + PROT_CAP_DATA_LEN,
@@ -8506,7 +8504,7 @@ async def test_recovery_unsupported_cmd_irq(dut):
 
     # Trigger unsupported error: send invalid command code 0
     dut._log.info("Sending WRITE with unsupported command code 0...")
-    await recovery.command_write_invalid_command(VIRT_DYNAMIC_ADDR, 0x00)
+    await recovery.command_write(VIRT_DYNAMIC_ADDR, 0x00)
     await ClockCycles(tb.clk, 20)
 
     # Wait for irq_o to go HIGH

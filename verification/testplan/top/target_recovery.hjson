@@ -561,7 +561,7 @@
         '''
         Coverage: TxLenL/TxLenH bus_rstart_i -> Done.
         Aborts a recovery READ at different points in the response length
-        transmission using command_read_abort.
+        transmission.
         '''
       tests: ["recovery_read_abort_at_len"]
       tags: ["top"]

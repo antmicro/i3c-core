@@ -186,7 +186,7 @@ tests-ahb_controller_and_target: ## Run all verification/cocotb/* RTL tests for 
 	cd $(COCOTB_VERIF_DIR) && $(PYTHON) -m nox -R -t "ahb_controller" --no-venv --forcecolor
 
 
-tests: tests-axi tests-ahb ## Run all verification/cocotb/* RTL tests fro AHB and AXI bus configurations without coverage
+tests: tests-axi tests-axi_controller tests-ahb tests-ahb_controller ## Run all verification/cocotb/* RTL tests fro AHB and AXI bus configurations without coverage
 
 tests-axi: ## Run all verification/cocotb/* RTL tests for AXI bus configuration without coverage
 	$(MAKE) config CFG_NAME=axi_bypass

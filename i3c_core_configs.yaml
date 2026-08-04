@@ -21,6 +21,76 @@ ahb_target_only:
   ControllerSupport: False
   TargetSupport: True
 
+ahb_controller_only:
+  CmdFifoDepth: 64
+  RxFifoDepth: 64
+  TxFifoDepth: 64
+  RespFifoDepth: 64
+  IbiFifoDepth: 64
+  IbiFifoExtSize: False
+  IbiBufferDepth: 8
+  DatDepth: 32
+  DctDepth: 32
+  FrontendBusInterface: "AHB"
+  FrontendBusAddrWidth: 18
+  FrontendBusDataWidth: 64
+  DisableInputFF: False
+  ControllerSupport: True
+  TargetSupport: False
+
+ahb_controller_and_target:
+  CmdFifoDepth: 64
+  RxFifoDepth: 64
+  TxFifoDepth: 64
+  RespFifoDepth: 64
+  IbiFifoDepth: 64
+  IbiFifoExtSize: False
+  IbiBufferDepth: 8
+  DatDepth: 32
+  DctDepth: 32
+  FrontendBusInterface: "AHB"
+  FrontendBusAddrWidth: 18
+  FrontendBusDataWidth: 64
+  DisableInputFF: False
+  ControllerSupport: True
+  TargetSupport: True
+
+ahb_controller_only_sim:
+  CmdFifoDepth: 64
+  RxFifoDepth: 64
+  TxFifoDepth: 64
+  TtiRxFifoDepth: 255
+  RespFifoDepth: 64
+  IbiFifoDepth: 64
+  IbiFifoExtSize: False
+  IbiBufferDepth: 8
+  DatDepth: 32
+  DctDepth: 32
+  FrontendBusInterface: "AHB"
+  FrontendBusAddrWidth: 18
+  FrontendBusDataWidth: 64
+  DisableInputFF: False
+  ControllerSupport: True
+  TargetSupport: False
+
+ahb_controller_and_target_sim:
+  CmdFifoDepth: 64
+  RxFifoDepth: 64
+  TxFifoDepth: 64
+  TtiRxFifoDepth: 255
+  RespFifoDepth: 64
+  IbiFifoDepth: 64
+  IbiFifoExtSize: False
+  IbiBufferDepth: 8
+  DatDepth: 32
+  DctDepth: 32
+  FrontendBusInterface: "AHB"
+  FrontendBusAddrWidth: 18
+  FrontendBusDataWidth: 64
+  DisableInputFF: False
+  ControllerSupport: True
+  TargetSupport: True
+
 
 axi_target_only:
   CmdFifoDepth: 64

@@ -17,7 +17,7 @@ module i3c_actual_bus_wrapper #(
     parameter bit TargetEn = 1,  // enables target configuration
 `ifdef I3C_USE_AHB
     parameter int unsigned AhbDataWidth = `AHB_DATA_WIDTH,
-    parameter int unsigned AhbAddrWidth = `AHB_ADDR_WIDTH,
+    parameter int unsigned AhbAddrWidth = `AHB_ADDR_WIDTH
 `elsif I3C_USE_AXI
     parameter int unsigned AxiDataWidth = `AXI_DATA_WIDTH,
     parameter int unsigned AxiAddrWidth = `AXI_ADDR_WIDTH,
@@ -116,8 +116,8 @@ module i3c_actual_bus_wrapper #(
   logic rst_ni;
 
 `ifdef I3C_USE_AHB
-  assign clk_i  = hclk;
-  assign rst_ni = hreset_n;
+  assign clk_i  = hclk[0];
+  assign rst_ni = hreset_n[0];
 `elsif I3C_USE_AXI
   assign clk_i  = aclk[0];
   assign rst_ni = areset_n[0];
@@ -150,7 +150,7 @@ module i3c_actual_bus_wrapper #(
       .TargetEn(TargetEn),  // TODO: make this configurable
 `ifdef I3C_USE_AHB
       .AhbDataWidth(AhbDataWidth),
-      .AhbAddrWidth(AhbAddrWidth),
+      .AhbAddrWidth(AhbAddrWidth)
 `elsif I3C_USE_AXI
       .AxiDataWidth(AxiDataWidth),
       .AxiAddrWidth(AxiAddrWidth),
@@ -250,7 +250,7 @@ module i3c_actual_bus_wrapper #(
       .TargetEn(1'b1),
 `ifdef I3C_USE_AHB
       .AhbDataWidth(AhbDataWidth),
-      .AhbAddrWidth(AhbAddrWidth),
+      .AhbAddrWidth(AhbAddrWidth)
 `elsif I3C_USE_AXI
       .AxiDataWidth(AxiDataWidth),
       .AxiAddrWidth(AxiAddrWidth),

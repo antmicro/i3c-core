@@ -15,7 +15,7 @@ module i3c_controller_test_wrapper #(
     parameter bit TargetEn = `TARGET_SUPPORT,  // enables target configuration
 `ifdef I3C_USE_AHB
     parameter int unsigned AhbDataWidth = `AHB_DATA_WIDTH,
-    parameter int unsigned AhbAddrWidth = `AHB_ADDR_WIDTH,
+    parameter int unsigned AhbAddrWidth = `AHB_ADDR_WIDTH
 `elsif I3C_USE_AXI
     parameter int unsigned AxiDataWidth = `AXI_DATA_WIDTH,
     parameter int unsigned AxiAddrWidth = `AXI_ADDR_WIDTH,
@@ -138,6 +138,20 @@ module i3c_controller_test_wrapper #(
   assign irq_o[1] = irq[1];
   assign irq_o[2] = irq[2];
 
+  logic expected_clk_i, expected_rst_ni;
+  logic actual_clk_i, actual_rst_ni;
+`ifdef I3C_USE_AHB
+  assign expected_clk_i  = hclk[0];
+  assign expected_rst_ni = hreset_n[0];
+  assign actual_clk_i    = hclk[1];
+  assign actual_rst_ni   = hreset_n[1];
+`elsif I3C_USE_AXI
+  assign expected_clk_i  = aclk[0];
+  assign expected_rst_ni = areset_n[0];
+  assign actual_clk_i    = aclk[1];
+  assign actual_rst_ni   = areset_n[1];
+`endif
+
   ///////////////////////////////////////////////////////////////
   //                       Expected BUS                        //
   ///////////////////////////////////////////////////////////////
@@ -145,6 +159,23 @@ module i3c_controller_test_wrapper #(
   logic unassigned_irq;
 
   i3c_expected_bus_wrapper i_expected_bus (
+`ifdef I3C_USE_AHB
+      .hclk(hclk[0]),
+      .hreset_n(hreset_n[0]),
+      .haddr(haddr[0]),
+      .hburst(hburst[0]),
+      .hprot(hprot[0]),
+      .hsize(hsize[0]),
+      .htrans(htrans[0]),
+      .hwdata(hwdata[0]),
+      .hwstrb(hwstrb[0]),
+      .hwrite(hwrite[0]),
+      .hrdata(hrdata[0]),
+      .hreadyout(hreadyout[0]),
+      .hresp(hresp[0]),
+      .hsel(hsel[0]),
+      .hready(hready[0]),
+`elsif I3C_USE_AXI
       .aclk(aclk[0]),
       .areset_n(areset_n[0]),
       // AXI4 Interface
@@ -191,8 +222,11 @@ module i3c_controller_test_wrapper #(
       .bvalid(bvalid[0]),
       .bready(bready[0]),
 
+`ifdef AXI_ID_FILTERING
       .disable_id_filtering_i(disable_id_filtering_i[0]),
       .priv_ids_i(priv_ids_i[0]),
+`endif
+`endif
 
       // I3C Target Controller model
       .sda_sim_ctrl_i(sda_sim_ctrl_i),
@@ -215,8 +249,8 @@ module i3c_controller_test_wrapper #(
   );
 
   bus_monitor i_expected_bus_monitor (
-      .clk_i(aclk[0]),
-      .rst_ni(areset_n[0]),
+      .clk_i(expected_clk_i),
+      .rst_ni(expected_rst_ni),
       .enable_i(1'b1),
       .scl_i(exp_bus_scl),
       .sda_i(exp_bus_sda),
@@ -235,6 +269,23 @@ module i3c_controller_test_wrapper #(
       .ControllerEn(ControllerEn),
       .TargetEn(TargetEn)
   ) i_actual_bus (
+`ifdef I3C_USE_AHB
+      .hclk(hclk[1:2]),
+      .hreset_n(hreset_n[1:2]),
+      .haddr(haddr[1:2]),
+      .hburst(hburst[1:2]),
+      .hprot(hprot[1:2]),
+      .hsize(hsize[1:2]),
+      .htrans(htrans[1:2]),
+      .hwdata(hwdata[1:2]),
+      .hwstrb(hwstrb[1:2]),
+      .hwrite(hwrite[1:2]),
+      .hrdata(hrdata[1:2]),
+      .hreadyout(hreadyout[1:2]),
+      .hresp(hresp[1:2]),
+      .hsel(hsel[1:2]),
+      .hready(hready[1:2]),
+`elsif I3C_USE_AXI
       .aclk(aclk[1:2]),
       .areset_n(areset_n[1:2]),
       // AXI4 Interface
@@ -281,8 +332,11 @@ module i3c_controller_test_wrapper #(
       .bvalid(bvalid[1:2]),
       .bready(bready[1:2]),
 
+`ifdef AXI_ID_FILTERING
       .disable_id_filtering_i(disable_id_filtering_i[1:2]),
       .priv_ids_i(priv_ids_i[1:2]),
+`endif
+`endif
 
       // I3C Bus signals
       .bus_sda_o(act_bus_sda),
@@ -300,8 +354,8 @@ module i3c_controller_test_wrapper #(
   );
 
   bus_monitor i_actual_bus_monitor (
-      .clk_i(aclk[1]),
-      .rst_ni(areset_n[1]),
+      .clk_i(actual_clk_i),
+      .rst_ni(actual_rst_ni),
       .enable_i(1'b1),
       .scl_i(act_bus_scl),
       .sda_i(act_bus_sda),
@@ -316,8 +370,8 @@ module i3c_controller_test_wrapper #(
   assign act_bus_sda_o = act_bus_state.sda.value;
   logic act_bus_scl_q, act_bus_sda_q;
 
-  always_ff @(posedge aclk[1] or negedge areset_n[1]) begin
-    if (~areset_n[1]) begin
+  always_ff @(posedge actual_clk_i or negedge actual_rst_ni) begin
+    if (~actual_rst_ni) begin
       act_bus_scl_q  <= 1'b0;
       act_bus_scl_q2 <= 1'b0;
       act_bus_sda_q  <= 1'b0;

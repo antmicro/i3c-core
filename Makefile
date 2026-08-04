@@ -165,15 +165,26 @@ test-s: config
 	$(MAKE) config CFG_NAME=$(CFG_NAME)
 	$(NOX) -f $(COCOTB_NOXFILE) -s $(TEST)
 
-tests-axi_controller: ## Run all verification/cocotb/* RTL tests for the controller only configuration without coverage
+tests-axi_controller: ## Run all verification/cocotb/* RTL tests for the AXI controller only configuration without coverage
 	$(MAKE) config CFG_NAME=axi_controller_only_sim # this configuration is used for some controller mode tests
 	export DUT_CONFIG=controller_only && \
-	cd $(COCOTB_VERIF_DIR) && $(PYTHON) -m nox -R -t "controller" --no-venv --forcecolor
+	cd $(COCOTB_VERIF_DIR) && $(PYTHON) -m nox -R -t "axi_controller" --no-venv --forcecolor
 
-tests-axi_controller_and_target: ## Run all verification/cocotb/* RTL tests for the controller and target configuration without coverage
+tests-axi_controller_and_target: ## Run all verification/cocotb/* RTL tests for the AXI controller and target configuration without coverage
 	$(MAKE) config CFG_NAME=axi_controller_and_target_sim # this configuration is used for some controller mode tests
 	export DUT_CONFIG=controller_and_target && \
-	cd $(COCOTB_VERIF_DIR) && $(PYTHON) -m nox -R -t "controller" --no-venv --forcecolor
+	cd $(COCOTB_VERIF_DIR) && $(PYTHON) -m nox -R -t "axi_controller" --no-venv --forcecolor
+
+tests-ahb_controller: ## Run all verification/cocotb/* RTL tests for the AHB controller only configuration without coverage
+	$(MAKE) config CFG_NAME=ahb_controller_only_sim # this configuration is used for some controller mode tests
+	export DUT_CONFIG=controller_only && \
+	cd $(COCOTB_VERIF_DIR) && $(PYTHON) -m nox -R -t "ahb_controller" --no-venv --forcecolor
+
+tests-ahb_controller_and_target: ## Run all verification/cocotb/* RTL tests for the AHB controller and target configuration without coverage
+	$(MAKE) config CFG_NAME=ahb_controller_and_target_sim # this configuration is used for some controller mode tests
+	export DUT_CONFIG=controller_and_target && \
+	cd $(COCOTB_VERIF_DIR) && $(PYTHON) -m nox -R -t "ahb_controller" --no-venv --forcecolor
+
 
 tests: tests-axi tests-ahb ## Run all verification/cocotb/* RTL tests fro AHB and AXI bus configurations without coverage
 

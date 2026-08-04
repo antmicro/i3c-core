@@ -15,7 +15,7 @@
 module i3c_expected_bus_wrapper #(
 `ifdef I3C_USE_AHB
     parameter int unsigned AhbDataWidth = `AHB_DATA_WIDTH,
-    parameter int unsigned AhbAddrWidth = `AHB_ADDR_WIDTH,
+    parameter int unsigned AhbAddrWidth = `AHB_ADDR_WIDTH
 `elsif I3C_USE_AXI
     parameter int unsigned AxiDataWidth = `AXI_DATA_WIDTH,
     parameter int unsigned AxiAddrWidth = `AXI_ADDR_WIDTH,
@@ -150,7 +150,7 @@ module i3c_expected_bus_wrapper #(
       .TargetEn(1'b1),
 `ifdef I3C_USE_AHB
       .AhbDataWidth(AhbDataWidth),
-      .AhbAddrWidth(AhbAddrWidth),
+      .AhbAddrWidth(AhbAddrWidth)
 `elsif I3C_USE_AXI
       .AxiDataWidth(AxiDataWidth),
       .AxiAddrWidth(AxiAddrWidth),

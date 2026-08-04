@@ -28,37 +28,36 @@ module i3c_controller_error_test_wrapper
                                (ControllerEn)             ? controller_I3CCSR_pkg::controller_I3CCSR_DATA_WIDTH :
                                                             target_I3CCSR_pkg::target_I3CCSR_DATA_WIDTH
 ) (
-    input clk_i,  // clock
-    input rst_ni, // active low reset
-
 `ifdef I3C_USE_AHB
     // AHB-Lite interface
+    input logic                       hclk,
+    input logic                       hreset_n,
     // Byte address of the transfer
-    input  logic [  AhbAddrWidth-1:0] haddr_i,
+    input  logic [  AhbAddrWidth-1:0] haddr,
     // Indicates the number of bursts in a transfer
-    input  logic [               2:0] hburst_i,     // Unhandled
+    input  logic [               2:0] hburst,     // Unhandled
     // Protection control; provides information on the access type
-    input  logic [               3:0] hprot_i,      // Unhandled
+    input  logic [               3:0] hprot,      // Unhandled
     // Indicates the size of the transfer
-    input  logic [               2:0] hsize_i,
+    input  logic [               2:0] hsize,
     // Indicates the transfer type
-    input  logic [               1:0] htrans_i,
+    input  logic [               1:0] htrans,
     // Data for the write operation
-    input  logic [  AhbDataWidth-1:0] hwdata_i,
+    input  logic [  AhbDataWidth-1:0] hwdata,
     // Write strobes; Deasserted when write data lanes do not contain valid data
-    input  logic [AhbDataWidth/8-1:0] hwstrb_i,     // Unhandled
+    input  logic [AhbDataWidth/8-1:0] hwstrb,     // Unhandled
     // Indicates write operation when asserted
-    input  logic                      hwrite_i,
+    input  logic                      hwrite,
     // Read data
-    output logic [  AhbDataWidth-1:0] hrdata_o,
+    output logic [  AhbDataWidth-1:0] hrdata,
     // Asserted indicates a finished transfer; Can be driven low to extend a transfer
-    output logic                      hreadyout_o,
+    output logic                      hreadyout,
     // Transfer response, high when error occurred
-    output logic                      hresp_o,
+    output logic                      hresp,
     // Indicates the subordinate is selected for the transfer
-    input  logic                      hsel_i,
+    input  logic                      hsel,
     // Indicates all subordinates have finished transfers
-    input  logic                      hready_i,
+    input  logic                      hready,
 
 `elsif I3C_USE_AXI
     // AXI4 Interface
@@ -137,6 +136,15 @@ module i3c_controller_error_test_wrapper
 
   localparam int unsigned NumDevices = 2;  // 1 Target, 1 Controller
 
+  logic clk_i, rst_ni;
+`ifdef I3C_USE_AHB
+  assign clk_i  = hclk;
+  assign rst_ni = hreset_n;
+`elsif I3C_USE_AXI
+  assign clk_i  = aclk;
+  assign rst_ni = areset_n;
+`endif
+
   logic [NumDevices-1:0] sda;
   logic [NumDevices-1:0] scl;
   assign sda[0] = sda_i;
@@ -184,23 +192,23 @@ module i3c_controller_error_test_wrapper
         .DatAw(DatAw),
         .DctAw(DctAw)
     ) i3c (
-        .clk_i (aclk),
-        .rst_ni(areset_n),
+        .clk_i (clk_i),
+        .rst_ni(rst_ni),
 
 `ifdef I3C_USE_AHB
-        .haddr_i,
-        .hburst_i,
-        .hprot_i,
-        .hsize_i,
-        .htrans_i,
-        .hwdata_i,
-        .hwstrb_i,
-        .hwrite_i,
-        .hrdata_o,
-        .hreadyout_o,
-        .hresp_o,
-        .hsel_i,
-        .hready_i,
+        .haddr_i(haddr),
+        .hburst_i(hburst),
+        .hprot_i(hprot),
+        .hsize_i(hsize),
+        .htrans_i(htrans),
+        .hwdata_i(hwdata),
+        .hwstrb_i(hwstrb),
+        .hwrite_i(hwrite),
+        .hrdata_o(hrdata),
+        .hreadyout_o(hreadyout),
+        .hresp_o(hresp),
+        .hsel_i(hsel),
+        .hready_i(hready),
 `elsif I3C_USE_AXI
         // AXI Read Channels
         .araddr_i(araddr),
@@ -294,23 +302,23 @@ module i3c_controller_error_test_wrapper
         .DatAw(DatAw),
         .DctAw(DctAw)
     ) i3c (
-        .clk_i (aclk),
-        .rst_ni(areset_n),
+        .clk_i (clk_i),
+        .rst_ni(rst_ni),
 
 `ifdef I3C_USE_AHB
-        .haddr_i,
-        .hburst_i,
-        .hprot_i,
-        .hsize_i,
-        .htrans_i,
-        .hwdata_i,
-        .hwstrb_i,
-        .hwrite_i,
-        .hrdata_o,
-        .hreadyout_o,
-        .hresp_o,
-        .hsel_i,
-        .hready_i,
+        .haddr_i(haddr),
+        .hburst_i(hburst),
+        .hprot_i(hprot),
+        .hsize_i(hsize),
+        .htrans_i(htrans),
+        .hwdata_i(hwdata),
+        .hwstrb_i(hwstrb),
+        .hwrite_i(hwrite),
+        .hrdata_o(hrdata),
+        .hreadyout_o(hreadyout),
+        .hresp_o(hresp),
+        .hsel_i(hsel),
+        .hready_i(hready),
 `elsif I3C_USE_AXI
         // AXI Read Channels
         .araddr_i(araddr),
@@ -391,8 +399,8 @@ module i3c_controller_error_test_wrapper
       .Width(64),
       .DataBitsPerMask(32)
   ) dat_memory (
-      .clk_i(aclk),
-      .rst_ni(areset_n),
+      .clk_i(clk_i),
+      .rst_ni(rst_ni),
       .req_i(dat_mem_sink.req),
       .write_i(dat_mem_sink.write),
       .addr_i(dat_mem_sink.addr),
@@ -409,8 +417,8 @@ module i3c_controller_error_test_wrapper
       .Width(128),
       .DataBitsPerMask(32)
   ) dct_memory (
-      .clk_i(aclk),
-      .rst_ni(areset_n),
+      .clk_i(clk_i),
+      .rst_ni(rst_ni),
       .req_i(dct_mem_sink.req),
       .write_i(dct_mem_sink.write),
       .addr_i(dct_mem_sink.addr),

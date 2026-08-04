@@ -1,4 +1,0 @@
-include:
-  - project: chipsalliance-ci-scripts
-    file: i3c-core.yaml
-    ref: main

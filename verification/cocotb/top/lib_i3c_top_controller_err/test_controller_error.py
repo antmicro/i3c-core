@@ -508,7 +508,7 @@ async def test_controller_tx_queue_underflow(dut):
 # //                Produce TX Queue Underflow                //
 # //////////////////////////////////////////////////////////////
 
-    i3c_target_len = random.randint(1, TX_QUEUE_DEPTH * 4 * 2)
+    i3c_target_len = random.randint(4, TX_QUEUE_DEPTH * 4 * 2)
     dut._log.info(f"I3C Target length is {i3c_target_len} bytes.")
     actual_len = random.randint(0, i3c_target_len-4) # there needs to be at least one DWORD difference in length to hit the TX Queue underflow condition
     dut._log.info(f"Writing 0x{actual_len:x} bytes to the i3c target to provoke TX Queue Underflow error.")

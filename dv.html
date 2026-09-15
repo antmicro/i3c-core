@@ -3556,6 +3556,13 @@
   
 </li>
         
+          <li class="md-nav__item">
+  <a href="#tx-desc-stat-virtual-device-masked" class="md-nav__link">
+    <span class="md-ellipsis">tx_<wbr>desc_<wbr>stat_<wbr>virtual_<wbr>device_<wbr>masked</span>
+  </a>
+  
+</li>
+        
       </ul>
     </nav>
   
@@ -7110,6 +7117,13 @@ RX descriptor FIFO.</p>
 <li><p>bulk_interrupt_toggle- interrupt_traffic_scenarios- specific_interrupt_force</p></li>
 </ul>
 <p>TODO: add description</p>
+<h5 id="tx-desc-stat-virtual-device-masked"><code class="docutils literal notranslate"><span class="pre">tx_desc_stat_virtual_device_masked</span></code><a class="headerlink" href="#tx-desc-stat-virtual-device-masked" title="Link to this heading">¶</a></h5>
+<p>Test: <a class="reference external" href="https://github.com/antmicro/i3c-core/tree/main//verification/cocotb/top/lib_i3c_top/test_interrupts.py">tx_desc_stat_virtual_device_masked</a></p>
+<p>Ensures that irq_o is deasserted. Enables the TX_DESC_STAT_EN TTI
+interrupt. Issues a private read to the main target and checks that
+the TX_DESC_STAT interrupt was asserted. Clears the interrupt via the
+INTERRUPT_STATUS CSR. Issues a private read to the virtual target and
+ensures that no interrupt was asserted.</p>
 <h3 id="recovery-mode-tests">Recovery mode tests<a class="headerlink" href="#recovery-mode-tests" title="Link to this heading">¶</a></h3>
 <p><a class="external reference" href="./sim-results/target_recovery.html">Test results</a></p>
 <h4 id="id51">Testpoints<a class="headerlink" href="#id51" title="Link to this heading">¶</a></h4>
@@ -7777,7 +7791,7 @@ that specific transaction.</p>
   <small>
     
       Last update:
-      2026-09-03
+      2026-09-15
     
   </small>
 </div>

@@ -2734,6 +2734,16 @@ Tests:
 
 TODO: add description
 
+### `tx_desc_stat_virtual_device_masked`
+
+Test: [tx_desc_stat_virtual_device_masked](https://github.com/antmicro/i3c-core/tree/main//verification/cocotb/top/lib_i3c_top/test_interrupts.py)
+
+Ensures that irq_o is deasserted. Enables the TX_DESC_STAT_EN TTI
+interrupt. Issues a private read to the main target and checks that
+the TX_DESC_STAT interrupt was asserted. Clears the interrupt via the
+INTERRUPT_STATUS CSR. Issues a private read to the virtual target and
+ensures that no interrupt was asserted.
+
 
 # Recovery mode tests
 
